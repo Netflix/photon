@@ -1,0 +1,212 @@
+/*
+ * Copyright 2015 Netflix, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package com.netflix.imflibrary.st0377;
+
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.header.*;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import testUtils.TestHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+public class HeaderPartitionTest
+{
+    @Test
+    public void audioHeaderPartitionTest() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        Assert.assertTrue(headerPartition.toString().length() > 0);
+
+        Preface preface = headerPartition.getPreface();
+        Assert.assertTrue(preface.toString().length() > 0);
+
+        ContentStorage contentStorage = preface.getContentStorage();
+        Assert.assertEquals(contentStorage.getGenericPackageList().size(), 2);
+        Assert.assertEquals(contentStorage.getPackageInstanceUIDs().size(), 2);
+
+
+
+        List<InterchangeObject> materialPackages = headerPartition.getMaterialPackages();
+        Assert.assertEquals(materialPackages.size(), 1);
+        MaterialPackage materialPackage = (MaterialPackage)materialPackages.get(0);
+        Assert.assertTrue(materialPackage.toString().length() > 0);
+        MXFUid materialPackageInstanceUID = new MXFUid(new byte[]{
+                0x6a, (byte)0x92, (byte)0xc9, 0x01, 0x13, 0x59, 0x48, 0x42, (byte)0x86, 0x38, (byte)0xdf, (byte)0xa9, 0x3a, 0x08, (byte)0x80, 0x20});
+        Assert.assertEquals(materialPackage.getInstanceUID(), materialPackageInstanceUID);
+        Assert.assertSame(materialPackage, headerPartition.getMaterialPackage(materialPackageInstanceUID));
+
+        List<GenericTrack> genericTracks = materialPackage.getGenericTracks();
+        Assert.assertEquals(genericTracks.size(), 2);
+        List<MXFUid> trackInstanceUIDs = materialPackage.getTrackInstanceUIDs();
+        Assert.assertEquals(trackInstanceUIDs.size(), 2);
+        MXFUid timeCodeTrackInstanceUID = new MXFUid(new byte[]{
+                0x33, (byte)0xb6, (byte)0xc7, 0x6c, 0x1f, 0x7a, 0x45, (byte)0xf0, (byte)0x88, 0x46, 0x65, 0x7d, (byte)0xd4, (byte)0x96, 0x08, 0x01});
+        Assert.assertEquals(trackInstanceUIDs.get(0), timeCodeTrackInstanceUID);
+        MXFUid soundTrackInstanceUID = new MXFUid(new byte[]{
+                0x5c, (byte)0xab, 0x51, (byte)0x93, (byte)0x96, (byte)0x8b, 0x4e, 0x13, (byte)0x8f, (byte)0xdb, 0x0b, (byte)0x83, (byte)0x81, 0x0a, (byte)0xc7, (byte)0x97});
+        Assert.assertEquals(trackInstanceUIDs.get(1), soundTrackInstanceUID);
+        List<TimelineTrack> timelineTracks = materialPackage.getTimelineTracks();
+        Assert.assertEquals(timelineTracks.size(), 2);
+        TimelineTrack timeCodeTrack = timelineTracks.get(0);
+        Assert.assertEquals(timeCodeTrack.getInstanceUID(), timeCodeTrackInstanceUID);
+        Assert.assertEquals(timeCodeTrack.getEditRateNumerator(), 24000L);
+        Assert.assertEquals(timeCodeTrack.getEditRateDenominator(), 1001L);
+        Sequence sequence = timelineTracks.get(1).getSequence();
+        Assert.assertEquals(sequence.getInstanceUID(), timelineTracks.get(1).getSequenceUID());
+        Assert.assertEquals(sequence.getNumberOfStructuralComponents(), 1);
+        Assert.assertEquals(sequence.getSourceClips().size(), 1);
+        SourceClip sourceClip = sequence.getSourceClips().get(0);
+        Assert.assertEquals(sourceClip.getInstanceUID(), sequence.getSourceClipUID(0));
+        Assert.assertEquals((long)sourceClip.getDuration(), 35232L);
+
+
+
+
+
+        List<InterchangeObject> sourcePackages = headerPartition.getSourcePackages();
+        Assert.assertEquals(sourcePackages.size(), 1);
+        SourcePackage sourcePackage = (SourcePackage)sourcePackages.get(0);
+        Assert.assertTrue(sourcePackage.toString().length() > 0);
+        MXFUid sourcePackageInstanceUid = new MXFUid(new byte[]{
+                0x54, 0x0b, 0x00, (byte)0xf2, (byte)0xb9, (byte)0x8e, 0x43, 0x7a, (byte)0x8f, (byte)0xa0, 0x3c, (byte)0xe1, (byte)0xa6, 0x1f, 0x25, (byte)0xf9
+        });
+        Assert.assertEquals(sourcePackage.getInstanceUID(), sourcePackageInstanceUid);
+        Assert.assertSame(sourcePackage, headerPartition.getSourcePackage(sourcePackageInstanceUid));
+        Assert.assertEquals(sourcePackage.getPackageUID(), new MXFUid(new byte[]{
+                0x06, 0x0a, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x01, 0x0f, 0x20, 0x13, 0x00, 0x00, 0x00, (byte)0xcf, (byte)0xbc, (byte)0xf3, (byte)0xb9, 0x62, 0x50, 0x46, 0x7c, (byte)0xbd, 0x18, (byte)0x9f, 0x5d, (byte)0xe0, (byte)0xdf, (byte)0x9f, (byte)0xfb
+        }));
+        trackInstanceUIDs = sourcePackage.getTrackInstanceUIDs();
+        Assert.assertEquals(trackInstanceUIDs.size(), 2);
+        Assert.assertEquals(trackInstanceUIDs.get(0), new MXFUid(new byte[]{
+                0x51, 0x0f, (byte)0x96, (byte)0xd1, (byte)0xa4, (byte)0xa4, 0x4a, (byte)0xd9, (byte)0xa9, 0x36, (byte)0xdd, 0x60, (byte)0xd3, 0x1a, (byte)0xc9, 0x2f
+        }));
+        Assert.assertEquals(trackInstanceUIDs.get(1), new MXFUid(new byte[]{
+                0x2b, 0x71, 0x39, (byte)0xcc, 0x16, 0x3c, 0x43, (byte)0xa5, (byte)0x9d, (byte)0xc4, (byte)0xb3, 0x64, (byte)0xb6, (byte)0xa1, (byte)0xeb, (byte)0x93
+        }));
+
+
+
+        Assert.assertTrue(headerPartition.hasWaveAudioEssenceDescriptor());
+        Assert.assertEquals(headerPartition.getWaveAudioEssenceDescriptors().size(), 1);
+        WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor)headerPartition.getWaveAudioEssenceDescriptors().get(0);
+        Assert.assertTrue(waveAudioEssenceDescriptor.toString().length() > 0);
+        Assert.assertTrue(waveAudioEssenceDescriptor.equals(waveAudioEssenceDescriptor));
+        Assert.assertEquals(waveAudioEssenceDescriptor.getAudioSamplingRateNumerator(), 48000);
+        Assert.assertEquals(waveAudioEssenceDescriptor.getAudioSamplingRateDenominator(), 1);
+        Assert.assertEquals(waveAudioEssenceDescriptor.getChannelCount(), 2);
+        Assert.assertEquals(waveAudioEssenceDescriptor.getQuantizationBits(), 24);
+        Assert.assertEquals(waveAudioEssenceDescriptor.getBlockAlign(), 6);
+
+        Assert.assertFalse(headerPartition.hasAudioChannelLabelSubDescriptors());
+        Assert.assertFalse(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
+        Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
+
+        MXFUid essenceContainerDataInstanceUID = new MXFUid(new byte[]{
+                0x46, 0x31, (byte)0x9f, 0x11, (byte)0xc9, (byte)0xb1, 0x40, (byte)0xa5, (byte)0xb9, (byte)0xb1, (byte)0x9e, 0x69, (byte)0xda, (byte)0x89, (byte)0xbe, 0x52
+        });
+        Assert.assertEquals(headerPartition.getPreface().getContentStorage().getEssenceContainerDataList().size(), 1);
+        EssenceContainerData essenceContainerData = headerPartition.getPreface().getContentStorage().getEssenceContainerDataList().get(0);
+        Assert.assertSame(essenceContainerData, headerPartition.getEssenceContainerData(essenceContainerDataInstanceUID));
+
+        PartitionPack partitionPack = headerPartition.getPartitionPack();
+        Assert.assertFalse(partitionPack.isBodyPartition());
+        Assert.assertFalse(partitionPack.isFooterPartition());
+        Assert.assertFalse(partitionPack.isValidFooterPartition());
+        Assert.assertEquals(partitionPack.getHeaderByteCount(), 11744L);
+        Assert.assertEquals(partitionPack.getIndexByteCount(), 0L);
+        Assert.assertEquals(partitionPack.getPartitionDataByteOffset(), 124L);
+
+    }
+
+    @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "This partition does not contain essence data")
+    public void partitionPackWithNoEssenceDataTest() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        PartitionPack partitionPack = headerPartition.getPartitionPack();
+        partitionPack.getEssenceStreamSegmentStartStreamPosition();
+    }
+
+    @Test
+    public void videoHeaderPartitionTest() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        Assert.assertTrue(headerPartition.toString().length() > 0);
+        Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
+    }
+
+    @Test
+    public void audioHeaderPartitionTest2() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("NMPC_6000ms_6Ch_ch_id.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        Assert.assertTrue(headerPartition.toString().length() > 0);
+
+        Assert.assertTrue(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
+        Assert.assertEquals(headerPartition.getSoundFieldGroupLabelSubDescriptors().size(), 1);
+        SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor)headerPartition.getSoundFieldGroupLabelSubDescriptors().get(0);
+        Assert.assertEquals(soundFieldGroupLabelSubDescriptor.getMCALabelDictionaryId(), new MXFUid(new byte[]{
+                0x06, 0x0e, 0x2b, 0x34, 0x04, 0x01, 0x01, 0x0d, 0x03, 0x02, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00
+        }));
+        MXFUid soundFieldGroupMCALinkId = new MXFUid(new byte[]{
+                (byte)0xe5, (byte)0x84, 0x07, 0x22, 0x47, (byte)0xb8, 0x45, 0x13, (byte)0xa0, (byte)0xb0, 0x2e, (byte)0xee, (byte)0xde, 0x20, (byte)0x92, (byte)0xfe
+        });
+        Assert.assertEquals(soundFieldGroupLabelSubDescriptor.getMCALinkId(), soundFieldGroupMCALinkId);
+
+        Assert.assertTrue(headerPartition.hasAudioChannelLabelSubDescriptors());
+        Assert.assertEquals(headerPartition.getAudioChannelLabelSubDescriptors().size(), 6);
+        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor)headerPartition.getAudioChannelLabelSubDescriptors().get(0);
+        Assert.assertEquals(audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId(), soundFieldGroupMCALinkId);
+        Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALabelDictionaryId(), new MXFUid(new byte[]{
+                0x06, 0x0e, 0x2b, 0x34, 0x04, 0x01, 0x01, 0x0d, 0x03, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00
+        }));
+        Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALinkId(), new MXFUid(new byte[]{
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    }));
+
+    }
+}

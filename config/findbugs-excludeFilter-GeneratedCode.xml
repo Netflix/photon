@@ -1,0 +1,51 @@
+<FindBugsFilter>
+
+    <!-- Returning a reference to a mutable object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.cpl" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.cpl" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <!-- Returning a reference to a mutable object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.coreconstraints" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.coreconstraints" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <!-- Returning a reference to a mutable object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.dsig" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.dsig" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <!-- Returning a reference to a mutable object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.dcml" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
+    <Match>
+        <Package name="com.netflix.imflibrary.imf.dcml" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+</FindBugsFilter>

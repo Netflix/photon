@@ -1,0 +1,106 @@
+/*
+ * Copyright 2015 Netflix, Inc.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package com.netflix.imflibrary.app;
+
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.MXFKLVPacket;
+import org.smpte_ra.schemas.CompositionPlaylistType;
+import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.writerTools.IMFCPLFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import testUtils.TestHelper;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+@Test(groups = "functional")
+public class IMFEssenceCPLBuilderFunctionalTests {
+
+    @Test
+    public void IMFCPLFactoryTest(){
+        CompositionPlaylistType compositionPlaylistType = IMFCPLFactory.constructCompositionPlaylistType();
+        Assert.assertTrue(compositionPlaylistType.getContentTitle() != null);
+        Assert.assertTrue(compositionPlaylistType.getContentVersionList() != null);
+        Assert.assertTrue(compositionPlaylistType.getContentVersionList().getContentVersion() != null);
+        Assert.assertTrue(compositionPlaylistType.getEssenceDescriptorList() != null);
+        Assert.assertTrue(compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor() != null);
+        Assert.assertTrue(compositionPlaylistType.getLocaleList() != null);
+        Assert.assertTrue(compositionPlaylistType.getLocaleList().getLocale() != null);
+        Assert.assertTrue(compositionPlaylistType.getSegmentList() != null);
+        Assert.assertTrue(compositionPlaylistType.getSegmentList().getSegment() != null);
+    }
+
+    @Test
+    public void RegXMLLibTest() throws IOException, ParserConfigurationException, TransformerException {
+        /*AudioEssence*/
+        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        File workingDirectory = Files.createTempDirectory(null).toFile();
+        IMFEssenceCPLBuilder imfEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
+        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, new FileByteRangeProvider(inputFile));
+        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = imfEssenceComponentReader.getEssenceDescriptors();
+        Assert.assertTrue(essenceDescriptors.size() == 1);
+        /* create dom */
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        docBuilder = docFactory.newDocumentBuilder();
+        Document document = docBuilder.newDocument();
+        Assert.assertTrue(imfEssenceCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfEssenceComponentReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0))) != null);
+    }
+
+    @Test
+    public void EssenceDescriptorTest() throws IOException, ParserConfigurationException, TransformerException {
+        /*Audio Essence*/
+        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        byte[] headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+        List<InterchangeObject.InterchangeObjectBO> list = headerPartition.getEssenceDescriptors();
+        List<MXFKLVPacket.Header> essenceDescriptorHeaders = new ArrayList<>();
+        for(InterchangeObject.InterchangeObjectBO descriptorBO : list){
+            essenceDescriptorHeaders.add(descriptorBO.getHeader());
+        }
+        Assert.assertTrue(essenceDescriptorHeaders.size() == 1);
+
+        /*Image Essence*/
+        inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
+        headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
+        headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+        list = headerPartition.getEssenceDescriptors();
+        essenceDescriptorHeaders = new ArrayList<>();
+        for(InterchangeObject.InterchangeObjectBO descriptorBO : list){
+            essenceDescriptorHeaders.add(descriptorBO.getHeader());
+        }
+        Assert.assertTrue(essenceDescriptorHeaders.size() == 1);
+    }
+}

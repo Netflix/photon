@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: imf-cpl.xsd,v 1.1 2014/04/21 21:14:59 jhurst Exp $ -->
+<xs:schema
+    targetNamespace="http://www.smpte-ra.org/schemas/2067-3/2013"
+    xmlns:cpl="http://www.smpte-ra.org/schemas/2067-3/2013"
+    xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/"
+    xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xs:import namespace="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" schemaLocation="dcmlTypes.xsd"/>
+  <xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+
+  <xs:element name="CompositionPlaylist" type="cpl:CompositionPlaylistType"/>
+
+  <xs:complexType name="CompositionPlaylistType">
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="IssueDate" type="xs:dateTime"/>
+      <xs:element name="Issuer" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="Creator" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="ContentOriginator" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="ContentTitle" type="dcml:UserTextType"/>
+      <xs:element name="ContentKind" type="cpl:ContentKindType" minOccurs="0"/>
+
+      <xs:element name="ContentVersionList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="ContentVersion" type="cpl:ContentVersionType" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="EssenceDescriptorList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="EssenceDescriptor" type="cpl:EssenceDescriptorBaseType"
+              maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="CompositionTimecode" type="cpl:CompositionTimecodeType" minOccurs="0"/>
+      <xs:element name="EditRate" type="dcml:RationalType"/>
+
+      <xs:element name="TotalRunningTime" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9][0-9]:[0-5][0-9]:[0-5][0-9]"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="LocaleList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Locale" type="cpl:LocaleType" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ExtensionProperties" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any namespace="##other" processContents="lax" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="SegmentList">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Segment" type="cpl:SegmentType" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="Signer" type="ds:KeyInfoType" minOccurs="0"/>
+      <xs:element ref="ds:Signature" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="CompositionTimecodeType">
+    <xs:sequence>
+      <xs:element name="TimecodeDropFrame" type="xs:boolean"/>
+      <xs:element name="TimecodeRate" type="xs:positiveInteger"/>
+      <xs:element name="TimecodeStartAddress" type="cpl:TimecodeType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="TimecodeType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="[0-2][0-9](:|/|;|,|\.|\+|\-)[0-5][0-9](:|/|;|,|\.|\+|\-)[0-5][0-9](:|/|;|,|\.|\+|\-)[0-5][0-9]" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ContentKindType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="scope" type="xs:anyURI" use="optional"
+          default="http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="LocaleType">
+    <xs:sequence>
+      <xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+
+      <xs:element name="LanguageList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Language" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="RegionList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Region" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ContentMaturityRatingList" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="ContentMaturityRating" type="cpl:ContentMaturityRatingType"
+              maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContentMaturityRatingType">
+    <xs:sequence>
+      <xs:element name="Agency" type="xs:anyURI"/>
+      <xs:element name="Rating" type="xs:string"/>
+
+      <xs:element name="Audience" minOccurs="0">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="scope" type="xs:anyURI" use="required"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EssenceDescriptorBaseType">
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContentVersionType">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:anyURI"/>
+      <xs:element name="LabelText" type="dcml:UserTextType"/>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SegmentType">
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+
+      <xs:element name="SequenceList">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="MarkerSequence" type="cpl:SequenceType" minOccurs="0"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SequenceType">
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:element name="TrackId" type="dcml:UUIDType"/>
+
+      <xs:element name="ResourceList">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Resource" type="cpl:BaseResourceType" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BaseResourceType" abstract="1">
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="EditRate" type="dcml:RationalType" minOccurs="0"/>
+      <xs:element name="IntrinsicDuration" type="xs:nonNegativeInteger"/>
+      <xs:element name="EntryPoint" type="xs:nonNegativeInteger" minOccurs="0"/>
+      <xs:element name="SourceDuration" type="xs:nonNegativeInteger" minOccurs="0"/>
+      <xs:element name="RepeatCount" type="xs:positiveInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrackFileResourceType">
+    <xs:complexContent>
+      <xs:extension base="cpl:BaseResourceType">
+        <xs:sequence>
+          <xs:element name="SourceEncoding" type="dcml:UUIDType"/>
+          <xs:element name="TrackFileId" type="dcml:UUIDType"/>
+          <xs:element name="KeyId" type="dcml:UUIDType" minOccurs="0"/>
+          <xs:element name="Hash" type="xs:base64Binary" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MarkerResourceType">
+    <xs:complexContent>
+      <xs:extension base="cpl:BaseResourceType">
+        <xs:sequence>
+          <xs:element name="Marker" type="cpl:MarkerType" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MarkerType">
+    <xs:sequence>
+      <xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+      <xs:element name="Label">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="scope" type="xs:anyURI" use="optional"
+                default="http://www.smpte-ra.org/schemas/2067-3/XXXX#standard-markers"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Offset" type="xs:nonNegativeInteger"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

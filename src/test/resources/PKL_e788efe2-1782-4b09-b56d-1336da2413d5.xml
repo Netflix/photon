@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><PackingList xmlns="http://www.smpte-ra.org/schemas/429-8/2007/PKL">
+<Id>urn:uuid:e788efe2-1782-4b09-b56d-1336da2413d5</Id>
+<AnnotationText>Breaking Bad Episond 207</AnnotationText>
+<IssueDate>2013-10-14T17:18:49-00:00</IssueDate>
+<Issuer>Sony Colorworks</Issuer>
+<Creator>Clipster 5.8.0.2 Beta/nightly (build 80951)</Creator>
+<AssetList>
+<Asset>
+<Id>urn:uuid:5e746015-b2c7-473a-b43a-a6c407f63750</Id>
+<Hash>19xz4q+Q2685NHysAP23tmN9vFw=</Hash>
+<Size>2490788298</Size>
+<Type>application/mxf</Type>
+<OriginalFileName>ihd_lp_20120518_c02_grd02_4k_c02_grd01_rec709_xv_Clip_ENG_51.mxf</OriginalFileName></Asset>
+<Asset>
+<Id>urn:uuid:70176947-ea8e-41f9-b2cf-ae58ec8bdb78</Id>
+<AnnotationText>ihd_lp_20120518_c02_grd02_4k_c02_grd01_rec709_xv_Clip</AnnotationText>
+<Hash>f3+0YVZbl1Cjrt3mlCuGNubf1/E=</Hash>
+<Size>2358</Size>
+<Type>text/xml</Type>
+<OriginalFileName>CPL_70176947-ea8e-41f9-b2cf-ae58ec8bdb78.xml</OriginalFileName></Asset>
+<Asset>
+<Id>urn:uuid:e3ff741d-b8e1-48d8-a497-245ce01ca688</Id>
+<Hash>kjCgsfHKx4Fg7zb3Y7ZHB0O/g0M=</Hash>
+<Size>43494247029</Size>
+<Type>application/mxf</Type>
+<OriginalFileName>ihd_lp_20120518_c02_grd02_4k_c02_grd01_rec709_xv_Clip.mxf</OriginalFileName></Asset></AssetList></PackingList>
