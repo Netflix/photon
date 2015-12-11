@@ -9,6 +9,7 @@ plugins {
     id 'java'
     id 'pmd'
     id 'findbugs'
+    id 'org.ajoberstar.github-pages' version '1.3.2'
 }
 
 sourceCompatibility = 1.8
@@ -67,5 +68,12 @@ test {
     useTestNG()
     testLogging {
         events 'started', 'skipped', 'passed', 'failed'
+    }
+}
+
+githubPages {
+    repoUri = 'https://github.com/Netflix/photon.git'
+    pages {
+        from javadoc
     }
 }
