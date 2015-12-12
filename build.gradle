@@ -47,8 +47,16 @@ sourceSets {
     }
 }
 
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
 dependencies {
-    compile "com.google.code.findbugs:annotations:2.+"
+    compile "com.google.code.findbugs:annotations:3.+"
     compile "log4j:log4j:1.2+"
     compile "org.slf4j:slf4j-api:1.7+"
     compile "org.slf4j:slf4j-log4j12:1.7+"
