@@ -19,3 +19,8 @@ $ ./gradlew build
 
 Although Photon can be built using JDK-7, it is recommended to use JDK-8 or later.
 
+## Full Documentation
+
+- [Wiki](https://github.com/Netflix/photon/wiki)
+- [Javadoc](http://netflix.github.io/photon/)
+
