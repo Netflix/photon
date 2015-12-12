@@ -14,7 +14,8 @@ plugins {
 
 group = 'com.netflix.photon'
 
-logger.lifecycle(project.hasProperty('bintrayUser') + project.property('bintrayUser'))
+
+logger.lifecycle('bintrayUser: ' + (project.hasProperty('bintrayUser') ? project.property('bintrayUser') : 'not set'))
 
 sourceCompatibility = 1.8
 
