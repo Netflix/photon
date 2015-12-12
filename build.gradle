@@ -12,6 +12,8 @@ plugins {
     id 'org.ajoberstar.github-pages' version '1.3.2'
 }
 
+group = 'com.netflix.photon'
+
 sourceCompatibility = 1.8
 
 repositories {
