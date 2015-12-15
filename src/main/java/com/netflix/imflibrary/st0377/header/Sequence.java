@@ -25,7 +25,6 @@ import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
 import com.netflix.imflibrary.MXFUid;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -146,7 +145,7 @@ public final class Sequence extends StructuralComponent
      * Object corresponding to a parsed Sequence descriptive metadata set defined in st377-1:2011
      */
     @Immutable
-    @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"}) @SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE"})
+    @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class SequenceBO extends StructuralComponentBO
     {
 

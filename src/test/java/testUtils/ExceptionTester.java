@@ -16,7 +16,6 @@
 
 package testUtils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import com.netflix.imflibrary.exceptions.TestException;
 import java.lang.reflect.Constructor;
@@ -27,7 +26,6 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
 
-@SuppressFBWarnings("REC_CATCH_EXCEPTION")
 public class ExceptionTester<T extends Throwable> {
 
     public ExceptionTester(Class<T> clazz) {

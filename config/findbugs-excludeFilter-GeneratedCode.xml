@@ -2,50 +2,38 @@
 
     <!-- Returning a reference to a mutable object. -->
     <Match>
-        <Package name="com.netflix.imflibrary.imf.cpl" />
+        <Package name="org.smpte_ra.schemas" />
         <Bug pattern="EI_EXPOSE_REP" />
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
-        <Package name="com.netflix.imflibrary.imf.cpl" />
+        <Package name="org.smpte_ra.schemas" />
         <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <!-- Returning a reference to a mutable object. -->
-    <Match>
-        <Package name="com.netflix.imflibrary.imf.coreconstraints" />
-        <Bug pattern="EI_EXPOSE_REP" />
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
-        <Package name="com.netflix.imflibrary.imf.coreconstraints" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <!-- Returning a reference to a mutable object. -->
-    <Match>
-        <Package name="com.netflix.imflibrary.imf.dsig" />
-        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="com.netflix.imflibrary.st0377.RandomIndexPack" />
+        <Bug pattern="NP_ALWAYS_NULL" />
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
-        <Package name="com.netflix.imflibrary.imf.dsig" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <!-- Returning a reference to a mutable object. -->
-    <Match>
-        <Package name="com.netflix.imflibrary.imf.dcml" />
-        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="com.netflix.imflibrary.st0377.PartitionPack" />
+        <Bug pattern="NP_ALWAYS_NULL" />
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
-        <Package name="com.netflix.imflibrary.imf.dcml" />
-        <Bug pattern="EI_EXPOSE_REP2" />
+        <Source name="Sequence.java" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE" />
+    </Match>
+
+    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
+    <Match>
+        <Source name="ContentStorage.java" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE" />
     </Match>
 
 </FindBugsFilter>
