@@ -45,7 +45,6 @@ import com.netflix.imflibrary.st0377.header.StructuralComponent;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -952,29 +951,5 @@ function visit(node n)
             }
         }
         return sb.toString();
-    }
-
-    /**
-     * The entry point of application.
-     *
-     * @param args the input arguments
-     */
-    @SuppressFBWarnings({"DLS_DEAD_LOCAL_STORE"})
-    public static void main(String[] args)
-    {
-        Node nodeA = new Node(new MXFUid(new byte[0]));
-        Node nodeB = new Node(new MXFUid(new byte[0]));
-        Node nodeC = new Node(new MXFUid(new byte[0]));
-        Node nodeD = new Node(new MXFUid(new byte[0]));
-        nodeA.depends.add(nodeB);
-        nodeB.depends.add(nodeC);
-        nodeB.depends.add(nodeD);
-        nodeC.depends.add(nodeD);
-        List<Node> adjacencyList = new ArrayList<>();
-        adjacencyList.add(nodeD);
-        adjacencyList.add(nodeC);
-        adjacencyList.add(nodeB);
-        adjacencyList.add(nodeA);
-        List<Node> sortedList = resolve(adjacencyList);
     }
 }

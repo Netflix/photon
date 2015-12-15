@@ -25,7 +25,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFFieldPopulator;
 import com.netflix.imflibrary.MXFKLVPacket;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -185,9 +184,8 @@ public final class  PartitionPack
      * @param byteOffset the byteOffset from the HeaderPartition of this partition pack
      * @param checkForSucceedingKLVFillItem the check for succeeding kLV fill item
      * @param imfErrorLogger the imf error logger
-     * @throws IOException the iO exception
+     * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    @SuppressFBWarnings({"NP_ALWAYS_NULL"})
     public PartitionPack(ByteProvider byteProvider, Long byteOffset, boolean checkForSucceedingKLVFillItem, @Nullable IMFErrorLogger imfErrorLogger)
             throws IOException
     {

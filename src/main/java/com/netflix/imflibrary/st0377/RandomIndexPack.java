@@ -23,7 +23,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFFieldPopulator;
 import com.netflix.imflibrary.MXFKLVPacket;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -58,7 +57,6 @@ public final class RandomIndexPack
      * @param fullPackLength the full pack length
      * @throws IOException the iO exception
      */
-    @SuppressFBWarnings({"NP_ALWAYS_NULL"})
     public RandomIndexPack(ByteProvider byteProvider, long byteOffset, long fullPackLength) throws IOException
     {
         this.header = new MXFKLVPacket.Header(byteProvider, byteOffset);
