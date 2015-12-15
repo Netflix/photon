@@ -28,12 +28,12 @@ repositories {
 }
 findbugs{
     sourceSets = [sourceSets.main]
-    ignoreFailures = true
+    ignoreFailures = false
     excludeFilter = file("config/findbugs-excludeFilter-GeneratedCode.xml")
 }
 
 pmd {
-    ignoreFailures = true
+    ignoreFailures = false
     ruleSets = [] // This overwrites the rules that are being added
     ruleSetFiles = files("${project.rootDir}/config/pmd/ruleset.xml")
 }
@@ -55,7 +55,6 @@ javadoc {
 }
 
 dependencies {
-    //compile "com.google.code.findbugs:annotations:3.+"
     compile 'com.google.code.findbugs:jsr305:3.0.1'
     compile "log4j:log4j:1.2+"
     compile "org.slf4j:slf4j-api:1.7+"
