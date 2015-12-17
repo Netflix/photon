@@ -398,18 +398,28 @@ final class IMFEssenceCPLBuilder {
         return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
     }
 
+    private static String usage()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFEssenceCPLBuilder.class.getName()));
+        return sb.toString();
+    }
+
     public static void main(String[] args){
 
         BasicConfigurator.configure();
 
+        if (args.length != 2)
+        {
+            logger.info(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         File inputFile = new File(args[0]);
         File workingDirectory = new File(args[1]);
 
-        if(inputFile == null
-                || workingDirectory == null){
-            throw new MXFException(String.format("Input file and working directory not specified, aborting"));
-        }
-        System.out.println(String.format("File Name is %s", inputFile.getName()));
+        logger.info(String.format("File Name is %s", inputFile.getName()));
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
@@ -418,7 +428,7 @@ final class IMFEssenceCPLBuilder {
         {
             IMFEssenceCPLBuilder IMFEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
             sb.append(imfEssenceComponentReader.getRandomIndexPack());
-            System.out.println(String.format("%s", sb.toString()));
+            logger.info(String.format("%s", sb.toString()));
 
             IMFEssenceCPLBuilder.getCompositionPlaylist();
         }
