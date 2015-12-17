@@ -550,17 +550,26 @@ final class IMFEssenceComponentReader
         return sb.toString();
     }
 
+    private static String usage()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFEssenceComponentReader.class.getName()));
+        return sb.toString();
+    }
+
     public static void main(String[] args) throws IOException
     {
         BasicConfigurator.configure();
 
+        if (args.length != 2)
+        {
+            logger.info(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         File inputFile = new File(args[0]);
         File workingDirectory = new File(args[1]);
-
-        if(inputFile == null
-                || workingDirectory == null){
-            throw new MXFException(String.format("Input file and working directory not specified, aborting"));
-        }
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
