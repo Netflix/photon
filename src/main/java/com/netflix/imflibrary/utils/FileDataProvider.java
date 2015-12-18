@@ -19,10 +19,7 @@
 package com.netflix.imflibrary.utils;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * This class is an non-thread-safe implementation of {@link com.netflix.imflibrary.utils.ByteProvider}. The underlying input
@@ -48,7 +45,7 @@ public final class FileDataProvider implements ByteProvider {
     /**
      * Getter for the raw bytes from the encapsulated resource in this case a file
      *
-     * @param totalNumBytesToRead the total num bytes to read
+     * @param totalNumBytesToRead the total num bytes to read from current position in the file
      * @return byte[] containing next totalNumBytesToRead
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
@@ -61,13 +58,10 @@ public final class FileDataProvider implements ByteProvider {
         Integer bytesRead = 0;
         Integer totalBytesRead = 0;
         try(BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(this.inputFile))) {
-            long reposition = inputStream.skip(this.position);//Reposition to the right offset, since we are reading from a new instance of the inputStream.
-            if(reposition != this.position){
-                throw new IOException(String.format("Unable to reposition into the input stream, position to read from %d in the stream, but repositioned to %d", this.position, reposition));
-            }
+            skipBytes(inputStream, this.position); //reach current position
             while (bytesRead != -1
                     && totalBytesRead < totalNumBytesToRead) {
-                bytesRead = inputStream.read(bytes, totalBytesRead, totalNumBytesToRead);
+                bytesRead = inputStream.read(bytes, totalBytesRead, totalNumBytesToRead - totalBytesRead);
                 if (bytesRead != -1) {
                     totalBytesRead += bytesRead;
                 }
@@ -83,21 +77,32 @@ public final class FileDataProvider implements ByteProvider {
     /**
      * A method that lets the caller skip bytes in the encapsulated resource in this case a file
      *
-     * @param totalNumBytesToSkip the total num bytes to skip
-     * @throws java.io.IOException the iO exception
+     * @param totalNumBytesToSkip the total num bytes to skip from the current position in the file
+     * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public void skipBytes(long totalNumBytesToSkip) throws IOException
     {
-        try(BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(this.inputFile))) {
-            long reposition = inputStream.skip(this.position);//Reposition to the right offset, since we are reading from a new instance of the inputStream.
-            if(reposition != this.position){
-                throw new IOException(String.format("Unable to reposition into the input stream, position to read from %d in the stream, but repositioned to %d", this.position, reposition));
-            }
-            long bytesSkipped = inputStream.skip(totalNumBytesToSkip);
-            if (bytesSkipped != totalNumBytesToSkip) {
-                throw new IOException(String.format("Could not skip %d bytes of data, possible truncated data", totalNumBytesToSkip));
-            }
-            this.position += bytesSkipped;
+        try(BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(this.inputFile)))
+        {
+            skipBytes(inputStream, this.position + totalNumBytesToSkip);
+            this.position += totalNumBytesToSkip;
         }
+    }
+
+    private void skipBytes(InputStream inputStream, long totalNumBytesToSkip) throws IOException
+    {
+        long bytesSkipped = 0;
+        long totalBytesSkipped = 0;
+        while ((bytesSkipped != -1) && (totalBytesSkipped < totalNumBytesToSkip))
+        {
+            bytesSkipped = inputStream.skip(totalNumBytesToSkip - totalBytesSkipped);
+            {
+                totalBytesSkipped += bytesSkipped;
+            }
+        }
+        if(totalBytesSkipped != totalNumBytesToSkip){
+            throw new IOException(String.format("Could not skip %d bytes of data, possible truncated data", totalNumBytesToSkip));
+        }
+
     }
 }
