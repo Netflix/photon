@@ -591,6 +591,6 @@ final class IMFEssenceComponentReader
         }
 
 
-        logger.info(imfEssenceComponentReader.toString());
+        logger.info(String.format("%n %s", imfEssenceComponentReader.toString()));
     }
 }

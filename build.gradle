@@ -79,3 +79,12 @@ test {
         events 'started', 'skipped', 'passed', 'failed'
     }
 }
+
+/**
+ * Use the following task judiciously, i.e. only
+ * when you want to create a gradle wrapper for the
+ * latest stable version of gradle.
+ */
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+}
