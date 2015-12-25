@@ -33,7 +33,6 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -560,11 +559,10 @@ final class IMFEssenceComponentReader
 
     public static void main(String[] args) throws IOException
     {
-        BasicConfigurator.configure();
 
         if (args.length != 2)
         {
-            logger.info(usage());
+            logger.error(usage());
             throw new IllegalArgumentException("Invalid parameters");
         }
 
@@ -591,6 +589,6 @@ final class IMFEssenceComponentReader
         }
 
 
-        logger.info(imfEssenceComponentReader.toString());
+        logger.info(String.format("%n %s", imfEssenceComponentReader.toString()));
     }
 }

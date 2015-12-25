@@ -42,7 +42,6 @@ import com.netflix.imflibrary.writerTools.IMFCPLFactory;
 import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -408,11 +407,9 @@ final class IMFEssenceCPLBuilder {
 
     public static void main(String[] args){
 
-        BasicConfigurator.configure();
-
         if (args.length != 2)
         {
-            logger.info(usage());
+            logger.error(usage());
             throw new IllegalArgumentException("Invalid parameters");
         }
 

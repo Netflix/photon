@@ -45,6 +45,8 @@ import com.netflix.imflibrary.st0377.header.StructuralComponent;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -78,6 +80,8 @@ public final class HeaderPartition
     private final Map<String, List<InterchangeObject.InterchangeObjectBO>> interchangeObjectBOsMap = new LinkedHashMap<>();
     private final Map<MXFUid, InterchangeObject> uidToMetadataSets = new LinkedHashMap<>();
     private final Map<MXFUid, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
 
     /**
      * Instantiates a new MXF Header partition.
@@ -142,6 +146,7 @@ public final class HeaderPartition
         while (numBytesRead < maxPartitionSize)
         {
             MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUid(header.getKey()), header.getLSize(), header.getVSize()));
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
@@ -149,6 +154,7 @@ public final class HeaderPartition
             {
                 Class clazz = StructuralMetadata.getStructuralMetadataSetClass(key);
                 if(!clazz.getSimpleName().equals(Object.class.getSimpleName())){
+                    logger.info(String.format("KLV item with key = %s corresponds to class %s", new MXFUid(header.getKey()), clazz.getSimpleName()));
                     InterchangeObject.InterchangeObjectBO interchangeObjectBO = this.constructInterchangeObjectBO(clazz, header, byteProvider, this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), imfErrorLogger);
                     List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(interchangeObjectBO.getClass().getSimpleName());
                     if(list == null){
