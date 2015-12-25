@@ -97,7 +97,7 @@ public final class MXFUid
     {
         if (this.uid.length == 16)
         {
-            return String.format("uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
+            return String.format("0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                     this.uid[0], this.uid[1], this.uid[2], this.uid[3],
                     this.uid[4], this.uid[5], this.uid[6], this.uid[7],
                     this.uid[8], this.uid[9], this.uid[10], this.uid[11],
@@ -105,7 +105,7 @@ public final class MXFUid
         }
         else if (this.uid.length == 32)
         {
-            return String.format("uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
+            return String.format("0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                     this.uid[0], this.uid[1], this.uid[2], this.uid[3],
                     this.uid[4], this.uid[5], this.uid[6], this.uid[7],
                     this.uid[8], this.uid[9], this.uid[10], this.uid[11],
