@@ -1,0 +1,54 @@
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/429-8/2007/PKL"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:pkl="http://www.smpte-ra.org/schemas/429-8/2007/PKL" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="../../xmldsig-core-schema.xsd"/>
+	<xs:element name="PackingList" type="pkl:PackingListType"/>
+	<xs:complexType name="PackingListType">
+		<xs:sequence>
+			<xs:element name="Id" type="pkl:UUID"/>
+			<xs:element name="AnnotationText" type="pkl:UserText" minOccurs="0"/>
+			<xs:element name="IconId" type="pkl:UUID" minOccurs="0"/>
+			<xs:element name="IssueDate" type="xs:dateTime"/>
+			<xs:element name="Issuer" type="pkl:UserText"/>
+			<xs:element name="Creator" type="pkl:UserText"/>
+			<xs:element name="GroupId" type="pkl:UUID" minOccurs="0"/>
+			<xs:element name="AssetList">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Asset" type="pkl:AssetType" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Signer" type="ds:KeyInfoType" minOccurs="0"/>
+			<xs:element ref="ds:Signature" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Asset" type="pkl:AssetType"/>
+	<xs:complexType name="AssetType">
+		<xs:sequence>
+			<xs:element name="Id" type="pkl:UUID"/>
+			<xs:element name="AnnotationText" type="pkl:UserText" minOccurs="0"/>
+			<xs:element name="Hash" type="xs:base64Binary"/>
+			<xs:element name="Size" type="xs:positiveInteger"/>
+			<xs:element name="Type" type="xs:string"/>
+			<xs:element name="OriginalFileName" type="pkl:UserText" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- UUID -->
+	<xs:simpleType name="UUID">
+		<xs:restriction base="xs:anyURI">
+			<xs:pattern
+				value="urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+			/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--UserText-->
+	<xs:complexType name="UserText">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="language" type="xs:language" use="optional" default="en"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>
