@@ -19,7 +19,7 @@ package com.netflix.imflibrary.app;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFKLVPacket;
-import org.smpte_ra.schemas.CompositionPlaylistType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;

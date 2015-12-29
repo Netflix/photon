@@ -2,7 +2,7 @@
 	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:pkl="http://www.smpte-ra.org/schemas/429-8/2007/PKL" elementFormDefault="qualified"
 	attributeFormDefault="unqualified">
-	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="../../xmldsig-core-schema.xsd"/>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="../../../../w3/_2000_09/xmldsig/xmldsig-core-schema.xsd"/>
 	<xs:element name="PackingList" type="pkl:PackingListType"/>
 	<xs:complexType name="PackingListType">
 		<xs:sequence>

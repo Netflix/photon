@@ -19,8 +19,8 @@
 package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.exceptions.IMFException;
-import org.smpte_ra.schemas.BaseResourceType;
-import org.smpte_ra.schemas.CompositionPlaylistType;
+import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
