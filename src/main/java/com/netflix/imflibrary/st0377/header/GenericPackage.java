@@ -23,15 +23,41 @@ import com.netflix.imflibrary.MXFUid;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Object model corresponding to GenericPackage structural metadata set defined in st377-1:2011
  */
 public abstract class GenericPackage extends InterchangeObject
 {
+
+    private final GenericPackageBO genericPackageBO;
+
+    public GenericPackage(GenericPackageBO genericPackageBO)
+    {
+        this.genericPackageBO = genericPackageBO;
+    }
+
+    /**
+     * Getter for the immutable unique packager identifier which is a basic UMID (see st0330:2011)
+     * @return the immutable unique packager identifier represented as a MXFUid object
+     */
+    public MXFUid getPackageUID()
+    {
+        return new MXFUid(this.genericPackageBO.package_uid);
+    }
+
+    /**
+     * Getter for the material number part of the immutable unique package identifier
+     * @return the material number part as a UUID
+     */
+    public UUID getPackageMaterialNumberasUUID()
+    {
+        long mostSignificantBits = ByteBuffer.wrap(this.genericPackageBO.package_uid, 16, 8).getLong();
+        long leastSignificantBits = ByteBuffer.wrap(this.genericPackageBO.package_uid, 24, 8).getLong();
+        return new UUID(mostSignificantBits, leastSignificantBits);
+    }
 
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public abstract static class GenericPackageBO extends InterchangeObjectBO

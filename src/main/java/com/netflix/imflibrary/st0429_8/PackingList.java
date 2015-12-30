@@ -37,7 +37,7 @@ public final class PackingList
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
 
     private static final String pkl_schema_path = "/org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
-    private static final String xmldig_core_schema_path = "/org/smpte_ra/schemas/xmldsig-core-schema.xsd";
+    private static final String xmldig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
 
     private final PackingListType packingListType;
     private final UUID uuid;
@@ -94,6 +94,11 @@ public final class PackingList
     public List<Asset> getAssets()
     {
         return Collections.unmodifiableList(this.assetList);
+    }
+
+    public UUID getUuid()
+    {
+        return this.uuid;
     }
 
     public String toString()

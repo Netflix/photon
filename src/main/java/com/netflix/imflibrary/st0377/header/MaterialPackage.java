@@ -50,6 +50,7 @@ public final class MaterialPackage extends GenericPackage
      */
     public MaterialPackage(MaterialPackageBO materialPackageBO, List<GenericTrack> genericTracks)
     {
+        super(materialPackageBO);
         this.materialPackageBO = materialPackageBO;
         this.genericTracks = Collections.unmodifiableList(genericTracks);
     }

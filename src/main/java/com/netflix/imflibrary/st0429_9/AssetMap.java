@@ -140,6 +140,11 @@ public final class AssetMap
         return Collections.unmodifiableList(this.assetList);
     }
 
+    public List<Asset> getPackingListAssets()
+    {
+        return Collections.unmodifiableList(this.packingListAssets);
+    }
+
     public @Nullable URI getPath(UUID uuid)
     {
         return this.uuidToPath.get(uuid);

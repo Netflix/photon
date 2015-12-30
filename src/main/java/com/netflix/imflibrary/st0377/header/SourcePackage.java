@@ -51,6 +51,7 @@ public final class SourcePackage extends GenericPackage
      */
     public SourcePackage(SourcePackageBO sourcePackageBO, List<GenericTrack> genericTracks, GenericDescriptor genericDescriptor)
     {
+        super(sourcePackageBO);
         this.sourcePackageBO = sourcePackageBO;
         this.genericTracks = genericTracks;
         this.genericDescriptor = genericDescriptor;
@@ -63,15 +64,6 @@ public final class SourcePackage extends GenericPackage
     public MXFUid getInstanceUID()
     {
         return new MXFUid(this.sourcePackageBO.instance_uid);
-    }
-
-    /**
-     * Getter for the immutable unique packager identifier
-     * @return the immutable unique packager identifier represented as a MXFUid object
-     */
-    public MXFUid getPackageUID()
-    {
-        return new MXFUid(this.sourcePackageBO.package_uid);
     }
 
     /**

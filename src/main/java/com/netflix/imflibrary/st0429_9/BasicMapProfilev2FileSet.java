@@ -21,60 +21,33 @@ import java.net.URISyntaxException;
 public final class BasicMapProfilev2FileSet
 {
     private static final Logger logger = LoggerFactory.getLogger(BasicMapProfilev2FileSet.class);
+    private final MappedFileSet mappedFileSet;
 
-
-    private static final String ASSETMAP_FILE_NAME = "ASSETMAP.xml";
-    private final AssetMap assetMap;
-
-    public BasicMapProfilev2FileSet(File rootFile) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
+    public BasicMapProfilev2FileSet(MappedFileSet mappedFileSet) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
     {
-        if (!rootFile.isDirectory())
-        {
-            throw new IMFException(String.format("Root file %s corresponding to the mapped file set is not a directory", rootFile.getAbsolutePath()));
-        }
 
-        FilenameFilter filenameFilter = new FilenameFilter()
-        {
-            @Override
-            public boolean accept(File rootFile, String name)
-            {
-                return name.equals(BasicMapProfilev2FileSet.ASSETMAP_FILE_NAME);
-            }
-        };
-
-        File[] files = rootFile.listFiles(filenameFilter);
-        if ((files == null) || (files.length != 1))
-        {
-            throw new IMFException(String.format("Found %d files with name %s in mapped file set rooted at %s, " +
-                    "exactly 1 is allowed", (files == null) ? 0 : files.length, BasicMapProfilev2FileSet.ASSETMAP_FILE_NAME, rootFile.getAbsolutePath()));
-        }
-
-        AssetMap assetMap = new AssetMap(files[0]);
-
-        for (AssetMap.Asset asset : assetMap.getAssetList())
-        {
+        for (AssetMap.Asset asset : mappedFileSet.getAssetMap().getAssetList())
+        {//per Section A.2 in Annex A of st0429-9:2014, each path element value shall be a relative path reference
             if (asset.getPath().isAbsolute())
-            {
+            {//TODO: fix error message
                 throw new IMFException("");
             }
         }
 
-        this.assetMap = assetMap;
+        this.mappedFileSet = mappedFileSet;
     }
 
     public AssetMap getAssetMap()
     {
-        return assetMap;
+        return this.mappedFileSet.getAssetMap();
     }
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
     {
         File rootFile = new File(args[0]);
 
-        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(rootFile);
+        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(new MappedFileSet(rootFile));
         logger.warn(basicMapProfilev2FileSet.getAssetMap().toString());
-
-
     }
 
 }
