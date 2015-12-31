@@ -106,7 +106,7 @@ public final class AssetMap
             Asset asset = new Asset(assetType);
             this.assetList.add(asset);
             this.uuidToPath.put(asset.getUUID(), asset.getPath());
-            if (assetType.isPackingList())
+            if ((assetType.isPackingList() != null) && (assetType.isPackingList()))
             {
                 this.packingListAssets.add(asset);
             }
@@ -114,7 +114,7 @@ public final class AssetMap
 
     }
 
-    private static AssetMapType checkConformance(AssetMapType assetMapType)
+    static AssetMapType checkConformance(AssetMapType assetMapType)
     {
         //per st0429-9:2014 Section 5.4, VolumeCount shall be one
         if (!assetMapType.getVolumeCount().equals(new BigInteger("1")))
@@ -209,7 +209,7 @@ public final class AssetMap
         public Asset(AssetType assetType) throws URISyntaxException
         {
             this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId()));
-            this.isPackingList = assetType.isPackingList();
+            this.isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
             this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
         }
 

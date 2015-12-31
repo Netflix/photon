@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/429-8/2007/PKL">
+  <Id>urn:uuid:51edd4be-4506-494d-a58e-516553055c33</Id>
+  <IssueDate>2015-10-09T15:24:12-07:00</IssueDate>
+  <Issuer>Telestream Inc.</Issuer>
+  <Creator>Telestream Media Framework Local 99.99.999999</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:93c158aa-b9e8-152e-9f17-0e9a350ff9ac</Id>
+      <Hash>B3+P/c+Fp+x7/ppjac7AazbN4b4=</Hash>
+      <Size>513422579</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>93c158aa-b9e8-152e-9f17-0e9a350ff9ac.mxf</OriginalFileName>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0311b323-564c-1857-a294-c0822db99baa</Id>
+      <Hash>NnT7nF401l6soJKv5IWlZjhpD88=</Hash>
+      <Size>2415255</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>0311b323-564c-1857-a294-c0822db99baa.mxf</OriginalFileName>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:682feecb-7516-4d93-b533-f40d4ce60539</Id>
+      <AnnotationText>UHD Boat Comp444</AnnotationText>
+      <Hash>pqWcG02X8JJILpLgQZN9lG9JEGo=</Hash>
+      <Size>2544</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml</OriginalFileName>
+    </Asset>
+  </AssetList>
+</PackingList>

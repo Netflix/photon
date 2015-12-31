@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2013" xmlns:imf="http://www.smpte-ra.org/schemas/2067-2/2013" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>urn:uuid:682feecb-7516-4d93-b533-f40d4ce60539</Id>
+  <Annotation>UHD Boat Comp444</Annotation>
+  <IssueDate>2015-10-09T15:24:12-07:00</IssueDate>
+  <Issuer>Telestream Inc.</Issuer>
+  <Creator>Telestream Media Framework Local 99.99.999999</Creator>
+  <ContentOriginator>Telestream Inc.</ContentOriginator>
+  <ContentTitle>UHD Boat Comp444</ContentTitle>
+  <ContentVersionList>
+    <ContentVersion>
+      <Id>urn:uuid:407280f9-6e8d-4c79-a12b-72369267b676</Id>
+      <LabelText>UHD Boat Comp444</LabelText>
+    </ContentVersion>
+  </ContentVersionList>
+  <CompositionTimecode>
+    <TimecodeDropFrame>false</TimecodeDropFrame>
+    <TimecodeRate>24</TimecodeRate>
+    <TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
+  </CompositionTimecode>
+  <EditRate>24 1</EditRate>
+  <SegmentList>
+    <Segment>
+      <Id>urn:uuid:ddea2a35-05f3-4e31-89f0-cf0b35c9b0b9</Id>
+      <SequenceList>
+        <imf:MainImageSequence>
+          <Id>urn:uuid:8cfa01a7-64f4-4352-b9b5-c4ab242ff364</Id>
+          <TrackId>urn:uuid:586286d2-c45f-4b2f-ad76-58eecd0202b4</TrackId>
+          <ResourceList>
+            <Resource xsi:type="TrackFileResourceType">
+              <Id>urn:uuid:0a084030-1de8-4866-8b61-a69bb4f3f363</Id>
+              <EditRate>24 1</EditRate>
+              <IntrinsicDuration>200</IntrinsicDuration>
+              <SourceEncoding>urn:uuid:146f07b8-8444-4a0e-988e-25595c9e39bc</SourceEncoding>
+              <TrackFileId>urn:uuid:93c158aa-b9e8-152e-9f17-0e9a350ff9ac</TrackFileId>
+            </Resource>
+          </ResourceList>
+        </imf:MainImageSequence>
+        <imf:MainAudioSequence>
+          <Id>urn:uuid:d6347837-99b7-40fb-ae7a-3063ee3b26e7</Id>
+          <TrackId>urn:uuid:854d9f94-3a4f-4a82-991c-50b9fbdbad6a</TrackId>
+          <ResourceList>
+            <Resource xsi:type="TrackFileResourceType">
+              <Id>urn:uuid:f670863f-d5b8-4a07-8ab4-2f2606f43572</Id>
+              <EditRate>48000 1</EditRate>
+              <IntrinsicDuration>400398</IntrinsicDuration>
+              <SourceEncoding>urn:uuid:eae1a54b-da7a-4920-9437-0427dcebc4a6</SourceEncoding>
+              <TrackFileId>urn:uuid:0311b323-564c-1857-a294-c0822db99baa</TrackFileId>
+            </Resource>
+          </ResourceList>
+        </imf:MainAudioSequence>
+      </SequenceList>
+    </Segment>
+  </SegmentList>
+</CompositionPlaylist>

@@ -226,8 +226,6 @@ public final class PackingList
 
     private static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
     {
-
-
         try(InputStream input = new FileInputStream(xmlFile);
             InputStream xmldig_core_is = PackingList.class.getResourceAsStream(PackingList.xmldig_core_schema_path);
             InputStream pkl_is = PackingList.class.getResourceAsStream(PackingList.pkl_schema_path);
@@ -245,7 +243,6 @@ public final class PackingList
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
         }
-
     }
 
     public static void main(String args[]) throws IOException, URISyntaxException, SAXException, ParserConfigurationException, JAXBException
