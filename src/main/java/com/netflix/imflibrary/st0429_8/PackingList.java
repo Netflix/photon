@@ -28,6 +28,7 @@ import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -45,6 +46,12 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.*;
 
+/**
+ * This class represents a thin, immutable wrapper around the XML type 'PackingListType' which is defined in Section 7,
+ * st0429-8:2007. A PackingList object can be constructed from an XML file only if it satisfies all the constraints specified
+ * in st0429-8:2007
+ */
+@Immutable
 public final class PackingList
 {
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
@@ -56,12 +63,20 @@ public final class PackingList
     private final UUID uuid;
     private final List<Asset> assetList = new ArrayList<>();
 
-    public PackingList(File packingListXML) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
+    /**
+     * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
+     * @param packingListXMLFile the input XML file
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException, URISyntaxException
     {
 
-        PackingList.validatePackingListSchema(packingListXML);
+        PackingList.validatePackingListSchema(packingListXMLFile);
 
-        try(InputStream input = new FileInputStream(packingListXML);
+        try(InputStream input = new FileInputStream(packingListXMLFile);
             InputStream xmldig_core_is = PackingList.class.getResourceAsStream(PackingList.xmldig_core_schema_path);
             InputStream pkl_is = PackingList.class.getResourceAsStream(PackingList.pkl_schema_path);
         )
@@ -91,8 +106,7 @@ public final class PackingList
 
             for (AssetType assetType : this.packingListType.getAssetList().getAsset())
             {
-                Asset asset = new Asset(UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId())), assetType.getHash(),
-                        assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
+                Asset asset = new Asset(assetType);
                 this.assetList.add(asset);
             }
         }
@@ -104,16 +118,25 @@ public final class PackingList
         return packingListType;
     }
 
+    /**
+     * Getter for the complete list of assets present in this PackingList
+     * @return the list of assets present in this PackingList
+     */
     public List<Asset> getAssets()
     {
         return Collections.unmodifiableList(this.assetList);
     }
 
-    public UUID getUuid()
+    /**
+     * Getter for the UUID corresponding to this PackingList object
+     * @return the uuid of this PackingList object
+     */
+    public UUID getUUID()
     {
         return this.uuid;
     }
 
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -125,7 +148,10 @@ public final class PackingList
         return sb.toString();
     }
 
-
+    /**
+     * This class represents a thin, immutable wrapper around the XML type 'AssetType' which is defined in Section 7,
+     * st0429-8:2007. It exposes a minimal set of properties of the wrapped object through appropriate Getter methods
+     */
     public static final class Asset
     {
         private final UUID uuid;
@@ -134,50 +160,71 @@ public final class PackingList
         private final String type;
         private final String original_filename;
 
-        public Asset(UUID uuid, byte[] hash, long size, String type, String original_filename)
+        /**
+         * Constructor for the wrapping {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset} object from the wrapped model version of XML type 'AssetType'
+         * @param assetType the wrapped object
+         */
+        public Asset(AssetType assetType)
         {
-            this.uuid = uuid;
-            this.hash = Arrays.copyOf(hash, hash.length);
-            this.size = size;
-            this.type = type;
-            this.original_filename = original_filename;
+            this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId()));
+            this.hash = Arrays.copyOf(assetType.getHash(), assetType.getHash().length);
+            this.size = assetType.getSize().longValue();
+            this.type = assetType.getType();
+            this.original_filename = assetType.getOriginalFileName().getValue();
         }
 
-        public UUID getUuid()
+        /**
+         * Getter for the UUID associated with this object
+         * @return the asset UUID
+         */
+        public UUID getUUID()
         {
             return this.uuid;
         }
 
+        /**
+         * Getter for the size of the underlying file associated with this object
+         * @return the file size
+         */
         public long getSize()
         {
             return this.size;
         }
 
+        /**
+         * Getter for the MIME type of the underlying file associated with this object
+         * @return the MIME type as a string
+         */
         public String getType()
         {
             return this.type;
         }
 
+        /**
+         * Getter for the filename of the underlying file associated with this object
+         * @return the filename or null if no file name was present
+         */
         public @Nullable String getOriginalFilename()
         {
             return this.original_filename;
         }
 
+        @Override
         public String toString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("=================== Asset : %s%n", this.uuid));
+            sb.append(String.format("=================== Asset : %s%n", this.getUUID()));
             sb.append(String.format("hash = %s%n", Arrays.toString(this.hash)));
-            sb.append(String.format("size = %d%n", this.size));
-            sb.append(String.format("type = %s%n", this.type));
-            sb.append(String.format("original_filename = %s%n", this.original_filename));
+            sb.append(String.format("size = %d%n", this.getSize()));
+            sb.append(String.format("type = %s%n", this.getType()));
+            sb.append(String.format("original_filename = %s%n", this.getOriginalFilename()));
             return sb.toString();
         }
 
     }
 
 
-    public static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
+    private static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
     {
 
 

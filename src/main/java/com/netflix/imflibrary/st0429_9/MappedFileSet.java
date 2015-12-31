@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.xml.sax.SAXException;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -29,6 +30,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * This class is an immutable implementation of the Mapped File Set concept defined in Section A.1 in Annex A of st0429-9:2014.
+ * A MappedFileSet object can only be constructed if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are
+ * satisfied
+ */
+@Immutable
 public final class MappedFileSet
 {
 
@@ -36,7 +43,15 @@ public final class MappedFileSet
     private final AssetMap assetMap;
     private final URI assetMapURI;
 
-    public MappedFileSet(File rootFile) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
+    /**
+     * Constructor for a MappedFileSet object from a file representing the root of a directory tree
+     * @param rootFile the directory which serves as the tree root of the Mapped File Set
+     * @throws SAXException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @throws IOException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @throws JAXBException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @throws URISyntaxException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     */
+    public MappedFileSet(File rootFile) throws IOException, SAXException, JAXBException, URISyntaxException
     {
         if (!rootFile.isDirectory())
         {
@@ -63,11 +78,21 @@ public final class MappedFileSet
         this.assetMapURI = files[0].toURI();
     }
 
+    /**
+     * Getter for the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object that represents the single AssetMap document
+     * corresponding to this Mapped File Set
+     * @return the AssetMap object
+     */
     public AssetMap getAssetMap()
     {
         return this.assetMap;
     }
 
+    /**
+     * Getter for the file-based URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object associated with
+     * this Mapped File Set
+     * @return file-based URI for the AssetMap object
+     */
     public URI getAssetMapURI()
     {
         return this.assetMapURI;

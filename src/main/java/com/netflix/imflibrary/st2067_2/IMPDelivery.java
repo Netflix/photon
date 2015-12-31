@@ -26,17 +26,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+/**
+ * This class represents the concept of an IMF delivery as defined in Section 8 of st2067-2:2015. Informally, an IMF delivery
+ * corresponds to a single AssetMap document and one or more Interoperable Master Packages.
+ */
+@Immutable
 public final class IMPDelivery
 {
     private static final Logger logger = LoggerFactory.getLogger(IMPDelivery.class);
@@ -44,30 +47,61 @@ public final class IMPDelivery
     private final AssetMap assetMap;
     private final List<InteroperableMasterPackage> interoperableMasterPackages = new ArrayList<>();
 
-    //this corresponds to IMP deliveries that are based on Basic Map Profile v2 (Annex A st0429-9:2014)
-    public IMPDelivery(MappedFileSet mappedFileSet) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
+    /**
+     * Constructor for an IMPDelivery object for deliveries that are based on Basic Map Profile v2 (Annex A st0429-9:2014)
+     * @param basicMapProfilev2FileSet a single mapped file set that is compliant with Basic Map Profile v2 (Annex A st0429-9:2014)
+     * @throws IOException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
+     * @throws SAXException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
+     * @throws JAXBException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
+     * @throws URISyntaxException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
+     */
+    public IMPDelivery(BasicMapProfilev2FileSet basicMapProfilev2FileSet) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(mappedFileSet);
-
         this.assetMap = basicMapProfilev2FileSet.getAssetMap();
 
         List<AssetMap.Asset> packingListAssets = this.assetMap.getPackingListAssets();
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
-            URI resolvedPackingListURI = mappedFileSet.getAssetMapURI().resolve(packingListAsset.getPath());
+            URI resolvedPackingListURI = basicMapProfilev2FileSet.getAssetMapURI().resolve(packingListAsset.getPath());
             PackingList packingList = new PackingList(new File(resolvedPackingListURI));
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())
             {
-                UUID referencedAssetUUID = referencedAsset.getUuid();
-                referencedAssets.add(new IMPAsset(referencedAssetUUID,
-                        mappedFileSet.getAssetMapURI().resolve(this.assetMap.getPath(referencedAssetUUID))));
+                UUID referencedAssetUUID = referencedAsset.getUUID();
+                referencedAssets.add(new IMPAsset(basicMapProfilev2FileSet.getAssetMapURI().resolve(this.assetMap.getPath(referencedAssetUUID)),
+                        referencedAsset));
 
             }
-            interoperableMasterPackages.add(new InteroperableMasterPackage(new IMPAsset(packingList.getUuid(), resolvedPackingListURI),
-                    referencedAssets));
+            interoperableMasterPackages.add(new InteroperableMasterPackage(packingList, resolvedPackingListURI, referencedAssets));
         }
+    }
+
+    /**
+     * Getter for a list of IMPs contained in this delivery
+     * @return a list of type {@link com.netflix.imflibrary.st2067_2.InteroperableMasterPackage} corresponding to IMPs
+     * contained in this delivery
+     */
+    public List<InteroperableMasterPackage> getInteroperableMasterPackages()
+    {
+        return Collections.unmodifiableList(this.interoperableMasterPackages);
+    }
+
+    /**
+     * Checks if the IMF delivery is valid. An IMF delivery is considered valid if all associated IMPs are valid
+     * @return true if this delivery is valid, false otherwise
+     */
+    public boolean isValid()
+    {
+        for (InteroperableMasterPackage interoperableMasterPackage : this.interoperableMasterPackages)
+        {
+            if (!interoperableMasterPackage.isValid())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -85,7 +119,8 @@ public final class IMPDelivery
         File rootFile = new File(args[0]);
 
         MappedFileSet mappedFileSet = new MappedFileSet(rootFile);
-        IMPDelivery impDelivery = new IMPDelivery(mappedFileSet);
+        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(mappedFileSet);
+        IMPDelivery impDelivery = new IMPDelivery(basicMapProfilev2FileSet);
 
         logger.warn(impDelivery.toString());
 

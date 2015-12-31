@@ -19,31 +19,55 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st0429_8.PackingList;
 
+import javax.annotation.concurrent.Immutable;
+import java.io.File;
 import java.net.URI;
 import java.util.UUID;
 
+/**
+ * This class represents a thin, immutable wrapper around a PackingList {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset}. It holds
+ * a reference to a PackingList Asset along-with the associated absolute URI
+ */
+@Immutable
 public final class IMPAsset
 {
-    private final UUID uuid;
     private final URI uri;
+    private final PackingList.Asset asset;
 
-    public IMPAsset(UUID uuid, URI uri)
+    /**
+     * Constructor for an {@link com.netflix.imflibrary.st2067_2.IMPAsset IMPAsset} from a PackingList Asset and its URI. Construction
+     * fails if the URI is not absolute
+     * @param uri the absolute URI
+     * @param asset the corresponding asset
+     */
+    public IMPAsset(URI uri, PackingList.Asset asset)
     {
         if (!uri.isAbsolute())
         {//TODO: add error messaging
             throw new IMFException("");
         }
-        this.uuid = uuid;
         this.uri = uri;
+
+        this.asset = asset;
+    }
+
+    /**
+     * Checks if this asset is valid
+     * @return true if this asset is valid, false otherwise
+     */
+    public boolean isValid()
+    {//TODO: this implementation needs to improve
+        return new File(this.uri).exists();
     }
 
     @Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("IMPAsset{");
-        sb.append("uuid=").append(uuid);
-        sb.append(", uri=").append(uri);
+        sb.append("uri=").append(uri);
+        sb.append(", asset=").append(asset);
         sb.append('}');
         return sb.toString();
     }
