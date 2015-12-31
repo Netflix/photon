@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st0429_9;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,12 +85,12 @@ public final class AssetMap
             this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue());
         }
 
-        this.uuid = UUID.fromString(this.assetMapType.getId().split("urn:uuid:")[1]);
+        this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(this.assetMapType.getId()));
 
         for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
         {
 
-            Asset asset = new Asset(UUID.fromString(assetType.getId().split("urn:uuid:")[1]),
+            Asset asset = new Asset(UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId())),
                     assetType.isPackingList(), new URI(assetType.getChunkList().getChunk().get(0).getPath()));
             this.assetList.add(asset);
             this.uuidToPath.put(asset.getUuid(), asset.getPath());

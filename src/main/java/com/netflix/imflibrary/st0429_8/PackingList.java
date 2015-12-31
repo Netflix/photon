@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st0429_8;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,11 +87,11 @@ public final class PackingList
 
             this.packingListType  = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
 
-            this.uuid = UUID.fromString(this.packingListType.getId().split("urn:uuid:")[1]);
+            this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(this.packingListType.getId()));
 
             for (AssetType assetType : this.packingListType.getAssetList().getAsset())
             {
-                Asset asset = new Asset(UUID.fromString(assetType.getId().split("urn:uuid:")[1]), assetType.getHash(),
+                Asset asset = new Asset(UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId())), assetType.getHash(),
                         assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
                 this.assetList.add(asset);
             }
