@@ -22,7 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 
 /**
- * An (immutable) implementation of MXF UID. Per section 4.1 of st0377-1:2011, a UID is "a generic term which may be
+ * An (immutable) implementation of an MXF UID. Per section 4.1 of st0377-1:2011, a UID is "a generic term which may be
  * used to refer to a UL, UUID, UMID etc."
  */
 @Immutable
