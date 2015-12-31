@@ -27,17 +27,17 @@ public enum MXFDataDefinition
     /**
      * The PICTURE.
      */
-    PICTURE(new MXFUid(MXFUid.picture_essence_track)),
+    PICTURE(new MXFUID(MXFUID.picture_essence_track)),
 
     /**
      * The SOUND.
      */
-    SOUND(new MXFUid(MXFUid.sound_essence_track)),
+    SOUND(new MXFUID(MXFUID.sound_essence_track)),
 
     /**
      * The DATA.
      */
-    DATA(new MXFUid(MXFUid.data_essence_track)),
+    DATA(new MXFUID(MXFUID.data_essence_track)),
 
     /**
      * The OTHER.
@@ -46,9 +46,9 @@ public enum MXFDataDefinition
 
     ;
 
-    private final MXFUid mxfUL;
+    private final MXFUID mxfUL;
 
-    private MXFDataDefinition(MXFUid mxfUL)
+    private MXFDataDefinition(MXFUID mxfUL)
     {
         this.mxfUL = mxfUL;
     }
@@ -59,7 +59,7 @@ public enum MXFDataDefinition
      * @param mxfUL the mxf UL
      * @return the data definition
      */
-    public static MXFDataDefinition getDataDefinition(MXFUid mxfUL)
+    public static MXFDataDefinition getDataDefinition(MXFUID mxfUL)
     {
         if (mxfUL.equals(PICTURE.mxfUL))
         {

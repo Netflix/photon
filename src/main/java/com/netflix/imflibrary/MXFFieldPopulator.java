@@ -468,9 +468,9 @@ public final class MXFFieldPopulator
      * @param interchangeObjectBO the interchange object bO
      * @return the dependent uI ds
      */
-    public static List<MXFUid> getDependentUIDs(InterchangeObject.InterchangeObjectBO interchangeObjectBO)
+    public static List<MXFUID> getDependentUIDs(InterchangeObject.InterchangeObjectBO interchangeObjectBO)
     {
-        List<MXFUid> dependentUIDs = new ArrayList<>();
+        List<MXFUID> dependentUIDs = new ArrayList<>();
         Class aClass = interchangeObjectBO.getClass();
         while (aClass != null)
         {
@@ -515,7 +515,7 @@ public final class MXFFieldPopulator
                                 else
                                 {
                                     byte[] bytes = (byte[]) object;
-                                    dependentUIDs.add(new MXFUid(bytes));
+                                    dependentUIDs.add(new MXFUID(bytes));
                                 }
                             }
 

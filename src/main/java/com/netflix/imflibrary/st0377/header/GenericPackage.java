@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
@@ -43,9 +43,9 @@ public abstract class GenericPackage extends InterchangeObject
      * Getter for the immutable unique packager identifier which is a basic UMID (see st0330:2011)
      * @return the immutable unique packager identifier represented as a MXFUid object
      */
-    public MXFUid getPackageUID()
+    public MXFUID getPackageUID()
     {
-        return new MXFUid(this.genericPackageBO.package_uid);
+        return new MXFUID(this.genericPackageBO.package_uid);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class GenericPackage extends InterchangeObject
         /**
          * The Generic track instance uI ds.
          */
-        protected final List<MXFUid> genericTrackInstanceUIDs = new ArrayList<>();
+        protected final List<MXFUID> genericTrackInstanceUIDs = new ArrayList<>();
 
         /**
          * Instantiates a new Generic package ByteObject.
@@ -101,9 +101,9 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the package uID
          */
-        public MXFUid getPackageUID()
+        public MXFUID getPackageUID()
         {
-            return new MXFUid(this.package_uid);
+            return new MXFUID(this.package_uid);
         }
 
         /**
@@ -111,9 +111,9 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the null package uID
          */
-        public static MXFUid getNullPackageUID()
+        public static MXFUID getNullPackageUID()
         {
-            return new MXFUid(GenericPackageBO.NULL_PACKAGE_UID);
+            return new MXFUID(GenericPackageBO.NULL_PACKAGE_UID);
         }
 
         /**
@@ -121,7 +121,7 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the generic track instance uI ds
          */
-        public List<MXFUid> getGenericTrackInstanceUIDs()
+        public List<MXFUID> getGenericTrackInstanceUIDs()
         {
             return Collections.unmodifiableList(this.genericTrackInstanceUIDs);
         }

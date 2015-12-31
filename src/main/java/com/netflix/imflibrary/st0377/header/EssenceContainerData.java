@@ -22,7 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -63,18 +63,18 @@ public final class EssenceContainerData extends InterchangeObject
      * Getter for the instance UID corresponding to this EssenceContainerData set in the MXF file
      * @return returns the instanceUID corresponding to this Essence Container data object
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.essenceContainerDataBO.instance_uid);
+        return new MXFUID(this.essenceContainerDataBO.instance_uid);
     }
 
     /**
      * Getter for the identifier of the package linked to this EssenceContainerData set
      * @return returns the identified of the package linked to this Essence Container data
      */
-    public MXFUid getLinkedPackageUID()
+    public MXFUID getLinkedPackageUID()
     {
-        return new MXFUid(this.essenceContainerDataBO.linked_package_uid);
+        return new MXFUID(this.essenceContainerDataBO.linked_package_uid);
     }
 
     /**
@@ -125,7 +125,7 @@ public final class EssenceContainerData extends InterchangeObject
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public EssenceContainerDataBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public EssenceContainerDataBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -151,9 +151,9 @@ public final class EssenceContainerData extends InterchangeObject
          * Getter for the identifier of the package to which this EssenceContainerData set is linked
          * @return returns the identifier of the package linked to this Essence container data
          */
-        public MXFUid getLinkedPackageUID()
+        public MXFUID getLinkedPackageUID()
         {
-            return new MXFUid(this.linked_package_uid);
+            return new MXFUID(this.linked_package_uid);
         }
 
         /**

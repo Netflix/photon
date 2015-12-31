@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -86,14 +86,14 @@ public final class MaterialPackage extends GenericPackage
      * Getter for the instance UID corresponding to this MaterialPackage set in the MXF file
      * @return the instance UID corresponding to this MaterialPackage set in the MXF file
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.materialPackageBO.instance_uid);
+        return new MXFUID(this.materialPackageBO.instance_uid);
     }
 
-    public List<MXFUid> getTrackInstanceUIDs()
+    public List<MXFUID> getTrackInstanceUIDs()
     {
-        List<MXFUid> trackInstanceUIDs = new ArrayList<MXFUid>();
+        List<MXFUID> trackInstanceUIDs = new ArrayList<MXFUID>();
         for (InterchangeObjectBO.StrongRef strongRef : this.materialPackageBO.tracks.getEntries())
         {
             trackInstanceUIDs.add(strongRef.getInstanceUID());
@@ -128,7 +128,7 @@ public final class MaterialPackage extends GenericPackage
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public MaterialPackageBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public MaterialPackageBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);

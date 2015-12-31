@@ -23,7 +23,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.MXFDataDefinition;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -52,25 +52,25 @@ public final class SourceClip extends StructuralComponent
     {
         this.sourceClipBO = sourceClipBO;
         this.genericPackage = genericPackage;
-        this.mxfDataDefinition = MXFDataDefinition.getDataDefinition(new MXFUid(this.sourceClipBO.data_definition));
+        this.mxfDataDefinition = MXFDataDefinition.getDataDefinition(new MXFUID(this.sourceClipBO.data_definition));
     }
 
     /**
      * Getter for the instance UID of this SourceClip object
      * @return the instance UID of this SourceClip object
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.sourceClipBO.instance_uid);
+        return new MXFUID(this.sourceClipBO.instance_uid);
     }
 
     /**
      * Getter for the ID of the referenced Source Package
      * @return the ID of the referenced Source Package
      */
-    public MXFUid getSourcePackageID()
+    public MXFUID getSourcePackageID()
     {
-        return new MXFUid(this.sourceClipBO.source_package_id);
+        return new MXFUID(this.sourceClipBO.source_package_id);
     }
 
     /**
@@ -112,7 +112,7 @@ public final class SourceClip extends StructuralComponent
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public SourceClipBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public SourceClipBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -143,9 +143,9 @@ public final class SourceClip extends StructuralComponent
          * Getter for the ID of the referenced Source Package
          * @return the ID of the referenced Source Package
          */
-        public MXFUid getSourcePackageID()
+        public MXFUID getSourcePackageID()
         {
-            return new MXFUid(this.source_package_id);
+            return new MXFUID(this.source_package_id);
         }
 
         /**

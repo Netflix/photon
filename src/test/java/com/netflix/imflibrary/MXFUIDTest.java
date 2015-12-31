@@ -22,54 +22,54 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 @Test(groups = "unit")
-public class MXFUidTest
+public class MXFUIDTest
 {
     @Test
     public void testGetUid()
     {
         byte[] bytes = new byte[16];
-        MXFUid mxfUid = new MXFUid(bytes);
-        Assert.assertTrue(mxfUid.toString().length()> 0);
-        Assert.assertEquals(mxfUid.getUid(), bytes);
+        MXFUID MXFUID = new MXFUID(bytes);
+        Assert.assertTrue(MXFUID.toString().length()> 0);
+        Assert.assertEquals(MXFUID.getUID(), bytes);
     }
 
     @Test
     public void testEquals()
     {
         byte[] bytes1 = new byte[16];
-        MXFUid mxfUid1 = new MXFUid(bytes1);
+        MXFUID MXFUID1 = new MXFUID(bytes1);
 
         byte[] bytes2 = Arrays.copyOf(bytes1, bytes1.length);
-        MXFUid mxfUid2 = new MXFUid(bytes2);
-        Assert.assertTrue(mxfUid1.equals(mxfUid2));
+        MXFUID MXFUID2 = new MXFUID(bytes2);
+        Assert.assertTrue(MXFUID1.equals(MXFUID2));
 
-        Assert.assertFalse(mxfUid1.equals(null));
+        Assert.assertFalse(MXFUID1.equals(null));
 
-        Assert.assertFalse(mxfUid1.equals(bytes1));
+        Assert.assertFalse(MXFUID1.equals(bytes1));
     }
 
     @Test
     public void testHashCode()
     {
         byte[] bytes = new byte[16];
-        MXFUid mxfUid = new MXFUid(bytes);
-        Assert.assertEquals(mxfUid.hashCode(), Arrays.hashCode(bytes));
+        MXFUID MXFUID = new MXFUID(bytes);
+        Assert.assertEquals(MXFUID.hashCode(), Arrays.hashCode(bytes));
     }
 
     @Test
     public void testToString()
     {
         byte[] bytes = new byte[16];
-        MXFUid mxfUid = new MXFUid(bytes);
-        Assert.assertEquals(mxfUid.toString().trim(),"0x00000000000000000000000000000000");
+        MXFUID MXFUID = new MXFUID(bytes);
+        Assert.assertEquals(MXFUID.toString().trim(),"0x00000000000000000000000000000000");
 
         bytes = new byte[32];
-        mxfUid = new MXFUid(bytes);
-        Assert.assertEquals(mxfUid.toString().trim(),"0x0000000000000000000000000000000000000000000000000000000000000000");
+        MXFUID = new MXFUID(bytes);
+        Assert.assertEquals(MXFUID.toString().trim(),"0x0000000000000000000000000000000000000000000000000000000000000000");
 
         bytes = new byte[1];
-        mxfUid = new MXFUid(bytes);
-        Assert.assertEquals(mxfUid.toString().trim(), Arrays.toString(bytes));
+        MXFUID = new MXFUID(bytes);
+        Assert.assertEquals(MXFUID.toString().trim(), Arrays.toString(bytes));
 
 
     }

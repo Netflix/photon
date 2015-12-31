@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import java.util.Arrays;
 
@@ -41,8 +41,8 @@ public class UL {
      * MXFUid representation of a UL
      * @return The UL represented as a MXFUId
      */
-    public MXFUid getULAsMXFUid(){
-        return new MXFUid(this.ul);
+    public MXFUID getULAsMXFUid(){
+        return new MXFUID(this.ul);
     }
 
     /**

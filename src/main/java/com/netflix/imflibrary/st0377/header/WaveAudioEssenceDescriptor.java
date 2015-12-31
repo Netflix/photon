@@ -23,7 +23,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -129,7 +129,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      * @return channel assignment UL (can be null)
      */
     public @Nullable
-    MXFUid getChannelAssignmentUL()
+    MXFUID getChannelAssignmentUL()
     {
         if (this.waveAudioEssenceDescriptorBO.channel_assignment != null)
         {
@@ -198,7 +198,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public WaveAudioEssenceDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public WaveAudioEssenceDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);

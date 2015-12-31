@@ -22,7 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 import javax.annotation.concurrent.Immutable;
@@ -55,16 +55,16 @@ public final class TimelineTrack extends GenericTrack
      * Getter for the instance UID of this TimelineTrack
      * @return the instance UID of this TimelineTrack
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.timelineTrackBO.instance_uid);
+        return new MXFUID(this.timelineTrackBO.instance_uid);
     }
 
     /**
      * Getter for the UID of the sequence descriptive metadata set referred by this Timeline Track
      * @return the UID of the sequence descriptive metadata set referred by this Timeline Track
      */
-    public MXFUid getSequenceUID()
+    public MXFUID getSequenceUID()
     {
         return this.timelineTrackBO.sequence.getInstanceUID();
     }
@@ -125,7 +125,7 @@ public final class TimelineTrack extends GenericTrack
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public TimelineTrackBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public TimelineTrackBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -157,7 +157,7 @@ public final class TimelineTrack extends GenericTrack
          * Getter for the UID of the sequence descriptive metadata set referred by this Timeline Track
          * @return the UID of the sequence descriptive metadata set referred by this Timeline Track
          */
-        public MXFUid getSequenceUID()
+        public MXFUID getSequenceUID()
         {
             return this.sequence.getInstanceUID();
         }

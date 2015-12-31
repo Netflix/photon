@@ -18,12 +18,15 @@
 
 package com.netflix.imflibrary;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 
 /**
- * An object model to represent an MXF UID
+ * An (immutable) implementation of MXF UID. Per section 4.1 of st0377-1:2011, a UID is "a generic term which may be
+ * used to refer to a UL, UUID, UMID etc."
  */
-public final class MXFUid
+@Immutable
+public final class MXFUID
 {
     /**
      * from <a href="http://www.smpte-ra.org/mdd/RP224v12-pub-20120418.xls">SMPTE Labels Registry</a>
@@ -45,7 +48,7 @@ public final class MXFUid
      *
      * @param uid the uid
      */
-    public MXFUid(byte[] uid)
+    public MXFUID(byte[] uid)
     {
         this.uid = Arrays.copyOf(uid, uid.length);
     }
@@ -55,7 +58,7 @@ public final class MXFUid
      *
      * @return the byte [ ]
      */
-    public byte[] getUid()
+    public byte[] getUID()
     {
         return Arrays.copyOf(this.uid, this.uid.length);
     }
@@ -69,9 +72,9 @@ public final class MXFUid
      */
     public boolean equals(Object other)
     {
-        if ((other != null) && (other.getClass().equals(MXFUid.class)))
+        if ((other != null) && (other.getClass().equals(MXFUID.class)))
         {
-            return Arrays.equals(this.uid, ((MXFUid)other).uid);
+            return Arrays.equals(this.uid, ((MXFUID)other).uid);
         }
         else
         {

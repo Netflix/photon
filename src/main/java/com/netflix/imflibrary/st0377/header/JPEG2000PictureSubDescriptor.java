@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -84,7 +84,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
          * @param imfErrorLogger the imf error logger
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public JPEG2000PictureSubDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public JPEG2000PictureSubDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);

@@ -22,7 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -50,14 +50,14 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
      * Getter for the MCALabelDictionaryId of an AudioChannelLabelSubDescriptor object.
      * @return MCALabelDictionaryId of the AudioChannelLabelSubDescriptor object
      */
-    public MXFUid getMCALabelDictionaryId()
+    public MXFUID getMCALabelDictionaryId()
     {
         return this.audioChannelLabelSubDescriptorBO.mca_label_dictionary_id.getULAsMXFUid();
     }
 
-    public MXFUid getSoundfieldGroupLinkId()
+    public MXFUID getSoundfieldGroupLinkId()
     {
-        return new MXFUid(this.audioChannelLabelSubDescriptorBO.soundfield_group_link_id);
+        return new MXFUID(this.audioChannelLabelSubDescriptorBO.soundfield_group_link_id);
     }
 
     /**
@@ -65,9 +65,9 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
      * @return MCALinkId of the AudioChannelLabelSubDescriptor object
      */
 
-    public MXFUid getMCALinkId()
+    public MXFUID getMCALinkId()
     {
-        return new MXFUid(this.audioChannelLabelSubDescriptorBO.mca_link_id);
+        return new MXFUID(this.audioChannelLabelSubDescriptorBO.mca_link_id);
     }
 
     /**
@@ -105,7 +105,7 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public AudioChannelLabelSubDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public AudioChannelLabelSubDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);

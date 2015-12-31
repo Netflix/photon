@@ -22,7 +22,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
 import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public final class LocalTagEntryBatch
      */
     public static final int LOCAL_TAG_ENTRY_SIZE = 18;
     private final CompoundDataTypes.MXFCollections.Header header;
-    private final Map<Integer, MXFUid> localTagToUID;
+    private final Map<Integer, MXFUID> localTagToUID;
 
     /**
      * Instantiates a new Local tag entry batch.
@@ -73,7 +73,7 @@ public final class LocalTagEntryBatch
                 throw new MXFException(String.format("localTag = 0x%04x(%d) has already been observed", localTag, localTag));
             }
 
-            MXFUid mxfUL = new MXFUid(byteProvider.getBytes(16));
+            MXFUID mxfUL = new MXFUID(byteProvider.getBytes(16));
             localTagToUID.put(localTag, mxfUL);
         }
     }
@@ -98,10 +98,10 @@ public final class LocalTagEntryBatch
         StringBuilder sb = new StringBuilder();
         sb.append("================== LocalTagEntryBatch ======================\n");
         sb.append(this.header.toString());
-        for (Map.Entry<Integer, MXFUid> entry : this.localTagToUID.entrySet())
+        for (Map.Entry<Integer, MXFUID> entry : this.localTagToUID.entrySet())
         {
             int localTag = entry.getKey();
-            byte[] bytes = entry.getValue().getUid();
+            byte[] bytes = entry.getValue().getUID();
             sb.append(String.format("localTag = 0x%04x UID = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n", localTag,
                     bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
                     bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]));
