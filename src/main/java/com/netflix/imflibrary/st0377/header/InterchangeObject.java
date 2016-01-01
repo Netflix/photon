@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 
@@ -36,7 +36,7 @@ public abstract class InterchangeObject
         /**
          * The Header.
          */
-        protected final MXFKLVPacket.Header header;
+        protected final KLVPacket.Header header;
         /**
          * The Instance _ uid.
          */
@@ -48,7 +48,7 @@ public abstract class InterchangeObject
          *
          * @param header the header
          */
-        InterchangeObjectBO(MXFKLVPacket.Header header)
+        InterchangeObjectBO(KLVPacket.Header header)
         {
             this.header = header;
         }
@@ -58,7 +58,7 @@ public abstract class InterchangeObject
          *
          * @return the header
          */
-        public MXFKLVPacket.Header getHeader()
+        public KLVPacket.Header getHeader()
         {
             return this.header;
         }

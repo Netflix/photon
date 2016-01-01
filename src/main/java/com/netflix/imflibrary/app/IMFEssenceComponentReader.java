@@ -135,22 +135,22 @@ final class IMFEssenceComponentReader
     private List<IndexTableSegment> getIndexTableSegments(long inclusivePartitionStart, long inclusivePartitionEnd) throws IOException
     {
         long archiveFileSize = this.resourceByteRangeProvider.getResourceSize();
-        MXFKLVPacket.Header header;
+        KLVPacket.Header header;
         {//logic to provide as an input stream the portion of the archive that contains PartitionPack KLVPacker Header
             long rangeEnd = inclusivePartitionStart +
-                    (MXFKLVPacket.KEY_FIELD_SIZE + MXFKLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
+                    (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
             File fileWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
             ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPackKLVPacketHeader);
-            header = new MXFKLVPacket.Header(byteProvider, inclusivePartitionStart);
+            header = new KLVPacket.Header(byteProvider, inclusivePartitionStart);
         }
 
         PartitionPack partitionPack;
         {//logic to provide as an input stream the portion of the archive that contains a PartitionPack
 
             long rangeEnd = inclusivePartitionStart +
-                    (MXFKLVPacket.KEY_FIELD_SIZE + header.getLSize() + header.getVSize()) -1;
+                    (KLVPacket.KEY_FIELD_SIZE + header.getLSize() + header.getVSize()) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
             File fileWithPartitionPack = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
@@ -172,7 +172,7 @@ final class IMFEssenceComponentReader
             long numBytesRead = 0;
             while (numBytesRead < numBytesToRead)
             {
-                header = new MXFKLVPacket.Header(byteProvider, byteOffset);
+                header = new KLVPacket.Header(byteProvider, byteOffset);
                 numBytesRead += header.getKLSize();
 
                 if (IndexTableSegment.isValidKey(header.getKey()))
@@ -289,23 +289,23 @@ final class IMFEssenceComponentReader
     private PartitionPack getPartitionPack(long resourceOffset) throws IOException
     {
         long archiveFileSize = this.resourceByteRangeProvider.getResourceSize();
-        MXFKLVPacket.Header header;
+        KLVPacket.Header header;
         {//logic to provide as an input stream the portion of the archive that contains PartitionPack KLVPacker Header
             long rangeEnd = resourceOffset +
-                    (MXFKLVPacket.KEY_FIELD_SIZE + MXFKLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
+                    (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
             File fileWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
             ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPackKLVPacketHeader);
-            header = new MXFKLVPacket.Header(byteProvider, resourceOffset);
+            header = new KLVPacket.Header(byteProvider, resourceOffset);
         }
 
         PartitionPack partitionPack;
         {//logic to provide as an input stream the portion of the archive that contains a PartitionPack and next KLV header
 
             long rangeEnd = resourceOffset +
-                    (MXFKLVPacket.KEY_FIELD_SIZE + header.getLSize() + header.getVSize()) +
-                    (MXFKLVPacket.KEY_FIELD_SIZE + MXFKLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) +
+                    (KLVPacket.KEY_FIELD_SIZE + header.getLSize() + header.getVSize()) +
+                    (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) +
                     -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
@@ -381,7 +381,7 @@ final class IMFEssenceComponentReader
      * @param essenceDescriptor corresponding to the essence in the MXF file
      * @return List<MXFKLVPacket.Header></> corresponding to every EssenceDescriptor in the underlying resource
      */
-    MXFKLVPacket.Header getEssenceDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
+    KLVPacket.Header getEssenceDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
         return essenceDescriptor.getHeader();
     }
 
@@ -391,10 +391,10 @@ final class IMFEssenceComponentReader
      * @return List<MXFKLVPacket.Header></> corresponding to every SubDescriptor in the underlying resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    List<MXFKLVPacket.Header> getSubDescriptors() throws IOException {
+    List<KLVPacket.Header> getSubDescriptors() throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors();
-        List<MXFKLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
+        List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());
@@ -409,8 +409,8 @@ final class IMFEssenceComponentReader
      * @return List<MXFKLVPacket.Header></> corresponding to every SubDescriptor in the underlying resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    List<MXFKLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
-        List<MXFKLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
+    List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
+        List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors(essenceDescriptor);
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
@@ -443,7 +443,7 @@ final class IMFEssenceComponentReader
      * @return a File containing the Primer pack
      * @throws IOException
      */
-    MXFKLVPacket.Header getPrimerPackHeader() throws IOException {
+    KLVPacket.Header getPrimerPackHeader() throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         return this.getHeaderPartition(imfErrorLogger).getPrimerPack().getHeader();
     }
@@ -454,7 +454,7 @@ final class IMFEssenceComponentReader
      * @return a ByteProvider corresponding to the header
      * @throws IOException
      */
-    ByteProvider getByteProvider(MXFKLVPacket.Header header) throws IOException {
+    ByteProvider getByteProvider(KLVPacket.Header header) throws IOException {
         File file = this.resourceByteRangeProvider.getByteRange(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize(), this.workingDirectory);
         return this.getByteProvider(file);
     }
@@ -580,7 +580,7 @@ final class IMFEssenceComponentReader
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
                 Document document = docBuilder.newDocument();
                 /*Output file containing the RegXML representation of the EssenceDescriptor*/
-                MXFKLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
+                KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
                 File outputFile = imfEssenceCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader);
             }
         }

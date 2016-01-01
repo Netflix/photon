@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFField;
 
 /**
@@ -43,7 +43,7 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        MCALabelSubDescriptorBO(final MXFKLVPacket.Header header) {
+        MCALabelSubDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
     }

@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public final class PrimerPack
     private static final byte[] KEY      = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x05, 0x01, 0x00, 0x0d, 0x01, 0x02, 0x01, 0x01, 0x05, 0x01, 0x00};
     private static final byte[] KEY_MASK = {   1,    1,     1,    1,    1,    1,   1,    0,    1,    1,    1,     1,    1,   1,    1,    1};
 
-    private final MXFKLVPacket.Header header;
+    private final KLVPacket.Header header;
     private final LocalTagEntryBatch localTagEntryBatch;
 
     /**
@@ -46,7 +46,7 @@ public final class PrimerPack
      */
     PrimerPack(ByteProvider byteProvider, long byteOffset) throws IOException
     {
-        this.header = new MXFKLVPacket.Header(byteProvider, byteOffset);
+        this.header = new KLVPacket.Header(byteProvider, byteOffset);
         if(!PrimerPack.isValidKey(Arrays.copyOf(this.header.getKey(), this.header.getKey().length)))
         {
             throw new MXFException("Found invalid PrimerPack key");
@@ -61,7 +61,7 @@ public final class PrimerPack
      * @param header the mxf klv packet header
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    PrimerPack(ByteProvider byteProvider, MXFKLVPacket.Header header) throws IOException
+    PrimerPack(ByteProvider byteProvider, KLVPacket.Header header) throws IOException
     {
         this.header = header;
         this.localTagEntryBatch = new LocalTagEntryBatch(byteProvider);
@@ -72,7 +72,7 @@ public final class PrimerPack
      *
      * @return the MXFKLV Header
      */
-    public MXFKLVPacket.Header getHeader(){
+    public KLVPacket.Header getHeader(){
         return this.header;
     }
 
@@ -84,7 +84,7 @@ public final class PrimerPack
      */
     public static boolean isValidKey(byte[] key)
     {
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if((PrimerPack.KEY_MASK[i] != 0) && (PrimerPack.KEY[i] != key[i]))
             {

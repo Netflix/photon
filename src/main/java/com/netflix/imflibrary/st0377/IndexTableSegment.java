@@ -22,7 +22,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public final class IndexTableSegment
         LOCAL_TAG_TO_ITEM_NAME = Collections.unmodifiableMap(localTagToItemName);
     }
 
-    private final MXFKLVPacket.Header header;
+    private final KLVPacket.Header header;
     @MXFField(size=16) private final byte[] instance_UID = null;
     @MXFField(size=0) private final CompoundDataTypes.Rational indexEditRate = null;
     @MXFField(size=8) private final Long index_start_position = null;
@@ -82,7 +82,7 @@ public final class IndexTableSegment
      * @param header the header
      * @throws IOException the iO exception
      */
-    public IndexTableSegment(ByteProvider byteProvider, MXFKLVPacket.Header header) throws IOException
+    public IndexTableSegment(ByteProvider byteProvider, KLVPacket.Header header) throws IOException
     {
 
         if (!IndexTableSegment.isValidKey(header.getKey()))
@@ -103,18 +103,18 @@ public final class IndexTableSegment
         IndexEntryArray indexEntryArray = null;
         while (numBytesRead < numBytesToRead)
         {
-            Integer itemTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+            Integer itemTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             numBytesRead += 2;
 
             long itemSize;
             if (this.header.getKey()[5] == 0x53)
             {
-                itemSize = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+                itemSize = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
                 numBytesRead += 2;
             }
             else
             {//(this.header.getKey()[5] == 0x13)
-                MXFKLVPacket.LengthField lengthField = MXFKLVPacket.getLength(byteProvider);
+                KLVPacket.LengthField lengthField = KLVPacket.getLength(byteProvider);
                 itemSize = lengthField.value;
                 numBytesRead += lengthField.sizeOfLengthField;
             }
@@ -211,7 +211,7 @@ public final class IndexTableSegment
      */
     public static boolean isValidKey(byte[] key)
     {
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if((IndexTableSegment.KEY_MASK[i] != 0) && (IndexTableSegment.KEY[i] != key[i]))
             {

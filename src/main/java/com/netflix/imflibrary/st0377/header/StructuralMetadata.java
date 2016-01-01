@@ -23,7 +23,7 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -420,7 +420,7 @@ public final class StructuralMetadata
             return true;
         }
 
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (StructuralMetadata.KEY_MASK[i] != 0) && (StructuralMetadata.KEY_BASE[i] != key[i]) )
             {
@@ -550,19 +550,19 @@ public final class StructuralMetadata
             /*From smpte st 377-1:2011 section 9.6, all structural header metadata objects shall be implemented as MXF Local Sets
             which implies that the data item local tag is always 2 bytes long*/
             //read local tag
-            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             numBytesRead += 2;
 
             //read length
             long length;
             if (object.getHeader().getRegistryDesignator() == 0x53)
             {
-                length = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+                length = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
                 numBytesRead += 2;
             }
             else if (object.getHeader().getRegistryDesignator() == 0x13)
             {
-                MXFKLVPacket.LengthField lengthField = MXFKLVPacket.getLength(byteProvider);
+                KLVPacket.LengthField lengthField = KLVPacket.getLength(byteProvider);
                 length = lengthField.value;
                 numBytesRead += lengthField.sizeOfLengthField;
             }

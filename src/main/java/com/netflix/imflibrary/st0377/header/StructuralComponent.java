@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFField;
 
 /**
@@ -46,7 +46,7 @@ public abstract class StructuralComponent extends InterchangeObject
          *
          * @param header the header
          */
-        StructuralComponentBO(MXFKLVPacket.Header header)
+        StructuralComponentBO(KLVPacket.Header header)
         {
             super(header);
         }

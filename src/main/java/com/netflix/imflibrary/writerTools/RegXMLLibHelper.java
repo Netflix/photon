@@ -33,7 +33,7 @@ import com.sandflow.smpte.regxml.FragmentBuilder;
 import com.sandflow.smpte.regxml.dict.MetaDictionaryCollection;
 import com.sandflow.smpte.util.UL;
 import com.sandflow.smpte.util.UUID;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.utils.ByteProvider;
 import org.w3c.dom.Document;
@@ -66,7 +66,7 @@ public final class RegXMLLibHelper {
      * @param primerPackByteProvider the data provider for the primer pack
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public RegXMLLibHelper(MXFKLVPacket.Header primerPack, ByteProvider primerPackByteProvider) throws IOException{
+    public RegXMLLibHelper(KLVPacket.Header primerPack, ByteProvider primerPackByteProvider) throws IOException{
 
         try {
             InputStream in = ClassLoader.getSystemResourceAsStream("reference-registers/Elements.xml");
@@ -152,9 +152,9 @@ public final class RegXMLLibHelper {
      * @return A memory triplet representing the MXF KLV packet
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public MemoryTriplet getTripletFromKLVHeader(MXFKLVPacket.Header header, ByteProvider byteProvider) throws IOException {
-        UL key = new UL(byteProvider.getBytes(MXFKLVPacket.KEY_FIELD_SIZE));
-        MXFKLVPacket.LengthField lengthField = MXFKLVPacket.getLength(byteProvider);
+    public MemoryTriplet getTripletFromKLVHeader(KLVPacket.Header header, ByteProvider byteProvider) throws IOException {
+        UL key = new UL(byteProvider.getBytes(KLVPacket.KEY_FIELD_SIZE));
+        KLVPacket.LengthField lengthField = KLVPacket.getLength(byteProvider);
         if(lengthField.value != header.getVSize()){
             throw new MXFException(String.format("KLVPacket length %d read from the bitstream does not match the size of the value %d", lengthField.value, header.getVSize()));
         }

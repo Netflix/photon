@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFField;
 
 /**
@@ -48,7 +48,7 @@ public abstract class GenericTrack extends InterchangeObject
          *
          * @param header the header
          */
-        GenericTrackBO(MXFKLVPacket.Header header)
+        GenericTrackBO(KLVPacket.Header header)
         {
             super(header);
         }

@@ -28,7 +28,7 @@ import java.io.InputStream;
 import static org.testng.Assert.*;
 
 @Test(groups = "unit")
-public class MXFKLVPacketTest
+public class KLVPacketTest
 {
     private static final byte[] KberL1 = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x00, 0x03, 0x01, 0x02, 0x10, 0x01, 0x00, 0x00, 0x00, 0x7f};
     private static final byte[] KberL2 = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x00, 0x03, 0x01, 0x02, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00};
@@ -54,9 +54,9 @@ public class MXFKLVPacketTest
     @Test
     public void testBER1() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL1);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL1);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 1);
         assertEquals(header.getKLSize(), 17);
@@ -65,16 +65,16 @@ public class MXFKLVPacketTest
         assertFalse(header.categoryDesignatorIsGroups());
         assertFalse(header.categoryDesignatorIsWrappersAndContainers());
         assertFalse(header.categoryDesignatorIsLabels());
-        assertTrue(MXFKLVPacket.isKLVFillItem(header.getKey()));
+        assertTrue(KLVPacket.isKLVFillItem(header.getKey()));
         assertTrue(header.toString().length() > 0);
     }
 
     @Test
     public void testBER2() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL2);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL2);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 1);
         assertEquals(header.getKLSize(), 17);
@@ -84,25 +84,25 @@ public class MXFKLVPacketTest
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "First byte of length field in KLV item equals 0xFF")
     public void testInvalidBER3() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL3);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL3);
 
-        new MXFKLVPacket.Header(byteProvider, 0L);
+        new KLVPacket.Header(byteProvider, 0L);
     }
 
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "First byte of length field in KLV item equals 0x80")
     public void testInvalidBER4() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL4);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL4);
 
-        new MXFKLVPacket.Header(byteProvider, 0L);
+        new KLVPacket.Header(byteProvider, 0L);
     }
 
     @Test
     public void testBER5() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL5);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL5);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 2);
         assertEquals(header.getKLSize(), 18);
@@ -112,9 +112,9 @@ public class MXFKLVPacketTest
     @Test
     public void testBER6() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL6);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL6);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 4);
         assertEquals(header.getKLSize(), 20);
@@ -124,9 +124,9 @@ public class MXFKLVPacketTest
     @Test
     public void testBER7() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL7);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL7);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 8);
         assertEquals(header.getKLSize(), 24);
@@ -136,22 +136,22 @@ public class MXFKLVPacketTest
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = "Cannot read .*")
     public void testInvalidBER8() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL8);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL8);
 
-        new MXFKLVPacket.Header(byteProvider, 0L);
+        new KLVPacket.Header(byteProvider, 0L);
     }
 
     @Test
     public void testBER9() throws Exception
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(MXFKLVPacketTest.KberL9);
+        ByteProvider byteProvider = new ByteArrayDataProvider(KLVPacketTest.KberL9);
 
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
 
         assertEquals(header.getLSize(), 1);
         assertEquals(header.getKLSize(), 17);
         assertEquals(header.getVSize(), 0);
-        assertFalse(MXFKLVPacket.isKLVFillItem(header.getKey()));
+        assertFalse(KLVPacket.isKLVFillItem(header.getKey()));
     }
 
 }

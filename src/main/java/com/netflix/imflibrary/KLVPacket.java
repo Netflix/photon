@@ -27,10 +27,9 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
- * An object model representing a KLV packet defined in st336:2007 and utility methods to check for MXF KLV packet definitions
+ * An object model representing a KLV packet defined in st336:2007 and utility methods to check for KLV packet definitions
  */
-//TODO: change the name of this class to KLVPacket
-public final class MXFKLVPacket
+public final class KLVPacket
 {
     /**
      * The constant BYTE_ORDER.
@@ -62,9 +61,9 @@ public final class MXFKLVPacket
      */
     public static boolean isKLVFillItem(byte[] key)
     {
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
-            if((MXFKLVPacket.KLV_FILL_ITEM_KEY_MASK[i] != 0) && (MXFKLVPacket.KLV_FILL_ITEM_KEY[i] != key[i]))
+            if((KLVPacket.KLV_FILL_ITEM_KEY_MASK[i] != 0) && (KLVPacket.KLV_FILL_ITEM_KEY[i] != key[i]))
             {
                 return false;
             }
@@ -80,7 +79,7 @@ public final class MXFKLVPacket
      */
     public static boolean isPHDRImageMetadataItemKey(byte[] key)
     {
-        return Arrays.equals(key, MXFKLVPacket.PHDR_IMAGE_METADATA_ITEM_KEY);
+        return Arrays.equals(key, KLVPacket.PHDR_IMAGE_METADATA_ITEM_KEY);
     }
 
     /**
@@ -91,12 +90,12 @@ public final class MXFKLVPacket
      */
     public static boolean isGenericStreamPartitionDataElementKey(byte[] key)
     {
-        return Arrays.equals(key, MXFKLVPacket.GENERIC_STREAM_PARTITION_DATA_ELEMENT_KEY);
+        return Arrays.equals(key, KLVPacket.GENERIC_STREAM_PARTITION_DATA_ELEMENT_KEY);
     }
 
 
     //prevent instantiation
-    private MXFKLVPacket()
+    private KLVPacket()
     {
     }
 
@@ -130,10 +129,10 @@ public final class MXFKLVPacket
             }
 
             int numBytesToRead = value & 0x7F;
-            if (numBytesToRead > MXFKLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE)
+            if (numBytesToRead > KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE)
             {
                 throw new MXFException(String.format("Size of length field = %d is greater than max size = %d",
-                        numBytesToRead, MXFKLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE));
+                        numBytesToRead, KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE));
             }
 
             byte[] byteArray = byteProvider.getBytes(numBytesToRead);
@@ -202,8 +201,8 @@ public final class MXFKLVPacket
          */
         public Header(ByteProvider byteProvider, long byteOffset) throws IOException
         {
-            this.key = byteProvider.getBytes(MXFKLVPacket.KEY_FIELD_SIZE);
-            LengthField lengthField = MXFKLVPacket.getLength(byteProvider);
+            this.key = byteProvider.getBytes(KLVPacket.KEY_FIELD_SIZE);
+            LengthField lengthField = KLVPacket.getLength(byteProvider);
             this.length = lengthField.value;
             this.sizeOfLengthField = lengthField.sizeOfLengthField;
             this.byteOffset = byteOffset;
@@ -256,7 +255,7 @@ public final class MXFKLVPacket
          */
         public long getKLSize()
         {
-            return MXFKLVPacket.KEY_FIELD_SIZE + this.sizeOfLengthField;
+            return KLVPacket.KEY_FIELD_SIZE + this.sizeOfLengthField;
         }
 
         /**

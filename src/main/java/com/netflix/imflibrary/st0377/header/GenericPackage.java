@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
@@ -91,7 +91,7 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @param header the header
          */
-        GenericPackageBO(MXFKLVPacket.Header header)
+        GenericPackageBO(KLVPacket.Header header)
         {
             super(header);
         }

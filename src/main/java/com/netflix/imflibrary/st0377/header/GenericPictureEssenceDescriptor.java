@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
@@ -41,7 +41,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        GenericPictureEssenceDescriptorBO(final MXFKLVPacket.Header header) {
+        GenericPictureEssenceDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
     }

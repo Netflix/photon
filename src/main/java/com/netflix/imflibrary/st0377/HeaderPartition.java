@@ -24,7 +24,7 @@ import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.ContentStorage;
@@ -112,7 +112,7 @@ public final class HeaderPartition
 
         //read primer pack or a single KLV fill item followed by primer pack
         {
-            MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
@@ -126,7 +126,7 @@ public final class HeaderPartition
                 byteProvider.skipBytes(header.getVSize());
                 numBytesRead += header.getVSize();
 
-                header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+                header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
                 key = Arrays.copyOf(header.getKey(), header.getKey().length);
                 numBytesRead += header.getKLSize();
                 if (PrimerPack.isValidKey(key))
@@ -145,7 +145,7 @@ public final class HeaderPartition
         //read structural metadata + KLV fill items
         while (numBytesRead < maxPartitionSize)
         {
-            MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
             logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUID(header.getKey()), header.getLSize(), header.getVSize()));
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
@@ -408,9 +408,9 @@ public final class HeaderPartition
      * A factory method to reflectively construct InterchangeObjectBO types by classname and argument list
      * @return the constructed InterchangeBO
      */
-    private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, MXFKLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
+    private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, KLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
         try {
-            Constructor<?> constructor = clazz.getConstructor(MXFKLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
+            Constructor<?> constructor = clazz.getConstructor(KLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
             return (InterchangeObject.InterchangeObjectBO)constructor.newInstance(header, byteProvider, localTagToUIDMap, imfErrorLogger);
         }
         catch(NoSuchMethodException|IllegalAccessException|InstantiationException|InvocationTargetException e){

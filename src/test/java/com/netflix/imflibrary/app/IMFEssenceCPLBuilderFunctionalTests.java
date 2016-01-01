@@ -18,7 +18,7 @@ package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
@@ -85,7 +85,7 @@ public class IMFEssenceCPLBuilderFunctionalTests {
         ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
         HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
         List<InterchangeObject.InterchangeObjectBO> list = headerPartition.getEssenceDescriptors();
-        List<MXFKLVPacket.Header> essenceDescriptorHeaders = new ArrayList<>();
+        List<KLVPacket.Header> essenceDescriptorHeaders = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO descriptorBO : list){
             essenceDescriptorHeaders.add(descriptorBO.getHeader());
         }
