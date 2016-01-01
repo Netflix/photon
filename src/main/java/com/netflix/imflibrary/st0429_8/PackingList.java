@@ -102,7 +102,7 @@ public final class PackingList
 
             this.packingListType  = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
 
-            this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(this.packingListType.getId()));
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.packingListType.getId());
 
             for (AssetType assetType : this.packingListType.getAssetList().getAsset())
             {
@@ -166,7 +166,7 @@ public final class PackingList
          */
         public Asset(AssetType assetType)
         {
-            this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId()));
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetType.getId());
             this.hash = Arrays.copyOf(assetType.getHash(), assetType.getHash().length);
             this.size = assetType.getSize().longValue();
             this.type = assetType.getType();

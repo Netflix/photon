@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -99,7 +98,7 @@ public final class AssetMap
             this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue());
         }
 
-        this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(this.assetMapType.getId()));
+        this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
 
         for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
         {
@@ -208,7 +207,7 @@ public final class AssetMap
          */
         public Asset(AssetType assetType) throws URISyntaxException
         {
-            this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(assetType.getId()));
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetType.getId());
             this.isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
             this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
         }

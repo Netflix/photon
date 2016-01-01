@@ -112,7 +112,7 @@ public final class CompositionPlaylist
             this.compositionPlaylistType = compositionPlaylistType;
         }
 
-        this.uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(this.compositionPlaylistType.getId()));
+        this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.compositionPlaylistType.getId());
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
@@ -175,7 +175,7 @@ public final class CompositionPlaylist
         sequence = segment.getSequenceList().getMarkerSequence();
         if (sequence != null)
         {
-            UUID uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(sequence.getTrackId()));
+            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
             if (virtualTrackMap.get(uuid) == null)
             {
                 VirtualTrack virtualTrack = new VirtualTrack(uuid, SequenceTypeEnum.MarkerSequence);
@@ -194,7 +194,7 @@ public final class CompositionPlaylist
             sequence = (SequenceType)(jaxbElement).getValue();
             if (sequence != null)
             {
-                UUID uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(sequence.getTrackId()));
+                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 if (virtualTrackMap.get(uuid) == null)
                 {
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, SequenceTypeEnum.getSequenceTypeEnum(name));
@@ -222,7 +222,7 @@ public final class CompositionPlaylist
             sequence = segment.getSequenceList().getMarkerSequence();
             if (sequence != null)
             {
-                UUID uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(sequence.getTrackId()));
+                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 trackIDs.add(uuid);
                 if (virtualTrackMap.get(uuid) == null)
                 {//TODO: add error messaging
@@ -237,7 +237,7 @@ public final class CompositionPlaylist
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
                 {
-                    UUID uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(sequence.getTrackId()));
+                    UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                     trackIDs.add(uuid);
                     if (virtualTrackMap.get(uuid) == null)
                     {//TODO: add error messaging
@@ -270,7 +270,7 @@ public final class CompositionPlaylist
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
                 {
-                    UUID uuid = UUID.fromString(UUIDHelper.fromUUIDAsURNToUUID(sequence.getTrackId()));
+                    UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                     List<TrackFileResourceType> trackFileResources = new ArrayList<>();
                     for (BaseResourceType resource : sequence.getResourceList().getResource())
                     {
