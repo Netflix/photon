@@ -50,10 +50,10 @@ public final class IMPDelivery
     /**
      * Constructor for an IMPDelivery object for deliveries that are based on Basic Map Profile v2 (Annex A st0429-9:2014)
      * @param basicMapProfilev2FileSet a single mapped file set that is compliant with Basic Map Profile v2 (Annex A st0429-9:2014)
-     * @throws IOException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
-     * @throws SAXException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
-     * @throws JAXBException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
-     * @throws URISyntaxException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet)} constructor
+     * @throws IOException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet) BasicMapProfilev2FileSet} constructor
+     * @throws SAXException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet) BasicMapProfilev2FileSet} constructor
+     * @throws JAXBException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet) BasicMapProfilev2FileSet} constructor
+     * @throws URISyntaxException - forwarded from {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet#BasicMapProfilev2FileSet(com.netflix.imflibrary.st0429_9.MappedFileSet) BasicMapProfilev2FileSet} constructor
      */
     public IMPDelivery(BasicMapProfilev2FileSet basicMapProfilev2FileSet) throws IOException, SAXException, JAXBException, URISyntaxException
     {
