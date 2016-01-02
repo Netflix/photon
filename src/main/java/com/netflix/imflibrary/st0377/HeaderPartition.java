@@ -19,12 +19,12 @@
 package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.ContentStorage;
@@ -78,8 +78,8 @@ public final class HeaderPartition
     private final PrimerPack primerPack;
     private final Map<String, List<InterchangeObject>> interchangeObjectsMap = new LinkedHashMap<>();
     private final Map<String, List<InterchangeObject.InterchangeObjectBO>> interchangeObjectBOsMap = new LinkedHashMap<>();
-    private final Map<MXFUid, InterchangeObject> uidToMetadataSets = new LinkedHashMap<>();
-    private final Map<MXFUid, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
+    private final Map<MXFUID, InterchangeObject> uidToMetadataSets = new LinkedHashMap<>();
+    private final Map<MXFUID, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
 
@@ -112,7 +112,7 @@ public final class HeaderPartition
 
         //read primer pack or a single KLV fill item followed by primer pack
         {
-            MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
@@ -126,7 +126,7 @@ public final class HeaderPartition
                 byteProvider.skipBytes(header.getVSize());
                 numBytesRead += header.getVSize();
 
-                header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+                header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
                 key = Arrays.copyOf(header.getKey(), header.getKey().length);
                 numBytesRead += header.getKLSize();
                 if (PrimerPack.isValidKey(key))
@@ -145,8 +145,8 @@ public final class HeaderPartition
         //read structural metadata + KLV fill items
         while (numBytesRead < maxPartitionSize)
         {
-            MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
-            logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUid(header.getKey()), header.getLSize(), header.getVSize()));
+            KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUID(header.getKey()), header.getLSize(), header.getVSize()));
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
@@ -154,7 +154,7 @@ public final class HeaderPartition
             {
                 Class clazz = StructuralMetadata.getStructuralMetadataSetClass(key);
                 if(!clazz.getSimpleName().equals(Object.class.getSimpleName())){
-                    logger.info(String.format("KLV item with key = %s corresponds to class %s", new MXFUid(header.getKey()), clazz.getSimpleName()));
+                    logger.info(String.format("KLV item with key = %s corresponds to class %s", new MXFUID(header.getKey()), clazz.getSimpleName()));
                     InterchangeObject.InterchangeObjectBO interchangeObjectBO = this.constructInterchangeObjectBO(clazz, header, byteProvider, this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), imfErrorLogger);
                     List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(interchangeObjectBO.getClass().getSimpleName());
                     if(list == null){
@@ -199,33 +199,26 @@ public final class HeaderPartition
             throw new MXFException(String.format("%d errors encountered when reading header partition", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
-//        if (this.contentStorageBOs.size() != 1)
-//        {
-//            imfErrorLogger.addError(IMFErrors.ErrorCodes.MXF_PARTITION_ERROR, IMFErrors.ErrorLevels.FATAL,
-//                    HeaderPartition.ERROR_DESCRIPTION_PREFIX + String.format("Found %d ContentStorage sets, only one is allowed in header partition",
-//                            this.contentStorageBOs.size()));
-//        }
-
         Set<InterchangeObject.InterchangeObjectBO> parsedInterchangeObjectBOs = new LinkedHashSet<>();
-        for (Map.Entry<MXFUid, InterchangeObject.InterchangeObjectBO> entry : uidToBOs.entrySet())
+        for (Map.Entry<MXFUID, InterchangeObject.InterchangeObjectBO> entry : uidToBOs.entrySet())
         {
             parsedInterchangeObjectBOs.add(entry.getValue());
         }
-        Map<MXFUid, Node> instanceIDToNodes = new LinkedHashMap<>();
+        Map<MXFUID, Node> instanceIDToNodes = new LinkedHashMap<>();
 
         for(InterchangeObject.InterchangeObjectBO interchangeObjectBO : parsedInterchangeObjectBOs)
         {
             instanceIDToNodes.put(interchangeObjectBO.getInstanceUID(), new Node(interchangeObjectBO.getInstanceUID()));
         }
 
-        for (Map.Entry<MXFUid, Node> entry : instanceIDToNodes.entrySet())
+        for (Map.Entry<MXFUID, Node> entry : instanceIDToNodes.entrySet())
         {
             Node node = entry.getValue();
             InterchangeObject.InterchangeObjectBO interchangeObjectBO = uidToBOs.get(node.uid);
-            List<MXFUid> dependentUIDs = MXFFieldPopulator.getDependentUIDs(interchangeObjectBO);
-            for(MXFUid mxfUid : dependentUIDs)
+            List<MXFUID> dependentUIDs = MXFFieldPopulator.getDependentUIDs(interchangeObjectBO);
+            for(MXFUID MXFUID : dependentUIDs)
             {
-                InterchangeObject.InterchangeObjectBO dependentInterchangeObjectBO = uidToBOs.get(mxfUid);
+                InterchangeObject.InterchangeObjectBO dependentInterchangeObjectBO = uidToBOs.get(MXFUID);
                 if (dependentInterchangeObjectBO != null)
                 {
                     Node providerNode = instanceIDToNodes.get(dependentInterchangeObjectBO.getInstanceUID());
@@ -408,9 +401,9 @@ public final class HeaderPartition
      * A factory method to reflectively construct InterchangeObjectBO types by classname and argument list
      * @return the constructed InterchangeBO
      */
-    private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, MXFKLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
+    private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, KLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
         try {
-            Constructor<?> constructor = clazz.getConstructor(MXFKLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
+            Constructor<?> constructor = clazz.getConstructor(KLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
             return (InterchangeObject.InterchangeObjectBO)constructor.newInstance(header, byteProvider, localTagToUIDMap, imfErrorLogger);
         }
         catch(NoSuchMethodException|IllegalAccessException|InstantiationException|InvocationTargetException e){
@@ -582,9 +575,9 @@ public final class HeaderPartition
         Long maxDuration = duration;
         for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
         {
-            List<MXFUid> uids = timelineTrack.getSequence().getStructuralComponentInstanceUIDs();
+            List<MXFUID> uids = timelineTrack.getSequence().getStructuralComponentInstanceUIDs();
             List<InterchangeObject.InterchangeObjectBO> structuralComponentBOs = new ArrayList<>();
-            for(MXFUid uid : uids){
+            for(MXFUID uid : uids){
                 if(this.uidToBOs.get(uid) != null){
                     structuralComponentBOs.add(this.uidToBOs.get(uid));
                 }
@@ -696,12 +689,12 @@ public final class HeaderPartition
     /**
      * Gets the timeline track associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the Timeline Track
+     * @param MXFUID corresponding to the Timeline Track
      * @return null if this header partition does not contain a timeline track, else a timeline track object
      */
-    public @Nullable TimelineTrack getTimelineTrack(MXFUid mxfUid)
+    public @Nullable TimelineTrack getTimelineTrack(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         TimelineTrack timelineTrack = null;
         if (object instanceof TimelineTrack)
@@ -714,12 +707,12 @@ public final class HeaderPartition
     /**
      * Gets the Sequence object associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the Sequence
+     * @param MXFUID corresponding to the Sequence
      * @return null if this header partition does not contain a sequence, else a sequence object
      */
-    public @Nullable Sequence getSequence(MXFUid mxfUid)
+    public @Nullable Sequence getSequence(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         Sequence sequence = null;
         if (object instanceof Sequence)
@@ -732,12 +725,12 @@ public final class HeaderPartition
     /**
      * Gets the SourceClip object associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the Source Clip
+     * @param MXFUID corresponding to the Source Clip
      * @return null if this header partition does not contain a source clip, else a source clip object
      */
-    public @Nullable SourceClip getSourceClip(MXFUid mxfUid)
+    public @Nullable SourceClip getSourceClip(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         SourceClip sourceClip = null;
         if (object instanceof SourceClip)
@@ -750,12 +743,12 @@ public final class HeaderPartition
     /**
      * Gets the MaterialPackage object associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the Material Package
+     * @param MXFUID corresponding to the Material Package
      * @return null if this header partition does not contain a material package, else a material package object
      */
-    public @Nullable MaterialPackage getMaterialPackage(MXFUid mxfUid)
+    public @Nullable MaterialPackage getMaterialPackage(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         MaterialPackage materialPackage = null;
         if (object instanceof MaterialPackage)
@@ -768,12 +761,12 @@ public final class HeaderPartition
     /**
      * Gets the SourcePackage object associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the Source Package
+     * @param MXFUID corresponding to the Source Package
      * @return null if this header partition does not contain a source package, else a source package object
      */
-    public @Nullable SourcePackage getSourcePackage(MXFUid mxfUid)
+    public @Nullable SourcePackage getSourcePackage(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         SourcePackage sourcePackage = null;
         if (object instanceof SourcePackage)
@@ -786,12 +779,12 @@ public final class HeaderPartition
     /**
      * Gets the EssenceContainerData object associated with this HeaderPartition object corresponding to the specified UID. Returns
      * null if none is found
-     * @param mxfUid corresponding to the EssenceContainerData
+     * @param MXFUID corresponding to the EssenceContainerData
      * @return null if this header partition does not contain an EssenceContainerData object, else a EssenceContainerData object
      */
-    public @Nullable EssenceContainerData getEssenceContainerData(MXFUid mxfUid)
+    public @Nullable EssenceContainerData getEssenceContainerData(MXFUID MXFUID)
     {
-        Object object = this.uidToMetadataSets.get(mxfUid);
+        Object object = this.uidToMetadataSets.get(MXFUID);
 
         EssenceContainerData essenceContainerData = null;
         if (object instanceof EssenceContainerData)
@@ -887,11 +880,11 @@ function visit(node n)
 
     private static class Node
     {
-        private final MXFUid uid;
+        private final MXFUID uid;
         private final List<Node> depends;
         private Mark mark;
 
-        private Node(MXFUid uid)
+        private Node(MXFUID uid)
         {
             this.uid = uid;
             this.mark = Mark.NONE;

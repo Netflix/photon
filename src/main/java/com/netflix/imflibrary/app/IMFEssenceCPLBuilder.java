@@ -19,22 +19,22 @@
 package com.netflix.imflibrary.app;
 
 import com.sandflow.smpte.klv.Triplet;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import org.smpte_ra.schemas.ObjectFactory;
-import org.smpte_ra.schemas.TrackFileResourceType;
-import org.smpte_ra.schemas.BaseResourceType;
-import org.smpte_ra.schemas.CompositionTimecodeType;
-import org.smpte_ra.schemas.ContentKindType;
-import org.smpte_ra.schemas.ContentMaturityRatingType;
-import org.smpte_ra.schemas.ContentVersionType;
-import org.smpte_ra.schemas.EssenceDescriptorBaseType;
-import org.smpte_ra.schemas.LocaleType;
-import org.smpte_ra.schemas.SegmentType;
-import org.smpte_ra.schemas.SequenceType;
-import org.smpte_ra.schemas.UserTextType;
-import org.smpte_ra.schemas.CompositionPlaylistType;
+import org.smpte_ra.schemas.st2067_2_2013.ObjectFactory;
+import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
+import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType;
+import org.smpte_ra.schemas.st2067_2_2013.ContentKindType;
+import org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType;
+import org.smpte_ra.schemas.st2067_2_2013.ContentVersionType;
+import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
+import org.smpte_ra.schemas.st2067_2_2013.LocaleType;
+import org.smpte_ra.schemas.st2067_2_2013.SegmentType;
+import org.smpte_ra.schemas.st2067_2_2013.SequenceType;
+import org.smpte_ra.schemas.st2067_2_2013.UserTextType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -91,7 +91,7 @@ final class IMFEssenceCPLBuilder {
     public IMFEssenceCPLBuilder(File workingDirectory, File essenceFile) throws IOException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceFile);
         this.imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
-        MXFKLVPacket.Header primerPackHeader = this.imfEssenceComponentReader.getPrimerPackHeader();
+        KLVPacket.Header primerPackHeader = this.imfEssenceComponentReader.getPrimerPackHeader();
         this.regXMLLibHelper = new RegXMLLibHelper(primerPackHeader, this.imfEssenceComponentReader.getByteProvider(primerPackHeader));
         this.workingDirectory = workingDirectory;
         /*Peek into the CompositionPlayListType and recursively construct its constituent fields*/
@@ -196,8 +196,8 @@ final class IMFEssenceCPLBuilder {
             List<EssenceDescriptorBaseType> essenceDescriptorList = this.cplRoot.getEssenceDescriptorList().getEssenceDescriptor();
             List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.imfEssenceComponentReader.getEssenceDescriptors();
             for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
-                MXFKLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                List<MXFKLVPacket.Header> subDescriptorHeaders = this.imfEssenceComponentReader.getSubDescriptorKLVHeader(essenceDescriptor);
+                KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
+                List<KLVPacket.Header> subDescriptorHeaders = this.imfEssenceComponentReader.getSubDescriptorKLVHeader(essenceDescriptor);
                 /*Create a dom*/
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -354,7 +354,7 @@ final class IMFEssenceCPLBuilder {
      * @throws MXFException - any MXF standard related non-compliance will be exposed through a MXF exception
      * @throws TransformerException - any XML transformation critical error will be exposed through a TransformerException
      */
-    File getEssenceDescriptorAsXMLFile(Document document, MXFKLVPacket.Header essenceDescriptor) throws MXFException, IOException, TransformerException {
+    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor) throws MXFException, IOException, TransformerException {
 
         File outputFile = new File(this.workingDirectory + "/" + "EssenceDescriptor.xml");
 
@@ -384,14 +384,14 @@ final class IMFEssenceCPLBuilder {
         return outputFile;
     }
 
-    private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, MXFKLVPacket.Header essenceDescriptor, List<MXFKLVPacket.Header>subDescriptors) throws MXFException, IOException {
+    private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException {
         document.setXmlStandalone(true);
 
         Triplet essenceDescriptorTriplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfEssenceComponentReader.getByteProvider(essenceDescriptor));
         //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
         /*Get the Triplets corresponding to the SubDescriptors*/
         List<Triplet> subDescriptorTriplets = new ArrayList<>();
-        for(MXFKLVPacket.Header subDescriptorHeader : subDescriptors){
+        for(KLVPacket.Header subDescriptorHeader : subDescriptors){
             subDescriptorTriplets.add(this.regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.imfEssenceComponentReader.getByteProvider(subDescriptorHeader)));
         }
         return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);

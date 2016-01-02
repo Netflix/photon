@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 
 /**
  * Object model corresponding to Subdescriptor structural metadata set defined in st377-1:2011
@@ -35,7 +35,7 @@ public abstract class SubDescriptor extends InterchangeObject {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        SubDescriptorBO(final MXFKLVPacket.Header header) {
+        SubDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
     }

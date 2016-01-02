@@ -16,7 +16,7 @@
 
 package com.netflix.imflibrary.st0377;
 
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import org.testng.Assert;
@@ -36,7 +36,7 @@ public class IndexTableSegmentTest
         File inputFile = TestHelper.findResourceByPath("Netflix_Ident_23976_3840x2160_177AR.mxf.idx");
         byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
-        MXFKLVPacket.Header header = new MXFKLVPacket.Header(byteProvider, 0L);
+        KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
         IndexTableSegment indexTableSegment = new IndexTableSegment(byteProvider, header);
         Assert.assertTrue(indexTableSegment.toString().length() > 0);
         Assert.assertEquals(indexTableSegment.getIndexEntries().size(), 96);

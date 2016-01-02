@@ -22,7 +22,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
+import com.netflix.imflibrary.KLVPacket;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public final class RandomIndexPack
     private static final byte[] KEY = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x05, 0x01, 0x01, 0x0d, 0x01, 0x02, 0x01, 0x01, 0x11, 0x01, 0x00};
     private static final Integer RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE = 4;//Size of the RandomIndexPackLengthField per SMPTE-ST0377-1:2011 see Section 12
 
-    private final MXFKLVPacket.Header header;
+    private final KLVPacket.Header header;
     private final Map<Long, List<Long>> partitionMap = new LinkedHashMap<Long, List<Long>>();
     @MXFField(size=4) private final Long length = null;
 
@@ -59,13 +59,13 @@ public final class RandomIndexPack
      */
     public RandomIndexPack(ByteProvider byteProvider, long byteOffset, long fullPackLength) throws IOException
     {
-        this.header = new MXFKLVPacket.Header(byteProvider, byteOffset);
+        this.header = new KLVPacket.Header(byteProvider, byteOffset);
         if (!Arrays.equals(this.header.getKey(), RandomIndexPack.KEY))
         {
             throw new MXFException(String.format("Expected random index pack key = %s, found %s", Arrays.asList(RandomIndexPack.KEY), Arrays.asList(this.header.getKey())));
         }
 
-        if((fullPackLength - MXFKLVPacket.KEY_FIELD_SIZE - this.header.getLSize()) != this.header.getVSize())
+        if((fullPackLength - KLVPacket.KEY_FIELD_SIZE - this.header.getLSize()) != this.header.getVSize())
         {
             throw new MXFException(String.format("fullPackLength = %d is not consistent with length of length field = %d and length of value field = %d",
                     fullPackLength, this.header.getLSize(), this.header.getVSize()));
@@ -80,13 +80,13 @@ public final class RandomIndexPack
             }
         }
 
-        if (((fullPackLength - MXFKLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE)%bodySIDByteOffsetPairSize) != 0)
+        if (((fullPackLength - KLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE)%bodySIDByteOffsetPairSize) != 0)
         {
             throw new MXFException(String.format("Length of BodySIDByteOffsetPairs portion of RandomIndexPack = %d is not a multiple of %d",
-                    fullPackLength - MXFKLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE, bodySIDByteOffsetPairSize));
+                    fullPackLength - KLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE, bodySIDByteOffsetPairSize));
         }
 
-        long numBodySIDByteOffsetPairs = (fullPackLength - MXFKLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE)/bodySIDByteOffsetPairSize;
+        long numBodySIDByteOffsetPairs = (fullPackLength - KLVPacket.KEY_FIELD_SIZE - this.header.getLSize() - RANDOM_INDEX_PACK_LENGTH_FIELD_SIZE)/bodySIDByteOffsetPairSize;
 
         for (long i=0; i < numBodySIDByteOffsetPairs; i++)
         {

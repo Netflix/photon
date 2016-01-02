@@ -135,7 +135,7 @@ public final class MXFFieldPopulator
                     List<Integer> cList = new ArrayList<>();
                     for (long i=0; i<cHeader.getNumberOfElements(); i++)
                     {
-                        cList.add(getInt(byteProvider.getBytes(4), MXFKLVPacket.BYTE_ORDER));
+                        cList.add(getInt(byteProvider.getBytes(4), KLVPacket.BYTE_ORDER));
                     }
                     field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
                 }
@@ -171,32 +171,32 @@ public final class MXFFieldPopulator
             else if (field.getType() == Float.class)
             {
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getFloat(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getFloat(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Long.class) && (byteArraySize == 8))
             {// long
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getLong(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getLong(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Long.class) && (byteArraySize == 4))
             {// unsigned int
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getUnsignedIntAsLong(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getUnsignedIntAsLong(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Integer.class) && (byteArraySize == 4))
             {//signed int
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getInt(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getInt(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Integer.class) && (byteArraySize == 2))
             {//unsigned short
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getUnsignedShortAsInt(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getUnsignedShortAsInt(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Short.class) && (byteArraySize == 2))
             {//signed short
                 byte[] byteArray = byteProvider.getBytes(byteArraySize);
-                field.set(object, getShort(byteArray, MXFKLVPacket.BYTE_ORDER));
+                field.set(object, getShort(byteArray, KLVPacket.BYTE_ORDER));
             }
             else if ((field.getType() == Short.class) && (byteArraySize == 1))
             {//unsigned byte
@@ -377,7 +377,7 @@ public final class MXFFieldPopulator
      */
     public static Boolean getBooleanFromByte(byte[] byteArray)
     {
-        byte value = ByteBuffer.wrap(byteArray).order(MXFKLVPacket.BYTE_ORDER).get();
+        byte value = ByteBuffer.wrap(byteArray).order(KLVPacket.BYTE_ORDER).get();
         return ((value != 0));
     }
 
@@ -468,9 +468,9 @@ public final class MXFFieldPopulator
      * @param interchangeObjectBO the interchange object bO
      * @return the dependent uI ds
      */
-    public static List<MXFUid> getDependentUIDs(InterchangeObject.InterchangeObjectBO interchangeObjectBO)
+    public static List<MXFUID> getDependentUIDs(InterchangeObject.InterchangeObjectBO interchangeObjectBO)
     {
-        List<MXFUid> dependentUIDs = new ArrayList<>();
+        List<MXFUID> dependentUIDs = new ArrayList<>();
         Class aClass = interchangeObjectBO.getClass();
         while (aClass != null)
         {
@@ -515,7 +515,7 @@ public final class MXFFieldPopulator
                                 else
                                 {
                                     byte[] bytes = (byte[]) object;
-                                    dependentUIDs.add(new MXFUid(bytes));
+                                    dependentUIDs.add(new MXFUID(bytes));
                                 }
                             }
 

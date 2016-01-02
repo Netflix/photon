@@ -18,20 +18,46 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Object model corresponding to GenericPackage structural metadata set defined in st377-1:2011
  */
 public abstract class GenericPackage extends InterchangeObject
 {
+
+    private final GenericPackageBO genericPackageBO;
+
+    public GenericPackage(GenericPackageBO genericPackageBO)
+    {
+        this.genericPackageBO = genericPackageBO;
+    }
+
+    /**
+     * Getter for the immutable unique packager identifier which is a basic UMID (see st0330:2011)
+     * @return the immutable unique packager identifier represented as a MXFUid object
+     */
+    public MXFUID getPackageUID()
+    {
+        return new MXFUID(this.genericPackageBO.package_uid);
+    }
+
+    /**
+     * Getter for the material number part of the immutable unique package identifier
+     * @return the material number part as a UUID
+     */
+    public UUID getPackageMaterialNumberasUUID()
+    {
+        long mostSignificantBits = ByteBuffer.wrap(this.genericPackageBO.package_uid, 16, 8).getLong();
+        long leastSignificantBits = ByteBuffer.wrap(this.genericPackageBO.package_uid, 24, 8).getLong();
+        return new UUID(mostSignificantBits, leastSignificantBits);
+    }
 
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public abstract static class GenericPackageBO extends InterchangeObjectBO
@@ -58,14 +84,14 @@ public abstract class GenericPackage extends InterchangeObject
         /**
          * The Generic track instance uI ds.
          */
-        protected final List<MXFUid> genericTrackInstanceUIDs = new ArrayList<>();
+        protected final List<MXFUID> genericTrackInstanceUIDs = new ArrayList<>();
 
         /**
          * Instantiates a new Generic package ByteObject.
          *
          * @param header the header
          */
-        GenericPackageBO(MXFKLVPacket.Header header)
+        GenericPackageBO(KLVPacket.Header header)
         {
             super(header);
         }
@@ -75,9 +101,9 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the package uID
          */
-        public MXFUid getPackageUID()
+        public MXFUID getPackageUID()
         {
-            return new MXFUid(this.package_uid);
+            return new MXFUID(this.package_uid);
         }
 
         /**
@@ -85,9 +111,9 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the null package uID
          */
-        public static MXFUid getNullPackageUID()
+        public static MXFUID getNullPackageUID()
         {
-            return new MXFUid(GenericPackageBO.NULL_PACKAGE_UID);
+            return new MXFUID(GenericPackageBO.NULL_PACKAGE_UID);
         }
 
         /**
@@ -95,7 +121,7 @@ public abstract class GenericPackage extends InterchangeObject
          *
          * @return the generic track instance uI ds
          */
-        public List<MXFUid> getGenericTrackInstanceUIDs()
+        public List<MXFUID> getGenericTrackInstanceUIDs()
         {
             return Collections.unmodifiableList(this.genericTrackInstanceUIDs);
         }

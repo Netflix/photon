@@ -21,8 +21,8 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -51,6 +51,7 @@ public final class SourcePackage extends GenericPackage
      */
     public SourcePackage(SourcePackageBO sourcePackageBO, List<GenericTrack> genericTracks, GenericDescriptor genericDescriptor)
     {
+        super(sourcePackageBO);
         this.sourcePackageBO = sourcePackageBO;
         this.genericTracks = genericTracks;
         this.genericDescriptor = genericDescriptor;
@@ -60,18 +61,9 @@ public final class SourcePackage extends GenericPackage
      * Getter for the instance UID for this Source Package
      * @return the instance UID for this Source Package represented as a MXFUid object
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.sourcePackageBO.instance_uid);
-    }
-
-    /**
-     * Getter for the immutable unique packager identifier
-     * @return the immutable unique packager identifier represented as a MXFUid object
-     */
-    public MXFUid getPackageUID()
-    {
-        return new MXFUid(this.sourcePackageBO.package_uid);
+        return new MXFUID(this.sourcePackageBO.instance_uid);
     }
 
     /**
@@ -87,9 +79,9 @@ public final class SourcePackage extends GenericPackage
      * Getter for the list of tracks referred by this Source Package
      * @return the list of tracks referred by this Source Package represented as MXFUid objects
      */
-    public List<MXFUid> getTrackInstanceUIDs()
+    public List<MXFUID> getTrackInstanceUIDs()
     {
-        List<MXFUid> trackInstanceUIDs = new ArrayList<MXFUid>();
+        List<MXFUID> trackInstanceUIDs = new ArrayList<MXFUID>();
         for (InterchangeObjectBO.StrongRef strongRef : this.sourcePackageBO.tracks.getEntries())
         {
             trackInstanceUIDs.add(strongRef.getInstanceUID());
@@ -144,7 +136,7 @@ public final class SourcePackage extends GenericPackage
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public SourcePackageBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public SourcePackageBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -183,7 +175,7 @@ public final class SourcePackage extends GenericPackage
          * Getter for the descriptor UID referred by this Source Package
          * @return the descriptor UID referred by this Source Package
          */
-        public MXFUid getDescriptorUID()
+        public MXFUID getDescriptorUID()
         {
             return this.descriptor.getInstanceUID();
         }

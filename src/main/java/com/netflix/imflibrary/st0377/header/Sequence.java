@@ -19,11 +19,11 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.MXFDataDefinition;
 import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 import javax.annotation.concurrent.Immutable;
@@ -56,16 +56,16 @@ public final class Sequence extends StructuralComponent
     {
         this.sequenceBO = sequenceBO;
         this.structuralComponents = structuralComponents;
-        this.mxfDataDefinition = MXFDataDefinition.getDataDefinition(new MXFUid(this.sequenceBO.data_definition));
+        this.mxfDataDefinition = MXFDataDefinition.getDataDefinition(new MXFUID(this.sequenceBO.data_definition));
     }
 
     /**
      * Getter for the instance UID corresponding to this Sequence object
      * @return the instance UID corresponding to this Sequence object
      */
-    public MXFUid getInstanceUID()
+    public MXFUID getInstanceUID()
     {
-        return new MXFUid(this.sequenceBO.instance_uid);
+        return new MXFUID(this.sequenceBO.instance_uid);
     }
 
     /**
@@ -100,7 +100,7 @@ public final class Sequence extends StructuralComponent
      * @param index - the index in the list corresponding to the SourceClip structural component
      * @return the source clips
      */
-    public MXFUid getSourceClipUID(int index)
+    public MXFUID getSourceClipUID(int index)
     {
         return this.sequenceBO.structural_components.getEntries().get(index).getInstanceUID();
     }
@@ -127,7 +127,7 @@ public final class Sequence extends StructuralComponent
      * Getter for the list of instance UIDs of structural components referred by this sequence
      * @return the list of instance UIDs of structural components referred by this sequence
      */
-    public List<MXFUid> getStructuralComponentInstanceUIDs(){
+    public List<MXFUID> getStructuralComponentInstanceUIDs(){
         return this.sequenceBO.getStructuralComponentInstanceUIDs();
     }
 
@@ -150,7 +150,7 @@ public final class Sequence extends StructuralComponent
     {
 
         @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> structural_components = null;
-        private final List<MXFUid> structuralComponentInstanceUIDs = new ArrayList<>();
+        private final List<MXFUID> structuralComponentInstanceUIDs = new ArrayList<>();
 
         /**
          * Instantiates a new parsed Sequence object by virtue of parsing the MXF file bitstream
@@ -161,7 +161,7 @@ public final class Sequence extends StructuralComponent
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public SequenceBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public SequenceBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -207,7 +207,7 @@ public final class Sequence extends StructuralComponent
          * Getter for an unmodifiable list of instance UIDs of structural components referred by this sequence
          * @return an unmodifiable list of instance UIDs of structural components referred by this sequence
          */
-        public List<MXFUid> getStructuralComponentInstanceUIDs()
+        public List<MXFUID> getStructuralComponentInstanceUIDs()
         {
             return Collections.unmodifiableList(this.structuralComponentInstanceUIDs);
         }

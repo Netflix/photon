@@ -20,13 +20,15 @@ package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.utils.ErrorLogger;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * An implementation of the IMFErrorLogger interface
+ * An non-thread-safe implementation of the IMFErrorLogger interface
  */
+@NotThreadSafe
 public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really a logging aggregator
 {
     private final List<ErrorLogger.ErrorObject> errorObjects;
@@ -36,7 +38,7 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
      */
     public IMFErrorLoggerImpl()
     {
-        this.errorObjects = Collections.synchronizedList(new ArrayList<ErrorLogger.ErrorObject>());
+        this.errorObjects = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**

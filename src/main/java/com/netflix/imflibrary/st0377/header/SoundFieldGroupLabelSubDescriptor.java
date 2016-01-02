@@ -20,8 +20,8 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFUID;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
      * Getter for the MCALabelDictionary ID referred by this SoundFieldGroupLabelSubDescriptor object
      * @return the MCALabelDictionary ID referred by this SoundFieldGroupLabelSubDescriptor object
      */
-    public MXFUid getMCALabelDictionaryId()
+    public MXFUID getMCALabelDictionaryId()
     {
         return this.soundFieldGroupLabelSubDescriptorBO.mca_label_dictionary_id.getULAsMXFUid();
     }
@@ -58,9 +58,9 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
      * Getter for the MCALink Id that links the instances of the MCALabelSubDescriptors
      * @return the MCALink Id that links the instances of the MCALabelSubDescriptors
      */
-    public MXFUid getMCALinkId()
+    public MXFUID getMCALinkId()
     {
-        return new MXFUid(this.soundFieldGroupLabelSubDescriptorBO.mca_link_id);
+        return new MXFUID(this.soundFieldGroupLabelSubDescriptorBO.mca_link_id);
     }
 
     /**
@@ -89,7 +89,7 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public SoundFieldGroupLabelSubDescriptorBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public SoundFieldGroupLabelSubDescriptorBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);

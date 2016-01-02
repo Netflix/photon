@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
-import org.smpte_ra.schemas.CompositionPlaylistType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.XMLConstants;
@@ -54,10 +54,10 @@ class IMFCPLSerializer {
 
     public void write(CompositionPlaylistType cplType, OutputStream output, boolean formatted) throws IOException, org.xml.sax.SAXException, JAXBException {
         try(
-                InputStream cplSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/imf-cpl.xsd");
-                InputStream dcmlSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/dcmlTypes.xsd");
-                InputStream dsigSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/xmldsig-core-schema.xsd");
-                InputStream coreConstraintsSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/imf-core-constraints-20130620-pal.xsd")
+                InputStream cplSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
+                InputStream dcmlSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
+                InputStream dsigSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
+                InputStream coreConstraintsSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd")
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
@@ -68,7 +68,7 @@ class IMFCPLSerializer {
             schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
             Schema schema = schemaFactory.newSchema(schemaSources);
 
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas");
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);

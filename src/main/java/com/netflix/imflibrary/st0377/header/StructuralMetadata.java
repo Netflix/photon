@@ -19,11 +19,11 @@
 package com.netflix.imflibrary.st0377.header;
 
 
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,360 +47,360 @@ public final class StructuralMetadata
     private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
 
 
-    private static final Map<MXFUid, String> ItemULToItemName;
+    private static final Map<MXFUID, String> ItemULToItemName;
     static
     {
-        Map<MXFUid, String> map = new HashMap<>();
+        Map<MXFUID, String> map = new HashMap<>();
         //Preface
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x15, 0x02, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "instance_uid");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07, 0x02, 0x01, 0x10, 0x02, 0x04, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "last_modified_date");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x03, 0x01, 0x02, 0x01, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "version");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x04, 0x06, 0x01, 0x01, 0x04, 0x01, 0x08, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "primary_package");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x02, 0x01, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "content_storage");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x02, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "operational_pattern");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x02, 0x02, 0x10, 0x02, 0x01, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "essencecontainers");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x02, 0x02, 0x10, 0x02, 0x02, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "dm_schemes");
         }
         //TimelineTrack
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x01, 0x07, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "track_id");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x01, 0x04, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "track_number");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x02, 0x04, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "sequence");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x05, 0x30, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "edit_rate");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07 , 0x02, 0x01, 0x03, 0x01, 0x03, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "origin");
         }
         //CDCIPictureEssenceDescriptor
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x09, 0x06, 0x01, 0x01, 0x04, 0x06, 0x10, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "subdescriptors");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x06, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "sample_rate");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x01, 0x02, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "essence_container");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x01, 0x03, 0x01, 0x04, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "frame_layout");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x01, 0x05, 0x02, 0x02, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "stored_width");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x01, 0x05, 0x02, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "stored_height");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "aspect_ratio");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x01, 0x03, 0x02, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "video_line_map");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x01, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "picture_essence_coding");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x01, 0x05, 0x03, 0x0A, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "component_depth");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x04, 0x01, 0x05, 0x01, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "horizontal_subsampling");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x01, 0x05, 0x01, 0x10, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "vertical_subsampling");
         }
         //Sequence
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x07, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "data_definition");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07, 0x02, 0x02, 0x01, 0x01, 0x03, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "duration");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x06, 0x09, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "structural_components");
         }
         //SourceClip
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07, 0x02, 0x01, 0x03, 0x01, 0x04, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "start_position");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x03, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "source_package_id");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x03, 0x02, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "source_track_id");
         }
         //ContentStorage
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x05, 0x01, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "packages");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x05, 0x02, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "essencecontainer_data");
         }
         //EssenceContainerData
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x06, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "linked_package_uid");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x04, 0x01, 0x03, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "index_sid");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x04, 0x01, 0x03, 0x04, 0x04, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "body_sid");
         }
         //MaterialPackage
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x15, 0x10, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "package_uid");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07, 0x02, 0x01, 0x10, 0x01, 0x03, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "package_creation_date");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07, 0x02, 0x01, 0x10, 0x02, 0x05, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "package_modified_date");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x06, 0x05, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "tracks");
         }
         //SourcePackage
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x06, 0x01, 0x01, 0x04, 0x02, 0x03, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "descriptor");
         }
         //WaveAudioEssenceDescriptor
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x04, 0x02, 0x03, 0x01, 0x01, 0x01, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "audio_sampling_rate");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x04, 0x02, 0x01, 0x01, 0x04, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "channelcount");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x04, 0x04, 0x02, 0x03, 0x03, 0x04, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "quantization_bits");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x04, 0x02, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "sound_essence_coding");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x04, 0x02, 0x03, 0x02, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "block_align");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x04, 0x02, 0x03, 0x03, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "average_bytes_per_second");
         }
         {
             byte[] byteArray = {0x06, 0x0e ,0x2b ,0x34 ,0x01 ,0x01 ,0x01 ,0x07  ,0x04 ,0x02 ,0x01 ,0x01 ,0x05 ,0x00 ,0x00 ,0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "channel_assignment");
         }
         //AudioChannelLabelSubDescriptor
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mca_label_dictionary_id");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mca_link_id");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x02, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mca_tag_symbol");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x03, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mca_tag_name");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mca_channel_id");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x03, 0x01, 0x01, 0x02, 0x03, 0x15, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "rfc_5646_spoken_language");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x06, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "soundfield_group_link_id");
         }
         //JPEG2000SubDescriptor
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x01, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "rSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x02, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "xSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x03, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "ySiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x04, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "xoSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x05, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "yoSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x06, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "xtSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x07, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "ytSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x08, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "xtoSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x09, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "ytoSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x0A, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "cSiz");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x0B, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "picture_component_sizing");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x0C, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "coding_style_default");
         }
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0a, 0x04, 0x01, 0x06, 0x03, 0x0D, 0x00, 0x00, 0x00};
-            MXFUid mxfUL = new MXFUid(byteArray);
+            MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "quantisation_default");
         }
 
@@ -420,7 +420,7 @@ public final class StructuralMetadata
             return true;
         }
 
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (StructuralMetadata.KEY_MASK[i] != 0) && (StructuralMetadata.KEY_BASE[i] != key[i]) )
             {
@@ -541,7 +541,7 @@ public final class StructuralMetadata
      * @param localTagToUIDMap the local tag to uID map
      * @throws IOException the iO exception
      */
-    public static void populate(InterchangeObject.InterchangeObjectBO object, ByteProvider byteProvider, long numBytesToRead, Map<Integer, MXFUid> localTagToUIDMap)
+    public static void populate(InterchangeObject.InterchangeObjectBO object, ByteProvider byteProvider, long numBytesToRead, Map<Integer, MXFUID> localTagToUIDMap)
             throws IOException
     {
         long numBytesRead = 0;
@@ -550,19 +550,19 @@ public final class StructuralMetadata
             /*From smpte st 377-1:2011 section 9.6, all structural header metadata objects shall be implemented as MXF Local Sets
             which implies that the data item local tag is always 2 bytes long*/
             //read local tag
-            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             numBytesRead += 2;
 
             //read length
             long length;
             if (object.getHeader().getRegistryDesignator() == 0x53)
             {
-                length = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), MXFKLVPacket.BYTE_ORDER);
+                length = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
                 numBytesRead += 2;
             }
             else if (object.getHeader().getRegistryDesignator() == 0x13)
             {
-                MXFKLVPacket.LengthField lengthField = MXFKLVPacket.getLength(byteProvider);
+                KLVPacket.LengthField lengthField = KLVPacket.getLength(byteProvider);
                 length = lengthField.value;
                 numBytesRead += lengthField.sizeOfLengthField;
             }
@@ -573,7 +573,7 @@ public final class StructuralMetadata
             }
 
             //read or skip value
-            MXFUid mxfUL = localTagToUIDMap.get(localTag);
+            MXFUID mxfUL = localTagToUIDMap.get(localTag);
             if ((mxfUL != null) && (StructuralMetadata.ItemULToItemName.get(mxfUL) != null))
             {
                 String itemName = StructuralMetadata.ItemULToItemName.get(mxfUL);

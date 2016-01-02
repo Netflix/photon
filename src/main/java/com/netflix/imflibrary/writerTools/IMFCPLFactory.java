@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.writerTools;
 
 import com.netflix.imflibrary.exceptions.MXFException;
-import org.smpte_ra.schemas.CompositionPlaylistType;
+import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

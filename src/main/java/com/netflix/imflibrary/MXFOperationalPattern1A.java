@@ -142,13 +142,13 @@ public final class MXFOperationalPattern1A
             }
 
             //check if Material Package accesses a single source package
-            MXFUid referencedSourcePackageUMID = null;
+            MXFUID referencedSourcePackageUMID = null;
             for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
             {
                 Sequence sequence = timelineTrack.getSequence();
                 if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
                 {
-                    MXFUid thisSourcePackageUMID = sequence.getSourceClips().get(0).getSourcePackageID();
+                    MXFUID thisSourcePackageUMID = sequence.getSourceClips().get(0).getSourcePackageID();
                     if (referencedSourcePackageUMID == null)
                     {
                         referencedSourcePackageUMID = thisSourcePackageUMID;
@@ -178,7 +178,7 @@ public final class MXFOperationalPattern1A
             }
 
             //check if SourcePackageID referenced from Material Package is the same as that referred by EssenceContainer Data set
-            MXFUid linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
+            MXFUID linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
             if (!linkedPackageUID.equals(referencedSourcePackageUMID))
             {
                 throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Package UID = %s referred by EssenceContainerData set is different from %s which is referred by Material Package",

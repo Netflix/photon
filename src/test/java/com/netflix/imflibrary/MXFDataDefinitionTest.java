@@ -25,10 +25,10 @@ public class MXFDataDefinitionTest
     @Test
     public void testGetDataDefinition()
     {
-        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUid(MXFUid.picture_essence_track)), MXFDataDefinition.PICTURE);
-        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUid(MXFUid.sound_essence_track)), MXFDataDefinition.SOUND);
-        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUid(MXFUid.data_essence_track)), MXFDataDefinition.DATA);
+        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUID(MXFUID.picture_essence_track)), MXFDataDefinition.PICTURE);
+        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUID(MXFUID.sound_essence_track)), MXFDataDefinition.SOUND);
+        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUID(MXFUID.data_essence_track)), MXFDataDefinition.DATA);
         byte[] bytes = new byte[16];
-        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUid(bytes)), MXFDataDefinition.OTHER);
+        Assert.assertEquals(MXFDataDefinition.getDataDefinition(new MXFUID(bytes)), MXFDataDefinition.OTHER);
     }
 }

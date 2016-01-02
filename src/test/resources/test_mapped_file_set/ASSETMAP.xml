@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM">
+  <Id>urn:uuid:ebd66b29-a92c-4103-bbef-5f5f4cfc10ec</Id>
+  <AnnotationText>UHD Boat Comp444</AnnotationText>
+  <Creator>Telestream Media Framework Local 99.99.999999</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2015-10-09T15:24:12-07:00</IssueDate>
+  <Issuer>Telestream Inc.</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:51edd4be-4506-494d-a58e-516553055c33</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_51edd4be-4506-494d-a58e-516553055c33.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:682feecb-7516-4d93-b533-f40d4ce60539</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:93c158aa-b9e8-152e-9f17-0e9a350ff9ac</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>93c158aa-b9e8-152e-9f17-0e9a350ff9ac.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0311b323-564c-1857-a294-c0822db99baa</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>0311b323-564c-1857-a294-c0822db99baa.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

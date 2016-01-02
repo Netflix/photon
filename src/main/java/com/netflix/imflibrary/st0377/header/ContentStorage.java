@@ -19,10 +19,10 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 import javax.annotation.concurrent.Immutable;
@@ -93,9 +93,9 @@ public final class ContentStorage extends InterchangeObject
      * Getter for the PackageInstanceUIDs
      * @return a List of UID references to all the packages used in the MXF file
      */
-    public List<MXFUid> getPackageInstanceUIDs()
+    public List<MXFUID> getPackageInstanceUIDs()
     {
-        List<MXFUid> packageInstanceUIDs = new ArrayList<MXFUid>();
+        List<MXFUID> packageInstanceUIDs = new ArrayList<MXFUID>();
         for (InterchangeObjectBO.StrongRef strongRef : this.contentStorageBO.packages.getEntries())
         {
             packageInstanceUIDs.add(strongRef.getInstanceUID());
@@ -127,8 +127,8 @@ public final class ContentStorage extends InterchangeObject
 
         @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> packages = null;
         @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> essencecontainer_data = null;
-        private final List<MXFUid> packageInstanceUIDs = new ArrayList<>();
-        private final List<MXFUid> essenceContainerDataInstanceUIDs = new ArrayList<>();
+        private final List<MXFUID> packageInstanceUIDs = new ArrayList<>();
+        private final List<MXFUID> essenceContainerDataInstanceUIDs = new ArrayList<>();
 
 
         /**
@@ -140,7 +140,7 @@ public final class ContentStorage extends InterchangeObject
          * @param imfErrorLogger logger for recording any parsing errors
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
-        public ContentStorageBO(MXFKLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUid> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
+        public ContentStorageBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
             super(header);
@@ -187,7 +187,7 @@ public final class ContentStorage extends InterchangeObject
          * Getter for the PackageInstanceUIDs
          * @return a cloned List of UID references to all the packages used in the MXF file
          */
-        public List<MXFUid> getPackageInstanceUIDs()
+        public List<MXFUID> getPackageInstanceUIDs()
         {
             return Collections.unmodifiableList(this.packageInstanceUIDs);
         }
@@ -196,7 +196,7 @@ public final class ContentStorage extends InterchangeObject
          * Getter for the PackageInstanceUIDs
          * @return a cloned List of UID references to all the EssenceContainerData sets used in the MXF file
          */
-        public List<MXFUid> getEssenceContainerDataInstanceUIDs()
+        public List<MXFUID> getEssenceContainerDataInstanceUIDs()
         {
             return Collections.unmodifiableList(this.essenceContainerDataInstanceUIDs);
         }

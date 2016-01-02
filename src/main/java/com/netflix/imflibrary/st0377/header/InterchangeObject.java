@@ -18,8 +18,8 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.MXFKLVPacket;
-import com.netflix.imflibrary.MXFUid;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFField;
 
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ public abstract class InterchangeObject
         /**
          * The Header.
          */
-        protected final MXFKLVPacket.Header header;
+        protected final KLVPacket.Header header;
         /**
          * The Instance _ uid.
          */
@@ -48,7 +48,7 @@ public abstract class InterchangeObject
          *
          * @param header the header
          */
-        InterchangeObjectBO(MXFKLVPacket.Header header)
+        InterchangeObjectBO(KLVPacket.Header header)
         {
             this.header = header;
         }
@@ -58,7 +58,7 @@ public abstract class InterchangeObject
          *
          * @return the header
          */
-        public MXFKLVPacket.Header getHeader()
+        public KLVPacket.Header getHeader()
         {
             return this.header;
         }
@@ -69,11 +69,11 @@ public abstract class InterchangeObject
          * @return the instance uID
          */
         public @Nullable
-        MXFUid getInstanceUID()
+        MXFUID getInstanceUID()
         {
             if (this.instance_uid != null)
             {
-                return new MXFUid(this.instance_uid);
+                return new MXFUID(this.instance_uid);
             }
 
             return null;
@@ -97,8 +97,8 @@ public abstract class InterchangeObject
              * Accessor for the underlying instance_uid
              * @return MXFUId type corresponding to the instance_uid that this Strong reference object represents
              */
-            public MXFUid getInstanceUID(){
-                return new MXFUid(this.instance_uid);
+            public MXFUID getInstanceUID(){
+                return new MXFUID(this.instance_uid);
             }
 
             /**

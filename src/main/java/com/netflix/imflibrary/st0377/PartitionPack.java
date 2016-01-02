@@ -19,12 +19,12 @@
 package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFField;
 import com.netflix.imflibrary.MXFFieldPopulator;
-import com.netflix.imflibrary.MXFKLVPacket;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -46,7 +46,7 @@ public final class  PartitionPack
     private static final Long UNKNOWN_BYTE_OFFSET = -1L;
     private static final byte GENERIC_STREAM_PARTITION_PACK_KEY_PARTITION_STATUS = 0x11;
 
-    private final MXFKLVPacket.Header header;
+    private final KLVPacket.Header header;
 
     @MXFField(size=2) private final Integer major_version = null;
     @MXFField(size=2) private final Integer minor_version = null;
@@ -63,7 +63,7 @@ public final class  PartitionPack
 
     private final CompoundDataTypes.MXFCollections.MXFCollection<UL> essenceContainerBatch;
 
-    private final MXFKLVPacket.Header nextHeader;
+    private final KLVPacket.Header nextHeader;
 
     private final PartitionPackType partitionPackType;
 
@@ -189,7 +189,7 @@ public final class  PartitionPack
     public PartitionPack(ByteProvider byteProvider, Long byteOffset, boolean checkForSucceedingKLVFillItem, @Nullable IMFErrorLogger imfErrorLogger)
             throws IOException
     {
-        this.header = new MXFKLVPacket.Header(byteProvider, byteOffset);
+        this.header = new KLVPacket.Header(byteProvider, byteOffset);
         validateHeaderKey();
 
         this.partitionPackType = PartitionPackType.getPartitionPackTypeKey(this.header.getSetOrPackKindKey());
@@ -254,15 +254,15 @@ public final class  PartitionPack
         CompoundDataTypes.MXFCollections.Header cHeader = new CompoundDataTypes.MXFCollections.Header(byteProvider);
         List<UL> cList = new ArrayList<>();
 
-        if ((cHeader.getNumberOfElements() != 0) && (cHeader.getSizeOfElement() != MXFKLVPacket.KEY_FIELD_SIZE))
+        if ((cHeader.getNumberOfElements() != 0) && (cHeader.getSizeOfElement() != KLVPacket.KEY_FIELD_SIZE))
         {
             throw new MXFException(String.format("Element size = %d in EssenceContainerBatch header is different from expected size = %d",
-                    cHeader.getSizeOfElement(), MXFKLVPacket.KEY_FIELD_SIZE));
+                    cHeader.getSizeOfElement(), KLVPacket.KEY_FIELD_SIZE));
         }
 
         for (long i=0; i<cHeader.getNumberOfElements(); i++)
         {
-            cList.add(new UL(byteProvider.getBytes(MXFKLVPacket.KEY_FIELD_SIZE)));
+            cList.add(new UL(byteProvider.getBytes(KLVPacket.KEY_FIELD_SIZE)));
         }
 
         this.essenceContainerBatch = new CompoundDataTypes.MXFCollections.MXFCollection<UL>(cHeader, cList, "EssenceContainerBatch");
@@ -270,7 +270,7 @@ public final class  PartitionPack
         if (checkForSucceedingKLVFillItem)
         {
             //Offset of the next KLV packet would be the offset of the current KLV packet + KLV size
-            this.nextHeader = new MXFKLVPacket.Header(byteProvider, byteOffset+this.header.getKLSize()+this.header.getVSize());
+            this.nextHeader = new KLVPacket.Header(byteProvider, byteOffset+this.header.getKLSize()+this.header.getVSize());
         }
         else
         {
@@ -281,7 +281,7 @@ public final class  PartitionPack
 
     private void validateHeaderKey()
     {
-        for (int i=0; i< MXFKLVPacket.KEY_FIELD_SIZE; i++)
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (PartitionPack.KEY_MASK[i] != 0) && (PartitionPack.KEY[i] != this.header.getKey()[i]) )
             {
@@ -451,7 +451,7 @@ public final class  PartitionPack
      */
     public long getKLVPacketSize()
     {
-        return MXFKLVPacket.KEY_FIELD_SIZE + this.header.getLSize() + this.header.getVSize();
+        return KLVPacket.KEY_FIELD_SIZE + this.header.getLSize() + this.header.getVSize();
     }
 
     /**
@@ -517,7 +517,7 @@ public final class  PartitionPack
     public boolean nextPacketIsKLVFillItem()
     {
         return (this.nextHeaderWasRead() &&
-                MXFKLVPacket.isKLVFillItem(Arrays.copyOf(this.nextHeader.getKey(), this.nextHeader.getKey().length)));
+                KLVPacket.isKLVFillItem(Arrays.copyOf(this.nextHeader.getKey(), this.nextHeader.getKey().length)));
     }
 
     /**
