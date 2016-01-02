@@ -18,9 +18,11 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.net.URI;
 import java.util.Collections;
@@ -52,8 +54,8 @@ public final class InteroperableMasterPackage
     {
         this.packingList = packingList;
         if (!packingListURI.isAbsolute())
-        {//TODO: add error messaging
-            throw new IMFException("");
+        {
+            throw new IMFException(String.format("PackingList URI = %s is not absolute", packingListURI));
         }
         this.packingListURI = packingListURI;
         this.referencedAssets = referencedAssets;

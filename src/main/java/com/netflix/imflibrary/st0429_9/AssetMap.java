@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.st0429_9;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
@@ -65,13 +67,15 @@ public final class AssetMap
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
      * @param assetMapXmlFile the input XML file
+     * @param imfErrorLogger an error logger for recording any errors - can be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile) throws IOException, SAXException, JAXBException, URISyntaxException
+    AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
+        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         AssetMap.validateAssetMapSchema(assetMapXmlFile);
 
@@ -95,10 +99,27 @@ public final class AssetMap
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
 
-            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue());
+            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
         }
 
-        this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
+        UUID uuid = null;
+        try
+        {
+            uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
+        }
+        catch(IMFException e)
+        {
+            if (imfErrorLogger != null)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        e.getMessage());
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        this.uuid = uuid;
 
         for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
         {
@@ -111,14 +132,27 @@ public final class AssetMap
             }
         }
 
+        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        {
+            throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+        }
+
     }
 
-    static AssetMapType checkConformance(AssetMapType assetMapType)
+    static AssetMapType checkConformance(AssetMapType assetMapType, @Nullable IMFErrorLogger imfErrorLogger)
     {
         //per st0429-9:2014 Section 5.4, VolumeCount shall be one
         if (!assetMapType.getVolumeCount().equals(new BigInteger("1")))
         {
-            throw new IMFException("");
+            String message = String.format("<VolumeCount> element = %d, is not equal to 1", assetMapType.getVolumeCount());
+            if (imfErrorLogger != null)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+            }
+            else
+            {
+                throw new IMFException(message);
+            }
         }
 
         for (AssetType assetType : assetMapType.getAssetList().getAsset())
@@ -126,7 +160,16 @@ public final class AssetMap
             //per st0429-9:2014 Section 6.4, <ChunkList> shall contain one <Chunk> element
             if (assetType.getChunkList().getChunk().size() != 1)
             {
-                throw new IMFException("");
+                String message = String.format("<ChunkList> element contains %d <Chunk> elements, only 1 is allowed", assetType.getChunkList().getChunk().size());
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
+
             }
 
             ChunkType chunkType = assetType.getChunkList().getChunk().get(0);
@@ -134,13 +177,29 @@ public final class AssetMap
             //per st0429-9:2014 Section 6.4, <VolumeIndex> shall be equal to 1 or absent
             if ((chunkType.getVolumeIndex() != null) && !chunkType.getVolumeIndex().equals(new BigInteger("1")))
             {
-                throw new IMFException("");
+                String message = String.format("<VolumeIndex> element = %d, only 1 is allowed", chunkType.getVolumeIndex());
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
             }
 
-            //per st0429-9:2014 Section 6.4, <Offset> shall be equal to 1 or absent
+            //per st0429-9:2014 Section 6.4, <Offset> shall be equal to 0 or absent
             if ((chunkType.getOffset() != null) && !chunkType.getOffset().equals(new BigInteger("0")))
             {
-                throw new IMFException("");
+                String message = String.format("<Offset> element = %d, only 0 is allowed", chunkType.getOffset());
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
             }
         }
 
@@ -292,7 +351,7 @@ public final class AssetMap
 
         AssetMap.validateAssetMapSchema(inputFile);
 
-        AssetMap assetMap = new AssetMap(inputFile);
+        AssetMap assetMap = new AssetMap(inputFile, new IMFErrorLoggerImpl());
         logger.warn(assetMap.toString());
 
     }

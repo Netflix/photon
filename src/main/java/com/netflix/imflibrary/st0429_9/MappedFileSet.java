@@ -18,12 +18,13 @@
 
 package com.netflix.imflibrary.st0429_9;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -46,12 +47,13 @@ public final class MappedFileSet
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @throws SAXException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
-     * @throws IOException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
-     * @throws JAXBException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
-     * @throws URISyntaxException - forwarded from {@link com.netflix.imflibrary.st0429_9.AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @throws SAXException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
+     * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
+     * @throws JAXBException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
+     * @throws URISyntaxException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
      */
-    public MappedFileSet(File rootFile) throws IOException, SAXException, JAXBException, URISyntaxException
+    public MappedFileSet(File rootFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
         if (!rootFile.isDirectory())
         {
@@ -74,7 +76,7 @@ public final class MappedFileSet
                     "exactly 1 is allowed", (files == null) ? 0 : files.length, MappedFileSet.ASSETMAP_FILE_NAME, rootFile.getAbsolutePath()));
         }
 
-        this.assetMap = new AssetMap(files[0]);
+        this.assetMap = new AssetMap(files[0], imfErrorLogger);
         this.assetMapURI = files[0].toURI();
     }
 

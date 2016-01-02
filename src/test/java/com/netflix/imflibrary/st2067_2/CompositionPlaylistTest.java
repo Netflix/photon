@@ -14,7 +14,7 @@ public class CompositionPlaylistTest
     public void testCompositionPlaylist() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
-        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile);
+        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, null);
         Assert.assertTrue(compositionPlaylist.toString().length() > 0);
         Assert.assertEquals(compositionPlaylist.getEditRate().getNumerator(), 24);
         Assert.assertEquals(compositionPlaylist.getEditRate().getDenominator(), 1);

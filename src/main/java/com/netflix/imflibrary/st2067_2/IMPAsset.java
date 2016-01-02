@@ -18,9 +18,11 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.net.URI;
@@ -45,8 +47,8 @@ public final class IMPAsset
     public IMPAsset(URI uri, PackingList.Asset asset)
     {
         if (!uri.isAbsolute())
-        {//TODO: add error messaging
-            throw new IMFException("");
+        {
+            throw new IMFException(String.format("uri = %s is not absolute", uri));
         }
         this.uri = uri;
 

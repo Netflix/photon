@@ -17,7 +17,7 @@ public class AssetMapTest
         AssetMapType assetMapType = new AssetMapType();
         //volume count is not 1
         assetMapType.setVolumeCount(new BigInteger("2"));
-        AssetMap.checkConformance(assetMapType);
+        AssetMap.checkConformance(assetMapType, null);
     }
 
     @Test(expectedExceptions = IMFException.class)
@@ -37,7 +37,7 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType);
+        AssetMap.checkConformance(assetMapType, null);
     }
 
     @Test(expectedExceptions = IMFException.class)
@@ -57,7 +57,7 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType);
+        AssetMap.checkConformance(assetMapType, null);
     }
 
     @Test(expectedExceptions = IMFException.class)
@@ -78,6 +78,6 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType);
+        AssetMap.checkConformance(assetMapType, null);
     }
 }

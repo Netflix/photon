@@ -88,6 +88,11 @@ public interface IMFErrorLogger extends ErrorLogger
             IMF_PKL_ERROR,
 
             /**
+             * Error in processing of AssetMap or a mapped file set
+             */
+            IMF_AM_ERROR,
+
+            /**
              * The IMF_CORE_CONSTRAINTS_ERROR.
              */
             IMF_CORE_CONSTRAINTS_ERROR,

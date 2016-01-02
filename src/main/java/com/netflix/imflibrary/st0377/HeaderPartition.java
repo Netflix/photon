@@ -199,13 +199,6 @@ public final class HeaderPartition
             throw new MXFException(String.format("%d errors encountered when reading header partition", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
-//        if (this.contentStorageBOs.size() != 1)
-//        {
-//            imfErrorLogger.addError(IMFErrors.ErrorCodes.MXF_PARTITION_ERROR, IMFErrors.ErrorLevels.FATAL,
-//                    HeaderPartition.ERROR_DESCRIPTION_PREFIX + String.format("Found %d ContentStorage sets, only one is allowed in header partition",
-//                            this.contentStorageBOs.size()));
-//        }
-
         Set<InterchangeObject.InterchangeObjectBO> parsedInterchangeObjectBOs = new LinkedHashSet<>();
         for (Map.Entry<MXFUID, InterchangeObject.InterchangeObjectBO> entry : uidToBOs.entrySet())
         {

@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
@@ -69,13 +71,15 @@ public final class CompositionPlaylist
     /**
      * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @param imfErrorLogger an error logger for recording any errors - can be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public CompositionPlaylist(File compositionPlaylistXMLFile)  throws IOException, SAXException, JAXBException, URISyntaxException
+    public CompositionPlaylist(File compositionPlaylistXMLFile, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException
     {
+        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
 
@@ -107,7 +111,7 @@ public final class CompositionPlaylist
             }
 
             CompositionPlaylistType compositionPlaylistType = compositionPlaylistTypeJAXBElement.getValue();
-            this.virtualTrackMap = checkVirtualTracks(compositionPlaylistType);
+            this.virtualTrackMap = checkVirtualTracks(compositionPlaylistType, imfErrorLogger);
 
             this.compositionPlaylistType = compositionPlaylistType;
         }
@@ -118,6 +122,10 @@ public final class CompositionPlaylist
 
         this.virtualTrackResourceList = populateVirtualTrackResourceList();
 
+        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        {
+            throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+        }
 
     }
 
@@ -166,10 +174,11 @@ public final class CompositionPlaylist
         return this.uuid;
     }
 
-    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType)
+    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nullable IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
-        //process first segment to form virtual track map
+
+        //process first segment to create virtual track map
         SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
         SequenceType sequence;
         sequence = segment.getSequenceList().getMarkerSequence();
@@ -182,8 +191,17 @@ public final class CompositionPlaylist
                 virtualTrackMap.put(uuid, virtualTrack);
             }
             else
-            {//TODO: add error messaging
-                throw new IMFException("");
+            {
+                String message = String.format(
+                        "First segment in CompositionPlaylist XML file has multiple occurrences of virtual track UUID %s", uuid);
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
             }
         }
 
@@ -201,19 +219,28 @@ public final class CompositionPlaylist
                     virtualTrackMap.put(uuid, virtualTrack);
                 }
                 else
-                {//TODO: add error messaging
-                    throw new IMFException("");
+                {
+                    String message = String.format(
+                            "First segment in CompositionPlaylist XML file has multiple occurrences of virtual track UUID %s", uuid);
+                    if (imfErrorLogger != null)
+                    {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                    }
+                    else
+                    {
+                        throw new IMFException(message);
+                    }
                 }
             }
 
         }
 
-        checkSegments(compositionPlaylistType, virtualTrackMap);
+        checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
 
         return virtualTrackMap;
     }
 
-    private void checkSegments(CompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap)
+    void checkSegments(CompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
         for (SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
@@ -225,36 +252,59 @@ public final class CompositionPlaylist
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 trackIDs.add(uuid);
                 if (virtualTrackMap.get(uuid) == null)
-                {//TODO: add error messaging
-                    throw new IMFException("");
+                {
+                    String message = String.format(
+                            "A segment in CompositionPlaylist XML file does not contain virtual track UUID %s", uuid);
+                    if (imfErrorLogger != null)
+                    {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                    }
+                    else
+                    {
+                        throw new IMFException(message);
+                    }
                 }
             }
 
             for (Object object : segment.getSequenceList().getAny())
             {
                 JAXBElement jaxbElement = (JAXBElement)(object);
-                String name = jaxbElement.getName().getLocalPart();
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
                 {
                     UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                     trackIDs.add(uuid);
                     if (virtualTrackMap.get(uuid) == null)
-                    {//TODO: add error messaging
-                        throw new IMFException("");
+                    {
+                        String message = String.format(
+                                "A segment in CompositionPlaylist XML file does not contain virtual track UUID %s", uuid);
+                        if (imfErrorLogger != null)
+                        {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                        }
+                        else
+                        {
+                            throw new IMFException(message);
+                        }
                     }
                 }
             }
 
             if (trackIDs.size() != virtualTrackMap.size())
-            {//TODO: add error messaging
-                throw new IMFException("");
-
+            {
+                String message = String.format(
+                        "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), virtualTrackMap.size());
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
             }
 
-
         }
-
     }
 
     private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList()
@@ -465,7 +515,7 @@ public final class CompositionPlaylist
     {
         File inputFile = new File(args[0]);
 
-        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile);
+        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, new IMFErrorLoggerImpl());
         logger.warn(compositionPlaylist.toString());
     }
 

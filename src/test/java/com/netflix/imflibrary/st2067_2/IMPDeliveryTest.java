@@ -15,8 +15,8 @@ public class IMPDeliveryTest
     public void testIMPDelivery() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set");
-        MappedFileSet mappedFileSet = new MappedFileSet(inputFile);
-        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(mappedFileSet);
+        MappedFileSet mappedFileSet = new MappedFileSet(inputFile, null);
+        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(mappedFileSet, null);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfilev2FileSet);
         Assert.assertTrue(impDelivery.toString().length() > 0);
         Assert.assertTrue(impDelivery.isValid());
@@ -26,7 +26,6 @@ public class IMPDeliveryTest
         Assert.assertEquals(interoperableMasterPackage.getPackingListURI(), TestHelper.findResourceByPath("test_mapped_file_set/PKL_51edd4be-4506-494d-a58e-516553055c33.xml").toURI());
         Assert.assertEquals(interoperableMasterPackage.getReferencedAssets().size(), 3);
         Assert.assertEquals(interoperableMasterPackage.getPackingList().getAssets().size(), 3);
-
     }
 
 }
