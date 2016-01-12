@@ -96,6 +96,7 @@ public final class HeaderPartition
     public HeaderPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger) throws IOException
     {
         long numBytesRead = 0;
+        int numErrors = imfErrorLogger.getNumberOfErrors(); //Number of errors prior to parsing and reading the HeaderPartition
 
         //read partition pack
         if(byteOffset != IMF_MXF_HEADER_PARTITION_OFFSET){
@@ -194,13 +195,13 @@ public final class HeaderPartition
                             prefaceSetCount));
         }
 
-        if (imfErrorLogger.getNumberOfErrors() > 0)
+        if (imfErrorLogger.getNumberOfErrors() > numErrors)//Flag an exception if any errors were accumulated while parsing and reading the HeaderPartition
         {
             List<ErrorLogger.ErrorObject> errorObjectList = imfErrorLogger.getErrors();
-            for(ErrorLogger.ErrorObject errorObject : errorObjectList) {
-                logger.error(errorObject.getErrorDescription());
+            for(int i=numErrors; i< errorObjectList.size(); i++) {
+                logger.error(errorObjectList.get(i).getErrorDescription());
             }
-            throw new MXFException(String.format("%d errors encountered when reading header partition", imfErrorLogger.getNumberOfErrors()));
+            throw new MXFException(String.format("%d errors encountered when reading header partition", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
         Set<InterchangeObject.InterchangeObjectBO> parsedInterchangeObjectBOs = new LinkedHashSet<>();
