@@ -45,6 +45,7 @@ import com.netflix.imflibrary.st0377.header.StructuralComponent;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,8 +95,8 @@ public final class HeaderPartition
      */
     public HeaderPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger) throws IOException
     {
-        int numErrors = imfErrorLogger.getNumberOfErrors();
         long numBytesRead = 0;
+        int numErrors = imfErrorLogger.getNumberOfErrors(); //Number of errors prior to parsing and reading the HeaderPartition
 
         //read partition pack
         if(byteOffset != IMF_MXF_HEADER_PARTITION_OFFSET){
@@ -194,8 +195,12 @@ public final class HeaderPartition
                             prefaceSetCount));
         }
 
-        if (imfErrorLogger.getNumberOfErrors() > numErrors)
+        if (imfErrorLogger.getNumberOfErrors() > numErrors)//Flag an exception if any errors were accumulated while parsing and reading the HeaderPartition
         {
+            List<ErrorLogger.ErrorObject> errorObjectList = imfErrorLogger.getErrors();
+            for(int i=numErrors; i< errorObjectList.size(); i++) {
+                logger.error(errorObjectList.get(i).getErrorDescription());
+            }
             throw new MXFException(String.format("%d errors encountered when reading header partition", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
@@ -403,29 +408,32 @@ public final class HeaderPartition
      */
     private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, KLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
         try {
+
             Constructor<?> constructor = clazz.getConstructor(KLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
-            return (InterchangeObject.InterchangeObjectBO)constructor.newInstance(header, byteProvider, localTagToUIDMap, imfErrorLogger);
+            InterchangeObject.InterchangeObjectBO interchangeObjectBO = (InterchangeObject.InterchangeObjectBO)constructor.newInstance(header, byteProvider, localTagToUIDMap, imfErrorLogger);
+            String simpleClassName = interchangeObjectBO.getClass().getSimpleName();
+            logger.debug(String.format("Parsed and read %s metadata in the header partition.", simpleClassName.substring(0, simpleClassName.length() - 2)));
+            return interchangeObjectBO;
         }
         catch(NoSuchMethodException|IllegalAccessException|InstantiationException|InvocationTargetException e){
-            throw new IOException(String.format("No matching constructor for class %s", clazz.getSimpleName().toString()));
+            throw new IOException(String.format("No matching constructor for class %s", clazz.getSimpleName()));
         }
     }
 
     /**
      * A factory method to reflectively construct InterchangeObject types by classname
-     * @return the constructed InterchangeBO
+     * @return the constructed InterchangeObject
      */
-    @Nullable
     private InterchangeObject constructInterchangeObject(Class clazz, InterchangeObject.InterchangeObjectBO interchangeObjectBO, Node node) throws IOException{
-        InterchangeObject interchangeObject = null;
         try {
             Constructor<?> constructor = clazz.getConstructor(interchangeObjectBO.getClass());
-            interchangeObject = (InterchangeObject)constructor.newInstance(interchangeObjectBO);
+            InterchangeObject interchangeObject = (InterchangeObject)constructor.newInstance(interchangeObjectBO);
+            logger.debug(String.format("Constructing the object model for %s metadata in the header partition.", interchangeObject.getClass().getSimpleName()));
+            return interchangeObject;
         }
         catch(NoSuchMethodException|IllegalAccessException|InstantiationException|InvocationTargetException e){
-            throw new IOException(String.format("No matching constructor for class %s", clazz.getSimpleName().toString()));
+            throw new IOException(String.format("No matching constructor for class %s", clazz.getSimpleName()));
         }
-        return interchangeObject;
     }
 
     /**
