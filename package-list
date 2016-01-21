@@ -3,6 +3,9 @@ com.netflix.imflibrary.annotations
 com.netflix.imflibrary.exceptions
 com.netflix.imflibrary.st0377
 com.netflix.imflibrary.st0377.header
+com.netflix.imflibrary.st0429_8
+com.netflix.imflibrary.st0429_9
+com.netflix.imflibrary.st2067_2
 com.netflix.imflibrary.utils
 com.netflix.imflibrary.writerTools
 com.netflix.imflibrary.writerTools.utils
