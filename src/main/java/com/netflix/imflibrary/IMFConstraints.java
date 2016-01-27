@@ -28,6 +28,7 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -235,6 +236,37 @@ public final class IMFConstraints
         public MXFOperationalPattern1A.HeaderPartitionOP1A getHeaderPartitionOP1A()
         {
             return this.headerPartitionOP1A;
+        }
+
+        public boolean hasMatchingEssence(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        {
+            MXFDataDefinition targetMXFDataDefinition;
+            if (sequenceType.equals(CompositionPlaylist.SequenceTypeEnum.MainImageSequence))
+            {
+                targetMXFDataDefinition = MXFDataDefinition.PICTURE;
+            }
+            else
+            {
+                targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
+
+            GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
+                    getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+
+            boolean hasMatchingEssence = false;
+            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
+            {
+                Sequence sequence = timelineTrack.getSequence();
+                MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
+                if (filePackageMxfDataDefinition.equals(targetMXFDataDefinition))
+                {
+                    hasMatchingEssence = true;
+                }
+            }
+
+            return hasMatchingEssence;
+
         }
 
         private boolean hasWaveAudioEssenceDescriptor()
