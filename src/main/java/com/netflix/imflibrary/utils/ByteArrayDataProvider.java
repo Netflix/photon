@@ -49,7 +49,7 @@ public final class ByteArrayDataProvider implements ByteProvider {
      *
      * @param totalNumBytesToRead the total num bytes to read
      * @return byte[] containing next totalNumBytesToRead number of bytes
-     * @throws java.io.IOException the iO exception
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public byte[] getBytes(int totalNumBytesToRead) throws IOException
     {
@@ -66,7 +66,7 @@ public final class ByteArrayDataProvider implements ByteProvider {
      * A method that lets the caller skip bytes in the encapsulated byte[]
      *
      * @param totalNumBytesToSkip the total num bytes to skip from the current position
-     * @throws java.io.IOException the iO exception
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public void skipBytes(long totalNumBytesToSkip) throws IOException
     {
