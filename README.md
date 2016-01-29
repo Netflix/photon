@@ -35,13 +35,13 @@ Example for Maven:
 <dependency>
     <groupId>com.netflix.photon</groupId>
     <artifactId>MXFLibrary</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 and for Ivy:
 
 ```xml
-<dependency org="com.netflix.photon" name="MXFLibrary" rev="0.0.1" />
+<dependency org="com.netflix.photon" name="MXFLibrary" rev="0.1.0" />
 ```
 
 If you need to download the jars instead of using a build system, create a Maven pom file like the following with the desired version:
@@ -59,7 +59,7 @@ If you need to download the jars instead of using a build system, create a Maven
     <dependency>
       <groupId>com.netflix.photon</groupId>
       <artifactId>MXFLibrary</artifactId>
-      <version>0.0.1</version>
+      <version>0.1.0</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
