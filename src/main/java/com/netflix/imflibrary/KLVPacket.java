@@ -104,7 +104,7 @@ public final class KLVPacket
      *
      * @param byteProvider the mxf byte provider
      * @return the length
-     * @throws IOException the iO exception
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static LengthField getLength(ByteProvider byteProvider) throws IOException
     {

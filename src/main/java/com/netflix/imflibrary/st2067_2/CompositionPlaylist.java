@@ -26,6 +26,8 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -61,6 +66,7 @@ public final class CompositionPlaylist
     private static final String imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
     private static final String dcmlTypes_schema_path = "/org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
     private static final String xmldig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    private static final List<String> supportedCPLSchemaURIs = new ArrayList<String>();
 
     private final CompositionPlaylistType compositionPlaylistType;
     private final UUID uuid;
@@ -127,6 +133,7 @@ public final class CompositionPlaylist
             throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
+        this.supportedCPLSchemaURIs.add("http://www.smpte-ra.org/schemas/2067-3/2013");
     }
 
     public String toString()
@@ -135,6 +142,33 @@ public final class CompositionPlaylist
         sb.append(String.format("=================== CompositionPlaylist : %s%n", this.uuid));
         sb.append(this.editRate.toString());
         return sb.toString();
+    }
+
+    public boolean isCompositionPlaylist(File xmlFile) throws IOException {
+        try
+        {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(xmlFile);
+
+            //obtain root node
+            NodeList nodeList = null;
+            for(String cplNamespaceURI : this.supportedCPLSchemaURIs) {
+                nodeList = document.getElementsByTagNameNS(cplNamespaceURI, "CompositionPlaylist");
+                if (nodeList != null
+                        && nodeList.getLength() == 1)
+                {
+                    return true;
+                }
+            }
+        }
+        catch(ParserConfigurationException | SAXException e)
+        {
+            return false;
+        }
+
+        return false;
     }
 
     /**
@@ -508,6 +542,14 @@ public final class CompositionPlaylist
         public SequenceTypeEnum getSequenceTypeEnum()
         {
             return this.sequenceTypeEnum;
+        }
+
+        /**
+         * Getter for the UUID associated with this VirtualTrack object
+         * @return the UUID associated with the Virtual track
+         */
+        public UUID getTrackID(){
+            return this.trackID;
         }
     }
 

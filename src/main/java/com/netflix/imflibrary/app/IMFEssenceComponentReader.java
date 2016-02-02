@@ -438,8 +438,8 @@ final class IMFEssenceComponentReader
     }
 
     /**
+     * An accessor for the PrimerPack KLV header
      *
-     * @param
      * @return a File containing the Primer pack
      * @throws IOException
      */
@@ -449,8 +449,9 @@ final class IMFEssenceComponentReader
     }
 
     /**
+     * A helper method to retrieve a ByteProvider for the KLV packet
      *
-     * @param
+     * @param header representing the object model of a KLV packet
      * @return a ByteProvider corresponding to the header
      * @throws IOException
      */
