@@ -144,7 +144,7 @@ public final class CompositionPlaylist
         return sb.toString();
     }
 
-    public boolean isCompositionPlaylist(File xmlFile) throws IOException {
+    public static boolean isCompositionPlaylist(File xmlFile) throws IOException {
         try
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -154,7 +154,7 @@ public final class CompositionPlaylist
 
             //obtain root node
             NodeList nodeList = null;
-            for(String cplNamespaceURI : this.supportedCPLSchemaURIs) {
+            for(String cplNamespaceURI : CompositionPlaylist.supportedCPLSchemaURIs) {
                 nodeList = document.getElementsByTagNameNS(cplNamespaceURI, "CompositionPlaylist");
                 if (nodeList != null
                         && nodeList.getLength() == 1)
