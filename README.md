@@ -17,7 +17,7 @@ $ ./gradlew build
 
 ## JDK requirements
 
-Although Photon can be built using JDK-7, it is recommended to use JDK-8 or later.
+Photon can be built using JDK-8. Support for earlier jdk versions has not been tested and/or verified.
 
 ## Full Documentation
 
@@ -34,14 +34,14 @@ Example for Maven:
 ```xml
 <dependency>
     <groupId>com.netflix.photon</groupId>
-    <artifactId>MXFLibrary</artifactId>
-    <version>0.1.0</version>
+    <artifactId>Photon</artifactId>
+    <version>0.1.1</version>
 </dependency>
 ```
 and for Ivy:
 
 ```xml
-<dependency org="com.netflix.photon" name="MXFLibrary" rev="0.1.0" />
+<dependency org="com.netflix.photon" name="Photon" rev="0.1.1" />
 ```
 
 If you need to download the jars instead of using a build system, create a Maven pom file like the following with the desired version:
@@ -53,13 +53,13 @@ If you need to download the jars instead of using a build system, create a Maven
   <groupId>com.netflix.photon.download</groupId>
   <artifactId>photon-download</artifactId>
   <version>1.0-snapshot</version>
-  <name>Simple POM to download MXFLibrary and dependencies</name>
+  <name>Simple POM to download Photon and dependencies</name>
   <url>https://github.com/Netflix/photon</url>
   <dependencies>
     <dependency>
       <groupId>com.netflix.photon</groupId>
-      <artifactId>MXFLibrary</artifactId>
-      <version>0.1.0</version>
+      <artifactId>Photon</artifactId>
+      <version>0.1.1</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -72,7 +72,7 @@ Then execute:
 mvn -f photon-download.pom.xml dependency:copy-dependencies
 ```
 
-It will download MXFLibrary-*.jar and its dependencies into ./target/dependency/.
+It will download Photon-*.jar and its dependencies into ./target/dependency/.
 
 Two sample applications have been provided with this project. You can run them as follows:
 
