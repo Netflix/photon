@@ -56,8 +56,8 @@ public final class PackingList
 {
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
 
-    private static final String pkl_schema_path = "/org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
-    private static final String xmldig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    private static final String pkl_schema_path = "org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
+    private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
 
     private final PackingListType packingListType;
     private final UUID uuid;
@@ -77,12 +77,12 @@ public final class PackingList
         PackingList.validatePackingListSchema(packingListXMLFile);
 
         try(InputStream input = new FileInputStream(packingListXMLFile);
-            InputStream xmldig_core_is = PackingList.class.getResourceAsStream(PackingList.xmldig_core_schema_path);
-            InputStream pkl_is = PackingList.class.getResourceAsStream(PackingList.pkl_schema_path);
+            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+            InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
             StreamSource[] streamSources = new StreamSource[2];
-            streamSources[0] = new StreamSource(xmldig_core_is);
+            streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(pkl_is);
 
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -227,14 +227,14 @@ public final class PackingList
     private static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
     {
         try(InputStream input = new FileInputStream(xmlFile);
-            InputStream xmldig_core_is = PackingList.class.getResourceAsStream(PackingList.xmldig_core_schema_path);
-            InputStream pkl_is = PackingList.class.getResourceAsStream(PackingList.pkl_schema_path);
+            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+            InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
             StreamSource inputSource = new StreamSource(input);
 
             StreamSource[] streamSources = new StreamSource[2];
-            streamSources[0] = new StreamSource(xmldig_core_is);
+            streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(pkl_is);
 
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
