@@ -56,8 +56,8 @@ public final class PackingList
 {
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
 
-    private static final String pkl_schema_path = "/org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
-    private static final String xmldsig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    private static final String pkl_schema_path = "org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
+    private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
 
     private final PackingListType packingListType;
     private final UUID uuid;
