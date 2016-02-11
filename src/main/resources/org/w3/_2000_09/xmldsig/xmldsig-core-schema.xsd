@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The following block has been commented out because it seems to cause
+<!-- The following block has been commented out because it requires a network call to read the resource
+  http://www.w3.org/2001/XMLSchema.dtd, hence when the W3.org site is down or inaccessible including this
+  block seems to cause
   java.io.IOException: Server returned HTTP response code: 403 for URL: http://www.w3.org/2001/XMLSchema.dtd when
   performing IMF schema validations.
   <!DOCTYPE schema
