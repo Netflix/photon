@@ -485,6 +485,15 @@ public final class  PartitionPack
     }
 
     /**
+     * Getter for this partition's previous_partition byte offset.
+     *
+     * @return the previous_partition byte offset
+     */
+    public long getPreviousPartitionByteOffset(){
+        return this.previous_partition;
+    }
+
+    /**
      * Gets essence stream segment start stream position.
      *
      * @return byte offset of the start of the essence segment, relative to the start of the essence stream
