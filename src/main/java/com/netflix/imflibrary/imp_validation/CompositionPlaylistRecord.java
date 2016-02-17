@@ -41,7 +41,7 @@ public final class CompositionPlaylistRecord {
         /**
          * A builder method for the CompositionPlaylistRecord object.
          *
-         * @param cplXMLFile - File handle to the CompositionPlaylist XML document.
+         * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
          * @param imfEssenceMap - a map of <UUID, ResourceByteRangeProvider> UUIDs identifying an IMFEssence and a ResourceByteRangeProvider
          *                      corresponding to the essence for deeper inspection.
          * @return A composition playlist record
