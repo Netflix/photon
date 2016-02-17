@@ -8,10 +8,12 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +33,23 @@ public final class CompositionPlaylistRecord {
         this.cplXMLFile = cplXMLFile;
         this.compositionPlaylist = compositionPlaylist;
         this.imfEssenceMap = imfEssenceMap;
+    }
+
+    /**
+     * Getter for the Composition Playlist object corresponding to this record.
+     * @return compositionPlaylist object corresponding to this record.
+     */
+    public CompositionPlaylist getCompositionPlaylist(){
+        return this.compositionPlaylist;
+    }
+
+    /**
+     * Getter for the IMFEssenceMap, the collection of ResourceByteRangeProvider objects for each IMFEssence
+     * referenced by the CompositionPlaylist and indexed by the UUID for that physical asset in the CPL.
+     * @return imfEssenceMap, an unmodifiable version of the IMFEssenceMap.
+     */
+    public Map<UUID, ResourceByteRangeProvider> getImfEssenceMap(){
+        return Collections.unmodifiableMap(this.imfEssenceMap);
     }
 
     /**

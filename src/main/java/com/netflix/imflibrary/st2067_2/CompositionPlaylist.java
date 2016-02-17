@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
@@ -117,16 +118,15 @@ public final class CompositionPlaylist
             }
 
             CompositionPlaylistType compositionPlaylistType = compositionPlaylistTypeJAXBElement.getValue();
-            this.virtualTrackMap = checkVirtualTracks(compositionPlaylistType, imfErrorLogger);
-
             this.compositionPlaylistType = compositionPlaylistType;
+            this.virtualTrackMap = checkVirtualTracks(this.compositionPlaylistType, imfErrorLogger);
         }
 
         this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.compositionPlaylistType.getId());
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceList = populateVirtualTrackResourceList();
+        this.virtualTrackResourceList = populateVirtualTrackResourceList(this.compositionPlaylistType);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -210,6 +210,8 @@ public final class CompositionPlaylist
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
+        Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType);
+
         //process first segment to create virtual track map
         SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
         SequenceType sequence;
@@ -219,7 +221,14 @@ public final class CompositionPlaylist
             UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
             if (virtualTrackMap.get(uuid) == null)
             {
-                VirtualTrack virtualTrack = new VirtualTrack(uuid, SequenceTypeEnum.MarkerSequence);
+                List<TrackFileResourceType> virtualTrackResourceList = null;
+                if(virtualTrackResourceMap.get(uuid) == null){
+                    virtualTrackResourceList = new ArrayList<TrackFileResourceType>();
+                }
+                else{
+                    virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
+                }
+                VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.MarkerSequence);
                 virtualTrackMap.put(uuid, virtualTrack);
             }
             else
@@ -247,7 +256,14 @@ public final class CompositionPlaylist
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 if (virtualTrackMap.get(uuid) == null)
                 {
-                    VirtualTrack virtualTrack = new VirtualTrack(uuid, SequenceTypeEnum.getSequenceTypeEnum(name));
+                    List<TrackFileResourceType> virtualTrackResourceList = null;
+                    if(virtualTrackResourceMap.get(uuid) == null){
+                        virtualTrackResourceList = new ArrayList<TrackFileResourceType>();
+                    }
+                    else{
+                        virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
+                    }
+                    VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
                 }
                 else
@@ -339,10 +355,10 @@ public final class CompositionPlaylist
         }
     }
 
-    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList()
+    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType)
     {
         Map<UUID, List<TrackFileResourceType>> virtualTrackResourceList = new LinkedHashMap<>();
-        for (SegmentType segment : this.compositionPlaylistType.getSegmentList().getSegment())
+        for (SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
 
             SequenceType sequence;
@@ -521,16 +537,19 @@ public final class CompositionPlaylist
     {
         private final UUID trackID;
         private final SequenceTypeEnum sequenceTypeEnum;
+        private final List<TrackFileResourceType> resourceList;
 
         /**
          * Constructor for a VirtualTrack object
          * @param trackID the UUID associated with this VirtualTrack object
+         * @param resourceList the list of resources associated with this VirtualTrack object
          * @param sequenceTypeEnum the type of the associated sequence
          */
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
+        public VirtualTrack(UUID trackID, List<TrackFileResourceType> resourceList, SequenceTypeEnum sequenceTypeEnum)
         {
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
+            this.resourceList = resourceList;
         }
 
         /**
@@ -548,6 +567,14 @@ public final class CompositionPlaylist
          */
         public UUID getTrackID(){
             return this.trackID;
+        }
+
+        /**
+         * Getter for the list of resources associated with this VirtualTrack
+         * @return the list of TrackFileResources associated with this VirtualTrack.
+         */
+        public List<TrackFileResourceType> getResourceList(){
+            return this.resourceList;
         }
     }
 
