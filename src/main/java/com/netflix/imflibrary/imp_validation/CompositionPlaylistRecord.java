@@ -42,8 +42,7 @@ public final class CompositionPlaylistRecord {
          * A builder method for the CompositionPlaylistRecord object.
          *
          * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
-         * @param imfEssenceMap - a map of <UUID, ResourceByteRangeProvider> UUIDs identifying an IMFEssence and a ResourceByteRangeProvider
-         *                      corresponding to the essence for deeper inspection.
+         * @param imfEssenceMap - a map of UUIDs identifying an IMFEssence through a ResourceByteRangeProvider object
          * @return A composition playlist record
          * @throws IOException - any I/O related error is exposed through an IOException.
          * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException

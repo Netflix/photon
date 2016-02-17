@@ -47,6 +47,7 @@ public final class CompositionPlaylistHelper {
     /**
      * A stateless helper method to retrieve the Resources referenced by a Virtual track within a CompositionPlaylist.
      * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
+     * @param virtualTrack - object model of an IMF virtual track {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist.VirtualTrack}
      * @return A list of TrackFileResourceType objects corresponding to the virtual track in the CompositionPlaylist.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
