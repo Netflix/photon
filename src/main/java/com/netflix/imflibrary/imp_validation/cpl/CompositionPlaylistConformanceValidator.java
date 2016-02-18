@@ -1,11 +1,9 @@
-package com.netflix.imflibrary.imp_validation;
+package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
-import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -14,7 +12,6 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**

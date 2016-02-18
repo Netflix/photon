@@ -1,4 +1,4 @@
-package com.netflix.imflibrary.imp_validation;
+package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
@@ -9,7 +9,6 @@ import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
-import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.netflix.imflibrary.imp_validation;
+package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
@@ -8,13 +8,11 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
