@@ -3,7 +3,6 @@ package com.netflix.imflibrary.imp_validation;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import jdk.management.resource.ResourceId;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
@@ -70,7 +69,7 @@ public class CompositionPlaylistConformanceValidator {
             throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
         }
 
-        
+
         return result;
     }
 
