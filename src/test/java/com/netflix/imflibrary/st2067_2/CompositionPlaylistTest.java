@@ -26,6 +26,6 @@ public class CompositionPlaylistTest
         CompositionPlaylist.VirtualTrack virtualTrack = compositionPlaylist.getVirtualTrackMap().get(uuid);
         Assert.assertEquals(virtualTrack.getSequenceTypeEnum(), CompositionPlaylist.SequenceTypeEnum.MainImageSequence);
 
-        Assert.assertEquals(compositionPlaylist.getVirtualTrackResourceList().get(uuid).size(), 1);
+        Assert.assertEquals(compositionPlaylist.getVirtualTrackResourceMap().get(uuid).size(), 1);
     }
 }

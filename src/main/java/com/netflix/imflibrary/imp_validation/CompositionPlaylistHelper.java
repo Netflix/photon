@@ -27,7 +27,7 @@ public final class CompositionPlaylistHelper {
     /**
      * A stateless helper method to retrieve the VirtualTracks referenced from within a CompositionPlaylist.
      * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
-     * @return A map containing UUIDs as keys and VirtualTracks as values.
+     * @return A list of VirtualTracks in the CompositionPlaylist.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -35,15 +35,15 @@ public final class CompositionPlaylistHelper {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public static Map<UUID, CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-            return CompositionPlaylistHelper.getCompositionPlaylistType(cplXMLFile).getVirtualTrackMap();
+    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistType(cplXMLFile).getVirtualTrackMap();
+        return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
     /**
-     * A stateless helper method to retrieve the Resources referenced by a Virtual track within a CompositionPlaylist.
-     * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
-     * @param virtualTrack - object model of an IMF virtual track {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist.VirtualTrack}
-     * @return A list of TrackFileResourceType objects corresponding to the virtual track in the CompositionPlaylist.
+     * A stateless helper method to retrieve the VirtualTracks referenced from a CompositionPlaylistRecord.
+     * @param compositionPlaylistRecord - A compositionPlaylistRecord object corresponding to the CompositionPlaylist.
+     * @return A list of VirtualTracks in the CompositionPlaylist.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -51,16 +51,9 @@ public final class CompositionPlaylistHelper {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public static List<TrackFileResourceType> getVirtualTrackResourceList(@Nonnull File cplXMLFile,  CompositionPlaylist.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-
-        Map<UUID, List<TrackFileResourceType>> virtualTrackResourceListMap = CompositionPlaylistHelper.getCompositionPlaylistType(cplXMLFile).getVirtualTrackResourceList();
-        if(virtualTrackResourceListMap.get(virtualTrack.getTrackID()) != null
-                && virtualTrackResourceListMap.get(virtualTrack.getTrackID()).size() > 0){
-            return virtualTrackResourceListMap.get(virtualTrack.getTrackID());
-        }
-        else{
-            throw new IMFException(String.format("Virtual track with ID %s, is not referenced by the CPL, or the resource list for the virtual track is empty (%d resource/s)", virtualTrack.getTrackID(), virtualTrackResourceListMap.get(virtualTrack.getTrackID()).size()));
-        }
+    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull CompositionPlaylistRecord compositionPlaylistRecord) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = compositionPlaylistRecord.getCompositionPlaylist().getVirtualTrackMap();
+        return new ArrayList<>(virtualTrackMap.values());
     }
 
     /**
@@ -74,18 +67,20 @@ public final class CompositionPlaylistHelper {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public static List<UUID> getVirtualTrackResourceIDs(@Nonnull CompositionPlaylist.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+    public static List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull CompositionPlaylist.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
 
         List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
-        List<UUID> virtualTrackResourceIDs = new ArrayList<>();
+        List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
         if(resourceList != null
                 && resourceList.size() > 0) {
             for (TrackFileResourceType trackFileResourceType : resourceList) {
-                virtualTrackResourceIDs.add(UUIDHelper.fromUUIDAsURNStringToUUID((trackFileResourceType.getTrackFileId())));
+                virtualTrackResourceIDs.add(new ResourceIdTuple(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getTrackFileId())
+                                                                , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
             }
         }
         return virtualTrackResourceIDs;
     }
+
 
     private static CompositionPlaylist getCompositionPlaylistType(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         if(CompositionPlaylist.isCompositionPlaylist(cplXMLFile)){
@@ -95,6 +90,24 @@ public final class CompositionPlaylistHelper {
         }
         else{
             throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
+        }
+    }
+
+    public static final class ResourceIdTuple{
+        private final UUID trackFileId;
+        private final UUID sourceEncoding;
+
+        private ResourceIdTuple(UUID trackFileId, UUID sourceEncoding){
+            this.trackFileId = trackFileId;
+            this.sourceEncoding = sourceEncoding;
+        }
+
+        public UUID getTrackFileId(){
+            return this.trackFileId;
+        }
+
+        public UUID getSourceEncoding(){
+            return this.sourceEncoding;
         }
     }
 }

@@ -73,7 +73,7 @@ public final class CompositionPlaylist
     private final UUID uuid;
     private final EditRate editRate;
     private final Map<UUID, VirtualTrack> virtualTrackMap;
-    private final Map<UUID, List<TrackFileResourceType>> virtualTrackResourceList;
+    private final Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap;
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
@@ -126,7 +126,7 @@ public final class CompositionPlaylist
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceList = populateVirtualTrackResourceList(this.compositionPlaylistType);
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -183,9 +183,9 @@ public final class CompositionPlaylist
      * The VirtualTrack concept is defined in Section 6.9.3 of st2067-3:2013.
      * @return Map&lt;UUID,List &lt;{@link org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType TrackFileResourceType}&gt;&gt;. The UUID key corresponds to VirtualTrackID
      */
-    public Map<UUID, List<TrackFileResourceType>> getVirtualTrackResourceList()
+    public Map<UUID, List<TrackFileResourceType>> getVirtualTrackResourceMap()
     {
-        return Collections.unmodifiableMap(this.virtualTrackResourceList);
+        return Collections.unmodifiableMap(this.virtualTrackResourceMap);
     }
 
     /**
@@ -204,6 +204,14 @@ public final class CompositionPlaylist
     public UUID getUUID()
     {
         return this.uuid;
+    }
+
+    /**
+     * Getter for the CompositionPlaylistType object model of the CompositionPlaylist defined by the st2067-3 schema.
+     * @return the composition playlist type object model.
+     */
+    public CompositionPlaylistType getCompositionPlaylistType(){
+        return this.compositionPlaylistType;
     }
 
     Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nullable IMFErrorLogger imfErrorLogger)
@@ -357,7 +365,7 @@ public final class CompositionPlaylist
 
     private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType)
     {
-        Map<UUID, List<TrackFileResourceType>> virtualTrackResourceList = new LinkedHashMap<>();
+        Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
 
@@ -369,33 +377,38 @@ public final class CompositionPlaylist
                 if (sequence != null)
                 {
                     UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                    List<TrackFileResourceType> trackFileResources = new ArrayList<>();
+                    /**
+                     * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
+                     * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
+                     * synchronized wrapping it around a synchronized list collection, although in this case it
+                     * is perhaps not required since this method is only invoked only from the context of the constructor.
+                     */
+                    List<TrackFileResourceType> trackFileResources = Collections.synchronizedList(new LinkedList<>());
                     for (BaseResourceType resource : sequence.getResourceList().getResource())
                     {
                         TrackFileResourceType trackFileResource = (TrackFileResourceType)resource;
                         trackFileResources.add(trackFileResource);
                     }
-                    if (virtualTrackResourceList.get(uuid) == null)
+                    if (virtualTrackResourceMap.get(uuid) == null)
                     {
-                        virtualTrackResourceList.put(uuid, trackFileResources);
+                        virtualTrackResourceMap.put(uuid, trackFileResources);
                     }
                     else
                     {
-                        virtualTrackResourceList.get(uuid).addAll(trackFileResources);
+                        virtualTrackResourceMap.get(uuid).addAll(trackFileResources);
                     }
-
                 }
             }
         }
 
-        //make virtualTrackResourceList immutable
-        for(Map.Entry<UUID, List<TrackFileResourceType>> entry : virtualTrackResourceList.entrySet())
+        //make virtualTrackResourceMap immutable
+        for(Map.Entry<UUID, List<TrackFileResourceType>> entry : virtualTrackResourceMap.entrySet())
         {
             List<TrackFileResourceType> trackFileResources = entry.getValue();
             entry.setValue(Collections.unmodifiableList(trackFileResources));
         }
 
-        return virtualTrackResourceList;
+        return virtualTrackResourceMap;
     }
 
     private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
