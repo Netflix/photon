@@ -64,6 +64,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -134,7 +136,8 @@ final class IMFEssenceCPLBuilder {
         /*Build ContentVersionList*/
         buildContentVersionList();
         /*EssenceDescriptorList*/
-        buildEssenceDescriptorList();
+        List<String> essenceDescriptorIdsList = Collections.synchronizedList(new LinkedList<String>());
+        buildEssenceDescriptorList(essenceDescriptorIdsList);
         /*CompositionTimeCode*/
         buildCompositionTimeCode();
         /*Edit Rate*/
@@ -143,7 +146,7 @@ final class IMFEssenceCPLBuilder {
         /*Locale List*/
         this.buildLocaleList();
         /*Segment List*/
-        this.buildSegmentList();
+        this.buildSegmentList(essenceDescriptorIdsList);
         /*Signature elements*/
         this.buildSignatureElements();
 
@@ -190,7 +193,7 @@ final class IMFEssenceCPLBuilder {
         this.cplRoot.setExtensionProperties(null);
     }
 
-    private void buildEssenceDescriptorList() throws IOException{
+    private void buildEssenceDescriptorList(List<String> uuidList) throws IOException{
 
         try {
             List<EssenceDescriptorBaseType> essenceDescriptorList = this.cplRoot.getEssenceDescriptorList().getEssenceDescriptor();
@@ -204,7 +207,9 @@ final class IMFEssenceCPLBuilder {
                 Document document = docBuilder.newDocument();
 
                 EssenceDescriptorBaseType essenceDescriptorBaseType = new EssenceDescriptorBaseType();
-                essenceDescriptorBaseType.setId(IMFUUIDGenerator.getInstance().getUUID());
+                String uuid = IMFUUIDGenerator.getInstance().getUUID();
+                essenceDescriptorBaseType.setId(uuid);
+                uuidList.add(uuid);
 
                 DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, essenceDescriptorHeader, subDescriptorHeaders);
                 Node node = documentFragment.getFirstChild();
@@ -216,7 +221,6 @@ final class IMFEssenceCPLBuilder {
         catch(ParserConfigurationException e){
             throw new IMFException(e);
         }
-
     }
 
     private void buildCompositionTimeCode(){
@@ -264,7 +268,7 @@ final class IMFEssenceCPLBuilder {
         list.add(localeType);
     }
 
-    private void buildSegmentList() throws IOException {
+    private void buildSegmentList(List<String> uuidList) throws IOException {
         /*Segment Id*/
         List<SegmentType>segments = this.cplRoot.getSegmentList().getSegment();
         SegmentType segmentType = new SegmentType();
@@ -274,7 +278,8 @@ final class IMFEssenceCPLBuilder {
         segmentType.setAnnotation(buildUserTextType(name, "en"));
         /*Sequence List*/
         SegmentType.SequenceList sequenceList = new SegmentType.SequenceList();
-        SequenceType sequenceType = this.buildSequenceType();
+        int index = 0;
+        SequenceType sequenceType = this.buildSequenceType(uuidList, index);
         ObjectFactory objectFactory = new ObjectFactory();
         JAXBElement<SequenceType> element = null;
         if(this.imfEssenceComponentReader.getEssenceType().equals("MainImageSequence")){
@@ -292,7 +297,7 @@ final class IMFEssenceCPLBuilder {
         segments.add(segmentType);
     }
 
-    private SequenceType buildSequenceType() throws IOException {
+    private SequenceType buildSequenceType(List<String> uuidList, int index) throws IOException {
         SequenceType sequenceType = new SequenceType();
         /*Id*/
         sequenceType.setId(IMFUUIDGenerator.getInstance().getUUID());
@@ -300,11 +305,11 @@ final class IMFEssenceCPLBuilder {
         String trackId = IMFUUIDGenerator.getInstance().getUUID();
         sequenceType.setTrackId(trackId);
         /*ResourceList*/
-        sequenceType.setResourceList(buildTrackResourceList());
+        sequenceType.setResourceList(buildTrackResourceList(uuidList, index));
         return sequenceType;
     }
 
-    private SequenceType.ResourceList buildTrackResourceList() throws IOException {
+    private SequenceType.ResourceList buildTrackResourceList(List<String> uuidList, int index) throws IOException {
         SequenceType.ResourceList resourceList = new SequenceType.ResourceList();
         List<BaseResourceType> baseResourceTypes = resourceList.getResource();
         TrackFileResourceType trackFileResourceType = new TrackFileResourceType();
@@ -323,7 +328,7 @@ final class IMFEssenceCPLBuilder {
         /*Repeat Count*/
         trackFileResourceType.setRepeatCount(BigInteger.valueOf(1));
         /*Source Encoding*/
-        trackFileResourceType.setSourceEncoding(IMFUUIDGenerator.getInstance().getUUID());
+        trackFileResourceType.setSourceEncoding(uuidList.get(index));/*For the moment we assume that an EssenceDescriptor reference changes only at the Sequence Level*/
         /*Track File Id*/
         trackFileResourceType.setTrackFileId(IMFUUIDGenerator.getInstance().getUUID());
         /*Key Id*/

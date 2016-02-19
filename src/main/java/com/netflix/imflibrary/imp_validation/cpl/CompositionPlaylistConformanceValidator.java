@@ -9,9 +9,11 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -65,6 +67,9 @@ public class CompositionPlaylistConformanceValidator {
         if(!essenceDescriptorIdsSet.equals(resourceSourceEncodingElementsSet)){
             throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
         }
+
+        /*HashMap containing the Essence Descriptors from the EssenceDescriptorList*/
+        //Map<UUID, EssenceDescriptorBaseType> eDLMap = new HashMap<>();
 
 
         return result;
