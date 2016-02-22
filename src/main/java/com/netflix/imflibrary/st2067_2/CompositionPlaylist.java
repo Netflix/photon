@@ -66,7 +66,7 @@ public final class CompositionPlaylist
     private static final String imf_core_constraints_schema_path = "/org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd";
     private static final String imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
     private static final String dcmlTypes_schema_path = "/org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
-    private static final String xmldig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    private static final String xmldsig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
     private static final List<String> supportedCPLSchemaURIs = new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}};
 
     private final CompositionPlaylistType compositionPlaylistType;
@@ -91,13 +91,13 @@ public final class CompositionPlaylist
         CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
 
         try(InputStream input = new FileInputStream(compositionPlaylistXMLFile);
-            InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldig_core_schema_path);
+            InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
             InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
             InputStream imf_core_constraints_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_core_constraints_schema_path);)
         {
             StreamSource[] streamSources = new StreamSource[4];
-            streamSources[0] = new StreamSource(xmldig_core_is);
+            streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(dcmlTypes_is);
             streamSources[2] = new StreamSource(imf_cpl_is);
             streamSources[3] = new StreamSource(imf_core_constraints_is);
@@ -415,7 +415,7 @@ public final class CompositionPlaylist
     {
 
         try(InputStream input = new FileInputStream(xmlFile);
-            InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldig_core_schema_path);
+            InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
             InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
             InputStream imf_core_constraints_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_core_constraints_schema_path);)

@@ -92,6 +92,9 @@ public final class CompositionPlaylistHelper {
         }
     }
 
+    /**
+     * This class is a representation of a Resource SourceEncoding element and trackFileId tuple.
+     */
     public static final class ResourceIdTuple{
         private final UUID trackFileId;
         private final UUID sourceEncoding;
@@ -101,10 +104,18 @@ public final class CompositionPlaylistHelper {
             this.sourceEncoding = sourceEncoding;
         }
 
+        /**
+         * A getter for the trackFileId referenced by the resource corresponding to this ResourceIdTuple
+         * @return the trackFileId associated with this ResourceIdTuple
+         */
         public UUID getTrackFileId(){
             return this.trackFileId;
         }
 
+        /**
+         * A getter for the source encoding element referenced by the resource corresponding to this ResourceIdTuple
+         * @return the source encoding element associated with this ResourceIdTuple
+         */
         public UUID getSourceEncoding(){
             return this.sourceEncoding;
         }

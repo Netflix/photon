@@ -43,7 +43,8 @@ public final class CompositionPlaylistRecord {
 
     /**
      * Getter for the IMFEssenceMap, the collection of ResourceByteRangeProvider objects for each IMFEssence
-     * referenced by the CompositionPlaylist and indexed by the UUID for that physical asset in the CPL.
+     * referenced by the CompositionPlaylist and indexed by the trackFileId for every asset referenced in the
+     * ResourceList.
      * @return imfEssenceMap, an unmodifiable version of the IMFEssenceMap.
      */
     public Map<UUID, ResourceByteRangeProvider> getImfEssenceMap(){
