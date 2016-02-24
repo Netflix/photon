@@ -198,7 +198,6 @@ public class MXFEssenceReader {
 
     private List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition().getSubDescriptors(essenceDescriptor);
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
@@ -224,7 +223,6 @@ public class MXFEssenceReader {
     }
 
     private KLVPacket.Header getPrimerPackHeader() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         return this.getHeaderPartition().getPrimerPack().getHeader();
     }
 

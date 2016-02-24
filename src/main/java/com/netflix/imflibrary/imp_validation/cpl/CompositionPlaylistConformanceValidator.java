@@ -71,14 +71,14 @@ public class CompositionPlaylistConformanceValidator {
         List<CompositionPlaylist.VirtualTrack>virtualTracks =  CompositionPlaylistHelper.getVirtualTracks(compositionPlaylistRecord);
         LinkedHashSet<UUID> resourceSourceEncodingElementsSet = new LinkedHashSet<>();
         Map<UUID, ResourceByteRangeProvider>sourceEncodingElementByteRangeProviderMap = new HashMap<>();/*Map containing <SourceEncodingElement, ResourceByteRangeProvider> entries*/
-        Map<UUID, CompositionPlaylist.SequenceTypeEnum>sourceEncodingElementToSequenceTypeMap = new HashMap<>();/*Map containing <SourceEncodingElement, SequenceType>*/
+        //Map<UUID, CompositionPlaylist.SequenceTypeEnum>sourceEncodingElementToSequenceTypeMap = new HashMap<>();/*Map containing <SourceEncodingElement, SequenceType>*/
         for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
             List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);
             Map<UUID, ResourceByteRangeProvider> imfEssenceMap = compositionPlaylistRecord.getImfEssenceMap();
             for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 resourceSourceEncodingElementsSet.add(resourceIdTuple.getSourceEncoding());
                 sourceEncodingElementByteRangeProviderMap.put(resourceIdTuple.getSourceEncoding(), imfEssenceMap.get(resourceIdTuple.getTrackFileId()));
-                sourceEncodingElementToSequenceTypeMap.put(resourceIdTuple.getSourceEncoding(), virtualTrack.getSequenceTypeEnum());
+                //sourceEncodingElementToSequenceTypeMap.put(resourceIdTuple.getSourceEncoding(), virtualTrack.getSequenceTypeEnum());
             }
         }
         /*The following check simultaneously verifies 1) and 2) from above.*/
@@ -91,10 +91,10 @@ public class CompositionPlaylistConformanceValidator {
          * using the sourceEncodingElementByteRangeProviderMap.
          */
         Map<UUID, List<Node>> essenceDescriptorMap = new LinkedHashMap<>();/*Map <sourceEncodingElement List<Node>> from the physical essence files*/
-        for(UUID uuid : sourceEncodingElementByteRangeProviderMap.keySet()){
-            MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get(uuid));
-            if(essenceDescriptorMap.get(uuid) == null) {
-                essenceDescriptorMap.put(uuid, mxfEssenceReader.getEssenceDescriptors());
+        for(Map.Entry entry : sourceEncodingElementByteRangeProviderMap.entrySet()){
+            MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get((UUID) entry.getKey()));
+            if(essenceDescriptorMap.get((UUID) entry.getKey()) == null) {
+                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptors());
             }
         }
 
@@ -106,15 +106,15 @@ public class CompositionPlaylistConformanceValidator {
         Map<UUID, Map<String, List<Map<String, String>>>> virtualTracksEssenceDescriptorsMap = this.getEssenceDescriptorsObjectModel(essenceDescriptorMap);
         Map<UUID, Map<String, List<Map<String, String>>>> cplEDLEssenceDescriptorsMap = this.getEssenceDescriptorsObjectModel(eDLMap);
 
-        for(UUID uuid : cplEDLEssenceDescriptorsMap.keySet()){
-            Map<String, List<Map<String, String>>>cplEssenceDescriptorsMap = cplEDLEssenceDescriptorsMap.get(uuid);
-            Map<String, List<Map<String, String>>>essenceDescriptorsMap = virtualTracksEssenceDescriptorsMap.get(uuid);
+        for(Map.Entry entry : cplEDLEssenceDescriptorsMap.entrySet()){
+            Map<String, List<Map<String, String>>>cplEssenceDescriptorsMap = cplEDLEssenceDescriptorsMap.get((UUID)entry.getKey());
+            Map<String, List<Map<String, String>>>essenceDescriptorsMap = virtualTracksEssenceDescriptorsMap.get((UUID)entry.getKey());
             for(String essenceDescriptorType : cplEssenceDescriptorsMap.keySet()){
                 if(essenceDescriptorsMap.get(essenceDescriptorType) != null){
 
                 }
                 else{
-                    throw new IMFException(String.format("No EssenceDescriptor of type %s, is present in the essence referenced by TrackResource that has a SourceEncoding element set to %s", essenceDescriptorType, uuid.toString()));
+                    throw new IMFException(String.format("No EssenceDescriptor of type %s, is present in the essence referenced by TrackResource that has a SourceEncoding element set to %s", essenceDescriptorType, ((UUID)entry.getKey()).toString()));
                 }
             }
         }
@@ -123,8 +123,8 @@ public class CompositionPlaylistConformanceValidator {
 
     private Map<UUID, Map<String, List<Map<String, String>>>> getEssenceDescriptorsObjectModel(Map<UUID, List<Node>> map){
         Map<UUID, Map<String, List<Map<String, String>>>> essenceDescriptorsMap = new LinkedHashMap<>();
-        for(UUID uuid : map.keySet()){
-            List<Node> cplEssenceDescriptorNodes = map.get(uuid); /*List of nodes corresponding to this essence's essence descriptors*/
+        for(Map.Entry entry : map.entrySet()){
+            List<Node> cplEssenceDescriptorNodes = (List<Node>) entry.getValue(); /*List of nodes corresponding to this essence's essence descriptors*/
             /**
              * Every essence descriptor in the CPL's EDL would be represented using a map as its object model.
              * In this case the implementation allows for multiple essence descriptors of the same type in the EDL, for e.g.
@@ -140,7 +140,7 @@ public class CompositionPlaylistConformanceValidator {
                 }
                 list.add(domNodeMap);
             }
-            essenceDescriptorsMap.put(uuid, essenceDescriptorsNodeMap);
+            essenceDescriptorsMap.put((UUID)entry.getKey(), essenceDescriptorsNodeMap);
         }
         return essenceDescriptorsMap;
     }

@@ -173,7 +173,6 @@ public final class CompositionPlaylistHelper {
         File inputFile = new File(args[0]);
 
         logger.info(String.format("File Name is %s", inputFile.getName()));
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
 
         try
         {
