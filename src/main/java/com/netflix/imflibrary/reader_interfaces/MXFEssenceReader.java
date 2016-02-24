@@ -45,6 +45,7 @@ public class MXFEssenceReader {
     private final File workingDirectory;
     /**
      * A constructor for the MXFEssenceReader object
+     * @param resourceByteRangeProvider corresponding to the MXF essence, referred to as the essence in the rest of the documentation
      */
     public MXFEssenceReader(ResourceByteRangeProvider resourceByteRangeProvider){
         this.imfErrorLogger = new IMFErrorLoggerImpl();
@@ -89,7 +90,7 @@ public class MXFEssenceReader {
 
     /**
      * A method that returns an object model of the HeaderPartition in the Essence
-     * @return List<PartitionPack></>
+     * @return Header partition in the essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public HeaderPartition getHeaderPartition() throws IOException{
@@ -99,7 +100,7 @@ public class MXFEssenceReader {
 
     /**
      * A method that returns a list of partition packs in the Essence
-     * @return List<PartitionPack></> in the essence
+     * @return List of partition packs in the essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public List<PartitionPack> getPartitionPacks() throws IOException{
@@ -121,7 +122,7 @@ public class MXFEssenceReader {
     /**
      * A method that returns a list of EssenceDescriptor objects referenced by the Source Packages in the Essence
      *
-     * @return List<InterchangeObjectBO></> corresponding to every EssenceDescriptor in the underlying resource
+     * @return List of MXF InterchangeObjects corresponding to every EssenceDescriptor in the essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public List<Node> getEssenceDescriptors() throws IOException{
