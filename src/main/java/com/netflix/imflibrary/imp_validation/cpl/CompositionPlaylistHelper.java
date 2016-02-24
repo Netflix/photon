@@ -4,8 +4,14 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
@@ -14,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +30,8 @@ import java.util.UUID;
  * This class is an interface to a CompositionPlaylist object model providing responses to useful queries about a CPL.
  */
 public final class CompositionPlaylistHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(CompositionPlaylistHelper.class);
 
     /**
      * A stateless helper method to retrieve the VirtualTracks referenced from within a CompositionPlaylist.
@@ -35,7 +45,7 @@ public final class CompositionPlaylistHelper {
      */
     @Nonnull
     public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistType(cplXMLFile).getVirtualTrackMap();
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(cplXMLFile).getVirtualTrackMap();
         return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
@@ -80,8 +90,31 @@ public final class CompositionPlaylistHelper {
         return virtualTrackResourceIDs;
     }
 
+    /**
+     * This method recursively constructs an object model of a DOM node using a Map.
+     * @param nodes a list of DOM nodes whose object model needs to be constructed.
+     * @return map containing key value pairs as strings for every element in the DOM node.
+     */
+    @Nonnull
+    public static Map<String, Map<String, String>> getDOMNodeAsAMap(@Nonnull List<Node> nodes){
+        Map<String, Map<String, String>>nodeMap = new LinkedHashMap<>();
 
-    private static CompositionPlaylist getCompositionPlaylistType(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
+        return nodeMap;
+    }
+
+    /**
+     * This method recursively constructs an object model of a DOM node using a Map.
+     * @param node the DOM node whose object model needs to be constructed.
+     * @return map containing key value pairs as strings for every element in the DOM node.
+     */
+    @Nonnull
+    public static Map<String, String> getDOMNodeAsAMap(@Nonnull Node node){
+        Map<String, String>nodeMap = new LinkedHashMap<>();
+
+        return nodeMap;
+    }
+
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         if(CompositionPlaylist.isCompositionPlaylist(cplXMLFile)){
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             CompositionPlaylist compositionPlaylist = new CompositionPlaylist(cplXMLFile, imfErrorLogger);
@@ -118,6 +151,54 @@ public final class CompositionPlaylistHelper {
          */
         public UUID getSourceEncoding(){
             return this.sourceEncoding;
+        }
+    }
+
+    private static String usage()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFilePath>%n", CompositionPlaylistHelper.class.getName()));
+        return sb.toString();
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        if (args.length != 1)
+        {
+            logger.error(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
+        File inputFile = new File(args[0]);
+
+        logger.info(String.format("File Name is %s", inputFile.getName()));
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        try
+        {
+            CompositionPlaylist compositionPlaylist = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(inputFile);
+            List<CompositionPlaylist.VirtualTrack> virtualTracks = CompositionPlaylistHelper.getVirtualTracks(inputFile);
+
+            for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
+                List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
+                if(resourceList.size() == 0){
+                    throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
+                }
+            }
+
+            for(EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor()){
+                for(Object object : essenceDescriptorBaseType.getAny()){
+                    Node node = (Node)object;
+
+                }
+            }
+
+            System.out.println(String.format("De-serialized composition playlist : %s", compositionPlaylist.toString()));
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e);
         }
     }
 }
