@@ -41,14 +41,14 @@ public class CompositionPlaylistConformanceValidator {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public boolean isCompositionPlaylistConformed(CompositionPlaylistRecord compositionPlaylistRecord) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        boolean result = true;
+
         /*
          * The algorithm for conformance checking a CompositionPlaylist (CPL) would be
          * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list is referenced through its id element
          * by at least one TrackFileResource within the Virtual tracks in the CompositionPlaylist (see section 6.1.10 of SMPTE st2067-3:2-13).
          * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
          * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the CompositionPlaylist are present in
-         * the physical essence files referenced by the resources of a virtual track.
+         * the physical essence files referenced by the resources of a virtual track and are equal.
          */
         CompositionPlaylist compositionPlaylist = compositionPlaylistRecord.getCompositionPlaylist();
         List<EssenceDescriptorBaseType> essenceDescriptorList = compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor();
@@ -109,9 +109,25 @@ public class CompositionPlaylistConformanceValidator {
          * the essence descriptor in each of the essences referenced from the track file resource within each
          * virtual track.
          */
-
-
-        return result;
+        for(Map.Entry entry : cplEDLEssenceDescriptorsMap.entrySet()){
+            if(cplEDLEssenceDescriptorsMap.get(entry.getKey()).size() > 0){
+                List<DOMNodeObjectModel> cplEDList = cplEDLEssenceDescriptorsMap.get(entry.getKey());
+                List<DOMNodeObjectModel> virtualTrackEDList = virtualTracksEssenceDescriptorsMap.get(entry.getKey());
+                for(DOMNodeObjectModel domNodeObjectModel : cplEDList){
+                    boolean intermediateResult = false;
+                    for(DOMNodeObjectModel otherDomNodeObjectModel : virtualTrackEDList) {
+                        intermediateResult |= domNodeObjectModel.equals(otherDomNodeObjectModel);
+                        if(intermediateResult){
+                            break;
+                        }
+                    }
+                    if(!intermediateResult) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private Map<UUID, List<DOMNodeObjectModel>> getEssenceDescriptorsObjectModel(Map<UUID, List<Node>> map){
