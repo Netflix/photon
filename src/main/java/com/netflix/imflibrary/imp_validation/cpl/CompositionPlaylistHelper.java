@@ -4,8 +4,6 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -96,10 +92,12 @@ public final class CompositionPlaylistHelper {
      * @return map containing key value pairs as strings for every element in the DOM node.
      */
     @Nonnull
-    public static Map<String, Map<String, String>> getDOMNodeAsAMap(@Nonnull List<Node> nodes){
-        Map<String, Map<String, String>>nodeMap = new LinkedHashMap<>();
-
-        return nodeMap;
+    public static List<DOMNodeObjectModel> getObjectModelForDOMNodes(@Nonnull List<Node> nodes){
+        List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
+        for(Node node : nodes){
+            domNodeObjectModels.add(getObjectModelForDOMNode(node));
+        }
+        return domNodeObjectModels;
     }
 
     /**
@@ -108,10 +106,8 @@ public final class CompositionPlaylistHelper {
      * @return map containing key value pairs as strings for every element in the DOM node.
      */
     @Nonnull
-    public static Map<String, String> getDOMNodeAsAMap(@Nonnull Node node){
-        Map<String, String>nodeMap = new LinkedHashMap<>();
-
-        return nodeMap;
+    public static DOMNodeObjectModel getObjectModelForDOMNode(@Nonnull Node node){
+       return new DOMNodeObjectModel(node);
     }
 
     private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
@@ -185,14 +181,16 @@ public final class CompositionPlaylistHelper {
                     throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
                 }
             }
-
+            List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
             for(EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor()){
                 for(Object object : essenceDescriptorBaseType.getAny()){
                     Node node = (Node)object;
-
+                    domNodeObjectModels.add(getObjectModelForDOMNode(node));
                 }
             }
-
+            for(int i=0; i<domNodeObjectModels.size(); i++) {
+                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %s", i, domNodeObjectModels.get(i).toString()));
+            }
             System.out.println(String.format("De-serialized composition playlist : %s", compositionPlaylist.toString()));
         }
         catch(Exception e)
