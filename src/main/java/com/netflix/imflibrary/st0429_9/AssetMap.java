@@ -268,7 +268,13 @@ public final class AssetMap
         {
             this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetType.getId());
             this.isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
-            this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
+            String path = assetType.getChunkList().getChunk().get(0).getPath();
+            if(path.matches("^[a-zA-Z0-9._-]+") == true) {
+                this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
+            }
+            else{
+                throw new URISyntaxException("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014", path);
+            }
         }
 
         /**
