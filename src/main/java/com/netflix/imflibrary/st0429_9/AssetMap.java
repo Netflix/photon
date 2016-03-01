@@ -273,7 +273,7 @@ public final class AssetMap
                 this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
             }
             else{
-                throw new URISyntaxException("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014", path);
+                throw new URISyntaxException(path, "The Asset path does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -)");
             }
         }
 
