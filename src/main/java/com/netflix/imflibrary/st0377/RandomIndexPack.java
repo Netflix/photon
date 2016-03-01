@@ -47,6 +47,7 @@ public final class RandomIndexPack
 
     private final KLVPacket.Header header;
     private final Map<Long, List<Long>> partitionMap = new LinkedHashMap<Long, List<Long>>();
+    private final List<Long> allPartitionByteOffsets = new ArrayList<Long>();
     @MXFField(size=4) private final Long length = null;
 
     /**
@@ -98,6 +99,7 @@ public final class RandomIndexPack
                 partitionMap.put(bodySIDByteOffsetPair.getBodySID(), partitions);
             }
             partitions.add(bodySIDByteOffsetPair.getByteOffset());
+            allPartitionByteOffsets.add(bodySIDByteOffsetPair.getByteOffset());
         }
 
         MXFFieldPopulator.populateField(byteProvider, this, "length");
@@ -112,29 +114,10 @@ public final class RandomIndexPack
     /**
      * Gets all the partition byte offsets in the MXF file
      *
-     * @return the all partition byte offsets in no particular order in which they appear in the file
+     * @return all the partition byte offsets the order in which they appear in the file
      */
     public List<Long> getAllPartitionByteOffsets()
     {
-        ArrayList<Long> allPartitionByteOffsets = new ArrayList<Long>();
-        /*for(Long key : this.partitionMap.keySet()){
-            List<Long> partitions = this.partitionMap.get(key);
-            if(partitions != null){
-                allPartitionByteOffsets.addAll(partitions);
-            }
-        }*/
-        /* According to FindBugs using an iterator over the Map's entrySet() is more efficient than keySet()
-         * (WMI_WRONG_MAP_ITERATOR).
-         * Since with the entrySet we get both the key and the value thereby eliminating the need to use
-         * Map.get(key) to access the value corresponding to a key in the map.
-         */
-        Set<Map.Entry<Long, List<Long>>> entrySet = this.partitionMap.entrySet();
-        for(Map.Entry<Long, List<Long>> entry : entrySet){
-            List<Long> partitions = entry.getValue();
-            if(partitions.size() > 0){
-                allPartitionByteOffsets.addAll(partitions);
-            }
-        }
         return Collections.unmodifiableList(allPartitionByteOffsets);
     }
 
