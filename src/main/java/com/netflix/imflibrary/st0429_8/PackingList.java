@@ -71,7 +71,7 @@ public final class PackingList
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException, URISyntaxException
+    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException
     {
 
         PackingList.validatePackingListSchema(packingListXMLFile);
@@ -224,7 +224,7 @@ public final class PackingList
     }
 
 
-    private static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
+    private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException
     {
         try(InputStream input = new FileInputStream(xmlFile);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
@@ -245,7 +245,7 @@ public final class PackingList
         }
     }
 
-    public static void main(String args[]) throws IOException, URISyntaxException, SAXException, ParserConfigurationException, JAXBException
+    public static void main(String args[]) throws IOException, SAXException, ParserConfigurationException, JAXBException
     {
         File inputFile = new File(args[0]);
 

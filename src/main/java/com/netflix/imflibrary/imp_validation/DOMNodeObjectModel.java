@@ -1,13 +1,11 @@
-package com.netflix.imflibrary.imp_validation.cpl;
+package com.netflix.imflibrary.imp_validation;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.Nonnull;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
