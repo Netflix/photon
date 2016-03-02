@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.reader_interfaces.MXFEssenceReader;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
