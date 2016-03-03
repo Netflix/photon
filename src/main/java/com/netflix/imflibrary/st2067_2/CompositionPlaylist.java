@@ -67,7 +67,7 @@ public final class CompositionPlaylist
     private static final String imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
     private static final String dcmlTypes_schema_path = "/org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
     private static final String xmldsig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
-    private static final List<String> supportedCPLSchemaURIs = new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}};
+    public static final List<String> supportedCPLSchemaURIs = new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}};
 
     private final CompositionPlaylistType compositionPlaylistType;
     private final UUID uuid;

@@ -63,6 +63,7 @@ public final class AssetMap
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
     private final AssetMapType assetMapType;
+    public static final List<String> supportedAssetMapSchemaURIs = new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}};
 
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
@@ -245,6 +246,14 @@ public final class AssetMap
     public @Nullable URI getPath(UUID uuid)
     {
         return this.uuidToPath.get(uuid);
+    }
+
+    /**
+     * Getter for the AssetMap's UUID
+     * @return uuid corresponding to this AssetMap document
+     */
+    public UUID getUUID(){
+        return this.uuid;
     }
 
     /**
