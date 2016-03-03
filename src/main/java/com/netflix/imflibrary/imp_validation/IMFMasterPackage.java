@@ -7,6 +7,8 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -36,6 +38,7 @@ public final class IMFMasterPackage {
     private static final String packingListNamePattern = "i)PKL";
     private static final String compositionPlaylistNamePattern = "i)CPL";
     private static final String xmlExtension = "(.*)(\\.)((X|x)(M|m)(L|l))";
+    private static final Logger logger = LoggerFactory.getLogger(IMFMasterPackage.class);
 
     /**
      * A constructor that models an IMF Master Package as an object.
@@ -84,11 +87,6 @@ public final class IMFMasterPackage {
             throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingLists.size(), assetMap.getPackingListAssets().size()));
         }
         PackingList packingList = new PackingList(this.packingLists.get(0));
-
-        List<CompositionPlaylist> cpls = new ArrayList<>();
-        for(File file : compositionPlaylists){
-            cpls.add(new CompositionPlaylist(file, imfErrorLogger));
-        }
 
         /*PKL validation*/
         if(packingList.getAssets().size() != this.numberOfAssets){
@@ -164,6 +162,11 @@ public final class IMFMasterPackage {
         return false;
     }
 
+    /**
+     * A sample main method implementation for exercising the IMFMasterPackage methods
+     * @param args list of files
+     * @throws Exception any errors while performing analysis are exposed through an Exception.
+     */
 
     public static void main(String args[]) throws Exception{
         if(args.length == 0){
@@ -175,6 +178,13 @@ public final class IMFMasterPackage {
             files.add(new File(string));
         }
 
-        IMFMasterPackage IMFMasterPackage = new IMFMasterPackage(files);
+        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(files);
+        if(imfMasterPackage.validate()){
+            logger.info(String.format("IMF Master package has been validated"));
+        }
+        else{
+            logger.error(String.format("IMF Master package has invalid assets"));
+        }
+        System.exit(0);
     }
 }
