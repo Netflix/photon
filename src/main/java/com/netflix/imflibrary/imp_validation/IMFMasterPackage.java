@@ -61,6 +61,7 @@ public final class IMFMasterPackage {
                 }
             }
         }
+        this.validate();
     }
 
     /**
@@ -72,7 +73,7 @@ public final class IMFMasterPackage {
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean validate() throws IOException, SAXException, JAXBException, URISyntaxException {
+    private boolean validate() throws IOException, SAXException, JAXBException, URISyntaxException {
         boolean result = true;
 
         if(assetMaps.size() > 1){
@@ -132,6 +133,22 @@ public final class IMFMasterPackage {
             throw new IMFException(String.format("Packing list UUID %s is different from what is referenced in the AssetMap %s", UUIDHelper.fromUUIDAsURNStringToUUID(packingList.getUUID().toString()), UUIDHelper.fromUUIDAsURNStringToUUID(packingListAssets.get(0).getUUID().toString())));
         }
         return result;
+    }
+
+    /**
+     * A getter for the AssetMap object model corresponding to the AssetMap file in the IMF Master Package
+     * @return the object model corresponding to the AssetMap document
+     */
+    public AssetMap getAssetMap() throws IOException, SAXException, JAXBException, URISyntaxException{
+        return new AssetMap(this.assetMaps.get(0), new IMFErrorLoggerImpl());
+    }
+
+    /**
+     * A getter for the PackingList object model corresponding to the PackingList file in the IMF Master Package
+     * @return the object model corresponding to the PackingList document
+     */
+    public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
+        return new PackingList(this.packingLists.get(0));
     }
 
     private boolean isFileOfSupportedSchema(File xmlFile, List<String>supportedSchemaURIs, String tagName) throws IOException {
