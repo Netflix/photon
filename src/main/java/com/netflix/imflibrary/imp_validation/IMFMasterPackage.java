@@ -138,6 +138,10 @@ public final class IMFMasterPackage {
     /**
      * A getter for the AssetMap object model corresponding to the AssetMap file in the IMF Master Package
      * @return the object model corresponding to the AssetMap document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public AssetMap getAssetMap() throws IOException, SAXException, JAXBException, URISyntaxException{
         return new AssetMap(this.assetMaps.get(0), new IMFErrorLoggerImpl());
@@ -146,6 +150,10 @@ public final class IMFMasterPackage {
     /**
      * A getter for the PackingList object model corresponding to the PackingList file in the IMF Master Package
      * @return the object model corresponding to the PackingList document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
         return new PackingList(this.packingLists.get(0));
