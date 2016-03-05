@@ -34,9 +34,9 @@ public final class IMFMasterPackage {
     private final List<File> assetMaps = new ArrayList<>();
     private final List<File> compositionPlaylists = new ArrayList<>();
     private final Integer numberOfAssets;
-    private static final String basicMapProfilev2AssetMapNamePattern = "^ASSETMAP\\.xml$";
-    private static final String packingListNamePattern = "i)PKL";
-    private static final String compositionPlaylistNamePattern = "i)CPL";
+    private static final String assetMapFileNamePattern = "^ASSETMAP\\.xml$";
+    private static final String packingListFileNamePattern = "i)PKL";
+    private static final String compositionPlaylistFileNamePattern = "i)CPL";
     private static final String xmlExtension = "(.*)(\\.)((X|x)(M|m)(L|l))";
     private static final Logger logger = LoggerFactory.getLogger(IMFMasterPackage.class);
 
