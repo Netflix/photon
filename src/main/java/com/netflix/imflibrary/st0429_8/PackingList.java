@@ -112,12 +112,17 @@ public final class PackingList
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
-     * @param inputStream corresponding to the the input XML file
+     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public PackingList(InputStream inputStream)throws IOException, SAXException, JAXBException {
+
+        if(!inputStream.markSupported()){
+            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        }
+        inputStream.reset();
         PackingList.validatePackingListSchema(inputStream);
 
         try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
@@ -137,6 +142,7 @@ public final class PackingList
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
+            inputStream.reset();
             JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
@@ -153,7 +159,7 @@ public final class PackingList
                 this.assetList.add(asset);
             }
         }
-
+        inputStream.reset();
     }
 
     private static PackingListType checkConformance(PackingListType packingListType)
@@ -284,6 +290,12 @@ public final class PackingList
     }
 
     private static void validatePackingListSchema(InputStream inputStream) throws IOException, SAXException {
+
+        if(!inputStream.markSupported()){
+            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        }
+        inputStream.reset();
+
         try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
@@ -300,6 +312,7 @@ public final class PackingList
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
         }
+        inputStream.reset();
     }
 
     public static void main(String args[]) throws IOException, SAXException, ParserConfigurationException, JAXBException

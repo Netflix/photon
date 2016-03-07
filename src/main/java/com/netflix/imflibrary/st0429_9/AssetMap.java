@@ -140,7 +140,7 @@ public final class AssetMap
 
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
-     * @param inputStream corresponding to the input XML file
+     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
      * @param imfErrorLogger an error logger for recording any errors - can be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -149,9 +149,15 @@ public final class AssetMap
      */
     public AssetMap(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
+        if(!inputStream.markSupported()){
+            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        }
+
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
+        inputStream.reset();
         AssetMap.validateAssetMapSchema(inputStream);
+        inputStream.reset();
 
         try(InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
         )
@@ -166,7 +172,9 @@ public final class AssetMap
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
+            inputStream.reset();
             JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
+            inputStream.reset();
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());

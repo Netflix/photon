@@ -17,8 +17,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -32,9 +34,6 @@ import java.util.UUID;
  */
 public final class IMFMasterPackage {
 
-    private final List<File> packingLists = new ArrayList<>();
-    private final List<File> assetMaps = new ArrayList<>();
-    private final List<File> compositionPlaylists = new ArrayList<>();
     private final List<InputStream> packingListStreams = new ArrayList<>();
     private final List<InputStream> assetMapStreams = new ArrayList<>();
     private final List<InputStream> compositionPlaylistStreams = new ArrayList<>();
@@ -57,12 +56,13 @@ public final class IMFMasterPackage {
     public IMFMasterPackage(List<InputStream> inputStreams) throws IOException, SAXException, JAXBException, URISyntaxException{
         this.numberOfAssets = inputStreams.size();
         for(InputStream inputStream : inputStreams){
-            if (isFileOfSupportedSchema(inputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
-                assetMapStreams.add(inputStream);
-            } else if (isFileOfSupportedSchema(inputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
-                packingListStreams.add(inputStream);
-            } else if (isFileOfSupportedSchema(inputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
-                compositionPlaylistStreams.add(inputStream);
+            InputStream nonClosingInputStream = new NonClosingInputStream(inputStream);
+            if (isFileOfSupportedSchema(nonClosingInputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
+                assetMapStreams.add(nonClosingInputStream);
+            } else if (isFileOfSupportedSchema(nonClosingInputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
+                packingListStreams.add(nonClosingInputStream);
+            } else if (isFileOfSupportedSchema(nonClosingInputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
+                compositionPlaylistStreams.add(nonClosingInputStream);
             }
         }
         this.validate();
@@ -79,19 +79,23 @@ public final class IMFMasterPackage {
      */
     private boolean validate() throws IOException, SAXException, JAXBException, URISyntaxException {
         boolean result = true;
+        this.resetAllInputStreams();
 
-        if(assetMaps.size() > 1){
-            throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
+        if(assetMapStreams.size() > 1){
+            throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMapStreams.size()));
         }
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), imfErrorLogger);
 
-        if(packingLists.size() != 1
+        AssetMap assetMap = new AssetMap(this.assetMapStreams.get(0), imfErrorLogger);
+        this.resetAssetMapInputStreams();
+
+        if(packingListStreams.size() != 1
                 || assetMap.getPackingListAssets().size() != 1){
-            throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingLists.size(), assetMap.getPackingListAssets().size()));
+            throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingListStreams.size(), assetMap.getPackingListAssets().size()));
         }
-        PackingList packingList = new PackingList(this.packingLists.get(0));
+        PackingList packingList = new PackingList(this.packingListStreams.get(0));
+        this.resetPackingListInputStreams();
 
         /*PKL validation*/
         if(packingList.getAssets().size() != this.numberOfAssets){
@@ -136,6 +140,7 @@ public final class IMFMasterPackage {
         if(!packingListAssets.get(0).getUUID().equals(packingList.getUUID())){
             throw new IMFException(String.format("Packing list UUID %s is different from what is referenced in the AssetMap %s", UUIDHelper.fromUUIDAsURNStringToUUID(packingList.getUUID().toString()), UUIDHelper.fromUUIDAsURNStringToUUID(packingListAssets.get(0).getUUID().toString())));
         }
+
         return result;
     }
 
@@ -148,7 +153,10 @@ public final class IMFMasterPackage {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public AssetMap getAssetMap() throws IOException, SAXException, JAXBException, URISyntaxException{
-        return new AssetMap(this.assetMaps.get(0), new IMFErrorLoggerImpl());
+        this.resetAssetMapInputStreams();
+        AssetMap assetMap = new AssetMap(this.assetMapStreams.get(0), new IMFErrorLoggerImpl());
+        this.resetAssetMapInputStreams();
+        return assetMap;
     }
 
     /**
@@ -160,7 +168,10 @@ public final class IMFMasterPackage {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
-        return new PackingList(this.packingLists.get(0));
+        this.resetPackingListInputStreams();
+        PackingList packingList = new PackingList(this.packingListStreams.get(0));
+        this.resetPackingListInputStreams();
+        return packingList;
     }
 
     /**
@@ -172,11 +183,13 @@ public final class IMFMasterPackage {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public List<CompositionPlaylist> getCompositionPlayLists() throws IOException, SAXException, JAXBException, URISyntaxException{
+        this.resetCompositionPlaylistInputStreams();
         List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(InputStream inputStream : compositionPlaylistStreams){
             compositionPlaylists.add(new CompositionPlaylist(inputStream, imfErrorLogger));
         }
+        this.resetCompositionPlaylistInputStreams();
         return compositionPlaylists;
     }
 
@@ -187,6 +200,7 @@ public final class IMFMasterPackage {
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(inputStream);
+            inputStream.reset();
 
             NodeList nodeList = null;
             for(String supportedSchemaURI : supportedSchemaURIs) {
@@ -205,6 +219,58 @@ public final class IMFMasterPackage {
         }
 
         return false;
+    }
+
+    private void resetAllInputStreams() throws IOException {
+        this.resetAssetMapInputStreams();
+        this.resetPackingListInputStreams();
+        this.resetCompositionPlaylistInputStreams();
+    }
+
+    private void resetAssetMapInputStreams() throws IOException {
+        for(InputStream inputStream : this.assetMapStreams){
+            inputStream.reset();
+        }
+    }
+
+    private void resetPackingListInputStreams() throws IOException {
+        for(InputStream inputStream : this.packingListStreams){
+            inputStream.reset();
+        }
+    }
+
+    private void resetCompositionPlaylistInputStreams() throws IOException {
+        for(InputStream inputStream : this.compositionPlaylistStreams){
+            inputStream.reset();
+        }
+    }
+
+    private static final class NonClosingInputStream extends BufferedInputStream {
+
+        public NonClosingInputStream(InputStream inputStream) {
+            super(inputStream);
+            super.mark(Integer.MAX_VALUE);
+        }
+
+        @Override
+        public synchronized void mark(int readLimit){
+            super.mark(Integer.MAX_VALUE);
+        }
+
+        @Override
+        public synchronized void reset() throws IOException {
+            super.reset();
+        }
+
+        @Override
+        public void close() throws IOException {
+            // Do nothing.
+        }
+
+        public void reallyClose() throws IOException {
+            // Actually close.
+            in.close();
+        }
     }
 
     /**
