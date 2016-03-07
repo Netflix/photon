@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.NonClosingInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,6 +77,7 @@ public final class AssetMap
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException {
+
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         AssetMap.validateAssetMapSchema(assetMapXmlFile);
@@ -149,8 +152,8 @@ public final class AssetMap
      */
     public AssetMap(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        if(!inputStream.markSupported()){
-            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        if(!(inputStream instanceof  NonClosingInputStream)){
+            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
         }
 
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
@@ -407,14 +410,17 @@ public final class AssetMap
     }
 
     private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException {
-        InputStream inputStream = new FileInputStream(xmlFile);
+        InputStream inputStream = new NonClosingInputStream(new FileInputStream(xmlFile));
         validateAssetMapSchema(inputStream);
         inputStream.close();
     }
 
     private static void validateAssetMapSchema(InputStream inputStream) throws IOException, SAXException {
+        if(!(inputStream instanceof  NonClosingInputStream)){
+            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
+        }
+        inputStream.reset();
         InputStream assetMap_is = null;
-
         try
         {
             StreamSource inputSource = new StreamSource(inputStream);
@@ -435,6 +441,7 @@ public final class AssetMap
             {
                 assetMap_is.close();
             }
+            inputStream.reset();
         }
     }
 
