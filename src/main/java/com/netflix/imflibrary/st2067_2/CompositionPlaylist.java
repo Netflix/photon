@@ -201,6 +201,11 @@ public final class CompositionPlaylist
         }
     }
 
+    /**
+     * A method that returns a string representation of a CompositionPlaylist object
+     *
+     * @return string representing the object
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

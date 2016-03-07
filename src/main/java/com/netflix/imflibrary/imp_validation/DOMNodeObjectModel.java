@@ -130,4 +130,24 @@ public class DOMNodeObjectModel {
                 + this.nodeType.hashCode();/*Another field that is indicated to be non-null*/
         return hash;
     }
+
+    /**
+     * A method that returns a string representation of a DOMNodeObjectModel object
+     *
+     * @return string representing the object
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("====== DOM Node Object Model ======%n"));
+        sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
+        sb.append(String.format("Node Local Name : %s%n", this.localName));
+        for(DOMNodeObjectModel domNodeObjectModel : this.childrenDOMNodes) {
+            sb.append(domNodeObjectModel.toString());
+        }
+        for(Map.Entry entry : fields.entrySet()){
+            sb.append(String.format("%s%n", entry.toString()));
+        }
+        return sb.toString();
+    }
 }
