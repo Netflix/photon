@@ -84,8 +84,7 @@ public final class CompositionPlaylist
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public CompositionPlaylist(File compositionPlaylistXMLFile, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException
-    {
+    public CompositionPlaylist(File compositionPlaylistXMLFile, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
@@ -134,6 +133,63 @@ public final class CompositionPlaylist
         }
     }
 
+    /**
+     * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
+     * @param inputStream the inputstream corresponding to the CompositionPlaylist XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public CompositionPlaylist(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
+        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+
+        CompositionPlaylist.validateCompositionPlaylistSchema(inputStream);
+
+        try(InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
+            InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
+            InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
+            InputStream imf_core_constraints_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_core_constraints_schema_path);)
+        {
+            StreamSource[] streamSources = new StreamSource[4];
+            streamSources[0] = new StreamSource(xmldsig_core_is);
+            streamSources[1] = new StreamSource(dcmlTypes_is);
+            streamSources[2] = new StreamSource(imf_cpl_is);
+            streamSources[3] = new StreamSource(imf_core_constraints_is);
+
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(streamSources);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<CompositionPlaylistType> compositionPlaylistTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
+            if (validationEventHandlerImpl.hasErrors())
+            {
+                throw new IMFException(validationEventHandlerImpl.toString());
+            }
+
+            CompositionPlaylistType compositionPlaylistType = compositionPlaylistTypeJAXBElement.getValue();
+            this.compositionPlaylistType = compositionPlaylistType;
+            this.virtualTrackMap = checkVirtualTracks(this.compositionPlaylistType, imfErrorLogger);
+        }
+
+        this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.compositionPlaylistType.getId());
+
+        this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
+
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
+
+        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        {
+            throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+        }
+    }
+
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -142,13 +198,34 @@ public final class CompositionPlaylist
         return sb.toString();
     }
 
+    /**
+     * A method that confirms if a file is a CompositionPlaylist document instance.
+     * @param xmlFile the input file that is to be verified
+     * @return a boolean indicating if the input file is a CompositionPlaylist document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
     public static boolean isCompositionPlaylist(File xmlFile) throws IOException {
+        InputStream inputStream = new FileInputStream(xmlFile);
+        boolean result = isCompositionPlaylist(inputStream);
+        if(inputStream != null){
+            inputStream.close();
+        }
+        return result;
+    }
+
+    /**
+     * A method that confirms if the inputStream corresponds to a CompositionPlaylist document instance.
+     * @param inputStream the input stream that is to be verified
+     * @return a boolean indicating if the input file is a CompositionPlaylist document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static boolean isCompositionPlaylist(InputStream inputStream) throws IOException{
         try
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(xmlFile);
+            Document document = documentBuilder.parse(inputStream);
 
             //obtain root node
             NodeList nodeList = null;
@@ -411,16 +488,19 @@ public final class CompositionPlaylist
         return virtualTrackResourceMap;
     }
 
-    private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
-    {
+    private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
+        InputStream inputStream = new FileInputStream(xmlFile);
+        validateCompositionPlaylistSchema(inputStream);
+        inputStream.close();
+    }
 
-        try(InputStream input = new FileInputStream(xmlFile);
-            InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
+    private static void validateCompositionPlaylistSchema(InputStream inputStream) throws IOException, URISyntaxException, SAXException {
+        try(InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
             InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
             InputStream imf_core_constraints_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_core_constraints_schema_path);)
         {
-            StreamSource inputSource = new StreamSource(input);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[4];
             streamSources[0] = new StreamSource(xmldig_core_is);
@@ -482,6 +562,11 @@ public final class CompositionPlaylist
             return this.denominator;
         }
 
+        /**
+         * A method that returns a string representation of a CompositionPlaylist object
+         *
+         * @return string representing the object
+         */
         public String toString()
         {
             StringBuilder sb = new StringBuilder();

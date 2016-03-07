@@ -74,8 +74,7 @@ public final class AssetMap
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
-    {
+    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException {
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         AssetMap.validateAssetMapSchema(assetMapXmlFile);
@@ -95,6 +94,79 @@ public final class AssetMap
             unmarshaller.setSchema(schema);
 
             JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(input);
+            if(validationEventHandlerImpl.hasErrors())
+            {
+                throw new IMFException(validationEventHandlerImpl.toString());
+            }
+
+            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
+        }
+
+        UUID uuid = null;
+        try
+        {
+            uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
+        }
+        catch(IMFException e)
+        {
+            if (imfErrorLogger != null)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        e.getMessage());
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        this.uuid = uuid;
+
+        for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
+        {
+            Asset asset = new Asset(assetType);
+            this.assetList.add(asset);
+            this.uuidToPath.put(asset.getUUID(), asset.getPath());
+            if ((assetType.isPackingList() != null) && (assetType.isPackingList()))
+            {
+                this.packingListAssets.add(asset);
+            }
+        }
+
+        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        {
+            throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+        }
+    }
+
+    /**
+     * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
+     * @param inputStream corresponding to the input XML file
+     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public AssetMap(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    {
+        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+
+        AssetMap.validateAssetMapSchema(inputStream);
+
+        try(InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
+        )
+        {
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
+            StreamSource schemaSource = new StreamSource(assetMap_schema_is);
+            Schema schema = schemaFactory.newSchema(schemaSource);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_9_2007.AM");
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -326,15 +398,18 @@ public final class AssetMap
 
     }
 
-    private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException
-    {
-        InputStream input = null;
+    private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException {
+        InputStream inputStream = new FileInputStream(xmlFile);
+        validateAssetMapSchema(inputStream);
+        inputStream.close();
+    }
+
+    private static void validateAssetMapSchema(InputStream inputStream) throws IOException, SAXException {
         InputStream assetMap_is = null;
 
         try
         {
-            input = new FileInputStream(xmlFile);
-            StreamSource inputSource = new StreamSource(input);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             assetMap_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
             StreamSource[] streamSources = new StreamSource[1];
@@ -348,11 +423,6 @@ public final class AssetMap
         }
         finally
         {
-            if (input != null)
-            {
-                input.close();
-            }
-
             if (assetMap_is != null)
             {
                 assetMap_is.close();
