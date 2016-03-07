@@ -62,12 +62,12 @@ public final class CompositionPlaylistHelper {
      */
     @Nonnull
     public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
-        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(inputStream).getVirtualTrackMap();
-        inputStream.reset();
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(in).getVirtualTrackMap();
+        in.reset();
         return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
@@ -144,18 +144,19 @@ public final class CompositionPlaylistHelper {
     }
 
     private static CompositionPlaylist getCompositionPlaylistObjectModel(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
-        if(CompositionPlaylist.isCompositionPlaylist(inputStream)){
+        if(CompositionPlaylist.isCompositionPlaylist(in)){
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputStream, imfErrorLogger);
-            inputStream.reset();
+            in.reset();
+            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(in, imfErrorLogger);
+            in.reset();
             return compositionPlaylist;
         }
         else{
-            inputStream.reset();
+            in.reset();
             throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
         }
     }

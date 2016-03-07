@@ -31,10 +31,11 @@ public final class CompositionPlaylistRecord {
     private final Map<UUID, ResourceByteRangeProvider> imfEssenceMap;
 
     private CompositionPlaylistRecord(InputStream inputStream, @Nonnull CompositionPlaylist compositionPlaylist, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        this.inputStream = inputStream;
+        this.inputStream = in;
         this.compositionPlaylist = compositionPlaylist;
         this.imfEssenceMap = imfEssenceMap;
     }
@@ -106,18 +107,19 @@ public final class CompositionPlaylistRecord {
          */
         @Nonnull
         public static CompositionPlaylistRecord build(InputStream inputStream, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException, SAXException, JAXBException, URISyntaxException, IMFException {
-            if(!(inputStream instanceof RepeatableInputStream)){
-                throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+            InputStream in = inputStream;
+            if(!(in instanceof RepeatableInputStream)){
+                in = new RepeatableInputStream(inputStream);
             }
-            inputStream.reset();
+            in.reset();
             CompositionPlaylist compositionPlaylist = null;
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            if (CompositionPlaylist.isCompositionPlaylist(inputStream)) {
+            if (CompositionPlaylist.isCompositionPlaylist(in)) {
                 compositionPlaylist = new CompositionPlaylist(inputStream, imfErrorLogger);
-                inputStream.reset();
+                in.reset();
                 return new CompositionPlaylistRecord(inputStream, compositionPlaylist, imfEssenceMap);
             } else {
-                inputStream.reset();
+                in.reset();
                 throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
             }
         }

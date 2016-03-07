@@ -55,13 +55,13 @@ public final class IMFMasterPackage {
     public IMFMasterPackage(List<InputStream> inputStreams) throws IOException, SAXException, JAXBException, URISyntaxException{
         this.numberOfAssets = inputStreams.size();
         for(InputStream inputStream : inputStreams){
-            InputStream nonClosingInputStream = new RepeatableInputStream(inputStream);
-            if (isFileOfSupportedSchema(nonClosingInputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
-                assetMapStreams.add(nonClosingInputStream);
-            } else if (isFileOfSupportedSchema(nonClosingInputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
-                packingListStreams.add(nonClosingInputStream);
-            } else if (isFileOfSupportedSchema(nonClosingInputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
-                compositionPlaylistStreams.add(nonClosingInputStream);
+            InputStream repeatableInputStream = new RepeatableInputStream(inputStream);
+            if (isFileOfSupportedSchema(repeatableInputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
+                assetMapStreams.add(repeatableInputStream);
+            } else if (isFileOfSupportedSchema(repeatableInputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
+                packingListStreams.add(repeatableInputStream);
+            } else if (isFileOfSupportedSchema(repeatableInputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
+                compositionPlaylistStreams.add(repeatableInputStream);
             }
         }
         this.validate();

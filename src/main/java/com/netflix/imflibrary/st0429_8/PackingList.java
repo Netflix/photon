@@ -119,11 +119,13 @@ public final class PackingList
      */
     public PackingList(InputStream inputStream)throws IOException, SAXException, JAXBException {
 
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
-        PackingList.validatePackingListSchema(inputStream);
+
+        PackingList.validatePackingListSchema(in);
+        in.reset();
 
         try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
@@ -142,8 +144,7 @@ public final class PackingList
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
-            inputStream.reset();
-            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
+            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(in);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -159,7 +160,9 @@ public final class PackingList
                 this.assetList.add(asset);
             }
         }
-        inputStream.reset();
+        finally {
+            in.reset();
+        }
     }
 
     private static PackingListType checkConformance(PackingListType packingListType)
@@ -291,16 +294,16 @@ public final class PackingList
 
     private static void validatePackingListSchema(InputStream inputStream) throws IOException, SAXException {
 
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
 
         try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
-            StreamSource inputSource = new StreamSource(inputStream);
+            StreamSource inputSource = new StreamSource(in);
 
             StreamSource[] streamSources = new StreamSource[2];
             streamSources[0] = new StreamSource(xmldsig_core_is);
@@ -312,7 +315,9 @@ public final class PackingList
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
         }
-        inputStream.reset();
+        finally {
+            in.reset();
+        }
     }
 
     public static void main(String args[]) throws IOException, SAXException, ParserConfigurationException, JAXBException

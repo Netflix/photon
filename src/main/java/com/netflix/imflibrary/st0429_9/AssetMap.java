@@ -151,18 +151,16 @@ public final class AssetMap
      */
     public AssetMap(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
 
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+        AssetMap.validateAssetMapSchema(in);
+        in.reset();
 
-        inputStream.reset();
-        AssetMap.validateAssetMapSchema(inputStream);
-        inputStream.reset();
-
-        try(InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
-        )
+        try(InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);)
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
             StreamSource schemaSource = new StreamSource(assetMap_schema_is);
@@ -174,15 +172,16 @@ public final class AssetMap
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
-            inputStream.reset();
-            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
-            inputStream.reset();
+            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(in);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
 
             this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
+        }
+        finally {
+            in.reset();
         }
 
         UUID uuid = null;
@@ -415,14 +414,15 @@ public final class AssetMap
     }
 
     private static void validateAssetMapSchema(InputStream inputStream) throws IOException, SAXException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
+
         InputStream assetMap_is = null;
         try
         {
-            StreamSource inputSource = new StreamSource(inputStream);
+            StreamSource inputSource = new StreamSource(in);
 
             assetMap_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
             StreamSource[] streamSources = new StreamSource[1];
@@ -440,7 +440,7 @@ public final class AssetMap
             {
                 assetMap_is.close();
             }
-            inputStream.reset();
+            in.reset();
         }
     }
 

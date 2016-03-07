@@ -145,13 +145,15 @@ public final class CompositionPlaylist
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public CompositionPlaylist(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(in);
         }
-        inputStream.reset();
+
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
-        CompositionPlaylist.validateCompositionPlaylistSchema(inputStream);
+        CompositionPlaylist.validateCompositionPlaylistSchema(in);
+        in.reset();
 
         try(InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
@@ -173,7 +175,7 @@ public final class CompositionPlaylist
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
-            JAXBElement<CompositionPlaylistType> compositionPlaylistTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
+            JAXBElement<CompositionPlaylistType> compositionPlaylistTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(in);
             if (validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -182,6 +184,9 @@ public final class CompositionPlaylist
             CompositionPlaylistType compositionPlaylistType = compositionPlaylistTypeJAXBElement.getValue();
             this.compositionPlaylistType = compositionPlaylistType;
             this.virtualTrackMap = checkVirtualTracks(this.compositionPlaylistType, imfErrorLogger);
+        }
+        finally{
+            in.reset();
         }
 
         this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.compositionPlaylistType.getId());
@@ -194,7 +199,6 @@ public final class CompositionPlaylist
         {
             throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
-        inputStream.reset();
     }
 
     public String toString()
@@ -502,16 +506,17 @@ public final class CompositionPlaylist
     }
 
     private static void validateCompositionPlaylistSchema(InputStream inputStream) throws IOException, URISyntaxException, SAXException {
-        if(!(inputStream instanceof RepeatableInputStream)){
-            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        InputStream in = inputStream;
+        if(!(in instanceof RepeatableInputStream)){
+            in = new RepeatableInputStream(inputStream);
         }
-        inputStream.reset();
+
         try(InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
             InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
             InputStream imf_core_constraints_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_core_constraints_schema_path);)
         {
-            StreamSource inputSource = new StreamSource(inputStream);
+            StreamSource inputSource = new StreamSource(in);
 
             StreamSource[] streamSources = new StreamSource[4];
             streamSources[0] = new StreamSource(xmldig_core_is);
@@ -525,7 +530,9 @@ public final class CompositionPlaylist
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
         }
-        inputStream.reset();
+        finally {
+            in.reset();
+        }
     }
 
     /**
