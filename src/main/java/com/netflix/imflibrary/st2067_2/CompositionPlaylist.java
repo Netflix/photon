@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.NonClosingInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -145,8 +146,8 @@ public final class CompositionPlaylist
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public CompositionPlaylist(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
-        if(!inputStream.markSupported()){
-            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        if(!(inputStream instanceof  NonClosingInputStream)){
+            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
@@ -496,14 +497,14 @@ public final class CompositionPlaylist
     }
 
     private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
-        InputStream inputStream = new BufferedInputStream(new FileInputStream(xmlFile));
+        InputStream inputStream = new NonClosingInputStream(new FileInputStream(xmlFile));
         validateCompositionPlaylistSchema(inputStream);
         inputStream.close();
     }
 
     private static void validateCompositionPlaylistSchema(InputStream inputStream) throws IOException, URISyntaxException, SAXException {
-        if(!inputStream.markSupported()){
-            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        if(!(inputStream instanceof  NonClosingInputStream)){
+            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
         try(InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);

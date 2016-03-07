@@ -6,6 +6,7 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.NonClosingInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -242,34 +241,6 @@ public final class IMFMasterPackage {
     private void resetCompositionPlaylistInputStreams() throws IOException {
         for(InputStream inputStream : this.compositionPlaylistStreams){
             inputStream.reset();
-        }
-    }
-
-    private static final class NonClosingInputStream extends BufferedInputStream {
-
-        public NonClosingInputStream(InputStream inputStream) {
-            super(inputStream);
-            super.mark(Integer.MAX_VALUE);
-        }
-
-        @Override
-        public synchronized void mark(int readLimit){
-            super.mark(Integer.MAX_VALUE);
-        }
-
-        @Override
-        public synchronized void reset() throws IOException {
-            super.reset();
-        }
-
-        @Override
-        public void close() throws IOException {
-            // Do nothing.
-        }
-
-        public void reallyClose() throws IOException {
-            // Actually close.
-            in.close();
         }
     }
 
