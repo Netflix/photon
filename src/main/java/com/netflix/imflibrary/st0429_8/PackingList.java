@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0429_8;
 
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.NonClosingInputStream;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -40,12 +40,10 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -121,8 +119,8 @@ public final class PackingList
      */
     public PackingList(InputStream inputStream)throws IOException, SAXException, JAXBException {
 
-        if(!(inputStream instanceof  NonClosingInputStream)){
-            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
         PackingList.validatePackingListSchema(inputStream);
@@ -286,15 +284,15 @@ public final class PackingList
 
 
     private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException {
-        InputStream inputStream = new NonClosingInputStream(new FileInputStream(xmlFile));
+        RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(xmlFile));
         validatePackingListSchema(inputStream);
-        inputStream.close();
+        inputStream.forceClose();
     }
 
     private static void validatePackingListSchema(InputStream inputStream) throws IOException, SAXException {
 
-        if(!(inputStream instanceof  NonClosingInputStream)){
-            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
 

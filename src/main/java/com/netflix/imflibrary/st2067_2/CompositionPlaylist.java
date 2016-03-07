@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.NonClosingInputStream;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -46,7 +46,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -146,8 +145,8 @@ public final class CompositionPlaylist
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public CompositionPlaylist(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
-        if(!(inputStream instanceof  NonClosingInputStream)){
-            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
@@ -497,14 +496,14 @@ public final class CompositionPlaylist
     }
 
     private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
-        InputStream inputStream = new NonClosingInputStream(new FileInputStream(xmlFile));
+        RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(xmlFile));
         validateCompositionPlaylistSchema(inputStream);
-        inputStream.close();
+        inputStream.forceClose();
     }
 
     private static void validateCompositionPlaylistSchema(InputStream inputStream) throws IOException, URISyntaxException, SAXException {
-        if(!(inputStream instanceof  NonClosingInputStream)){
-            throw new IOException(String.format("Please provide a NonClosingInputStream as defined in package com.netflix.imflibrary.utils"));
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
         }
         inputStream.reset();
         try(InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);

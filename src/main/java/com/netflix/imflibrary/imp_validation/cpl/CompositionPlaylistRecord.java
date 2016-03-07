@@ -4,13 +4,16 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
@@ -23,12 +26,15 @@ import java.util.UUID;
  */
 public final class CompositionPlaylistRecord {
 
-    private final File cplXMLFile;
+    private final InputStream inputStream;
     private final CompositionPlaylist compositionPlaylist;
     private final Map<UUID, ResourceByteRangeProvider> imfEssenceMap;
 
-    private CompositionPlaylistRecord(@Nonnull File cplXMLFile, @Nonnull CompositionPlaylist compositionPlaylist, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap){
-        this.cplXMLFile = cplXMLFile;
+    private CompositionPlaylistRecord(InputStream inputStream, @Nonnull CompositionPlaylist compositionPlaylist, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException {
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        }
+        this.inputStream = inputStream;
         this.compositionPlaylist = compositionPlaylist;
         this.imfEssenceMap = imfEssenceMap;
     }
@@ -75,8 +81,43 @@ public final class CompositionPlaylistRecord {
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             if (CompositionPlaylist.isCompositionPlaylist(cplXMLFile)) {
                 compositionPlaylist = new CompositionPlaylist(cplXMLFile, imfErrorLogger);
-                return new CompositionPlaylistRecord(cplXMLFile, compositionPlaylist, imfEssenceMap);
+                RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(cplXMLFile));
+                CompositionPlaylistRecord cplRecord = new CompositionPlaylistRecord(inputStream, compositionPlaylist, imfEssenceMap);
+                inputStream.forceClose();
+                return cplRecord;
             } else {
+                throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
+            }
+        }
+
+        /**
+         * A builder method for the CompositionPlaylistRecord object.
+         *
+         * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file.
+         *                    and is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+         * @param imfEssenceMap - a map of UUIDs identifying an IMFEssence through a ResourceByteRangeProvider object
+         * @return A composition playlist record
+         * @throws IOException - any I/O related error is exposed through an IOException.
+         * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+         * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+         * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+         * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+         * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+         */
+        @Nonnull
+        public static CompositionPlaylistRecord build(InputStream inputStream, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException, SAXException, JAXBException, URISyntaxException, IMFException {
+            if(!(inputStream instanceof RepeatableInputStream)){
+                throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+            }
+            inputStream.reset();
+            CompositionPlaylist compositionPlaylist = null;
+            IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+            if (CompositionPlaylist.isCompositionPlaylist(inputStream)) {
+                compositionPlaylist = new CompositionPlaylist(inputStream, imfErrorLogger);
+                inputStream.reset();
+                return new CompositionPlaylistRecord(inputStream, compositionPlaylist, imfEssenceMap);
+            } else {
+                inputStream.reset();
                 throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
             }
         }
