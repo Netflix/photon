@@ -229,7 +229,7 @@ public final class CompositionPlaylistHelper {
                 }
             }
             for(int i=0; i<domNodeObjectModels.size(); i++) {
-                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %s", i, domNodeObjectModels.get(i).toString()));
+                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
             System.out.println(String.format("De-serialized composition playlist : %s", compositionPlaylist.toString()));
         }
