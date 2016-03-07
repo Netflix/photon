@@ -45,6 +45,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -135,7 +136,8 @@ public final class CompositionPlaylist
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
-     * @param inputStream the inputstream corresponding to the CompositionPlaylist XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file.
+     *                    and is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
      * @param imfErrorLogger an error logger for recording any errors - can be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -143,6 +145,10 @@ public final class CompositionPlaylist
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public CompositionPlaylist(InputStream inputStream, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
+        if(!inputStream.markSupported()){
+            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        }
+        inputStream.reset();
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         CompositionPlaylist.validateCompositionPlaylistSchema(inputStream);
@@ -188,6 +194,7 @@ public final class CompositionPlaylist
         {
             throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
+        inputStream.reset();
     }
 
     public String toString()
@@ -489,12 +496,16 @@ public final class CompositionPlaylist
     }
 
     private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
-        InputStream inputStream = new FileInputStream(xmlFile);
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(xmlFile));
         validateCompositionPlaylistSchema(inputStream);
         inputStream.close();
     }
 
     private static void validateCompositionPlaylistSchema(InputStream inputStream) throws IOException, URISyntaxException, SAXException {
+        if(!inputStream.markSupported()){
+            throw new IOException(String.format("Please provide an input stream that supports the mark() and reset() methods and mark's readlimit parameter is set appropriately"));
+        }
+        inputStream.reset();
         try(InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
             InputStream dcmlTypes_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.dcmlTypes_schema_path);
             InputStream imf_cpl_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.imf_cpl_schema_path);
@@ -514,7 +525,7 @@ public final class CompositionPlaylist
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
         }
-
+        inputStream.reset();
     }
 
     /**
