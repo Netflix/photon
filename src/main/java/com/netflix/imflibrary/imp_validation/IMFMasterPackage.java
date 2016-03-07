@@ -18,7 +18,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,6 +35,9 @@ public final class IMFMasterPackage {
     private final List<File> packingLists = new ArrayList<>();
     private final List<File> assetMaps = new ArrayList<>();
     private final List<File> compositionPlaylists = new ArrayList<>();
+    private final List<InputStream> packingListStreams = new ArrayList<>();
+    private final List<InputStream> assetMapStreams = new ArrayList<>();
+    private final List<InputStream> compositionPlaylistStreams = new ArrayList<>();
     private final Integer numberOfAssets;
     private static final String assetMapFileNamePattern = "^ASSETMAP\\.xml$";
     private static final String packingListFileNamePattern = "i)PKL";
@@ -40,25 +45,24 @@ public final class IMFMasterPackage {
     private static final String xmlExtension = "(.*)(\\.)((X|x)(M|m)(L|l))";
     private static final Logger logger = LoggerFactory.getLogger(IMFMasterPackage.class);
 
+
     /**
      * A constructor that models an IMF Master Package as an object.
-     * @param files - list of files that are a part of the IMP delivery
+     * @param inputStreams - list of inputStreams corresponding to the files that are a part of the IMP delivery
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public IMFMasterPackage(List<File> files) throws IOException, SAXException, JAXBException, URISyntaxException{
-        this.numberOfAssets = files.size();
-        for(File file : files){
-            if(file.getName().matches(xmlExtension)){
-                if (isFileOfSupportedSchema(file, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
-                    assetMaps.add(file);
-                } else if (isFileOfSupportedSchema(file, PackingList.supportedPKLSchemaURIs, "PackingList")) {
-                    packingLists.add(file);
-                } else if (isFileOfSupportedSchema(file, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
-                    compositionPlaylists.add(file);
-                }
+    public IMFMasterPackage(List<InputStream> inputStreams) throws IOException, SAXException, JAXBException, URISyntaxException{
+        this.numberOfAssets = inputStreams.size();
+        for(InputStream inputStream : inputStreams){
+            if (isFileOfSupportedSchema(inputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
+                assetMapStreams.add(inputStream);
+            } else if (isFileOfSupportedSchema(inputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
+                packingListStreams.add(inputStream);
+            } else if (isFileOfSupportedSchema(inputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
+                compositionPlaylistStreams.add(inputStream);
             }
         }
         this.validate();
@@ -159,14 +163,30 @@ public final class IMFMasterPackage {
         return new PackingList(this.packingLists.get(0));
     }
 
-    private boolean isFileOfSupportedSchema(File xmlFile, List<String>supportedSchemaURIs, String tagName) throws IOException {
+    /**
+     * A getter for a list of CompositionPlaylist objects corresponding to the CompositionPlaylist files in the IMF Master Package
+     * @return the object model corresponding to the PackingList document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public List<CompositionPlaylist> getCompositionPlayLists() throws IOException, SAXException, JAXBException, URISyntaxException{
+        List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        for(InputStream inputStream : compositionPlaylistStreams){
+            compositionPlaylists.add(new CompositionPlaylist(inputStream, imfErrorLogger));
+        }
+        return compositionPlaylists;
+    }
+
+    private boolean isFileOfSupportedSchema(InputStream inputStream, List<String> supportedSchemaURIs, String tagName) throws IOException {
         try
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(xmlFile);
-
+            Document document = documentBuilder.parse(inputStream);
 
             NodeList nodeList = null;
             for(String supportedSchemaURI : supportedSchemaURIs) {
@@ -198,17 +218,20 @@ public final class IMFMasterPackage {
             System.out.println(String.format("At least 1 file needs to be specified"));
             System.exit(-1);
         }
-        List<File> files = new ArrayList<>();
+        List<InputStream> inputStreams = new ArrayList<>();
         for(String string : args) {
-            files.add(new File(string));
+            inputStreams.add(new FileInputStream(new File(string)));
         }
 
-        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(files);
+        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(inputStreams);
         if(imfMasterPackage.validate()){
             logger.info(String.format("IMF Master package has been validated"));
         }
         else{
             logger.error(String.format("IMF Master package has invalid assets"));
+        }
+        for(InputStream inputStream : inputStreams){
+            inputStream.close();
         }
         System.exit(0);
     }

@@ -71,9 +71,7 @@ public final class PackingList
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException
-    {
-
+    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException {
         PackingList.validatePackingListSchema(packingListXMLFile);
 
         try(InputStream input = new FileInputStream(packingListXMLFile);
@@ -95,6 +93,51 @@ public final class PackingList
             unmarshaller.setSchema(schema);
 
             JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(input);
+            if(validationEventHandlerImpl.hasErrors())
+            {
+                throw new IMFException(validationEventHandlerImpl.toString());
+            }
+
+            this.packingListType  = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
+
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.packingListType.getId());
+
+            for (AssetType assetType : this.packingListType.getAssetList().getAsset())
+            {
+                Asset asset = new Asset(assetType);
+                this.assetList.add(asset);
+            }
+        }
+    }
+
+    /**
+     * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
+     * @param inputStream corresponding to the the input XML file
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     */
+    public PackingList(InputStream inputStream)throws IOException, SAXException, JAXBException {
+        PackingList.validatePackingListSchema(inputStream);
+
+        try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+            InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
+        )
+        {
+            StreamSource[] streamSources = new StreamSource[2];
+            streamSources[0] = new StreamSource(xmldsig_core_is);
+            streamSources[1] = new StreamSource(pkl_is);
+
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(streamSources);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_8_2007.PKL");
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -136,6 +179,11 @@ public final class PackingList
         return this.uuid;
     }
 
+    /**
+     * A method that returns a string representation of a PackingList object
+     *
+     * @return string representing the object
+     */
     @Override
     public String toString()
     {
@@ -209,6 +257,11 @@ public final class PackingList
             return this.original_filename;
         }
 
+        /**
+         * A method that returns a string representation of a PackingList Asset object
+         *
+         * @return string representing the object
+         */
         @Override
         public String toString()
         {
@@ -224,14 +277,18 @@ public final class PackingList
     }
 
 
-    private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException
-    {
-        try(InputStream input = new FileInputStream(xmlFile);
-            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+    private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException {
+        InputStream inputStream = new FileInputStream(xmlFile);
+        validatePackingListSchema(inputStream);
+        inputStream.close();
+    }
+
+    private static void validatePackingListSchema(InputStream inputStream) throws IOException, SAXException {
+        try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
-            StreamSource inputSource = new StreamSource(input);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[2];
             streamSources[0] = new StreamSource(xmldsig_core_is);
