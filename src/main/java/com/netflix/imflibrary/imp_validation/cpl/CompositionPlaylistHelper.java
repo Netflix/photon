@@ -5,6 +5,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,9 @@ import org.xml.sax.SAXException;
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,28 @@ public final class CompositionPlaylistHelper {
     @Nonnull
     public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
         Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(cplXMLFile).getVirtualTrackMap();
+        return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
+    }
+
+    /**
+     * A stateless helper method to retrieve the VirtualTracks referenced from within a CompositionPlaylist.
+     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file.
+     *                    and is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @return A list of VirtualTracks in the CompositionPlaylist.
+     * @throws IOException - any I/O related error is exposed through an IOException.
+     * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    @Nonnull
+    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        }
+        inputStream.reset();
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(inputStream).getVirtualTrackMap();
+        inputStream.reset();
         return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
@@ -111,13 +136,26 @@ public final class CompositionPlaylistHelper {
        return new DOMNodeObjectModel(node);
     }
 
-    private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
-        if(CompositionPlaylist.isCompositionPlaylist(cplXMLFile)){
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(cplXMLFile));
+        CompositionPlaylist compositionPlaylist = getCompositionPlaylistObjectModel(inputStream);
+        inputStream.forceClose();
+        return compositionPlaylist;
+    }
+
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        if(!(inputStream instanceof RepeatableInputStream)){
+            throw new IOException(String.format("Please provide a RepeatableInputStream as defined in package com.netflix.imflibrary.utils"));
+        }
+        inputStream.reset();
+        if(CompositionPlaylist.isCompositionPlaylist(inputStream)){
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(cplXMLFile, imfErrorLogger);
+            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputStream, imfErrorLogger);
+            inputStream.reset();
             return compositionPlaylist;
         }
         else{
+            inputStream.reset();
             throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
         }
     }

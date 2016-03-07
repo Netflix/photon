@@ -6,7 +6,7 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
-import com.netflix.imflibrary.utils.NonClosingInputStream;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public final class IMFMasterPackage {
     public IMFMasterPackage(List<InputStream> inputStreams) throws IOException, SAXException, JAXBException, URISyntaxException{
         this.numberOfAssets = inputStreams.size();
         for(InputStream inputStream : inputStreams){
-            InputStream nonClosingInputStream = new NonClosingInputStream(inputStream);
+            InputStream nonClosingInputStream = new RepeatableInputStream(inputStream);
             if (isFileOfSupportedSchema(nonClosingInputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
                 assetMapStreams.add(nonClosingInputStream);
             } else if (isFileOfSupportedSchema(nonClosingInputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
