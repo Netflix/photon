@@ -43,6 +43,16 @@ public interface ResourceByteRangeProvider
      */
     File getByteRange(long rangeStart, long rangeEnd, File workingDirectory) throws IOException;
 
+    /**
+     * A method to obtain bytes in the inclusive range [start, end] as a byte[]
+     *
+     * @param rangeStart zero indexed inclusive start offset; ranges from 0 through (resourceSize -1) both included
+     * @param rangeEnd zero indexed inclusive end offset; ranges from 0 through (resourceSize -1) both included
+     * @return byte array containing desired byte range
+     * @throws IOException
+     */
+    byte[] getByteRangeAsBytes(long rangeStart, long rangeEnd) throws IOException;
+
     class Utilities
     {
         public static void validateRangeRequest(long resourceSize, long rangeStart, long rangeEnd)
