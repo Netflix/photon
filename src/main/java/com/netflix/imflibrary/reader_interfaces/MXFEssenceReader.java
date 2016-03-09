@@ -169,7 +169,6 @@ public class MXFEssenceReader {
      */
     public String getEssenceType() throws IOException{
         String result = "";
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         HeaderPartition headerPartition = this.getHeaderPartitionIMF().getHeaderPartitionOP1A().getHeaderPartition();
         if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
             result = "MainImageSequence";

@@ -93,7 +93,7 @@ public class CompositionPlaylistConformanceValidator {
         for(Map.Entry entry : sourceEncodingElementByteRangeProviderMap.entrySet()){
             MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get((UUID) entry.getKey()));
             if(essenceDescriptorMap.get((UUID) entry.getKey()) == null) {
-                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptors());
+                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptorsDOMNodes());
             }
         }
 
