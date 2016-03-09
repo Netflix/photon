@@ -12,7 +12,11 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
+import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st0377.header.SubDescriptor;
+import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
@@ -122,10 +126,10 @@ public class MXFEssenceReader {
     /**
      * A method that returns a list of EssenceDescriptor objects referenced by the Source Packages in the Essence
      *
-     * @return List of MXF InterchangeObjects corresponding to every EssenceDescriptor in the essence
+     * @return List of DOM Nodes corresponding to every EssenceDescriptor in the essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public List<Node> getEssenceDescriptors() throws IOException{
+    public List<Node> getEssenceDescriptorsDOMNodes() throws IOException{
         try {
             List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.getHeaderPartition().getEssenceDescriptors();
             List<Node> essenceDescriptorNodes = new ArrayList<>();
@@ -146,6 +150,58 @@ public class MXFEssenceReader {
         catch(ParserConfigurationException e){
             throw new IMFException(e);
         }
+    }
+
+    /**
+     * A method that returns a list of EssenceDescriptor objects referenced by the Source Packages in the Essence
+     *
+     * @return List of Object model representations corresponding to every EssenceDescriptor in the essence
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public List<? extends InterchangeObject.InterchangeObjectBO> getEssenceDescriptors() throws IOException{
+        return this.getHeaderPartition().getEssenceDescriptors();
+    }
+
+    /**
+     * A method that returns the EssenceType corresponding to this Essence
+     * @return a string representing either a MainImageSequence or a MainAudioSequence
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public String getEssenceType() throws IOException{
+        String result = "";
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        HeaderPartition headerPartition = this.getHeaderPartitionIMF().getHeaderPartitionOP1A().getHeaderPartition();
+        if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
+            result = "MainImageSequence";
+        }
+        else if(headerPartition.hasWaveAudioEssenceDescriptor()){
+            result = "MainAudioSequence";
+        }
+        return result;
+    }
+
+    /**
+     * A method that returns the spoken language within this essence provided it is an Audio Essence
+     * @return string representing a spoken language as defined in RFC-5646
+     */
+    public String getAudioEssenceSpokenLanguage() throws IOException {
+        String rfc5646SpokenLanguage = "";
+        if(this.getEssenceType().equals("MainAudioSequence")){
+            List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getHeaderPartition().getSoundFieldGroupLabelSubDescriptors();
+            for(InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors){
+                SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
+                if(rfc5646SpokenLanguage.equals("")) {
+                    rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
+                }
+                else if(!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())){
+                    throw new IMFException(String.format("Language Codes (%s, %s) do not match across the AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
+        }
+        else{
+            throw new IMFException(String.format("Essences of type %s, do not have a spoken language", this.getEssenceType()));
+        }
+        return rfc5646SpokenLanguage;
     }
 
     private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF() throws IOException {
