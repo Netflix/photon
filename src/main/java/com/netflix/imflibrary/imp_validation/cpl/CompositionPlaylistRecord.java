@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.xml.sax.SAXException;
@@ -26,16 +27,12 @@ import java.util.UUID;
  */
 public final class CompositionPlaylistRecord {
 
-    private final InputStream inputStream;
+    private final ResourceByteRangeProvider resourceByteRangeProvider;
     private final CompositionPlaylist compositionPlaylist;
     private final Map<UUID, ResourceByteRangeProvider> imfEssenceMap;
 
-    private CompositionPlaylistRecord(InputStream inputStream, @Nonnull CompositionPlaylist compositionPlaylist, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException {
-        InputStream in = inputStream;
-        if(!(in instanceof RepeatableInputStream)){
-            in = new RepeatableInputStream(inputStream);
-        }
-        this.inputStream = in;
+    private CompositionPlaylistRecord(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull CompositionPlaylist compositionPlaylist, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException {
+        this.resourceByteRangeProvider = resourceByteRangeProvider;
         this.compositionPlaylist = compositionPlaylist;
         this.imfEssenceMap = imfEssenceMap;
     }
@@ -82,9 +79,8 @@ public final class CompositionPlaylistRecord {
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             if (CompositionPlaylist.isCompositionPlaylist(cplXMLFile)) {
                 compositionPlaylist = new CompositionPlaylist(cplXMLFile, imfErrorLogger);
-                RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(cplXMLFile));
-                CompositionPlaylistRecord cplRecord = new CompositionPlaylistRecord(inputStream, compositionPlaylist, imfEssenceMap);
-                inputStream.forceClose();
+                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(cplXMLFile);
+                CompositionPlaylistRecord cplRecord = new CompositionPlaylistRecord(resourceByteRangeProvider, compositionPlaylist, imfEssenceMap);
                 return cplRecord;
             } else {
                 throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
@@ -94,8 +90,7 @@ public final class CompositionPlaylistRecord {
         /**
          * A builder method for the CompositionPlaylistRecord object.
          *
-         * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file.
-         *                    and is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+         * @param resourceByteRangeProvider corresponding to the CompositionPlaylist XML File
          * @param imfEssenceMap - a map of UUIDs identifying an IMFEssence through a ResourceByteRangeProvider object
          * @return A composition playlist record
          * @throws IOException - any I/O related error is exposed through an IOException.
@@ -106,20 +101,14 @@ public final class CompositionPlaylistRecord {
          * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
          */
         @Nonnull
-        public static CompositionPlaylistRecord build(InputStream inputStream, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException, SAXException, JAXBException, URISyntaxException, IMFException {
-            InputStream in = inputStream;
-            if(!(in instanceof RepeatableInputStream)){
-                in = new RepeatableInputStream(inputStream);
-            }
-            in.reset();
+        public static CompositionPlaylistRecord build(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull Map<UUID, ResourceByteRangeProvider> imfEssenceMap) throws IOException, SAXException, JAXBException, URISyntaxException, IMFException {
+
             CompositionPlaylist compositionPlaylist = null;
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            if (CompositionPlaylist.isCompositionPlaylist(in)) {
-                compositionPlaylist = new CompositionPlaylist(inputStream, imfErrorLogger);
-                in.reset();
-                return new CompositionPlaylistRecord(inputStream, compositionPlaylist, imfEssenceMap);
+            if (CompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)) {
+                compositionPlaylist = new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
+                return new CompositionPlaylistRecord(resourceByteRangeProvider, compositionPlaylist, imfEssenceMap);
             } else {
-                in.reset();
                 throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
             }
         }

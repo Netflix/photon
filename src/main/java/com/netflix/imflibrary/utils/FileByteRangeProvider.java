@@ -157,4 +157,9 @@ public final class FileByteRangeProvider implements ResourceByteRangeProvider
 
         return bytes;
     }
+
+    public InputStream getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException {
+        byte[] bytes = this.getByteRangeAsBytes(rangeStart, rangeEnd);
+        return new ByteArrayInputStream(bytes);
+    }
 }
