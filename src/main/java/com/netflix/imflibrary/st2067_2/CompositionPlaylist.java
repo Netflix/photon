@@ -205,7 +205,7 @@ public final class CompositionPlaylist
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("=================== CompositionPlaylist : %s%n", this.uuid));
+        sb.append(String.format("======= CompositionPlaylist : %s =======%n", this.uuid));
         sb.append(this.editRate.toString());
         return sb.toString();
     }

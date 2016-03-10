@@ -199,8 +199,9 @@ public final class CompositionPlaylistHelper {
 
         try
         {
-            CompositionPlaylist compositionPlaylist = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(inputFile);
-            List<CompositionPlaylist.VirtualTrack> virtualTracks = CompositionPlaylistHelper.getVirtualTracks(inputFile);
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+            CompositionPlaylist compositionPlaylist = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(resourceByteRangeProvider);
+            List<CompositionPlaylist.VirtualTrack> virtualTracks = CompositionPlaylistHelper.getVirtualTracks(resourceByteRangeProvider);
 
             for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
                 List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
@@ -218,7 +219,7 @@ public final class CompositionPlaylistHelper {
             for(int i=0; i<domNodeObjectModels.size(); i++) {
                 System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
-            System.out.println(String.format("De-serialized composition playlist : %s", compositionPlaylist.toString()));
+            System.out.println(String.format("De-serialized composition playlist : %n%s", compositionPlaylist.toString()));
         }
         catch(Exception e)
         {
