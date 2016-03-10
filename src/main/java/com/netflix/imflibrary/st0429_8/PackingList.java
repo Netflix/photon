@@ -19,7 +19,9 @@
 package com.netflix.imflibrary.st0429_8;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -112,22 +114,17 @@ public final class PackingList
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
-     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
+     * @param resourceByteRangeProvider corresponding to the PackingList XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(InputStream inputStream)throws IOException, SAXException, JAXBException {
+    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider)throws IOException, SAXException, JAXBException {
 
-        InputStream in = inputStream;
-        if(!(in instanceof RepeatableInputStream)){
-            in = new RepeatableInputStream(inputStream);
-        }
+        PackingList.validatePackingListSchema(resourceByteRangeProvider);
 
-        PackingList.validatePackingListSchema(in);
-        in.reset();
-
-        try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
@@ -144,7 +141,7 @@ public final class PackingList
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
-            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(in);
+            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -159,9 +156,6 @@ public final class PackingList
                 Asset asset = new Asset(assetType);
                 this.assetList.add(asset);
             }
-        }
-        finally {
-            in.reset();
         }
     }
 
@@ -287,23 +281,18 @@ public final class PackingList
 
 
     private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException {
-        RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(xmlFile));
-        validatePackingListSchema(inputStream);
-        inputStream.forceClose();
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
+        validatePackingListSchema(resourceByteRangeProvider);
     }
 
-    private static void validatePackingListSchema(InputStream inputStream) throws IOException, SAXException {
+    private static void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, SAXException {
 
-        InputStream in = inputStream;
-        if(!(in instanceof RepeatableInputStream)){
-            in = new RepeatableInputStream(inputStream);
-        }
-
-        try(InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
-            StreamSource inputSource = new StreamSource(in);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[2];
             streamSources[0] = new StreamSource(xmldsig_core_is);
@@ -314,9 +303,6 @@ public final class PackingList
 
             Validator validator = schema.newValidator();
             validator.validate(inputSource);
-        }
-        finally {
-            in.reset();
         }
     }
 

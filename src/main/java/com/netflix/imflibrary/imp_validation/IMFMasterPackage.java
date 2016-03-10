@@ -6,7 +6,9 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,9 +36,9 @@ import java.util.UUID;
  */
 public final class IMFMasterPackage {
 
-    private final List<InputStream> packingListStreams = new ArrayList<>();
-    private final List<InputStream> assetMapStreams = new ArrayList<>();
-    private final List<InputStream> compositionPlaylistStreams = new ArrayList<>();
+    private final List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
+    private final List<ResourceByteRangeProvider> assetMaps = new ArrayList<>();
+    private final List<ResourceByteRangeProvider> compositionPlaylists = new ArrayList<>();
     private final Integer numberOfAssets;
     private static final String assetMapFileNamePattern = "^ASSETMAP\\.xml$";
     private static final String packingListFileNamePattern = "i)PKL";
@@ -46,22 +49,21 @@ public final class IMFMasterPackage {
 
     /**
      * A constructor that models an IMF Master Package as an object.
-     * @param inputStreams - list of inputStreams corresponding to the files that are a part of the IMP delivery
+     * @param resourceByteRangeProviders - list of ResourceByteRangeProvider objects corresponding to the files that are a part of the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public IMFMasterPackage(List<InputStream> inputStreams) throws IOException, SAXException, JAXBException, URISyntaxException{
-        this.numberOfAssets = inputStreams.size();
-        for(InputStream inputStream : inputStreams){
-            InputStream repeatableInputStream = new RepeatableInputStream(inputStream);
-            if (isFileOfSupportedSchema(repeatableInputStream, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
-                assetMapStreams.add(repeatableInputStream);
-            } else if (isFileOfSupportedSchema(repeatableInputStream, PackingList.supportedPKLSchemaURIs, "PackingList")) {
-                packingListStreams.add(repeatableInputStream);
-            } else if (isFileOfSupportedSchema(repeatableInputStream, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
-                compositionPlaylistStreams.add(repeatableInputStream);
+    public IMFMasterPackage(List<ResourceByteRangeProvider> resourceByteRangeProviders) throws IOException, SAXException, JAXBException, URISyntaxException{
+        this.numberOfAssets = resourceByteRangeProviders.size();
+        for(ResourceByteRangeProvider resourceByteRangeProvider : resourceByteRangeProviders){
+            if (isFileOfSupportedSchema(resourceByteRangeProvider, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
+                assetMaps.add(resourceByteRangeProvider);
+            } else if (isFileOfSupportedSchema(resourceByteRangeProvider, PackingList.supportedPKLSchemaURIs, "PackingList")) {
+                packingLists.add(resourceByteRangeProvider);
+            } else if (isFileOfSupportedSchema(resourceByteRangeProvider, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
+                compositionPlaylists.add(resourceByteRangeProvider);
             }
         }
         this.validate();
@@ -78,23 +80,20 @@ public final class IMFMasterPackage {
      */
     private boolean validate() throws IOException, SAXException, JAXBException, URISyntaxException {
         boolean result = true;
-        this.resetAllInputStreams();
 
-        if(assetMapStreams.size() > 1){
-            throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMapStreams.size()));
+        if(assetMaps.size() > 1){
+            throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
         }
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        AssetMap assetMap = new AssetMap(this.assetMapStreams.get(0), imfErrorLogger);
-        this.resetAssetMapInputStreams();
+        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), imfErrorLogger);
 
-        if(packingListStreams.size() != 1
+        if(packingLists.size() != 1
                 || assetMap.getPackingListAssets().size() != 1){
-            throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingListStreams.size(), assetMap.getPackingListAssets().size()));
+            throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingLists.size(), assetMap.getPackingListAssets().size()));
         }
-        PackingList packingList = new PackingList(this.packingListStreams.get(0));
-        this.resetPackingListInputStreams();
+        PackingList packingList = new PackingList(this.packingLists.get(0));
 
         /*PKL validation*/
         if(packingList.getAssets().size() != this.numberOfAssets){
@@ -145,62 +144,54 @@ public final class IMFMasterPackage {
 
     /**
      * A getter for the AssetMap object model corresponding to the AssetMap file in the IMF Master Package
-     * @return the object model corresponding to the AssetMap document
+     * @return the object model corresponding to the AssetMap document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public AssetMap getAssetMap() throws IOException, SAXException, JAXBException, URISyntaxException{
-        this.resetAssetMapInputStreams();
-        AssetMap assetMap = new AssetMap(this.assetMapStreams.get(0), new IMFErrorLoggerImpl());
-        this.resetAssetMapInputStreams();
+        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), new IMFErrorLoggerImpl());
         return assetMap;
     }
 
     /**
      * A getter for the PackingList object model corresponding to the PackingList file in the IMF Master Package
-     * @return the object model corresponding to the PackingList document
+     * @return the object model corresponding to the PackingList document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
-        this.resetPackingListInputStreams();
-        PackingList packingList = new PackingList(this.packingListStreams.get(0));
-        this.resetPackingListInputStreams();
+        PackingList packingList = new PackingList(this.packingLists.get(0));
         return packingList;
     }
 
     /**
      * A getter for a list of CompositionPlaylist objects corresponding to the CompositionPlaylist files in the IMF Master Package
-     * @return the object model corresponding to the PackingList document
+     * @return the object model corresponding to every CompositionPlaylist document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public List<CompositionPlaylist> getCompositionPlayLists() throws IOException, SAXException, JAXBException, URISyntaxException{
-        this.resetCompositionPlaylistInputStreams();
         List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        for(InputStream inputStream : compositionPlaylistStreams){
-            compositionPlaylists.add(new CompositionPlaylist(inputStream, imfErrorLogger));
+        for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
+            compositionPlaylists.add(new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger));
         }
-        this.resetCompositionPlaylistInputStreams();
         return compositionPlaylists;
     }
 
-    private boolean isFileOfSupportedSchema(InputStream inputStream, List<String> supportedSchemaURIs, String tagName) throws IOException {
-        try
+    private boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider, List<String> supportedSchemaURIs, String tagName) throws IOException {
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(inputStream);
-            inputStream.reset();
-
             NodeList nodeList = null;
             for(String supportedSchemaURI : supportedSchemaURIs) {
                 //obtain root node
@@ -220,29 +211,6 @@ public final class IMFMasterPackage {
         return false;
     }
 
-    private void resetAllInputStreams() throws IOException {
-        this.resetAssetMapInputStreams();
-        this.resetPackingListInputStreams();
-        this.resetCompositionPlaylistInputStreams();
-    }
-
-    private void resetAssetMapInputStreams() throws IOException {
-        for(InputStream inputStream : this.assetMapStreams){
-            inputStream.reset();
-        }
-    }
-
-    private void resetPackingListInputStreams() throws IOException {
-        for(InputStream inputStream : this.packingListStreams){
-            inputStream.reset();
-        }
-    }
-
-    private void resetCompositionPlaylistInputStreams() throws IOException {
-        for(InputStream inputStream : this.compositionPlaylistStreams){
-            inputStream.reset();
-        }
-    }
 
     /**
      * A sample main method implementation for exercising the IMFMasterPackage methods
@@ -255,20 +223,17 @@ public final class IMFMasterPackage {
             System.out.println(String.format("At least 1 file needs to be specified"));
             System.exit(-1);
         }
-        List<InputStream> inputStreams = new ArrayList<>();
+        List<ResourceByteRangeProvider> resourceByteRangeProviders = new ArrayList<>();
         for(String string : args) {
-            inputStreams.add(new FileInputStream(new File(string)));
+            resourceByteRangeProviders.add(new FileByteRangeProvider(new File(string)));
         }
 
-        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(inputStreams);
+        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(resourceByteRangeProviders);
         if(imfMasterPackage.validate()){
             logger.info(String.format("IMF Master package has been validated"));
         }
         else{
             logger.error(String.format("IMF Master package has invalid assets"));
-        }
-        for(InputStream inputStream : inputStreams){
-            inputStream.close();
         }
         System.exit(0);
     }

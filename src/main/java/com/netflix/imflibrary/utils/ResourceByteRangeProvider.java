@@ -20,6 +20,7 @@ package com.netflix.imflibrary.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This interface is a supertype of classes that represent resources to which byte range requests can be made
@@ -52,6 +53,16 @@ public interface ResourceByteRangeProvider
      * @throws IOException
      */
     byte[] getByteRangeAsBytes(long rangeStart, long rangeEnd) throws IOException;
+
+    /**
+     * A method to obtain bytes in the inclusive range [start, end] as a byte[]
+     *
+     * @param rangeStart zero indexed inclusive start offset; ranges from 0 through (resourceSize -1) both included
+     * @param rangeEnd zero indexed inclusive end offset; ranges from 0 through (resourceSize -1) both included
+     * @return inputStream corresponding to the desired byte range
+     * @throws IOException
+     */
+    InputStream getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException;
 
     class Utilities
     {

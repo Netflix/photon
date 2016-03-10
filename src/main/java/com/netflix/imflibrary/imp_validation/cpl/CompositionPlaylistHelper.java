@@ -5,7 +5,9 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,7 @@ public final class CompositionPlaylistHelper {
 
     /**
      * A stateless helper method to retrieve the VirtualTracks referenced from within a CompositionPlaylist.
-     * @param inputStream that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file.
-     *                    and is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @param resourceByteRangeProvider corresponding to the CPL XML file.
      * @return A list of VirtualTracks in the CompositionPlaylist.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
@@ -61,13 +62,8 @@ public final class CompositionPlaylistHelper {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        InputStream in = inputStream;
-        if(!(in instanceof RepeatableInputStream)){
-            in = new RepeatableInputStream(inputStream);
-        }
-        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(in).getVirtualTrackMap();
-        in.reset();
+    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(resourceByteRangeProvider).getVirtualTrackMap();
         return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
@@ -137,26 +133,17 @@ public final class CompositionPlaylistHelper {
     }
 
     private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        RepeatableInputStream inputStream = new RepeatableInputStream(new FileInputStream(cplXMLFile));
-        CompositionPlaylist compositionPlaylist = getCompositionPlaylistObjectModel(inputStream);
-        inputStream.forceClose();
-        return compositionPlaylist;
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(cplXMLFile);
+        return getCompositionPlaylistObjectModel(resourceByteRangeProvider);
     }
 
-    private static CompositionPlaylist getCompositionPlaylistObjectModel(InputStream inputStream) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        InputStream in = inputStream;
-        if(!(in instanceof RepeatableInputStream)){
-            in = new RepeatableInputStream(inputStream);
-        }
-        if(CompositionPlaylist.isCompositionPlaylist(in)){
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+
+        if(CompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)){
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            in.reset();
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(in, imfErrorLogger);
-            in.reset();
-            return compositionPlaylist;
+            return new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
         }
         else{
-            in.reset();
             throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
         }
     }
