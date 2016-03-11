@@ -454,7 +454,7 @@ public final class StructuralMetadata
 
         if (isPHDRMetadataTrackSubDescriptor(key))
         {
-            return PHDRMetaDataTrackSubDescriptor.class;
+            return PHDRMetaDataTrackSubDescriptor.PHDRMetaDataTrackSubDescriptorBO.class;
         }
         else if (isStructuralMetadata(key) && (key[13] == 0x01))
         {
