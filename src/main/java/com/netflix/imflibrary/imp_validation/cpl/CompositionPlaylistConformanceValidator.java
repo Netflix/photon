@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.reader_interfaces.MXFEssenceReader;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -92,7 +93,7 @@ public class CompositionPlaylistConformanceValidator {
         for(Map.Entry entry : sourceEncodingElementByteRangeProviderMap.entrySet()){
             MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get((UUID) entry.getKey()));
             if(essenceDescriptorMap.get((UUID) entry.getKey()) == null) {
-                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptors());
+                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptorsDOMNodes());
             }
         }
 

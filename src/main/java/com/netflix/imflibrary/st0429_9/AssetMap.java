@@ -21,6 +21,9 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -38,6 +41,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -63,6 +67,7 @@ public final class AssetMap
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
     private final AssetMapType assetMapType;
+    public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
@@ -73,8 +78,8 @@ public final class AssetMap
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
-    {
+    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException {
+
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
         AssetMap.validateAssetMapSchema(assetMapXmlFile);
@@ -94,6 +99,79 @@ public final class AssetMap
             unmarshaller.setSchema(schema);
 
             JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(input);
+            if(validationEventHandlerImpl.hasErrors())
+            {
+                throw new IMFException(validationEventHandlerImpl.toString());
+            }
+
+            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
+        }
+
+        UUID uuid = null;
+        try
+        {
+            uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
+        }
+        catch(IMFException e)
+        {
+            if (imfErrorLogger != null)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        e.getMessage());
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        this.uuid = uuid;
+
+        for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
+        {
+            Asset asset = new Asset(assetType);
+            this.assetList.add(asset);
+            this.uuidToPath.put(asset.getUUID(), asset.getPath());
+            if ((assetType.isPackingList() != null) && (assetType.isPackingList()))
+            {
+                this.packingListAssets.add(asset);
+            }
+        }
+
+        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        {
+            throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+        }
+    }
+
+    /**
+     * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
+     * @param resourceByteRangeProvider that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
+     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public AssetMap(ResourceByteRangeProvider resourceByteRangeProvider, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    {
+
+        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+        AssetMap.validateAssetMapSchema(resourceByteRangeProvider);
+
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);)
+        {
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
+            StreamSource schemaSource = new StreamSource(assetMap_schema_is);
+            Schema schema = schemaFactory.newSchema(schemaSource);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_9_2007.AM");
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
                 throw new IMFException(validationEventHandlerImpl.toString());
@@ -248,6 +326,14 @@ public final class AssetMap
     }
 
     /**
+     * Getter for the AssetMap's UUID
+     * @return uuid corresponding to this AssetMap document
+     */
+    public UUID getUUID(){
+        return this.uuid;
+    }
+
+    /**
      * This class represents a thin, immutable wrapper around the XML type 'AssetType' which is defined in Section 11,
      * st0429-9:2014. It exposes a minimal set of properties of the wrapped object through appropriate Getter methods
      */
@@ -273,7 +359,7 @@ public final class AssetMap
                 this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
             }
             else{
-                throw new URISyntaxException("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014", path);
+                throw new URISyntaxException(path, "The Asset path does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -)");
             }
         }
 
@@ -317,15 +403,17 @@ public final class AssetMap
 
     }
 
-    private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException
-    {
-        InputStream input = null;
-        InputStream assetMap_is = null;
+    private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException {
+        ResourceByteRangeProvider assetMapByteRangeProvider = new FileByteRangeProvider(xmlFile);
+        validateAssetMapSchema(assetMapByteRangeProvider);
+    }
 
-        try
+    private static void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, SAXException {
+
+        InputStream assetMap_is = null;
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
         {
-            input = new FileInputStream(xmlFile);
-            StreamSource inputSource = new StreamSource(input);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             assetMap_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
             StreamSource[] streamSources = new StreamSource[1];
@@ -339,11 +427,6 @@ public final class AssetMap
         }
         finally
         {
-            if (input != null)
-            {
-                input.close();
-            }
-
             if (assetMap_is != null)
             {
                 assetMap_is.close();

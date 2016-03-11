@@ -64,6 +64,14 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
     }
 
     /**
+     * A getter for the spoken language in this SubDescriptor
+     * @return string representing the spoken language as defined in RFC-5646
+     */
+    public String getRFC5646SpokenLanguage(){
+        return this.soundFieldGroupLabelSubDescriptorBO.rfc_5646_spoken_language;
+    }
+
+    /**
      * A method that returns a string representation of a SoundFieldGroupLabelSubDescriptor object
      *
      * @return string representing the object

@@ -19,6 +19,9 @@
 package com.netflix.imflibrary.st0429_8;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
@@ -43,7 +46,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -58,6 +60,7 @@ public final class PackingList
 
     private static final String pkl_schema_path = "org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd";
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    public static final List<String> supportedPKLSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");}});
 
     private final PackingListType packingListType;
     private final UUID uuid;
@@ -69,11 +72,8 @@ public final class PackingList
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
-     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException, URISyntaxException
-    {
-
+    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException {
         PackingList.validatePackingListSchema(packingListXMLFile);
 
         try(InputStream input = new FileInputStream(packingListXMLFile);
@@ -110,7 +110,53 @@ public final class PackingList
                 this.assetList.add(asset);
             }
         }
+    }
 
+    /**
+     * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
+     * @param resourceByteRangeProvider corresponding to the PackingList XML file
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     */
+    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider)throws IOException, SAXException, JAXBException {
+
+        PackingList.validatePackingListSchema(resourceByteRangeProvider);
+
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+            InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
+        )
+        {
+            StreamSource[] streamSources = new StreamSource[2];
+            streamSources[0] = new StreamSource(xmldsig_core_is);
+            streamSources[1] = new StreamSource(pkl_is);
+
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(streamSources);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_8_2007.PKL");
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
+            if(validationEventHandlerImpl.hasErrors())
+            {
+                throw new IMFException(validationEventHandlerImpl.toString());
+            }
+
+            this.packingListType  = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
+
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.packingListType.getId());
+
+            for (AssetType assetType : this.packingListType.getAssetList().getAsset())
+            {
+                Asset asset = new Asset(assetType);
+                this.assetList.add(asset);
+            }
+        }
     }
 
     private static PackingListType checkConformance(PackingListType packingListType)
@@ -136,6 +182,11 @@ public final class PackingList
         return this.uuid;
     }
 
+    /**
+     * A method that returns a string representation of a PackingList object
+     *
+     * @return string representing the object
+     */
     @Override
     public String toString()
     {
@@ -209,6 +260,11 @@ public final class PackingList
             return this.original_filename;
         }
 
+        /**
+         * A method that returns a string representation of a PackingList Asset object
+         *
+         * @return string representing the object
+         */
         @Override
         public String toString()
         {
@@ -224,14 +280,19 @@ public final class PackingList
     }
 
 
-    private static void validatePackingListSchema(File xmlFile) throws IOException, URISyntaxException, SAXException
-    {
-        try(InputStream input = new FileInputStream(xmlFile);
+    private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException {
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
+        validatePackingListSchema(resourceByteRangeProvider);
+    }
+
+    private static void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, SAXException {
+
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
         )
         {
-            StreamSource inputSource = new StreamSource(input);
+            StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[2];
             streamSources[0] = new StreamSource(xmldsig_core_is);
@@ -245,7 +306,7 @@ public final class PackingList
         }
     }
 
-    public static void main(String args[]) throws IOException, URISyntaxException, SAXException, ParserConfigurationException, JAXBException
+    public static void main(String args[]) throws IOException, SAXException, ParserConfigurationException, JAXBException
     {
         File inputFile = new File(args[0]);
 
