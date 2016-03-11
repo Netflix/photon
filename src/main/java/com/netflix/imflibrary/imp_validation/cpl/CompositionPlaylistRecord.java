@@ -64,7 +64,8 @@ public final class CompositionPlaylistRecord {
          * A builder method for the CompositionPlaylistRecord object.
          *
          * @param cplXMLFile - File handle to a CompositionPlaylist XML document.
-         * @param imfEssenceMap - a map of UUIDs identifying an IMFEssence through a ResourceByteRangeProvider object
+         * @param imfEssenceMap - a map of UUID to ResourceByteRangeProvider object corresponding to every TrackFileResource in every
+         *                      virtual track in the CompositionPlaylist
          * @return A composition playlist record
          * @throws IOException - any I/O related error is exposed through an IOException.
          * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
@@ -91,7 +92,8 @@ public final class CompositionPlaylistRecord {
          * A builder method for the CompositionPlaylistRecord object.
          *
          * @param resourceByteRangeProvider corresponding to the CompositionPlaylist XML File
-         * @param imfEssenceMap - a map of UUIDs identifying an IMFEssence through a ResourceByteRangeProvider object
+         * @param imfEssenceMap - a map of UUID to ResourceByteRangeProvider object corresponding to every TrackFileResource in every
+          *                      virtual track in the CompositionPlaylist
          * @return A composition playlist record
          * @throws IOException - any I/O related error is exposed through an IOException.
          * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException

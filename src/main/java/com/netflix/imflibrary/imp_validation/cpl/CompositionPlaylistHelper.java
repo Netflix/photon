@@ -181,7 +181,7 @@ public final class CompositionPlaylistHelper {
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFilePath>%n", CompositionPlaylistHelper.class.getName()));
+        sb.append(String.format("%s <inputFile>%n", CompositionPlaylistHelper.class.getName()));
         return sb.toString();
     }
 
