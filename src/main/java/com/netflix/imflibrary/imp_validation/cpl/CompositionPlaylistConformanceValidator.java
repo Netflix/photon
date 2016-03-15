@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.reader_interfaces.MXFEssenceReader;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -56,11 +57,13 @@ public class CompositionPlaylistConformanceValidator {
         Map<UUID, List<Node>> eDLMap = new HashMap<>();/*Map <sourceEncodingElement List<Node>> from the EssenceDescriptorList*/
         for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptorList){
             UUID sourceEncodingElement = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
+            /*Construct a set of SourceEncodingElements/IDs corresponding to every EssenceDescriptorBaseType in the EssenceDescriptorList*/
             essenceDescriptorIdsSet.add(sourceEncodingElement);
             List<Node> essenceDescriptorNodes = new ArrayList<>();
             for(Object object : essenceDescriptorBaseType.getAny()){
                 essenceDescriptorNodes.add((Node) object);
             }
+            /*Construct a map <SourceEncodingElement/ID  DOM Node> corresponding to every EssenceDescriptor in the any list of this EssenceDescriptorBaseType in the EssenceDescriptorList*/
             eDLMap.put(sourceEncodingElement, essenceDescriptorNodes);
 
         }
@@ -71,11 +74,18 @@ public class CompositionPlaylistConformanceValidator {
         List<CompositionPlaylist.VirtualTrack>virtualTracks =  CompositionPlaylistHelper.getVirtualTracks(compositionPlaylistRecord);
         LinkedHashSet<UUID> resourceSourceEncodingElementsSet = new LinkedHashSet<>();
         Map<UUID, ResourceByteRangeProvider>sourceEncodingElementByteRangeProviderMap = new HashMap<>();/*Map containing <SourceEncodingElement, ResourceByteRangeProvider> entries*/
+
+        /**
+         * Construct a set of source encoding element UUIDs by checking exhaustively every TrackFileResource of every VirtualTrack in the CPL
+         * and a map of <SourceEncodingElement/ID ResourceByteRangeProvider> for every TrackFileResource in every VirtualTrack in the CPL
+         */
         for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
             List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);
             Map<UUID, ResourceByteRangeProvider> imfEssenceMap = compositionPlaylistRecord.getImfEssenceMap();
             for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
+                /*Construct a set of SourceEncodingElements corresponding to every TrackFileResource of this VirtualTrack*/
                 resourceSourceEncodingElementsSet.add(resourceIdTuple.getSourceEncoding());
+                /*Construct a Map of <SourceEncodingElement/ID ResourceByteRangeProvider> for every TrackFileResource of this VirtualTrack*/
                 sourceEncodingElementByteRangeProviderMap.put(resourceIdTuple.getSourceEncoding(), imfEssenceMap.get(resourceIdTuple.getTrackFileId()));
             }
         }
@@ -85,14 +95,14 @@ public class CompositionPlaylistConformanceValidator {
         }
 
         /**
-         * Creating a HashMap <sourceEncodingElement List<Node></>> from reading the metadata in the Essences, and
-         * using the sourceEncodingElementByteRangeProviderMap.
+         * Create a HashMap <sourceEncodingElement List<DOM Nodes> exhaustively by reading all the EssenceDescriptors in every Essence referred
+         * by every TrackFileResource in every Virtual Track in the CPL.
          */
         Map<UUID, List<Node>> essenceDescriptorMap = new LinkedHashMap<>();/*Map <sourceEncodingElement List<Node>> from the physical essence files*/
         for(Map.Entry entry : sourceEncodingElementByteRangeProviderMap.entrySet()){
             MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get((UUID) entry.getKey()));
             if(essenceDescriptorMap.get((UUID) entry.getKey()) == null) {
-                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptors());
+                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptorsDOMNodes());
             }
         }
 
@@ -101,8 +111,8 @@ public class CompositionPlaylistConformanceValidator {
          * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
          * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
          */
-        Map<UUID, List<DOMNodeObjectModel>> virtualTracksEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(essenceDescriptorMap);
-        Map<UUID, List<DOMNodeObjectModel>> cplEDLEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(eDLMap);
+        Map<UUID, List<DOMNodeObjectModel>> virtualTracksEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(essenceDescriptorMap);/*A map of <SourceEncodingElement/ID List<DOMNodeObjectModel>> corresponding to every EssenceDescriptor in that essence*/
+        Map<UUID, List<DOMNodeObjectModel>> cplEDLEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(eDLMap);/*A map of <SourceEncodingElement/ID List<DOMNodeObjectModel>> corresponding to every EssenceDescriptor identified by the SourceEncodingElement in the EDL*/
 
         /**
          * We now have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
@@ -110,11 +120,16 @@ public class CompositionPlaylistConformanceValidator {
          * virtual track.
          */
         for(Map.Entry entry : cplEDLEssenceDescriptorsMap.entrySet()){
-            if(cplEDLEssenceDescriptorsMap.get(entry.getKey()).size() > 0){
-                List<DOMNodeObjectModel> cplEDList = cplEDLEssenceDescriptorsMap.get(entry.getKey());
-                List<DOMNodeObjectModel> virtualTrackEDList = virtualTracksEssenceDescriptorsMap.get(entry.getKey());
-                for(DOMNodeObjectModel domNodeObjectModel : cplEDList){
+
+            if(cplEDLEssenceDescriptorsMap.get(entry.getKey()).size() > 0){ /*Check if the list of EssenceDescriptors corresponding to this ID is non-empty*/
+                List<DOMNodeObjectModel> cplEDLList = cplEDLEssenceDescriptorsMap.get(entry.getKey());/*List of all the EssenceDescriptors identified by the SourceEncodingElement in the EDL*/
+                List<DOMNodeObjectModel> virtualTrackEDList = virtualTracksEssenceDescriptorsMap.get(entry.getKey());/*List of all the EssenceDescriptors in the Essence identified by the SourceEncodingElement in the EDL*/
+                for(DOMNodeObjectModel domNodeObjectModel : cplEDLList){/*This assumes that there could be multiple EssenceDescriptors in the EDL identified by the same ID*/
                     boolean intermediateResult = false;
+                    /**
+                     * Find atleast one EssenceDescriptor in the Essence that matches every EssenceDescriptor identified by
+                     * this source encoding element ID in the EssenceDescriptorList.
+                     */
                     for(DOMNodeObjectModel otherDomNodeObjectModel : virtualTrackEDList) {
                         intermediateResult |= domNodeObjectModel.equals(otherDomNodeObjectModel);
                         if(intermediateResult){

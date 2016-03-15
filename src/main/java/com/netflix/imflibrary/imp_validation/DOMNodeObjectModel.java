@@ -1,13 +1,11 @@
-package com.netflix.imflibrary.imp_validation.cpl;
+package com.netflix.imflibrary.imp_validation;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.Nonnull;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -131,5 +129,25 @@ public class DOMNodeObjectModel {
         hash = hash * 31
                 + this.nodeType.hashCode();/*Another field that is indicated to be non-null*/
         return hash;
+    }
+
+    /**
+     * A method that returns a string representation of a DOMNodeObjectModel object
+     *
+     * @return string representing the object
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("====== DOM Node Object Model ======%n"));
+        sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
+        sb.append(String.format("Node Local Name : %s%n", this.localName));
+        for(DOMNodeObjectModel domNodeObjectModel : this.childrenDOMNodes) {
+            sb.append(domNodeObjectModel.toString());
+        }
+        for(Map.Entry entry : fields.entrySet()){
+            sb.append(String.format("%s%n", entry.toString()));
+        }
+        return sb.toString();
     }
 }

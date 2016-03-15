@@ -3,7 +3,11 @@ package com.netflix.imflibrary.imp_validation.cpl;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.RepeatableInputStream;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +19,9 @@ import org.xml.sax.SAXException;
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +48,22 @@ public final class CompositionPlaylistHelper {
     @Nonnull
     public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
         Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(cplXMLFile).getVirtualTrackMap();
+        return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
+    }
+
+    /**
+     * A stateless helper method to retrieve the VirtualTracks referenced from within a CompositionPlaylist.
+     * @param resourceByteRangeProvider corresponding to the CPL XML file.
+     * @return A list of VirtualTracks in the CompositionPlaylist.
+     * @throws IOException - any I/O related error is exposed through an IOException.
+     * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    @Nonnull
+    public static List<CompositionPlaylist.VirtualTrack> getVirtualTracks(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(resourceByteRangeProvider).getVirtualTrackMap();
         return new ArrayList<CompositionPlaylist.VirtualTrack>(virtualTrackMap.values());
     }
 
@@ -110,11 +132,16 @@ public final class CompositionPlaylistHelper {
        return new DOMNodeObjectModel(node);
     }
 
-    private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
-        if(CompositionPlaylist.isCompositionPlaylist(cplXMLFile)){
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(@Nonnull File cplXMLFile) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(cplXMLFile);
+        return getCompositionPlaylistObjectModel(resourceByteRangeProvider);
+    }
+
+    private static CompositionPlaylist getCompositionPlaylistObjectModel(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+
+        if(CompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)){
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(cplXMLFile, imfErrorLogger);
-            return compositionPlaylist;
+            return new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
         }
         else{
             throw new IMFException(String.format("CPL document is not compliant with the supported CPL schemas"));
@@ -154,7 +181,7 @@ public final class CompositionPlaylistHelper {
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFilePath>%n", CompositionPlaylistHelper.class.getName()));
+        sb.append(String.format("%s <inputFile>%n", CompositionPlaylistHelper.class.getName()));
         return sb.toString();
     }
 
@@ -172,8 +199,9 @@ public final class CompositionPlaylistHelper {
 
         try
         {
-            CompositionPlaylist compositionPlaylist = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(inputFile);
-            List<CompositionPlaylist.VirtualTrack> virtualTracks = CompositionPlaylistHelper.getVirtualTracks(inputFile);
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+            CompositionPlaylist compositionPlaylist = CompositionPlaylistHelper.getCompositionPlaylistObjectModel(resourceByteRangeProvider);
+            List<CompositionPlaylist.VirtualTrack> virtualTracks = CompositionPlaylistHelper.getVirtualTracks(resourceByteRangeProvider);
 
             for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
                 List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
@@ -189,9 +217,9 @@ public final class CompositionPlaylistHelper {
                 }
             }
             for(int i=0; i<domNodeObjectModels.size(); i++) {
-                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %s", i, domNodeObjectModels.get(i).toString()));
+                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
-            System.out.println(String.format("De-serialized composition playlist : %s", compositionPlaylist.toString()));
+            System.out.println(String.format("De-serialized composition playlist : %n%s", compositionPlaylist.toString()));
         }
         catch(Exception e)
         {
