@@ -598,7 +598,8 @@ public final class CompositionPlaylist
         VisuallyImpairedTextSequence("VisuallyImpairedTextSequence"),
         CommentarySequence("CommentarySequence"),
         KaraokeSequence("KaraokeSequence"),
-        AncillaryDataSequence("AncillaryDataSequence");
+        AncillaryDataSequence("AncillaryDataSequence"),
+        Unknown("Unknown");
 
         private final String name;
 
@@ -607,7 +608,7 @@ public final class CompositionPlaylist
             this.name = name;
         }
 
-        private static @Nullable SequenceTypeEnum getSequenceTypeEnum(String name)
+        private static SequenceTypeEnum getSequenceTypeEnum(String name)
         {
             switch (name)
             {
@@ -628,7 +629,7 @@ public final class CompositionPlaylist
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
                 default:
-                    return null;
+                    return Unknown;
             }
         }
 
