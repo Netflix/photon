@@ -379,6 +379,8 @@ public final class CompositionPlaylist
 
         checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
 
+        //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
+
         return virtualTrackMap;
     }
 
