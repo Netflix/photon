@@ -180,6 +180,23 @@ public class MXFEssenceReader {
     }
 
     /**
+     * A method that returns the EssenceType enumeration corresponding to this Essence
+     * @return a string representing either a MainImageSequence or a MainAudioSequence
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public CompositionPlaylist.SequenceTypeEnum getEssenceTypeEnum() throws IOException{
+        CompositionPlaylist.SequenceTypeEnum result = CompositionPlaylist.SequenceTypeEnum.Unknown;
+        HeaderPartition headerPartition = this.getHeaderPartitionIMF().getHeaderPartitionOP1A().getHeaderPartition();
+        if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
+            result = CompositionPlaylist.SequenceTypeEnum.MainImageSequence;
+        }
+        else if(headerPartition.hasWaveAudioEssenceDescriptor()){
+            result = CompositionPlaylist.SequenceTypeEnum.MainAudioSequence;
+        }
+        return result;
+    }
+
+    /**
      * A method that returns the spoken language within this essence provided it is an Audio Essence
      * @return string representing a spoken language as defined in RFC-5646
      */
