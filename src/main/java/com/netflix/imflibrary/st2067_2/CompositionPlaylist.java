@@ -197,6 +197,12 @@ public final class CompositionPlaylist
         }
     }
 
+    public static void validate(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException, JAXBException {
+
+        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
+        compositionPlaylist.checkVirtualTracks(compositionPlaylist.compositionPlaylistType, imfErrorLogger);
+    }
+
     /**
      * A method that returns a string representation of a CompositionPlaylist object
      *

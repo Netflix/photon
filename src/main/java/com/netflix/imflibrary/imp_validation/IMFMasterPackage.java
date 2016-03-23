@@ -140,9 +140,8 @@ public final class IMFMasterPackage {
         }
 
         //Validate the CompositionPlaylists
-        List<CompositionPlaylist> parsedCompositionPlaylists = new ArrayList<>();
         for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
-            parsedCompositionPlaylists.add(new CompositionPlaylist(resourceByteRangeProvider, new IMFErrorLoggerImpl()));
+            CompositionPlaylist.validate(resourceByteRangeProvider, new IMFErrorLoggerImpl());
         }
         return result;
     }
