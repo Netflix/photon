@@ -239,16 +239,19 @@ public final class IMFConstraints
             return this.headerPartitionOP1A;
         }
 
-        public boolean hasMatchingEssence(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        public boolean hasMatchingEssence(HeaderPartition.EssenceTypeEnum essenceType)
         {
             MXFDataDefinition targetMXFDataDefinition;
-            if (sequenceType.equals(CompositionPlaylist.SequenceTypeEnum.MainImageSequence))
+            if (essenceType.equals(HeaderPartition.EssenceTypeEnum.MainImageEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.PICTURE;
             }
-            else
+            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
+            else{
+                targetMXFDataDefinition = MXFDataDefinition.DATA;
             }
 
             GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
