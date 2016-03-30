@@ -98,8 +98,16 @@ public class MXFEssenceReader {
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public HeaderPartition getHeaderPartition() throws IOException{
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF();
-        return headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        RandomIndexPack randomIndexPack = this.getRandomIndexPack();
+        List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
+        long inclusiveRangeStart = allPartitionByteOffsets.get(0);
+        long inclusiveRangeEnd = allPartitionByteOffsets.get(1) - 1;
+
+        File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
+        ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, this.imfErrorLogger);
+
+        return headerPartition;
     }
 
     /**
@@ -163,37 +171,12 @@ public class MXFEssenceReader {
     }
 
     /**
-     * A method that returns the EssenceType corresponding to this Essence
-     * @return a string representing either a MainImageSequence or a MainAudioSequence
+     * A method that returns the EssenceTypes present in an MXF file.
+     * @return a list of essence types present in the MXF file
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public String getEssenceType() throws IOException{
-        String result = "";
-        HeaderPartition headerPartition = this.getHeaderPartitionIMF().getHeaderPartitionOP1A().getHeaderPartition();
-        if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
-            result = "MainImageSequence";
-        }
-        else if(headerPartition.hasWaveAudioEssenceDescriptor()){
-            result = "MainAudioSequence";
-        }
-        return result;
-    }
-
-    /**
-     * A method that returns the EssenceType enumeration corresponding to this Essence
-     * @return a string representing either a MainImageSequence or a MainAudioSequence
-     * @throws IOException - any I/O related error will be exposed through an IOException
-     */
-    public CompositionPlaylist.SequenceTypeEnum getEssenceTypeEnum() throws IOException{
-        CompositionPlaylist.SequenceTypeEnum result = CompositionPlaylist.SequenceTypeEnum.Unknown;
-        HeaderPartition headerPartition = this.getHeaderPartitionIMF().getHeaderPartitionOP1A().getHeaderPartition();
-        if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
-            result = CompositionPlaylist.SequenceTypeEnum.MainImageSequence;
-        }
-        else if(headerPartition.hasWaveAudioEssenceDescriptor()){
-            result = CompositionPlaylist.SequenceTypeEnum.MainAudioSequence;
-        }
-        return result;
+    public List<HeaderPartition.EssenceTypeEnum> getEssenceTypes() throws IOException{
+        return this.getHeaderPartition().getEssenceTypes();
     }
 
     /**
@@ -202,40 +185,27 @@ public class MXFEssenceReader {
      */
     public String getAudioEssenceSpokenLanguage() throws IOException {
         String rfc5646SpokenLanguage = "";
-        if(this.getEssenceType().equals("MainAudioSequence")){
+        if(this.getHeaderPartition().hasWaveAudioEssenceDescriptor()){
             List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getHeaderPartition().getSoundFieldGroupLabelSubDescriptors();
-            for(InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors){
-                SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
-                if(rfc5646SpokenLanguage.equals("")) {
-                    rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
+            if(soundfieldGroupLabelSubDescriptors.size() > 0) {
+                for (InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors) {
+                    SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
+                    if (rfc5646SpokenLanguage.equals("")) {
+                        rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
+                    } else if (!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                        throw new MXFException(String.format("Language Codes (%s, %s) do not match across the AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                    }
                 }
-                else if(!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())){
-                    throw new IMFException(String.format("Language Codes (%s, %s) do not match across the AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
-                }
+            }
+            else{
+                throw new MXFException(String.format("This MXF file does not have any SoundFieldGroupLabelSubDescriptors and hence spoken language cannot be inferred."));
             }
         }
         else{
-            throw new IMFException(String.format("Essences of type %s, do not have a spoken language", this.getEssenceType()));
+            throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
         }
         return rfc5646SpokenLanguage;
     }
-
-    private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF() throws IOException {
-        RandomIndexPack randomIndexPack = this.getRandomIndexPack();
-        List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
-        long inclusiveRangeStart = allPartitionByteOffsets.get(0);
-        long inclusiveRangeEnd = allPartitionByteOffsets.get(1) - 1;
-
-        File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
-        ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, this.imfErrorLogger);
-
-        //validate header partition
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-        return headerPartitionIMF;
-    }
-
 
     private PartitionPack getPartitionPack(long resourceOffset) throws IOException
     {

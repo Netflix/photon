@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0377;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
+import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFFieldPopulator;
@@ -916,6 +917,104 @@ function visit(node n)
          * The PERMANENT.
          */
         PERMANENT
+    }
+
+    /**
+     * A method that retrieves all the EssenceTypes present in the MXF file
+     * @return a list of all essence types present in the MXF file
+     */
+    public List<EssenceTypeEnum> getEssenceTypes(){
+        List<EssenceTypeEnum> essenceTypes = new ArrayList<>();
+        if(this.hasCDCIPictureEssenceDescriptor() || this.hasRGBAPictureEssenceDescriptor()){
+            essenceTypes.add(EssenceTypeEnum.MainImageEssence);
+        }
+        if(this.hasWaveAudioEssenceDescriptor()){
+            essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
+        }
+        return essenceTypes;
+    }
+
+    /**
+     * An enumeration of all possible essence types that could be contained in a MXF file.
+     */
+    public enum EssenceTypeEnum {
+        MarkerEssence(CompositionPlaylist.SequenceTypeEnum.MarkerSequence),
+        MainImageEssence(CompositionPlaylist.SequenceTypeEnum.MainImageSequence),
+        MainAudioEssence(CompositionPlaylist.SequenceTypeEnum.MainAudioSequence),
+        SubtitlesEssence(CompositionPlaylist.SequenceTypeEnum.SubtitlesSequence),
+        HearingImpairedCaptionsEssence(CompositionPlaylist.SequenceTypeEnum.HearingImpairedCaptionsSequence),
+        VisuallyImpairedTextEssence(CompositionPlaylist.SequenceTypeEnum.VisuallyImpairedTextSequence),
+        CommentaryEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
+        KaraokeEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
+        AncillaryDataEssence(CompositionPlaylist.SequenceTypeEnum.AncillaryDataSequence),
+        UnknownEssence(CompositionPlaylist.SequenceTypeEnum.Unknown);
+
+        private final CompositionPlaylist.SequenceTypeEnum sequenceType;
+        private final String name;
+
+        private EssenceTypeEnum(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        {
+            this.sequenceType = sequenceType;
+            this.name = getEssenceTypeString(sequenceType);
+        }
+
+        private static EssenceTypeEnum getEssenceTypeEnum(String name)
+        {
+            switch (name)
+            {
+                case "MainImageEssence":
+                    return MainImageEssence;
+                case "MainAudioEssence":
+                    return MainAudioEssence;
+                case "MarkerEssence":
+                    return MarkerEssence;
+                case "SubtitlesEssence":
+                    return SubtitlesEssence;
+                case "HearingImpairedCaptionsEssence":
+                    return HearingImpairedCaptionsEssence;
+                case "VisuallyImpairedTextEssence":
+                    return VisuallyImpairedTextEssence;
+                case "CommentaryEssence":
+                    return CommentaryEssence;
+                case "KaraokeEssence":
+                    return KaraokeEssence;
+                case "AncillaryDataEssence":
+                    return AncillaryDataEssence;
+                default:
+                    return UnknownEssence;
+            }
+        }
+
+        private static String getEssenceTypeString(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        {
+            switch (sequenceType)
+            {
+                case MainImageSequence:
+                    return "MainImageEssence";
+                case MainAudioSequence:
+                    return "MainAudioSequence";
+                case MarkerSequence:
+                    return "MarkerEssence";
+                case SubtitlesSequence:
+                    return "SubtitlesEssence";
+                case HearingImpairedCaptionsSequence:
+                    return "HearingImpairedCaptionsEssence";
+                case VisuallyImpairedTextSequence:
+                    return "VisuallyImpairedTextEssence";
+                case CommentarySequence:
+                    return "CommentaryEssence";
+                case KaraokeSequence:
+                    return "KaraokeEssence";
+                case AncillaryDataSequence:
+                    return "AncillaryDataEssence";
+                default:
+                    return "UnknownEssence";
+            }
+        }
+
+        public String toString(){
+            return this.name;
+        }
     }
 
     /**
