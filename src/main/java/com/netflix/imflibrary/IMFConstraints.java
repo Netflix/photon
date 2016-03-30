@@ -18,6 +18,7 @@
 
 package com.netflix.imflibrary;
 
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
@@ -238,16 +239,19 @@ public final class IMFConstraints
             return this.headerPartitionOP1A;
         }
 
-        public boolean hasMatchingEssence(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        public boolean hasMatchingEssence(HeaderPartition.EssenceTypeEnum essenceType)
         {
             MXFDataDefinition targetMXFDataDefinition;
-            if (sequenceType.equals(CompositionPlaylist.SequenceTypeEnum.MainImageSequence))
+            if (essenceType.equals(HeaderPartition.EssenceTypeEnum.MainImageEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.PICTURE;
             }
-            else
+            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
+            else{
+                targetMXFDataDefinition = MXFDataDefinition.DATA;
             }
 
             GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
@@ -326,6 +330,37 @@ public final class IMFConstraints
             }
 
             return waveAudioEssenceDescriptor;
+        }
+
+        /**
+         * A method that returns the IMF Essence Component type.
+         * @return essenceTypeEnum an enumeration constant corresponding to the IMFEssenceComponent type
+         */
+        public HeaderPartition.EssenceTypeEnum getEssenceType(){
+            HeaderPartition headerPartition = this.headerPartitionOP1A.getHeaderPartition();
+            Preface preface = headerPartition.getPreface();
+            MXFDataDefinition filePackageMxfDataDefinition = null;
+
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+
+            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
+            {
+                Sequence sequence = timelineTrack.getSequence();
+                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
+                {
+                    filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
+                }
+            }
+            List<HeaderPartition.EssenceTypeEnum> essenceTypes = headerPartition.getEssenceTypes();
+            if(essenceTypes.size() != 1){
+                StringBuilder stringBuilder = new StringBuilder();
+                for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
+                    stringBuilder.append(String.format("%s, ", essenceTypeEnum.toString()));
+                }
+                throw new IMFException(String.format("IMF constrains MXF essences to mono essences only, however more than one EssenceType was detected %s.", stringBuilder.toString()));
+            }
+            return essenceTypes.get(0);
         }
 
         /**

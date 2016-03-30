@@ -139,6 +139,10 @@ public final class IMFMasterPackage {
             throw new IMFException(String.format("Packing list UUID %s is different from what is referenced in the AssetMap %s", UUIDHelper.fromUUIDAsURNStringToUUID(packingList.getUUID().toString()), UUIDHelper.fromUUIDAsURNStringToUUID(packingListAssets.get(0).getUUID().toString())));
         }
 
+        //Validate the CompositionPlaylists
+        for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
+            CompositionPlaylist.validate(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+        }
         return result;
     }
 

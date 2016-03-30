@@ -197,6 +197,12 @@ public final class CompositionPlaylist
         }
     }
 
+    public static void validate(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException, JAXBException {
+
+        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
+        compositionPlaylist.checkVirtualTracks(compositionPlaylist.compositionPlaylistType, imfErrorLogger);
+    }
+
     /**
      * A method that returns a string representation of a CompositionPlaylist object
      *
@@ -356,6 +362,7 @@ public final class CompositionPlaylist
                     else{
                         virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
                     }
+                    checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
                 }
@@ -377,6 +384,8 @@ public final class CompositionPlaylist
         }
 
         checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
+
+        //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
 
         return virtualTrackMap;
     }
@@ -474,6 +483,7 @@ public final class CompositionPlaylist
                         TrackFileResourceType trackFileResource = (TrackFileResourceType)resource;
                         trackFileResources.add(trackFileResource);
                     }
+                    checkTrackResourceList(trackFileResources, null);
                     if (virtualTrackResourceMap.get(uuid) == null)
                     {
                         virtualTrackResourceMap.put(uuid, trackFileResources);
@@ -494,6 +504,23 @@ public final class CompositionPlaylist
         }
 
         return virtualTrackResourceMap;
+    }
+
+    boolean checkTrackResourceList(List<TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
+        boolean result = true;
+        for(TrackFileResourceType trackFileResource : virtualTrackResourceList){
+            long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
+            //WARNING : We might be losing some precision here since EntryPoint is an XML non-negative integer with no upper-bound
+            long compositionPlaylistResourceEntryPoint = (trackFileResource.getEntryPoint() == null) ? 0L : trackFileResource.getEntryPoint().longValue();
+            //Check to see if the Resource's source duration value is in the valid range as specified in st2067-3:2013 section 6.11.6
+            if(trackFileResource.getSourceDuration() != null){
+                if(trackFileResource.getSourceDuration().longValue() < 0
+                        || trackFileResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
+                    throw new IMFException(String.format("Invalid resource source duration value %d, should be in the range [0,%d]", trackFileResource.getSourceDuration().longValue(), (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
+                }
+            }
+        }
+        return result;
     }
 
     private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
