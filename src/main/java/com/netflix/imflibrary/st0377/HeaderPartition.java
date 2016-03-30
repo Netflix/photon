@@ -992,7 +992,7 @@ function visit(node n)
                 case MainImageSequence:
                     return "MainImageEssence";
                 case MainAudioSequence:
-                    return "MainAudioSequence";
+                    return "MainAudioEssence";
                 case MarkerSequence:
                     return "MarkerEssence";
                 case SubtitlesSequence:
