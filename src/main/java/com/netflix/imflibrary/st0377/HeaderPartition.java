@@ -674,7 +674,12 @@ public final class HeaderPartition
      */
     public List<InterchangeObject> getAudioChannelLabelSubDescriptors()
     {
-        return this.getInterchangeObjects(AudioChannelLabelSubDescriptor.class);
+        if(this.hasWaveAudioEssenceDescriptor()) {
+            return this.getInterchangeObjects(AudioChannelLabelSubDescriptor.class);
+        }
+        else{
+            return new ArrayList<InterchangeObject>();
+        }
     }
 
     /**
@@ -824,7 +829,12 @@ public final class HeaderPartition
 
     private List<InterchangeObject> getInterchangeObjects(Class clazz){
         String simpleName = clazz.getSimpleName();
-        return Collections.unmodifiableList(this.interchangeObjectsMap.get(simpleName));
+        if(this.interchangeObjectsMap.get(simpleName) == null){
+            return Collections.unmodifiableList(new ArrayList<InterchangeObject>());
+        }
+        else {
+            return Collections.unmodifiableList(this.interchangeObjectsMap.get(simpleName));
+        }
     }
 
     /*
