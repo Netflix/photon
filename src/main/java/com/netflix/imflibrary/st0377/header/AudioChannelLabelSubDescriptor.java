@@ -85,15 +85,9 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
      */
     @Immutable
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
-    public static final class AudioChannelLabelSubDescriptorBO extends GenericDescriptorBO
+    public static final class AudioChannelLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
     {
 
-        @MXFField(size=16) private final UL mca_label_dictionary_id = null;
-        @MXFField(size=16) private final byte[] mca_link_id = null; //UUID
-        @MXFField(size=0, charset="UTF-16") private final String mca_tag_symbol = null;
-        @MXFField(size=0, charset="UTF-16") private final String mca_tag_name = null;
-        @MXFField(size=4) private final Long mca_channel_id = null;
-        @MXFField(size=0, charset="ISO-8859-1") private final String rfc_5646_spoken_language = null;
         @MXFField(size=16) private final byte[] soundfield_group_link_id = null; //UUID
 
         /**
@@ -146,21 +140,7 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
         public String toString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.append("================== AudioChannelLabelSubDescriptor ======================\n");
-            sb.append(this.header.toString());
-            sb.append(String.format("instance_uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
-                    this.instance_uid[0], this.instance_uid[1], this.instance_uid[2], this.instance_uid[3],
-                    this.instance_uid[4], this.instance_uid[5], this.instance_uid[6], this.instance_uid[7],
-                    this.instance_uid[8], this.instance_uid[9], this.instance_uid[10], this.instance_uid[11],
-                    this.instance_uid[12], this.instance_uid[13], this.instance_uid[14], this.instance_uid[15]));
-            sb.append(String.format("mca_label_dictionary_id = %s%n",this.mca_label_dictionary_id.toString()));
-            sb.append(String.format("mca_link_id = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
-                    this.mca_link_id[0], this.mca_link_id[1], this.mca_link_id[2], this.mca_link_id[3],
-                    this.mca_link_id[4], this.mca_link_id[5], this.mca_link_id[6], this.mca_link_id[7],
-                    this.mca_link_id[8], this.mca_link_id[9], this.mca_link_id[10], this.mca_link_id[11],
-                    this.mca_link_id[12], this.mca_link_id[13], this.mca_link_id[14], this.mca_link_id[15]));
-            sb.append(String.format("mca_tag_symbol = %s%n", this.mca_tag_symbol));
-            sb.append(String.format("mca_tag_name = %s%n", this.mca_tag_name));
+            sb.append(super.toString());
             if (this.soundfield_group_link_id != null)
             {
                 sb.append(String.format("soundfield_group_link_id = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
@@ -168,14 +148,6 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
                         this.soundfield_group_link_id[4], this.soundfield_group_link_id[5], this.soundfield_group_link_id[6], this.soundfield_group_link_id[7],
                         this.soundfield_group_link_id[8], this.soundfield_group_link_id[9], this.soundfield_group_link_id[10], this.soundfield_group_link_id[11],
                         this.soundfield_group_link_id[12], this.soundfield_group_link_id[13], this.soundfield_group_link_id[14], this.soundfield_group_link_id[15]));
-            }
-            if (this.mca_channel_id != null)
-            {
-                sb.append(String.format("mca_channel_id = %d%n", this.mca_channel_id));
-            }
-            if (this.rfc_5646_spoken_language != null)
-            {
-                sb.append(String.format("rfc_5646_spoken_language = %s%n", this.rfc_5646_spoken_language));
             }
 
             return sb.toString();

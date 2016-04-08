@@ -131,37 +131,6 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
 
         }
 
-        /**
-         * A method that returns a string representation of a SoundFieldGroupLabelSubDescriptorBO object
-         *
-         * @return string representing the object
-         */
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("================== SoundFieldGroupLabelSubDescriptor ======================\n");
-            sb.append(this.header.toString());
-            sb.append(String.format("instance_uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
-                    this.instance_uid[0], this.instance_uid[1], this.instance_uid[2], this.instance_uid[3],
-                    this.instance_uid[4], this.instance_uid[5], this.instance_uid[6], this.instance_uid[7],
-                    this.instance_uid[8], this.instance_uid[9], this.instance_uid[10], this.instance_uid[11],
-                    this.instance_uid[12], this.instance_uid[13], this.instance_uid[14], this.instance_uid[15]));
-            sb.append(String.format("mca_label_dictionary_id = %s%n", this.mca_label_dictionary_id.toString()));
-            sb.append(String.format("mca_link_id = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
-                    this.mca_link_id[0], this.mca_link_id[1], this.mca_link_id[2], this.mca_link_id[3],
-                    this.mca_link_id[4], this.mca_link_id[5], this.mca_link_id[6], this.mca_link_id[7],
-                    this.mca_link_id[8], this.mca_link_id[9], this.mca_link_id[10], this.mca_link_id[11],
-                    this.mca_link_id[12], this.mca_link_id[13], this.mca_link_id[14], this.mca_link_id[15]));
-            sb.append(String.format("mca_tag_symbol = %s%n", this.mca_tag_symbol));
-            sb.append(String.format("mca_tag_name = %s%n", this.mca_tag_name));
-            sb.append(String.format("mca_channel_id = %d%n", this.mca_channel_id));
-            if (this.rfc_5646_spoken_language != null)
-            {
-                sb.append(String.format("rfc_5646_spoken_language = %s%n", this.rfc_5646_spoken_language));
-            }
-
-            return sb.toString();
-        }
     }
 
 
