@@ -165,6 +165,14 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
             {
                 sb.append(String.format("rfc_5646_spoken_language = %s%n", this.rfc_5646_spoken_language));
             }
+            if (this.mca_title != null)
+            {
+                sb.append(String.format("mca_title = %s%n", this.mca_title));
+            }
+            if (this.mca_title_version != null)
+            {
+                sb.append(String.format("mca_title_version = %s%n", this.mca_title_version));
+            }
             if (this.mca_audio_content_kind != null)
             {
                 sb.append(String.format("mca_audio_content_kind = %s%n", this.mca_audio_content_kind));
