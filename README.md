@@ -9,7 +9,7 @@ The goal of the Photon is to provide a simple standardized interface to complete
 
 ## Build
 
-Photon can be built very easily by using the included gradle wrapper. Having downloaded the sources, simply invoke the
+Photon can be built very easily by using the included Gradle wrapper. Having downloaded the sources, simply invoke the
 following commands inside the folder containing the sources:
 
 $ ./gradlew clean
