@@ -365,6 +365,16 @@ public final class CompositionPlaylist
                     checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
+                    if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence
+                            && virtualTrackResourceList.size() > 0){
+                        for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
+                            EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
+                            if(trackResourceEditRate.getNumerator() != this.getEditRate().getNumerator()
+                                    || trackResourceEditRate.getDenominator() != this.getEditRate().getDenominator()){
+                                throw new IMFException(String.format("This CompositionPlaylist is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", this.editRate.toString(), trackResourceEditRate.toString()));
+                            }
+                        }
+                    }
                 }
                 else
                 {
