@@ -153,11 +153,25 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
                     this.mca_link_id[8], this.mca_link_id[9], this.mca_link_id[10], this.mca_link_id[11],
                     this.mca_link_id[12], this.mca_link_id[13], this.mca_link_id[14], this.mca_link_id[15]));
             sb.append(String.format("mca_tag_symbol = %s%n", this.mca_tag_symbol));
-            sb.append(String.format("mca_tag_name = %s%n", this.mca_tag_name));
-            sb.append(String.format("mca_channel_id = %d%n", this.mca_channel_id));
+            if (this.mca_tag_name != null)
+            {
+                sb.append(String.format("mca_tag_name = %s%n", this.mca_tag_name));
+            }
+            if (this.mca_channel_id != null)
+            {
+                sb.append(String.format("mca_channel_id = %d%n", this.mca_channel_id));
+            }
             if (this.rfc_5646_spoken_language != null)
             {
                 sb.append(String.format("rfc_5646_spoken_language = %s%n", this.rfc_5646_spoken_language));
+            }
+            if (this.mca_audio_content_kind != null)
+            {
+                sb.append(String.format("mca_audio_content_kind = %s%n", this.mca_audio_content_kind));
+            }
+            if (this.mca_audio_element_kind != null)
+            {
+                sb.append(String.format("mca_audio_element_kind = %s%n", this.mca_audio_element_kind));
             }
 
             return sb.toString();

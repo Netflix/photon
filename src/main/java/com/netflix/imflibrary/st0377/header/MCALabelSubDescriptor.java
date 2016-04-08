@@ -37,6 +37,8 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         @MXFField(size=0, charset = "UTF-16") protected final String mca_tag_name = null; //UTF-16 String
         @MXFField(size=4) protected final Long mca_channel_id = null;
         @MXFField(size=0, charset="ISO-8859-1") protected final String rfc_5646_spoken_language = null; //ISO-8 String
+        @MXFField(size=0, charset="UTF-16") protected final String mca_audio_content_kind = null;
+        @MXFField(size=0, charset="UTF-16") protected final String mca_audio_element_kind = null;
 
         /**
          * Constructor for a parsed MCA Label Sub descriptor object
