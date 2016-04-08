@@ -365,12 +365,11 @@ public final class CompositionPlaylist
                     checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
-                    if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence
-                            && virtualTrackResourceList.size() > 0){
+                    if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence){
+                        EditRate compositionEditRate = new EditRate(this.compositionPlaylistType.getEditRate());
                         for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
                             EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
-                            if(trackResourceEditRate.getNumerator() != this.getEditRate().getNumerator()
-                                    || trackResourceEditRate.getDenominator() != this.getEditRate().getDenominator()){
+                            if(!trackResourceEditRate.equals(compositionEditRate)){
                                 throw new IMFException(String.format("This CompositionPlaylist is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", this.editRate.toString(), trackResourceEditRate.toString()));
                             }
                         }
@@ -569,8 +568,8 @@ public final class CompositionPlaylist
     @Immutable
     public static final class EditRate
     {
-        private final long numerator;
-        private final long denominator;
+        private final Long numerator;
+        private final Long denominator;
 
         /**
          * Constructor for the rational frame rate number.
@@ -593,7 +592,7 @@ public final class CompositionPlaylist
          * Getter for the frame rate numerator
          * @return a long value corresponding to the frame rate numerator
          */
-        public long getNumerator()
+        public Long getNumerator()
         {
             return this.numerator;
         }
@@ -602,7 +601,7 @@ public final class CompositionPlaylist
          * Getter for the frame rate denominator
          * @return a long value corresponding to the frame rate denominator
          */
-        public long getDenominator()
+        public Long getDenominator()
         {
             return this.denominator;
         }
@@ -618,6 +617,34 @@ public final class CompositionPlaylist
             sb.append("=================== EditRate =====================\n");
             sb.append(String.format("numerator = %d, denominator = %d%n", this.numerator, this.denominator));
             return sb.toString();
+        }
+
+        /**
+         * Overridden equals method.
+         * @param object the EditRate to be compared with.
+         * @return boolean false if the object is null or is not an instance of the EditRate class.
+         */
+        @Override
+        public boolean equals(Object object){
+            if(object == null
+                    || !(object instanceof EditRate)){
+                return false;
+            }
+            EditRate other = (EditRate) object;
+            return ((this.getNumerator().equals(other.getNumerator())) && (this.getDenominator().equals(other.getDenominator())));
+        }
+
+        /**
+         * A Java compliant implementation of the hashCode() method
+         * @return integer containing the hash code corresponding to this object
+         */
+        @Override
+        public int hashCode(){
+            int hash = 1;
+            hash = hash * 31 + this.numerator.hashCode(); /*Numerator can be used since it is non-null*/
+            hash = hash * 31
+                    + this.denominator.hashCode();/*Another field that is indicated to be non-null*/
+            return hash;
         }
     }
 
