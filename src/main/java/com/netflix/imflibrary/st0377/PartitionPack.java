@@ -299,7 +299,7 @@ public final class  PartitionPack
         }
         else
         {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NOT_FATAL,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     PartitionPack.ERROR_DESCRIPTION_PREFIX + errorMessage);
         }
     }

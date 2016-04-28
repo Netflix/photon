@@ -36,6 +36,10 @@ public interface IMFErrorLogger extends ErrorLogger
      */
     void addError(IMFErrors.ErrorCodes errorCode, IMFErrors.ErrorLevels errorLevel, String errorDescription);
 
+    public void addError(ErrorObject errorObject);
+
+    public void addAllErrors(List<ErrorObject> errorObjects);
+
     List<ErrorObject> getErrors();
 
     final class IMFErrors
@@ -55,47 +59,61 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The KLV_LAYER_ERROR.
              */
-            KLV_LAYER_ERROR,
+            KLV_LAYER_ERROR("KLV Error"),
 
             /**
              * The MXF_PARTITION_FIELD_ERROR.
              */
-            MXF_PARTITION_FIELD_ERROR,
+            MXF_PARTITION_FIELD_ERROR("MXF Partition Field Error"),
 
             /**
              * The MXF_PARTITION_ERROR.
              */
-            MXF_PARTITION_ERROR,
+            MXF_PARTITION_ERROR ("MXF Partition Error"),
 
             /**
              * The MXF_OPERATIONAL_PATTERN_1A_ERROR.
              */
-            MXF_OPERATIONAL_PATTERN_1A_ERROR,
+            MXF_OPERATIONAL_PATTERN_1A_ERROR("MXF OP1A Pattern Error"),
 
             /**
              * The IMF_ESSENCE_COMPONENT_ERROR.
              */
-            IMF_ESSENCE_COMPONENT_ERROR,
+            IMF_ESSENCE_COMPONENT_ERROR("IMF Essence Component Error"),
 
             /**
              * The IMF_CPL_ERROR.
              */
-            IMF_CPL_ERROR,
+            IMF_CPL_ERROR("IMF CPL Error"),
 
             /**
              * The IMF_PKL_ERROR.
              */
-            IMF_PKL_ERROR,
+            IMF_PKL_ERROR("IMF PKL Error"),
 
             /**
              * Error in processing of AssetMap or a mapped file set
              */
-            IMF_AM_ERROR,
+            IMF_AM_ERROR("IMF AssetMap Error"),
 
             /**
              * The IMF_CORE_CONSTRAINTS_ERROR.
              */
-            IMF_CORE_CONSTRAINTS_ERROR,
+            IMF_CORE_CONSTRAINTS_ERROR("IMF Core Constraints Error");
+
+            private final String error;
+
+            ErrorCodes(String error){
+                this.error = error;
+            }
+
+            /**
+             * A toString() method
+             * @return string representation of this enumeration constant
+             */
+            public String toString(){
+                return this.error;
+            }
 
         }
 
@@ -106,14 +124,31 @@ public interface IMFErrorLogger extends ErrorLogger
         public enum ErrorLevels
         {
             /**
-             * The NOT_FATAL.
+             * WARNING
              */
-            NOT_FATAL,
+            WARNING("WARNING"),
+            /**
+             * The NON_FATAL.
+             */
+            NON_FATAL("NON FATAL"),
 
             /**
              * The FATAL.
              */
-            FATAL,
+            FATAL("FATAL");
+
+            private final String errorLevel;
+            ErrorLevels(String errorLevel){
+                this.errorLevel = errorLevel;
+            }
+
+            /**
+             * A toString() method
+             * @return string representation of this enumeration constant
+             */
+            public String toString(){
+                return this.errorLevel;
+            }
         }
     }
 }

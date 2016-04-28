@@ -18,9 +18,13 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.utils.ErrorLogger;
+
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,7 +33,7 @@ import java.util.List;
 public class ValidationEventHandlerImpl implements ValidationEventHandler {
 
     private final boolean continueOnError;
-    private final List<String> errors = new ArrayList<>();
+    private final List<ValidationErrorObject> errors = new ArrayList<>();
 
     /**
      * A constructor for the ValidationEventHandlerImpl object
@@ -45,11 +49,8 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
      * @return boolean to indicate whether to abort/proceed when an error is encountered
      */
     public boolean handleEvent( ValidationEvent event ){
-        if(event.getSeverity() == ValidationEvent.ERROR
-                || event.getSeverity() == ValidationEvent.FATAL_ERROR){
-            System.out.println(String.format("%s", event.getMessage()));
-            this.errors.add(event.getMessage());
-        }
+        System.out.println(String.format("%s", event.getMessage()));
+        this.errors.add(new ValidationErrorObject(event.getSeverity(), event.getMessage()));
         return this.continueOnError;
     }
 
@@ -62,15 +63,61 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
     }
 
     /**
+     * Checks if any errors occurred while serializing an XML document
+     * @return list of ErrorObjects with errors
+     */
+    public List<ValidationErrorObject> getErrors(){
+        return Collections.unmodifiableList(this.errors);
+    }
+
+    /**
      * A method that returns a string representation of a ValidationEventHandlerImpl object
      *
      * @return string representing the object
      */
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
-        for(String error : errors){
-            stringBuilder.append(error);
+        for(ValidationErrorObject error : errors){
+            stringBuilder.append(error.getErrorMessage());
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * A class that represents errors that occur while serializing an XML document
+     */
+    public static class ValidationErrorObject{
+        private final int validationEventSeverity;
+        private final String errorMessage;
+
+        private ValidationErrorObject(int validationEventSeverity, String errorMessage){
+            this.validationEventSeverity = validationEventSeverity;
+            this.errorMessage = errorMessage;
+        }
+
+        /**
+         * A getter for ValidationEvent error severity
+         * @return a translation of the validation event error severity to IMFErrorLogger's ErrorLevel enumeration
+         */
+        public IMFErrorLogger.IMFErrors.ErrorLevels getValidationEventSeverity(){
+            switch(this.validationEventSeverity){
+                case ValidationEvent.ERROR:
+                    return IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL;
+                case ValidationEvent.FATAL_ERROR:
+                    return IMFErrorLogger.IMFErrors.ErrorLevels.FATAL;
+                case ValidationEvent.WARNING:
+                    return IMFErrorLogger.IMFErrors.ErrorLevels.WARNING;
+                default:
+                    return IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL;
+            }
+        }
+
+        /**
+         * A getter for the ValidationError message
+         * @return a string representing the ValidationError message
+         */
+        public String getErrorMessage(){
+            return this.errorMessage;
+        }
     }
 }

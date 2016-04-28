@@ -18,9 +18,11 @@
 
 package com.netflix.imflibrary.st0429_8;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
@@ -28,8 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType;
 import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
@@ -73,8 +78,8 @@ public final class PackingList
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException {
-        PackingList.validatePackingListSchema(packingListXMLFile);
+    public PackingList(File packingListXMLFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException {
+        validatePackingListSchema(packingListXMLFile, imfErrorLogger);
 
         try(InputStream input = new FileInputStream(packingListXMLFile);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
@@ -97,6 +102,10 @@ public final class PackingList
             JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(input);
             if(validationEventHandlerImpl.hasErrors())
             {
+                List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
+                for(ValidationEventHandlerImpl.ValidationErrorObject error : errors){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                }
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
 
@@ -119,9 +128,9 @@ public final class PackingList
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider)throws IOException, SAXException, JAXBException {
+    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger)throws IOException, SAXException, JAXBException {
 
-        PackingList.validatePackingListSchema(resourceByteRangeProvider);
+        validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
@@ -144,6 +153,10 @@ public final class PackingList
             JAXBElement<PackingListType> packingListTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
+                List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
+                for(ValidationEventHandlerImpl.ValidationErrorObject error : errors){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                }
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
 
@@ -280,18 +293,17 @@ public final class PackingList
     }
 
 
-    private static void validatePackingListSchema(File xmlFile) throws IOException, SAXException {
+    private void validatePackingListSchema(File xmlFile, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
-        validatePackingListSchema(resourceByteRangeProvider);
+        validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
     }
 
-    private static void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, SAXException {
+    private void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(PackingList.pkl_schema_path);
-        )
-        {
+        ) {
             StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[2];
@@ -302,6 +314,22 @@ public final class PackingList
             Schema schema = schemaFactory.newSchema(streamSources);
 
             Validator validator = schema.newValidator();
+            validator.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage()));
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage()));
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage()));
+                }
+            });
             validator.validate(inputSource);
         }
     }
@@ -310,9 +338,7 @@ public final class PackingList
     {
         File inputFile = new File(args[0]);
 
-        PackingList.validatePackingListSchema(inputFile);
-
-        PackingList packingList = new PackingList(inputFile);
+        PackingList packingList = new PackingList(inputFile, new IMFErrorLoggerImpl());
         logger.warn(packingList.toString());
 
     }
