@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class IMPValidator {
 
+
     public static List<ErrorLogger.ErrorObject> validatePKL(PayloadRecord pkl){
 
         if(pkl.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
@@ -22,7 +23,7 @@ public class IMPValidator {
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try{
-            PackingList packingList = new PackingList(new ByteArrayByteRangeProvider(pkl.getPayload()), imfErrorLogger);
+            new PackingList(new ByteArrayByteRangeProvider(pkl.getPayload()), imfErrorLogger);
         }
         catch(Exception e){
             return imfErrorLogger.getErrors();

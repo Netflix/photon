@@ -1,7 +1,7 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
-import com.sun.istack.internal.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 /**
