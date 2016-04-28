@@ -7,6 +7,7 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,34 +30,48 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    public static boolean validateAssetMap(PayloadRecord assetMap){
+    public static List<ErrorLogger.ErrorObject> validateAssetMap(PayloadRecord assetMap){
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
 
+        return errors;
     }
 
-    public static boolean validatePKLAndAssetMap(PayloadRecord pkl, PayloadRecord cpl){
+    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord pkl, PayloadRecord cpl){
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
 
+        return errors;
     }
 
-    public static boolean validateCPL(PayloadRecord cpl) {
+    public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) {
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
 
+        return errors;
     }
 
     /* IMF essence related inspection calls*/
-    public static Long getIndexPartitionOffset(PayloadRecord essenceFooter4Bytes){
+    public static List<ErrorLogger.ErrorObject> getIndexPartitionOffset(PayloadRecord essenceFooter4Bytes){
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
 
+        return errors;
     }
 
     public static List<Long> getEssencePartitionOffsets(PayloadRecord randomIndexPartition){
+        List<Long> offsets = new ArrayList<>();
 
+        return offsets;
     }
 
     public static boolean isCPLConformed(
             PayloadRecord cplPayloadRecord,
             List<PayloadRecord> essencesHeaderPartition){
+        boolean result = true;
 
+        return result;
     }
 
     public static boolean isCPLMergeable(List<PayloadRecord> cplPayloadRecords){
+        boolean result = true;
 
+        return result;
     }
 }
