@@ -94,7 +94,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
 
             if (this.instance_uid == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NOT_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         JPEG2000PictureSubDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
         }

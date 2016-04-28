@@ -54,6 +54,26 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     }
 
     /**
+     * A method to add an error object to a persistent list
+     *
+     * @param errorObject - error object to be added to a persistent list
+     */
+    public void addError(ErrorObject errorObject)
+    {
+        this.errorObjects.add(errorObject);
+    }
+
+    /**
+     * A method to add an error object to a persistent list
+     *
+     * @param errorObjects - a list of error objects to be added to a persistent list
+     */
+    public void addAllErrors(List<ErrorObject> errorObjects)
+    {
+        this.errorObjects.addAll(errorObjects);
+    }
+
+    /**
      * Getter for the number of errors that were detected while reading the MXF file
      * @return integer representing the number of errors
      */
