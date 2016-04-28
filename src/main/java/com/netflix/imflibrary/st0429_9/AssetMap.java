@@ -78,69 +78,9 @@ public final class AssetMap
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException {
-
-        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
-
-        AssetMap.validateAssetMapSchema(assetMapXmlFile);
-
-        try(InputStream input = new FileInputStream(assetMapXmlFile);
-            InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
-        )
-        {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
-            StreamSource schemaSource = new StreamSource(assetMap_schema_is);
-            Schema schema = schemaFactory.newSchema(schemaSource);
-
-            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_9_2007.AM");
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            unmarshaller.setEventHandler(validationEventHandlerImpl);
-            unmarshaller.setSchema(schema);
-
-            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(input);
-            if(validationEventHandlerImpl.hasErrors())
-            {
-                throw new IMFException(validationEventHandlerImpl.toString());
-            }
-
-            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
-        }
-
-        UUID uuid = null;
-        try
-        {
-            uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
-        }
-        catch(IMFException e)
-        {
-            if (imfErrorLogger != null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        e.getMessage());
-            }
-            else
-            {
-                throw e;
-            }
-        }
-        this.uuid = uuid;
-
-        for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
-        {
-            Asset asset = new Asset(assetType);
-            this.assetList.add(asset);
-            this.uuidToPath.put(asset.getUUID(), asset.getPath());
-            if ((assetType.isPackingList() != null) && (assetType.isPackingList()))
-            {
-                this.packingListAssets.add(asset);
-            }
-        }
-
-        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
-        {
-            throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
-        }
+    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    {
+        this(getFileAsResourceByteRangeProvider(assetMapXmlFile), imfErrorLogger);
     }
 
     /**
@@ -215,6 +155,11 @@ public final class AssetMap
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
+    }
+
+    private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
+    {
+        return new FileByteRangeProvider(file);
     }
 
     static AssetMapType checkConformance(AssetMapType assetMapType, @Nullable IMFErrorLogger imfErrorLogger)
