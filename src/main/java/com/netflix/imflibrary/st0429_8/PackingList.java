@@ -74,6 +74,7 @@ public final class PackingList
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
      * @param packingListXMLFile the input XML file
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
@@ -124,11 +125,12 @@ public final class PackingList
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
      * @param resourceByteRangeProvider corresponding to the PackingList XML file
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger)throws IOException, SAXException, JAXBException {
+    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)throws IOException, SAXException, JAXBException {
 
         validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
 
@@ -293,12 +295,12 @@ public final class PackingList
     }
 
 
-    private void validatePackingListSchema(File xmlFile, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    private void validatePackingListSchema(File xmlFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
         validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
     }
 
-    private void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    private void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);

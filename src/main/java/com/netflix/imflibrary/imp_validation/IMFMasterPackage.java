@@ -140,8 +140,9 @@ public final class IMFMasterPackage {
         }
 
         //Validate the CompositionPlaylists
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
-            CompositionPlaylist.validate(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+            new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
         }
         return result;
     }
