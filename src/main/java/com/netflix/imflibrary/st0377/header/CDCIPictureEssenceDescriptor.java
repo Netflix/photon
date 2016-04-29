@@ -86,7 +86,7 @@ public final class CDCIPictureEssenceDescriptor extends GenericPictureEssenceDes
 
             if (this.instance_uid == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NOT_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         CDCIPictureEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
         }

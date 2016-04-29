@@ -50,6 +50,7 @@ public final class IMPDelivery
 
     private final AssetMap assetMap;
     private final List<InteroperableMasterPackage> interoperableMasterPackages = new ArrayList<>();
+    private final IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
     /**
      * Constructor for an IMPDelivery object for deliveries that are based on Basic Map Profile v2 (Annex A st0429-9:2014)
@@ -67,7 +68,7 @@ public final class IMPDelivery
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
             URI resolvedPackingListURI = basicMapProfilev2FileSet.getAssetMapURI().resolve(packingListAsset.getPath());
-            PackingList packingList = new PackingList(new File(resolvedPackingListURI));
+            PackingList packingList = new PackingList(new File(resolvedPackingListURI), this.imfErrorLogger);
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())

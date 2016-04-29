@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -31,8 +32,11 @@ import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
@@ -72,13 +76,13 @@ public final class AssetMap
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
      * @param assetMapXmlFile the input XML file
-     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    public AssetMap(File assetMapXmlFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
         this(getFileAsResourceByteRangeProvider(assetMapXmlFile), imfErrorLogger);
     }
@@ -86,17 +90,17 @@ public final class AssetMap
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
      * @param resourceByteRangeProvider that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
-     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(ResourceByteRangeProvider resourceByteRangeProvider, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    public AssetMap(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
 
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
-        AssetMap.validateAssetMapSchema(resourceByteRangeProvider);
+        validateAssetMapSchema(resourceByteRangeProvider, imfErrorLogger);
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);)
@@ -114,6 +118,10 @@ public final class AssetMap
             JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
             if(validationEventHandlerImpl.hasErrors())
             {
+                List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
+                for(ValidationEventHandlerImpl.ValidationErrorObject error : errors){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                }
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
 
@@ -127,15 +135,10 @@ public final class AssetMap
         }
         catch(IMFException e)
         {
-            if (imfErrorLogger != null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        e.getMessage());
-            }
-            else
-            {
-                throw e;
-            }
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    e.getMessage());
+
+            throw e;
         }
         this.uuid = uuid;
 
@@ -150,7 +153,7 @@ public final class AssetMap
             }
         }
 
-        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        if (imfErrorLogger.getNumberOfErrors() > numErrors)
         {
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
@@ -348,12 +351,7 @@ public final class AssetMap
 
     }
 
-    private static void validateAssetMapSchema(File xmlFile) throws IOException, SAXException {
-        ResourceByteRangeProvider assetMapByteRangeProvider = new FileByteRangeProvider(xmlFile);
-        validateAssetMapSchema(assetMapByteRangeProvider);
-    }
-
-    private static void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, SAXException {
+    private void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
         InputStream assetMap_is = null;
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
@@ -368,6 +366,22 @@ public final class AssetMap
             Schema schema = schemaFactory.newSchema(streamSources);
 
             Validator validator = schema.newValidator();
+            validator.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage()));
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage()));
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage()));
+                }
+            });
             validator.validate(inputSource);
         }
         finally
@@ -382,8 +396,6 @@ public final class AssetMap
     public static void main(String args[]) throws IOException, URISyntaxException, SAXException, JAXBException
     {
         File inputFile = new File(args[0]);
-
-        AssetMap.validateAssetMapSchema(inputFile);
 
         AssetMap assetMap = new AssetMap(inputFile, new IMFErrorLoggerImpl());
         logger.warn(assetMap.toString());

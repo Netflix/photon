@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet;
 import com.netflix.imflibrary.st0429_9.MappedFileSet;
 import org.testng.Assert;
@@ -15,7 +16,7 @@ public class IMPDeliveryTest
     public void testIMPDelivery() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set");
-        MappedFileSet mappedFileSet = new MappedFileSet(inputFile, null);
+        MappedFileSet mappedFileSet = new MappedFileSet(inputFile, new IMFErrorLoggerImpl());
         BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(mappedFileSet, null);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfilev2FileSet);
         Assert.assertTrue(impDelivery.toString().length() > 0);

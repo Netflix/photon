@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -83,14 +84,14 @@ public final class CompositionPlaylist
     /**
      * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
-     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public CompositionPlaylist(File compositionPlaylistXMLFile, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
-        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+    public CompositionPlaylist(File compositionPlaylistXMLFile, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
+        int numErrors = imfErrorLogger.getNumberOfErrors();
 
         CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
 
@@ -141,15 +142,15 @@ public final class CompositionPlaylist
     /**
      * Constructor for a {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist CompositionPlaylist} object from a XML file
      * @param resourceByteRangeProvider corresponding to the CompositionPlaylist XML file.
-     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public CompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider, @Nullable IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
+    public CompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
 
-        int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
+        int numErrors = imfErrorLogger.getNumberOfErrors();
 
         CompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider);
 
@@ -195,12 +196,6 @@ public final class CompositionPlaylist
         {
             throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
-    }
-
-    public static void validate(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException, JAXBException {
-
-        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
-        compositionPlaylist.checkVirtualTracks(compositionPlaylist.compositionPlaylistType, imfErrorLogger);
     }
 
     /**
@@ -365,6 +360,15 @@ public final class CompositionPlaylist
                     checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
+                    if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence){
+                        EditRate compositionEditRate = new EditRate(this.compositionPlaylistType.getEditRate());
+                        for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
+                            EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
+                            if(!trackResourceEditRate.equals(compositionEditRate)){
+                                throw new IMFException(String.format("This CompositionPlaylist is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", this.editRate.toString(), trackResourceEditRate.toString()));
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -559,8 +563,8 @@ public final class CompositionPlaylist
     @Immutable
     public static final class EditRate
     {
-        private final long numerator;
-        private final long denominator;
+        private final Long numerator;
+        private final Long denominator;
 
         /**
          * Constructor for the rational frame rate number.
@@ -583,7 +587,7 @@ public final class CompositionPlaylist
          * Getter for the frame rate numerator
          * @return a long value corresponding to the frame rate numerator
          */
-        public long getNumerator()
+        public Long getNumerator()
         {
             return this.numerator;
         }
@@ -592,7 +596,7 @@ public final class CompositionPlaylist
          * Getter for the frame rate denominator
          * @return a long value corresponding to the frame rate denominator
          */
-        public long getDenominator()
+        public Long getDenominator()
         {
             return this.denominator;
         }
@@ -608,6 +612,34 @@ public final class CompositionPlaylist
             sb.append("=================== EditRate =====================\n");
             sb.append(String.format("numerator = %d, denominator = %d%n", this.numerator, this.denominator));
             return sb.toString();
+        }
+
+        /**
+         * Overridden equals method.
+         * @param object the EditRate to be compared with.
+         * @return boolean false if the object is null or is not an instance of the EditRate class.
+         */
+        @Override
+        public boolean equals(Object object){
+            if(object == null
+                    || !(object instanceof EditRate)){
+                return false;
+            }
+            EditRate other = (EditRate) object;
+            return ((this.getNumerator().equals(other.getNumerator())) && (this.getDenominator().equals(other.getDenominator())));
+        }
+
+        /**
+         * A Java compliant implementation of the hashCode() method
+         * @return integer containing the hash code corresponding to this object
+         */
+        @Override
+        public int hashCode(){
+            int hash = 1;
+            hash = hash * 31 + this.numerator.hashCode(); /*Numerator can be used since it is non-null*/
+            hash = hash * 31
+                    + this.denominator.hashCode();/*Another field that is indicated to be non-null*/
+            return hash;
         }
     }
 

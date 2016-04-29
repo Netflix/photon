@@ -45,6 +45,7 @@ public final class IMFMasterPackage {
     private static final String compositionPlaylistFileNamePattern = "i)CPL";
     private static final String xmlExtension = "(.*)(\\.)((X|x)(M|m)(L|l))";
     private static final Logger logger = LoggerFactory.getLogger(IMFMasterPackage.class);
+    private final IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
 
     /**
@@ -85,15 +86,14 @@ public final class IMFMasterPackage {
             throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
         }
 
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), imfErrorLogger);
+        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), this.imfErrorLogger);
 
         if(packingLists.size() != 1
                 || assetMap.getPackingListAssets().size() != 1){
             throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingLists.size(), assetMap.getPackingListAssets().size()));
         }
-        PackingList packingList = new PackingList(this.packingLists.get(0));
+        PackingList packingList = new PackingList(this.packingLists.get(0), this.imfErrorLogger);
 
         /*PKL validation*/
         if(packingList.getAssets().size() != this.numberOfAssets){
@@ -140,8 +140,9 @@ public final class IMFMasterPackage {
         }
 
         //Validate the CompositionPlaylists
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
-            CompositionPlaylist.validate(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+            new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
         }
         return result;
     }
@@ -168,7 +169,7 @@ public final class IMFMasterPackage {
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
-        PackingList packingList = new PackingList(this.packingLists.get(0));
+        PackingList packingList = new PackingList(this.packingLists.get(0), this.imfErrorLogger);
         return packingList;
     }
 

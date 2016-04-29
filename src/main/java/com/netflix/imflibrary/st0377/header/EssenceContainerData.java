@@ -135,13 +135,13 @@ public final class EssenceContainerData extends InterchangeObject
 
             if (this.instance_uid == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NOT_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         EssenceContainerData.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
 
             if (this.linked_package_uid == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NOT_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         EssenceContainerData.ERROR_DESCRIPTION_PREFIX + "linked_package_uid is null");
             }
 

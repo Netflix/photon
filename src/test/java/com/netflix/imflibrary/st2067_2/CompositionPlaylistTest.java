@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -14,11 +15,11 @@ public class CompositionPlaylistTest
     public void testCompositionPlaylist() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
-        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, null);
+        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, new IMFErrorLoggerImpl());
         Assert.assertTrue(CompositionPlaylist.isCompositionPlaylist(inputFile));
         Assert.assertTrue(compositionPlaylist.toString().length() > 0);
-        Assert.assertEquals(compositionPlaylist.getEditRate().getNumerator(), 24);
-        Assert.assertEquals(compositionPlaylist.getEditRate().getDenominator(), 1);
+        Assert.assertEquals(compositionPlaylist.getEditRate().getNumerator().longValue(), 24);
+        Assert.assertEquals(compositionPlaylist.getEditRate().getDenominator().longValue(), 1);
         Assert.assertEquals(compositionPlaylist.getUUID(), UUID.fromString("682feecb-7516-4d93-b533-f40d4ce60539"));
 
         UUID uuid = UUID.fromString("586286d2-c45f-4b2f-ad76-58eecd0202b4");
