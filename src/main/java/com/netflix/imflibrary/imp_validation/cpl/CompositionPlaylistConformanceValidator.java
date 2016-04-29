@@ -1,20 +1,44 @@
 package com.netflix.imflibrary.imp_validation.cpl;
 
+import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFOperationalPattern1A;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.reader_interfaces.MXFEssenceReader;
 import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.PrimerPack;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
+import com.sandflow.smpte.klv.Triplet;
 import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -102,7 +126,7 @@ public class CompositionPlaylistConformanceValidator {
      * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
      * resources referenced by the CompositionPlaylist.
      * @param compositionPlaylist corresponding to the CompositionPlaylist payload
-     * @param headerPartitions list of HeaderPartitions corresponding to the IMF essences referenced in the CompositionPlaylist
+     * @param headerPartitionTuples list of HeaderPartitionTuples corresponding to the IMF essences referenced in the CompositionPlaylist
      * @return boolean to indicate of the CompositionPlaylist is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
@@ -110,7 +134,7 @@ public class CompositionPlaylistConformanceValidator {
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean isCompositionPlaylistConformed(CompositionPlaylist compositionPlaylist, List<HeaderPartition> headerPartitions) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
+    public boolean isCompositionPlaylistConformed(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         boolean result = true;
         /*
          * The algorithm for conformance checking a CompositionPlaylist (CPL) would be
@@ -126,7 +150,7 @@ public class CompositionPlaylistConformanceValidator {
             throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
         }
         /*The following check verifies 3) from above.*/
-        result = compareEssenceDescriptors(getCPLEssenceDescriptorListMap(compositionPlaylist), getResourcesEssenceDescriptorMap(compositionPlaylist, headerPartitions));
+        result = compareEssenceDescriptors(getCPLEssenceDescriptorListMap(compositionPlaylist), getResourcesEssenceDescriptorMap(compositionPlaylist, headerPartitionTuples));
         return result;
     }
 
@@ -169,12 +193,99 @@ public class CompositionPlaylistConformanceValidator {
         return resourceSourceEncodingElementsSet;
     }
 
-    private Map<UUID, List<Node>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<HeaderPartition> headerPartitions){
+    private Map<UUID, List<Node>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
         Map<UUID, List<Node>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
 
+        /*Create a Map of FilePackage UUID which should be equal to the TrackId of the resource in the CompositionPlaylist if the asset is referenced and the HeaderPartitionTuple, Map<UUID, HeaderPartitionTuple>*/
+        Map<UUID, IMPValidator.HeaderPartitionTuple> resourceUUIDHeaderPartitionMap = new HashMap<>();
+        for(IMPValidator.HeaderPartitionTuple headerPartitionTuple : headerPartitionTuples) {
+            //validate header partition
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartitionTuple.getHeaderPartition());
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
+        }
+        List<CompositionPlaylist.VirtualTrack> virtualTracks = new ArrayList<>(compositionPlaylist.getVirtualTrackMap().values());
+
+        /*Go through all the Virtual Tracks in the CompositionPlaylist and construct a map of Resource Source Encoding Element and a list of DOM nodes representing every EssenceDescriptor in the HeaderPartition corresponding to that Resource*/
+        for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
+            List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);/*Retrieve a list of ResourceIDTuples corresponding to this virtual track*/
+            for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
+                IMPValidator.HeaderPartitionTuple headerPartitionTuple = resourceUUIDHeaderPartitionMap.get(resourceIdTuple.getTrackFileId());
+                if(headerPartitionTuple != null){
+                    /*Create a DOM Node representation of the header partition*/
+                    List<Node> nodes = getEssenceDescriptorDOMNodes(headerPartitionTuple);
+                    resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), nodes);
+                }
+            }
+        }
+        if(resourcesEssenceDescriptorMap.entrySet().size() == 0){
+            throw new MXFException(String.format("CompositionPlaylist does not refer to a single IMFEssence represented by the HeaderPartitions that were passed in."));
+        }
         return resourcesEssenceDescriptorMap;
     }
 
+    private List<Node> getEssenceDescriptorDOMNodes(IMPValidator.HeaderPartitionTuple headerPartitionTuple) throws IOException {
+        try {
+            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartitionTuple.getHeaderPartition().getEssenceDescriptors();
+            List<Node> essenceDescriptorNodes = new ArrayList<>();
+            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
+                KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
+                List<KLVPacket.Header> subDescriptorHeaders = this.getSubDescriptorKLVHeader(headerPartitionTuple.getHeaderPartition(), essenceDescriptor);
+                /*Create a dom*/
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                Document document = docBuilder.newDocument();
+
+                DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, headerPartitionTuple, essenceDescriptorHeader, subDescriptorHeaders);
+                Node node = documentFragment.getFirstChild();
+                essenceDescriptorNodes.add(node);
+            }
+            return essenceDescriptorNodes;
+        }
+        catch(ParserConfigurationException e){
+            throw new IMFException(e);
+        }
+    }
+
+    private List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
+        List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
+        for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
+            if (subDescriptorBO != null) {
+                subDescriptorHeaders.add(subDescriptorBO.getHeader());
+            }
+        }
+        return Collections.unmodifiableList(subDescriptorHeaders);
+    }
+
+    private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, IMPValidator.HeaderPartitionTuple headerPartitionTuple, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException {
+        document.setXmlStandalone(true);
+
+        PrimerPack primerPack = headerPartitionTuple.getHeaderPartition().getPrimerPack();
+        ResourceByteRangeProvider resourceByteRangeProvider = headerPartitionTuple.getResourceByteRangeProvider();
+
+
+        RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(primerPack.getHeader(), getByteProvider(resourceByteRangeProvider, primerPack.getHeader()));
+
+        Triplet essenceDescriptorTriplet = regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, getByteProvider(resourceByteRangeProvider, essenceDescriptor));
+        //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
+        /*Get the Triplets corresponding to the SubDescriptors*/
+        List<Triplet> subDescriptorTriplets = new ArrayList<>();
+        for(KLVPacket.Header subDescriptorHeader : subDescriptors){
+            subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider, subDescriptorHeader)));
+        }
+        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+    }
+
+    private ByteProvider getByteProvider(ResourceByteRangeProvider resourceByteRangeProvider, KLVPacket.Header header) throws IOException {
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize());
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+        return byteProvider;
+    }
 
     private boolean compareEssenceDescriptors(Map<UUID, List<Node>> essenceDescriptorMap, Map<UUID, List<Node>> eDLMap){
 
