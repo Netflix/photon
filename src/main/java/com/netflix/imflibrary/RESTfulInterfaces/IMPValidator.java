@@ -27,7 +27,7 @@ import java.util.List;
 public class IMPValidator {
 
 
-    public static List<ErrorLogger.ErrorObject> validatePKL(PayloadRecord pkl){
+    public static List<ErrorLogger.ErrorObject> validatePKL(PayloadRecord pkl) throws IOException {
 
         if(pkl.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", pkl.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
@@ -36,13 +36,14 @@ public class IMPValidator {
         try{
             new PackingList(new ByteArrayByteRangeProvider(pkl.getPayload()), imfErrorLogger);
         }
-        catch(Exception e){
+        catch (SAXException | JAXBException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }
         return imfErrorLogger.getErrors();
     }
 
-    public static List<ErrorLogger.ErrorObject> validateAssetMap(PayloadRecord assetMap){
+    public static List<ErrorLogger.ErrorObject> validateAssetMap(PayloadRecord assetMap) throws IOException {
         if(assetMap.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
         }
@@ -50,7 +51,8 @@ public class IMPValidator {
         try{
             new AssetMap(new ByteArrayByteRangeProvider(assetMap.getPayload()), imfErrorLogger);
         }
-        catch(Exception e){
+        catch (SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }
         return imfErrorLogger.getErrors();
@@ -62,7 +64,7 @@ public class IMPValidator {
         return errors;
     }
 
-    public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) {
+    public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) throws IOException{
         if(cpl.getPayloadAssetType() != PayloadRecord.PayloadAssetType.CompositionPlaylist){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", cpl.getPayloadAssetType(), PayloadRecord.PayloadAssetType.CompositionPlaylist.toString()));
         }
@@ -70,7 +72,8 @@ public class IMPValidator {
         try{
             new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
         }
-        catch(Exception e){
+        catch(SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }
         return imfErrorLogger.getErrors();
