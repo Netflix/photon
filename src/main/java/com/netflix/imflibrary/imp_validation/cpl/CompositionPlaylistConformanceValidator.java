@@ -34,7 +34,8 @@ public class CompositionPlaylistConformanceValidator {
 
     /**
      * This method can be used to determine if a CompositionPlaylist is conformant. Conformance checks
-     * perform deeper inspection of the CompositionPlaylist.
+     * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
+     * resources referenced by the CompositionPlaylist.
      * @param compositionPlaylistRecord corresponding to the CompositionPlaylist
      * @return boolean to indicate of the CompositionPlaylist is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
@@ -96,6 +97,39 @@ public class CompositionPlaylistConformanceValidator {
         return compareEssenceDescriptors(essenceDescriptorMap, eDLMap);
     }
 
+    /**
+     * This method can be used to determine if a CompositionPlaylist is conformant. Conformance checks
+     * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
+     * resources referenced by the CompositionPlaylist.
+     * @param compositionPlaylist corresponding to the CompositionPlaylist payload
+     * @param headerPartitions list of HeaderPartitions corresponding to the IMF essences referenced in the CompositionPlaylist
+     * @return boolean to indicate of the CompositionPlaylist is conformant or not
+     * @throws IOException - any I/O related error is exposed through an IOException.
+     * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public boolean isCompositionPlaylistConformed(CompositionPlaylist compositionPlaylist, List<HeaderPartition> headerPartitions) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
+        boolean result = true;
+        /*
+         * The algorithm for conformance checking a CompositionPlaylist (CPL) would be
+         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list is referenced through its id element
+         * by at least one TrackFileResource within the Virtual tracks in the CompositionPlaylist (see section 6.1.10 of SMPTE st2067-3:2-13).
+         * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
+         * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the CompositionPlaylist are present in
+         * the physical essence files referenced by the resources of a virtual track and are equal.
+         */
+        /*The following check simultaneously verifies 1) and 2) from above.*/
+        if(!getEssenceDescriptorIdsSet(compositionPlaylist).equals(getResourceEssenceDescriptorIdsSet(compositionPlaylist))){
+            result = false;
+            throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
+        }
+        /*The following check verifies 3) from above.*/
+        result = compareEssenceDescriptors(getCPLEssenceDescriptorListMap(compositionPlaylist), getResourcesEssenceDescriptorMap(compositionPlaylist, headerPartitions));
+        return result;
+    }
+
     private Set<UUID> getEssenceDescriptorIdsSet (CompositionPlaylist compositionPlaylist) {
         HashSet<UUID> essenceDescriptorIdsSet = new LinkedHashSet<>();
         List<EssenceDescriptorBaseType> essenceDescriptorList = compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor();
@@ -135,9 +169,9 @@ public class CompositionPlaylistConformanceValidator {
         return resourceSourceEncodingElementsSet;
     }
 
-    private Map<UUID, List<Node>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<HeaderPartition> resourcesHeaderPartitionList){
+    private Map<UUID, List<Node>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<HeaderPartition> headerPartitions){
         Map<UUID, List<Node>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
-        
+
         return resourcesEssenceDescriptorMap;
     }
 
