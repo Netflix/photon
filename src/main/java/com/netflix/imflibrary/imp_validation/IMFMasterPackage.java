@@ -51,9 +51,6 @@ public final class IMFMasterPackage {
      * A constructor that models an IMF Master Package as an object.
      * @param resourceByteRangeProviders - list of ResourceByteRangeProvider objects corresponding to the files that are a part of the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
-     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public IMFMasterPackage(List<ResourceByteRangeProvider> resourceByteRangeProviders, IMFErrorLogger imfErrorLogger) throws IOException{
         this.imfErrorLogger = imfErrorLogger;

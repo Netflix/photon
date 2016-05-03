@@ -50,7 +50,7 @@ public interface ResourceByteRangeProvider
      * @param rangeStart zero indexed inclusive start offset; ranges from 0 through (resourceSize -1) both included
      * @param rangeEnd zero indexed inclusive end offset; ranges from 0 through (resourceSize -1) both included
      * @return byte array containing desired byte range
-     * @throws IOException
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     byte[] getByteRangeAsBytes(long rangeStart, long rangeEnd) throws IOException;
 
@@ -60,7 +60,7 @@ public interface ResourceByteRangeProvider
      * @param rangeStart zero indexed inclusive start offset; ranges from 0 through (resourceSize -1) both included
      * @param rangeEnd zero indexed inclusive end offset; ranges from 0 through (resourceSize -1) both included
      * @return inputStream corresponding to the desired byte range
-     * @throws IOException
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     InputStream getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException;
 
