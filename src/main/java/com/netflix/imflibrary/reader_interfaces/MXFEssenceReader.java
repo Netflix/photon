@@ -182,6 +182,7 @@ public class MXFEssenceReader {
     /**
      * A method that returns the spoken language within this essence provided it is an Audio Essence
      * @return string representing a spoken language as defined in RFC-5646
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public String getAudioEssenceSpokenLanguage() throws IOException {
         String rfc5646SpokenLanguage = "";

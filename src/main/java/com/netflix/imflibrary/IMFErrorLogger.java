@@ -99,7 +99,12 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The IMF_CORE_CONSTRAINTS_ERROR.
              */
-            IMF_CORE_CONSTRAINTS_ERROR("IMF Core Constraints Error");
+            IMF_CORE_CONSTRAINTS_ERROR("IMF Core Constraints Error"),
+
+            /**
+             * The IMF_MASTER_PACKAGE_ERROR.
+             */
+            IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error");
 
             private final String error;
 
