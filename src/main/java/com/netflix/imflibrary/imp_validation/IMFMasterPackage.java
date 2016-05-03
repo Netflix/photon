@@ -169,10 +169,13 @@ public final class IMFMasterPackage {
         }
 
         /* Check if all the assets in the AssetMap that are supposed to be PKLs have the same UUIDs as the PKLs themselves */
-        Set<AssetMap.Asset> packingListAssetsSet = new HashSet<>(assetMap.getPackingListAssets());
+        Set<UUID> packingListAssetsUUIDsSet = new HashSet<>();
+        for(AssetMap.Asset asset : assetMap.getPackingListAssets()){
+            packingListAssetsUUIDsSet.add(asset.getUUID());
+        }
         StringBuilder unreferencedPKLUUIDs = new StringBuilder();
         for(PackingList packingList : packingLists) {
-            if (!packingListAssetsSet.contains(packingList.getUUID())) {
+            if (!packingListAssetsUUIDsSet.contains(packingList.getUUID())) {
                 unreferencedPKLUUIDs.append(packingList.getUUID());
             }
         }
