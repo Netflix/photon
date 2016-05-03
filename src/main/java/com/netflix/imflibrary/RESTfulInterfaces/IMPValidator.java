@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
 import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistConformanceValidator;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -61,10 +62,21 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord pkl, PayloadRecord cpl){
-        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
-
-        return errors;
+    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMap, List<PayloadRecord> pkls) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<ResourceByteRangeProvider> resourceByteRangeProviders = new ArrayList<>();
+        if(assetMap.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
+        }
+        resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(assetMap.getPayload()));
+        for(PayloadRecord payloadRecord : pkls){
+            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
+            }
+            resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
+        }
+        new IMFMasterPackage(resourceByteRangeProviders, imfErrorLogger);
+        return imfErrorLogger.getErrors();
     }
 
     public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) throws IOException{

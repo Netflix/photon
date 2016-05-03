@@ -7,7 +7,6 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
@@ -16,19 +15,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -36,7 +35,7 @@ import java.util.UUID;
  */
 public final class IMFMasterPackage {
 
-    private final List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
+    private final List<ResourceByteRangeProvider> packingListsResourceByteRangeProviders = new ArrayList<>();
     private final List<ResourceByteRangeProvider> assetMaps = new ArrayList<>();
     private final List<ResourceByteRangeProvider> compositionPlaylists = new ArrayList<>();
     private final Integer numberOfAssets;
@@ -45,7 +44,7 @@ public final class IMFMasterPackage {
     private static final String compositionPlaylistFileNamePattern = "i)CPL";
     private static final String xmlExtension = "(.*)(\\.)((X|x)(M|m)(L|l))";
     private static final Logger logger = LoggerFactory.getLogger(IMFMasterPackage.class);
-    private final IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    private final IMFErrorLogger imfErrorLogger;
 
 
     /**
@@ -56,72 +55,93 @@ public final class IMFMasterPackage {
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public IMFMasterPackage(List<ResourceByteRangeProvider> resourceByteRangeProviders) throws IOException, SAXException, JAXBException, URISyntaxException{
+    public IMFMasterPackage(List<ResourceByteRangeProvider> resourceByteRangeProviders, IMFErrorLogger imfErrorLogger) throws IOException{
+        this.imfErrorLogger = imfErrorLogger;
         this.numberOfAssets = resourceByteRangeProviders.size();
         for(ResourceByteRangeProvider resourceByteRangeProvider : resourceByteRangeProviders){
             if (isFileOfSupportedSchema(resourceByteRangeProvider, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
                 assetMaps.add(resourceByteRangeProvider);
             } else if (isFileOfSupportedSchema(resourceByteRangeProvider, PackingList.supportedPKLSchemaURIs, "PackingList")) {
-                packingLists.add(resourceByteRangeProvider);
+                packingListsResourceByteRangeProviders.add(resourceByteRangeProvider);
             } else if (isFileOfSupportedSchema(resourceByteRangeProvider, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
                 compositionPlaylists.add(resourceByteRangeProvider);
             }
         }
-        this.validate();
+        this.validateIMP(this.imfErrorLogger);
+    }
+
+    private boolean validateIMP(IMFErrorLogger imfErrorLogger) throws IOException {
+        return  (this.validateAssetMapAndPKLs(imfErrorLogger) && this.validateCPLs(imfErrorLogger));
     }
 
     /**
      * A template method that performs structural validation of an IMP delivery, implying the AssetMap and PackingList are
      * inspected.
-     * @return boolean result of IMP validation
+     * @param imfErrorLogger an object that collects the errors observed during validation
+     * @return boolean result of AssetMap and PKL validation
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
-     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    private boolean validate() throws IOException, SAXException, JAXBException, URISyntaxException {
-        boolean result = true;
+    private boolean validateAssetMapAndPKLs(IMFErrorLogger imfErrorLogger) throws IOException {
 
         if(assetMaps.size() > 1){
-            throw new IMFException(String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
         }
 
-
-        AssetMap assetMap = new AssetMap(this.assetMaps.get(0), this.imfErrorLogger);
-
-        if(packingLists.size() != 1
-                || assetMap.getPackingListAssets().size() != 1){
-            throw new IMFException(String.format("Exactly one PackingList is expected, %d were detected however AssetMap references %d packing lists in the IMP", packingLists.size(), assetMap.getPackingListAssets().size()));
+        AssetMap assetMap = null;
+        try {
+            assetMap = new AssetMap(this.assetMaps.get(0), this.imfErrorLogger);
         }
-        PackingList packingList = new PackingList(this.packingLists.get(0), this.imfErrorLogger);
-
-        /*PKL validation*/
-        if(packingList.getAssets().size() != this.numberOfAssets){
-            throw new IMFException(String.format("Packing list references %d assets, however %d assets were present in the IMP delivery.", packingList.getAssets().size(), this.numberOfAssets));
+        catch (SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The AssetMap delivered in this package is invalid. Error %s ocurred while trying to read and parse an AssetMap document", e.getMessage()));
+            return false;
         }
 
-        if(assetMap.getAssetList().size() != packingList.getAssets().size()){
-            throw new IMFException(String.format("Every asset referenced in the PackingList should have an entry in the AssetMap, this does not seem to be the case since PKL has %d assets and AssetMap has %d assets", packingList.getAssets().size(), assetMap.getAssetList().size()));
+        if(packingListsResourceByteRangeProviders.size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingListsResourceByteRangeProviders.size()));
+            return false;
         }
 
-        List<UUID> assetUUIDsAssetMap = new ArrayList<>();
-        assetUUIDsAssetMap.add(assetMap.getUUID());//Add the AssetMap's UUID to the list since that should be present in the PKL's asset list
+        if(assetMap.getPackingListAssets().size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Asset map should reference atleast one PackingList, %d references found", assetMap.getPackingListAssets().size()));
+            return false;
+        }
+
+        List<PackingList> packingLists = new ArrayList<>();
+        try {
+            for (ResourceByteRangeProvider resourceByteRangeProvider : packingListsResourceByteRangeProviders) {
+                packingLists.add(new PackingList(this.packingListsResourceByteRangeProviders.get(0), this.imfErrorLogger));
+            }
+        }
+        catch (SAXException | JAXBException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one of the PKLs delivered in this package is invalid. Error %s ocurred while trying to read and parse a PKL document", e.getMessage()));
+            return false;
+        }
+
+        List<UUID> assetUUIDsAssetMapList = new ArrayList<>();
+        assetUUIDsAssetMapList.add(assetMap.getUUID());//Add the AssetMap's UUID to the list since that should be present in the PKL's asset list
         for(AssetMap.Asset asset : assetMap.getAssetList()){
-            assetUUIDsAssetMap.add(asset.getUUID());
+            assetUUIDsAssetMapList.add(asset.getUUID());
         }
+
+/*
         //Sort the UUIDs in the AssetMap
-        assetUUIDsAssetMap.sort(new Comparator<UUID>() {
+        assetUUIDsAssetMapList.sort(new Comparator<UUID>() {
                                     @Override
                                     public int compare(UUID o1, UUID o2) {
                                         return o1.compareTo(o2);
                                     }
                                 });
+*/
 
+        /* Collect all the assets in all of the PKLs that are a part of this IMP delivery */
         List<UUID> assetUUIDsPackingList = new ArrayList<>();
-        for(PackingList.Asset asset : packingList.getAssets()){
-            assetUUIDsPackingList.add(asset.getUUID());
+        for(PackingList packingList : packingLists) {
+            for (PackingList.Asset asset : packingList.getAssets()) {
+                assetUUIDsPackingList.add(asset.getUUID());
+            }
         }
 
+/*
         //Sort the UUIDs in the PackingList
         assetUUIDsPackingList.sort(new Comparator<UUID>() {
             @Override
@@ -129,26 +149,62 @@ public final class IMFMasterPackage {
                 return o1.compareTo(o2);
             }
         });
+*/
 
-        if(assetUUIDsAssetMap != assetUUIDsPackingList){
-            throw new IMFException(String.format("Asset/s in AssetMap and PackingList have different UUIDs, this is invalid per IMF requirements"));
+        /* Check to see if all the Assets referenced in the PKL are also referenced by the Asset Map */
+        Set<UUID> assetUUIDsAssetMapSet = new HashSet<>(assetUUIDsAssetMapList);
+        Set<UUID> assetUUIDsPKLSet = new HashSet<>(assetUUIDsPackingList);
+
+        StringBuilder unreferencedPKLAssetsUUIDs = new StringBuilder();
+        for(UUID uuid : assetUUIDsPKLSet){
+            if(!assetUUIDsAssetMapSet.contains(uuid)) {
+                unreferencedPKLAssetsUUIDs.append(uuid.toString());
+                unreferencedPKLAssetsUUIDs.append(" ");
+            }
         }
 
-        List<AssetMap.Asset>packingListAssets = assetMap.getPackingListAssets();
-        if(!packingListAssets.get(0).getUUID().equals(packingList.getUUID())){
-            throw new IMFException(String.format("Packing list UUID %s is different from what is referenced in the AssetMap %s", UUIDHelper.fromUUIDAsURNStringToUUID(packingList.getUUID().toString()), UUIDHelper.fromUUIDAsURNStringToUUID(packingListAssets.get(0).getUUID().toString())));
+        if(!unreferencedPKLAssetsUUIDs.toString().isEmpty()){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following UUID/s %s in the Packing list are not referenced by the AssetMap.", unreferencedPKLAssetsUUIDs.toString()));
+            return false;
         }
 
-        //Validate the CompositionPlaylists
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
-            new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
+        /* Check if all the assets in the AssetMap that are supposed to be PKLs have the same UUIDs as the PKLs themselves */
+        Set<AssetMap.Asset> packingListAssetsSet = new HashSet<>(assetMap.getPackingListAssets());
+        StringBuilder unreferencedPKLUUIDs = new StringBuilder();
+        for(PackingList packingList : packingLists) {
+            if (!packingListAssetsSet.contains(packingList.getUUID())) {
+                unreferencedPKLUUIDs.append(packingList.getUUID());
+            }
         }
-        return result;
+        if(!unreferencedPKLUUIDs.toString().isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following Packing lists %s are not referenced in the AssetMap", unreferencedPKLUUIDs.toString()));
+            return false;
+        }
+        return true;
     }
 
     /**
-     * A getter for the AssetMap object model corresponding to the AssetMap file in the IMF Master Package
+     * A template method that performs structural validation of CPLs contained within an IMP delivery.
+     * @param imfErrorLogger an object that collects the errors observed during validation
+     * @return boolean result of CPL validation
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    private boolean validateCPLs(IMFErrorLogger imfErrorLogger) throws IOException {
+        //Validate the CompositionPlaylists
+        for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
+            try {
+                new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger);
+            }
+            catch (SAXException | JAXBException | URISyntaxException e){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one of the CPLs delivered in this package is invalid"));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * A getter for the AssetMap object model corresponding to the AssetMap document in the IMF Master Package
      * @return the object model corresponding to the AssetMap document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -161,20 +217,23 @@ public final class IMFMasterPackage {
     }
 
     /**
-     * A getter for the PackingList object model corresponding to the PackingList file in the IMF Master Package
+     * A getter for the PackingList object model corresponding to the PackingList documents in the IMF Master Package
      * @return the object model corresponding to the PackingList document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public PackingList getPackingList() throws IOException, SAXException, JAXBException, URISyntaxException{
-        PackingList packingList = new PackingList(this.packingLists.get(0), this.imfErrorLogger);
-        return packingList;
+    public List<PackingList> getPackingLists() throws IOException, SAXException, JAXBException, URISyntaxException{
+        List<PackingList> packingLists = new ArrayList<>();
+        for(ResourceByteRangeProvider resourceByteRangeProvider : this.packingListsResourceByteRangeProviders) {
+            packingLists.add(new PackingList(resourceByteRangeProvider, this.imfErrorLogger));
+        }
+        return packingLists;
     }
 
     /**
-     * A getter for a list of CompositionPlaylist objects corresponding to the CompositionPlaylist files in the IMF Master Package
+     * A getter for a list of CompositionPlaylist objects corresponding to the CompositionPlaylist documents in the IMF Master Package
      * @return the object model corresponding to every CompositionPlaylist document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
@@ -233,8 +292,9 @@ public final class IMFMasterPackage {
             resourceByteRangeProviders.add(new FileByteRangeProvider(new File(string)));
         }
 
-        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(resourceByteRangeProviders);
-        if(imfMasterPackage.validate()){
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        IMFMasterPackage imfMasterPackage = new IMFMasterPackage(resourceByteRangeProviders, imfErrorLogger);
+        if(imfMasterPackage.validateIMP(imfErrorLogger)){
             logger.info(String.format("IMF Master package has been validated"));
         }
         else{
