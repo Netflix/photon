@@ -44,13 +44,13 @@ and for Ivy:
 <dependency org="com.netflix.photon" name="Photon" rev="0.1.1" />
 ```
 
-If you need to download the jars instead of using a build system, create a Maven pom file like the following with the desired version:
+If you need to download all dependencies, you just have to run:
 
 ```
 gradle getDependencies
 ```
 
-It will download Photon-*.jar and its dependencies into ./build/libs
+It will download all dependencies into ./build/libs directory, where Photon.*.jar is builded
 
 Two sample applications have been provided with this project. You can run them as follows:
 
