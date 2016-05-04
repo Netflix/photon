@@ -46,37 +46,15 @@ and for Ivy:
 
 If you need to download the jars instead of using a build system, create a Maven pom file like the following with the desired version:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.netflix.photon.download</groupId>
-  <artifactId>photon-download</artifactId>
-  <version>1.0-snapshot</version>
-  <name>Simple POM to download Photon and dependencies</name>
-  <url>https://github.com/Netflix/photon</url>
-  <dependencies>
-    <dependency>
-      <groupId>com.netflix.photon</groupId>
-      <artifactId>Photon</artifactId>
-      <version>0.1.1</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
-</project>
+```
+gradle getDependencies
 ```
 
-Then execute:
-
-```
-mvn -f photon-download.pom.xml dependency:copy-dependencies
-```
-
-It will download Photon-*.jar and its dependencies into ./target/dependency/.
+It will download Photon-*.jar and its dependencies into ./build/libs
 
 Two sample applications have been provided with this project. You can run them as follows:
 
 ```
-java -cp target/dependency/*: com.netflix.imflibrary.app.IMFEssenceComponentReader <inputFile> <workingDirectory>
+java -cp build/libs/*: com.netflix.imflibrary.app.IMFEssenceComponentReader <inputFile> <workingDirectory>
 ```
 
