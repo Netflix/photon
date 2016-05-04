@@ -56,11 +56,11 @@ public final class IMFMasterPackage {
         this.imfErrorLogger = imfErrorLogger;
         this.numberOfAssets = resourceByteRangeProviders.size();
         for(ResourceByteRangeProvider resourceByteRangeProvider : resourceByteRangeProviders){
-            if (isFileOfSupportedSchema(resourceByteRangeProvider, AssetMap.supportedAssetMapSchemaURIs, "AssetMap")) {
+            if (AssetMap.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 assetMaps.add(resourceByteRangeProvider);
-            } else if (isFileOfSupportedSchema(resourceByteRangeProvider, PackingList.supportedPKLSchemaURIs, "PackingList")) {
+            } else if (PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 packingListsResourceByteRangeProviders.add(resourceByteRangeProvider);
-            } else if (isFileOfSupportedSchema(resourceByteRangeProvider, CompositionPlaylist.supportedCPLSchemaURIs, "CompositionPlaylist")) {
+            } else if (CompositionPlaylist.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 compositionPlaylists.add(resourceByteRangeProvider);
             }
         }
@@ -246,33 +246,6 @@ public final class IMFMasterPackage {
         }
         return compositionPlaylists;
     }
-
-    private boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider, List<String> supportedSchemaURIs, String tagName) throws IOException {
-        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
-        {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(inputStream);
-            NodeList nodeList = null;
-            for(String supportedSchemaURI : supportedSchemaURIs) {
-                //obtain root node
-                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, tagName);
-                if (nodeList != null
-                        && nodeList.getLength() == 1)
-                {
-                    return true;
-                }
-            }
-        }
-        catch(ParserConfigurationException | SAXException e)
-        {
-            return false;
-        }
-
-        return false;
-    }
-
 
     /**
      * A sample main method implementation for exercising the IMFMasterPackage methods
