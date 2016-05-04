@@ -58,3 +58,6 @@ Two sample applications have been provided with this project. You can run them a
 java -cp build/libs/*: com.netflix.imflibrary.app.IMFEssenceComponentReader <inputFile> <workingDirectory>
 ```
 
+```
+java -cp build/libs/*: com.netflix.imflibrary.app.IMFEssenceCPLBuilder <inputFile> <workingDirectory>
+```
