@@ -199,6 +199,40 @@ public final class CompositionPlaylist
     }
 
     /**
+     * A stateless method that verifies if the raw data represented by the ResourceByteRangeProvider corresponds to a valid
+     * IMF Composition Playlist document
+     * @param resourceByteRangeProvider - a byte range provider for the document that needs to be verified
+     * @return - a boolean indicating if the document represented is an IMF CompositionPlaylist or not
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
+
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
+        {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(inputStream);
+            NodeList nodeList = null;
+            for(String supportedSchemaURI : supportedCPLSchemaURIs) {
+                //obtain root node
+                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "CompositionPlaylist");
+                if (nodeList != null
+                        && nodeList.getLength() == 1)
+                {
+                    return true;
+                }
+            }
+        }
+        catch(ParserConfigurationException | SAXException e)
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
      * A method that returns a string representation of a CompositionPlaylist object
      *
      * @return string representing the object

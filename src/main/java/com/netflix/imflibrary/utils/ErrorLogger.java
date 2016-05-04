@@ -70,6 +70,20 @@ public interface ErrorLogger
             return this.errorDescription;
         }
 
+        /**
+         * toString() method to return a string representation of this error object
+         * @return string representation of the error object
+         */
+        public String toString(){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(this.errorCode.toString());
+            stringBuilder.append(" ");
+            stringBuilder.append(this.errorLevel.toString());
+            stringBuilder.append(" ");
+            stringBuilder.append(this.errorDescription);
+            return stringBuilder.toString();
+        }
+
     }
 
 }

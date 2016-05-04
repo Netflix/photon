@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -41,6 +43,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -158,6 +163,40 @@ public final class AssetMap
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
+    }
+
+    /**
+     * A stateless method that verifies if the raw data represented by the ResourceByteRangeProvider corresponds to a valid
+     * IMF AssetMap document
+     * @param resourceByteRangeProvider - a byte range provider for the document that needs to be verified
+     * @return - a boolean indicating if the document represented is an IMF AssetMap or not
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
+
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
+        {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(inputStream);
+            NodeList nodeList = null;
+            for(String supportedSchemaURI : supportedAssetMapSchemaURIs) {
+                //obtain root node
+                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "AssetMap");
+                if (nodeList != null
+                        && nodeList.getLength() == 1)
+                {
+                    return true;
+                }
+            }
+        }
+        catch(ParserConfigurationException | SAXException e)
+        {
+            return false;
+        }
+
+        return false;
     }
 
     private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
