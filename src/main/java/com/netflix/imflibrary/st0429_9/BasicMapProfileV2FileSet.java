@@ -35,30 +35,30 @@ import java.net.URISyntaxException;
 
 /**
  * This class represents an immutable implementation of 'Basic Map Profile v2' defined in Annex A of st0429-9:2014
- * limited to the case of a single Mapped File Set. A BasicMapProfilev2FileSet object can only be constructed if the constraints
+ * limited to the case of a single Asset Map document in the root directory of the . A BasicMapProfilev2FileSet object can only be constructed if the constraints
  * specified in Section A.1 in Annex A of st0429-9:2014 are satisfied
  */
 @Immutable
-public final class BasicMapProfilev2FileSet
+public final class BasicMapProfileV2FileSet
 {
-    private static final Logger logger = LoggerFactory.getLogger(BasicMapProfilev2FileSet.class);
-    private final MappedFileSet mappedFileSet;
+    private static final Logger logger = LoggerFactory.getLogger(BasicMapProfileV2FileSet.class);
+    private final BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet;
 
     /**
-     * Constructor for a {@link com.netflix.imflibrary.st0429_9.BasicMapProfilev2FileSet BasicMapProfilev2FileSet} from a {@link com.netflix.imflibrary.st0429_9.MappedFileSet MappedFileSet} object. Construction
+     * Constructor for a {@link BasicMapProfileV2FileSet BasicMapProfilev2FileSet} from a {@link BasicMapProfileV2MappedFileSet MappedFileSet} object. Construction
      * succeeds if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are satisfied
-     * @param mappedFileSet the Mapped File Set object corresponding to this object
+     * @param basicMapProfileV2MappedFileSet the Mapped File Set object corresponding to this object
      * @param imfErrorLogger an error logger for recording any errors - can be null
-     * @throws IOException - forwarded from {@link MappedFileSet#MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
-     * @throws SAXException - forwarded from {@link MappedFileSet#MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
-     * @throws JAXBException - forwarded from {@link MappedFileSet#MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
-     * @throws URISyntaxException - forwarded from {@link MappedFileSet#MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
+     * @throws IOException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
+     * @throws SAXException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
+     * @throws JAXBException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
+     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File, com.netflix.imflibrary.IMFErrorLogger) MappedFileSet} constructor
      */
-    public BasicMapProfilev2FileSet(MappedFileSet mappedFileSet, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    public BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet, @Nullable IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
 
-        for (AssetMap.Asset asset : mappedFileSet.getAssetMap().getAssetList())
+        for (AssetMap.Asset asset : basicMapProfileV2MappedFileSet.getAssetMap().getAssetList())
         {//per Section A.2 in Annex A of st0429-9:2014, each path element value shall be a relative path reference
             if (asset.getPath().isAbsolute())
             {
@@ -74,7 +74,7 @@ public final class BasicMapProfilev2FileSet
             }
         }
 
-        this.mappedFileSet = mappedFileSet;
+        this.basicMapProfileV2MappedFileSet = basicMapProfileV2MappedFileSet;
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -88,7 +88,7 @@ public final class BasicMapProfilev2FileSet
      */
     public AssetMap getAssetMap()
     {
-        return this.mappedFileSet.getAssetMap();
+        return this.basicMapProfileV2MappedFileSet.getAssetMap();
     }
 
     /**
@@ -98,7 +98,7 @@ public final class BasicMapProfilev2FileSet
      */
     public URI getAssetMapURI()
     {
-        return this.mappedFileSet.getAssetMapURI();
+        return this.basicMapProfileV2MappedFileSet.getAssetMapURI();
     }
 
     public static void main(String[] args) throws IOException, SAXException, JAXBException, URISyntaxException
@@ -106,8 +106,8 @@ public final class BasicMapProfilev2FileSet
         File rootFile = new File(args[0]);
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        BasicMapProfilev2FileSet basicMapProfilev2FileSet = new BasicMapProfilev2FileSet(new MappedFileSet(rootFile, imfErrorLogger), imfErrorLogger);
-        logger.warn(basicMapProfilev2FileSet.getAssetMap().toString());
+        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFile, imfErrorLogger), imfErrorLogger);
+        logger.warn(basicMapProfileV2FileSet.getAssetMap().toString());
     }
 
 }
