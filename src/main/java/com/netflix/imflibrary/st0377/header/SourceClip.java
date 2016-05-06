@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.MXFDataDefinition;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -99,9 +99,9 @@ public final class SourceClip extends StructuralComponent
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class SourceClipBO extends StructuralComponentBO
     {
-        @MXFField(size=8) private final Long start_position = null;
-        @MXFField(size=32, depends=true) private final byte[] source_package_id = null; //Package Ref type
-        @MXFField(size=4) private final Long source_track_id = null;
+        @MXFProperty(size=8) private final Long start_position = null;
+        @MXFProperty(size=32, depends=true) private final byte[] source_package_id = null; //Package Ref type
+        @MXFProperty(size=4) private final Long source_track_id = null;
 
         /**
          * Instantiates a new parsed SourceClip object by virtue of parsing the MXF file bitstream

@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -61,7 +61,7 @@ public final class LocalTagEntryBatch
 
         for (long i=0; i<this.header.getNumberOfElements(); i++)
         {
-            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
+            int localTag = MXFPropertyPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             //smpte st 377-1:2011, section 9.2
             if (localTag == 0)
             {

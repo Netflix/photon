@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 /**
@@ -29,12 +29,12 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
 
     public static abstract class GenericPictureEssenceDescriptorBO extends FileDescriptorBO {
 
-        @MXFField(size=1) protected final Short frame_layout = null;
-        @MXFField(size=4) protected final Long stored_width = null;
-        @MXFField(size=4) protected final Long stored_height = null;
-        @MXFField(size=0) protected final CompoundDataTypes.Rational aspect_ratio = null;
-        @MXFField(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Integer> video_line_map = null;
-        @MXFField(size=16) protected final UL picture_essence_coding = null;
+        @MXFProperty(size=1) protected final Short frame_layout = null;
+        @MXFProperty(size=4) protected final Long stored_width = null;
+        @MXFProperty(size=4) protected final Long stored_height = null;
+        @MXFProperty(size=0) protected final CompoundDataTypes.Rational aspect_ratio = null;
+        @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Integer> video_line_map = null;
+        @MXFProperty(size=16) protected final UL picture_essence_coding = null;
 
         /**
          * Constructor for a File descriptor ByteObject.

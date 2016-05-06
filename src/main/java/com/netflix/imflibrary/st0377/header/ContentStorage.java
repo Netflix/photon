@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
@@ -125,8 +125,8 @@ public final class ContentStorage extends InterchangeObject
     public static final class ContentStorageBO extends InterchangeObjectBO
     {
 
-        @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> packages = null;
-        @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> essencecontainer_data = null;
+        @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> packages = null;
+        @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> essencecontainer_data = null;
         private final List<MXFUID> packageInstanceUIDs = new ArrayList<>();
         private final List<MXFUID> essenceContainerDataInstanceUIDs = new ArrayList<>();
 

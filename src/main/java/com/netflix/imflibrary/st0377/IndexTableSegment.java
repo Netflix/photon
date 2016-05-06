@@ -20,8 +20,8 @@ package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.annotations.MXFProperty;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 
 import javax.annotation.concurrent.Immutable;
@@ -61,18 +61,18 @@ public final class IndexTableSegment
     }
 
     private final KLVPacket.Header header;
-    @MXFField(size=16) private final byte[] instance_UID = null;
-    @MXFField(size=0) private final CompoundDataTypes.Rational indexEditRate = null;
-    @MXFField(size=8) private final Long index_start_position = null;
-    @MXFField(size=8) private final Long index_duration = null;
-    @MXFField(size=4) private final Long edit_unit_byte_count = null;
-    @MXFField(size=4) private final Long index_SID = null;
-    @MXFField(size=4) private final Long body_SID = null;
-    @MXFField(size=1) private final Short slice_count = null;
-    @MXFField(size=1) private final Short pos_table_count = null;
+    @MXFProperty(size=16) private final byte[] instance_UID = null;
+    @MXFProperty(size=0) private final CompoundDataTypes.Rational indexEditRate = null;
+    @MXFProperty(size=8) private final Long index_start_position = null;
+    @MXFProperty(size=8) private final Long index_duration = null;
+    @MXFProperty(size=4) private final Long edit_unit_byte_count = null;
+    @MXFProperty(size=4) private final Long index_SID = null;
+    @MXFProperty(size=4) private final Long body_SID = null;
+    @MXFProperty(size=1) private final Short slice_count = null;
+    @MXFProperty(size=1) private final Short pos_table_count = null;
     private final IndexEntryArray indexEntryArray;
-    @MXFField(size=8) private final Long ext_start_offset = null;
-    @MXFField(size=8) private final Long vbe_byte_count = null;
+    @MXFProperty(size=8) private final Long ext_start_offset = null;
+    @MXFProperty(size=8) private final Long vbe_byte_count = null;
 
 
     /**
@@ -103,13 +103,13 @@ public final class IndexTableSegment
         IndexEntryArray indexEntryArray = null;
         while (numBytesRead < numBytesToRead)
         {
-            Integer itemTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
+            Integer itemTag = MXFPropertyPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             numBytesRead += 2;
 
             long itemSize;
             if (this.header.getKey()[5] == 0x53)
             {
-                itemSize = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
+                itemSize = MXFPropertyPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
                 numBytesRead += 2;
             }
             else
@@ -122,13 +122,13 @@ public final class IndexTableSegment
             String itemName = IndexTableSegment.LOCAL_TAG_TO_ITEM_NAME.get(itemTag);
             if (itemName != null)
             {
-                int expectedLength = MXFFieldPopulator.getFieldSizeInBytes(this, itemName);
+                int expectedLength = MXFPropertyPopulator.getFieldSizeInBytes(this, itemName);
                 if((expectedLength > 0) && (itemSize != expectedLength))
                 {
                     throw new MXFException(String.format("Actual length from bitstream = %d is different from expected length = %d",
                             itemSize, expectedLength));
                 }
-                MXFFieldPopulator.populateField(byteProvider, this, itemName);
+                MXFPropertyPopulator.populateField(byteProvider, this, itemName);
                 numBytesRead += itemSize;
             }
             else if (itemTag == 0x3f09)
@@ -269,10 +269,10 @@ public final class IndexTableSegment
         @Immutable
         public static final class IndexEntry
         {
-            @MXFField(size=1) private final Byte temporal_offset = null;
-            @MXFField(size=1) private final Byte key_frame_offset = null;
-            @MXFField(size=1) private final Byte flags = null;
-            @MXFField(size=8) private final Long stream_offset = null;
+            @MXFProperty(size=1) private final Byte temporal_offset = null;
+            @MXFProperty(size=1) private final Byte key_frame_offset = null;
+            @MXFProperty(size=1) private final Byte flags = null;
+            @MXFProperty(size=8) private final Long stream_offset = null;
 
             /**
              * Instantiates a new Index entry.
@@ -282,10 +282,10 @@ public final class IndexTableSegment
              */
             IndexEntry(ByteProvider byteProvider) throws IOException
             {
-                MXFFieldPopulator.populateField(byteProvider, this, "temporal_offset");
-                MXFFieldPopulator.populateField(byteProvider, this, "key_frame_offset");
-                MXFFieldPopulator.populateField(byteProvider, this, "flags");
-                MXFFieldPopulator.populateField(byteProvider, this, "stream_offset");
+                MXFPropertyPopulator.populateField(byteProvider, this, "temporal_offset");
+                MXFPropertyPopulator.populateField(byteProvider, this, "key_frame_offset");
+                MXFPropertyPopulator.populateField(byteProvider, this, "flags");
+                MXFPropertyPopulator.populateField(byteProvider, this, "stream_offset");
             }
 
             /**

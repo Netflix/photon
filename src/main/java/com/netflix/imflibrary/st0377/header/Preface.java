@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
@@ -110,13 +110,13 @@ public final class Preface extends InterchangeObject
     public static final class PrefaceBO extends InterchangeObjectBO
     {
 
-        @MXFField(size=8) private final byte[] last_modified_date = null;
-        @MXFField(size=2) private final byte[] version = null;
-        @MXFField(size=16, depends=true) private final byte[] primary_package = null; //In-file Weak Ref
-        @MXFField(size=16, depends=true) private final StrongRef content_storage = null;
-        @MXFField(size=16) private final UL operational_pattern = null;
-        @MXFField(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> essencecontainers = null;
-        @MXFField(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> dm_schemes = null;
+        @MXFProperty(size=8) private final byte[] last_modified_date = null;
+        @MXFProperty(size=2) private final byte[] version = null;
+        @MXFProperty(size=16, depends=true) private final byte[] primary_package = null; //In-file Weak Ref
+        @MXFProperty(size=16, depends=true) private final StrongRef content_storage = null;
+        @MXFProperty(size=16) private final UL operational_pattern = null;
+        @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> essencecontainers = null;
+        @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> dm_schemes = null;
 
         /**
          * Instantiates a new parsed Preface object by virtue of parsing the MXF file bitstream

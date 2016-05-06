@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 import java.nio.ByteBuffer;
@@ -67,19 +67,19 @@ public abstract class GenericPackage extends InterchangeObject
         /**
          * The Package _ uid.
          */
-        @MXFField(size=32) protected final byte[] package_uid = null; //PackageID type
+        @MXFProperty(size=32) protected final byte[] package_uid = null; //PackageID type
         /**
          * The Package _ creation _ date.
          */
-        @MXFField(size=0) protected final CompoundDataTypes.Timestamp package_creation_date = null;
+        @MXFProperty(size=0) protected final CompoundDataTypes.Timestamp package_creation_date = null;
         /**
          * The Package _ modified _ date.
          */
-        @MXFField(size=0) protected final CompoundDataTypes.Timestamp package_modified_date = null;
+        @MXFProperty(size=0) protected final CompoundDataTypes.Timestamp package_modified_date = null;
         /**
          * The Tracks.
          */
-        @MXFField(size=0, depends=true) protected final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> tracks = null;
+        @MXFProperty(size=0, depends=true) protected final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> tracks = null;
 
         /**
          * The Generic track instance uI ds.

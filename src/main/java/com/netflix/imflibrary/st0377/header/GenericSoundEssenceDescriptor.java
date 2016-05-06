@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 /**
@@ -29,10 +29,10 @@ public abstract class GenericSoundEssenceDescriptor extends FileDescriptor{
 
     public static abstract class GenericSoundEssenceDescriptorBO extends FileDescriptorBO{
 
-        @MXFField(size=0) protected final CompoundDataTypes.Rational audio_sampling_rate = null;
-        @MXFField(size=4) protected final Long channelcount = null;
-        @MXFField(size=4) protected final Long quantization_bits = null;
-        @MXFField(size=16) protected final UL sound_essence_coding = null;
+        @MXFProperty(size=0) protected final CompoundDataTypes.Rational audio_sampling_rate = null;
+        @MXFProperty(size=4) protected final Long channelcount = null;
+        @MXFProperty(size=4) protected final Long quantization_bits = null;
+        @MXFProperty(size=16) protected final UL sound_essence_coding = null;
         /**
          * Constructor for a File descriptor ByteObject.
          *

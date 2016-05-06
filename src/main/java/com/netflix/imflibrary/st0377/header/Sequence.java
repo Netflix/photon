@@ -22,7 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.MXFDataDefinition;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
@@ -149,7 +149,7 @@ public final class Sequence extends StructuralComponent
     public static final class SequenceBO extends StructuralComponentBO
     {
 
-        @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> structural_components = null;
+        @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> structural_components = null;
         private final List<MXFUID> structuralComponentInstanceUIDs = new ArrayList<>();
 
         /**
