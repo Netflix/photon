@@ -92,13 +92,13 @@ public final class BasicMapProfileV2FileSet
     }
 
     /**
-     * Getter for the file-based URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object associated with
-     * this Mapped File Set
+     * Getter for the absolute, hierarchical URI with a scheme equal to <tt>"file"</tt> URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap}
+     * object associated with this Mapped File Set
      * @return file-based URI for the AssetMap object
      */
-    public URI getAssetMapURI()
+    public URI getAbsoluteAssetMapURI()
     {
-        return this.basicMapProfileV2MappedFileSet.getAssetMapURI();
+        return this.basicMapProfileV2MappedFileSet.getAbsoluteAssetMapURI();
     }
 
     public static void main(String[] args) throws IOException, SAXException, JAXBException, URISyntaxException

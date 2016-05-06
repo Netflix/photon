@@ -42,7 +42,7 @@ public final class BasicMapProfileV2MappedFileSet
 
     private static final String ASSETMAP_FILE_NAME = "ASSETMAP.xml";
     private final AssetMap assetMap;
-    private final URI assetMapURI;
+    private final URI absoluteAssetMapURI;
 
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
@@ -77,7 +77,7 @@ public final class BasicMapProfileV2MappedFileSet
         }
 
         this.assetMap = new AssetMap(files[0], imfErrorLogger);
-        this.assetMapURI = files[0].toURI();
+        this.absoluteAssetMapURI = files[0].toURI();
     }
 
     /**
@@ -91,12 +91,12 @@ public final class BasicMapProfileV2MappedFileSet
     }
 
     /**
-     * Getter for the file-based URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object associated with
-     * this Mapped File Set
+     * Getter for the absolute, hierarchical URI with a scheme equal to <tt>"file"</tt> URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap}
+     * object associated with this Mapped File Set
      * @return file-based URI for the AssetMap object
      */
-    public URI getAssetMapURI()
+    public URI getAbsoluteAssetMapURI()
     {
-        return this.assetMapURI;
+        return this.absoluteAssetMapURI;
     }
 }

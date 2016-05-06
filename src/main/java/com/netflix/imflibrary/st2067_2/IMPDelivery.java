@@ -65,18 +65,18 @@ public final class IMPDelivery
         List<AssetMap.Asset> packingListAssets = this.assetMap.getPackingListAssets();
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
-            URI resolvedPackingListURI = basicMapProfileV2FileSet.getAssetMapURI().resolve(packingListAsset.getPath());
-            PackingList packingList = new PackingList(new File(resolvedPackingListURI), this.imfErrorLogger);
+            URI absolutePackingListURI = basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(packingListAsset.getPath());
+            PackingList packingList = new PackingList(new File(absolutePackingListURI), this.imfErrorLogger);
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())
             {
                 UUID referencedAssetUUID = referencedAsset.getUUID();
-                referencedAssets.add(new IMPAsset(basicMapProfileV2FileSet.getAssetMapURI().resolve(this.assetMap.getPath(referencedAssetUUID)),
+                referencedAssets.add(new IMPAsset(basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(this.assetMap.getPath(referencedAssetUUID)),
                         referencedAsset));
 
             }
-            interoperableMasterPackages.add(new InteroperableMasterPackage(packingList, resolvedPackingListURI, referencedAssets));
+            interoperableMasterPackages.add(new InteroperableMasterPackage(packingList, absolutePackingListURI, referencedAssets));
         }
     }
 
