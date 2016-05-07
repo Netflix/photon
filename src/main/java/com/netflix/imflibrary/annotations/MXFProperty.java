@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MXFField
+public @interface MXFProperty
 {
     /**
      * Describes the size in bytes of a syntax element. Equals 0 when size is obtained from the MXF file bitstream

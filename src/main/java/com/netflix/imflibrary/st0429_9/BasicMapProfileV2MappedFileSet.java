@@ -23,7 +23,6 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -34,27 +33,27 @@ import java.net.URISyntaxException;
 
 /**
  * This class is an immutable implementation of the Mapped File Set concept defined in Section A.1 in Annex A of st0429-9:2014.
- * A MappedFileSet object can only be constructed if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are
+ * A BasicMapProfilev2MappedFileSet object can only be constructed if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are
  * satisfied
  */
 @Immutable
-public final class MappedFileSet
+public final class BasicMapProfileV2MappedFileSet
 {
 
     private static final String ASSETMAP_FILE_NAME = "ASSETMAP.xml";
     private final AssetMap assetMap;
-    private final URI assetMapURI;
+    private final URI absoluteAssetMapURI;
 
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @param imfErrorLogger an error logger for recording any errors - can be null
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws SAXException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
      * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
      * @throws JAXBException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
      * @throws URISyntaxException - forwarded from {@link AssetMap#AssetMap(java.io.File, com.netflix.imflibrary.IMFErrorLogger) AssetMap} constructor
      */
-    public MappedFileSet(File rootFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
+    public BasicMapProfileV2MappedFileSet(File rootFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException, URISyntaxException
     {
         if (!rootFile.isDirectory())
         {
@@ -66,7 +65,7 @@ public final class MappedFileSet
             @Override
             public boolean accept(File rootFile, String name)
             {
-                return name.equals(MappedFileSet.ASSETMAP_FILE_NAME);
+                return name.equals(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME);
             }
         };
 
@@ -74,11 +73,11 @@ public final class MappedFileSet
         if ((files == null) || (files.length != 1))
         {
             throw new IMFException(String.format("Found %d files with name %s in mapped file set rooted at %s, " +
-                    "exactly 1 is allowed", (files == null) ? 0 : files.length, MappedFileSet.ASSETMAP_FILE_NAME, rootFile.getAbsolutePath()));
+                    "exactly 1 is allowed", (files == null) ? 0 : files.length, BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, rootFile.getAbsolutePath()));
         }
 
         this.assetMap = new AssetMap(files[0], imfErrorLogger);
-        this.assetMapURI = files[0].toURI();
+        this.absoluteAssetMapURI = files[0].toURI();
     }
 
     /**
@@ -92,12 +91,12 @@ public final class MappedFileSet
     }
 
     /**
-     * Getter for the file-based URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object associated with
-     * this Mapped File Set
+     * Getter for the absolute, hierarchical URI with a scheme equal to <tt>"file"</tt> URI corresponding to the {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap}
+     * object associated with this Mapped File Set
      * @return file-based URI for the AssetMap object
      */
-    public URI getAssetMapURI()
+    public URI getAbsoluteAssetMapURI()
     {
-        return this.assetMapURI;
+        return this.absoluteAssetMapURI;
     }
 }

@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.utils.ByteProvider;
 
@@ -60,20 +60,20 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
      */
     @Immutable
     public static final class JPEG2000PictureSubDescriptorBO extends SubDescriptorBO{
-        @MXFField(size=16) protected final byte[] generation_uid = null;
-        @MXFField(size=2) protected final Short rSiz = null;
-        @MXFField(size=4) protected final Integer xSiz = null;
-        @MXFField(size=4) protected final Integer ySiz = null;
-        @MXFField(size=4) protected final Integer xoSiz = null;
-        @MXFField(size=4) protected final Integer yoSiz = null;
-        @MXFField(size=4) protected final Integer xtSiz = null;
-        @MXFField(size=4) protected final Integer ytSiz = null;
-        @MXFField(size=4) protected final Integer xtoSiz = null;
-        @MXFField(size=4) protected final Integer ytoSiz = null;
-        @MXFField(size=2) protected final Short cSiz = null;
-        @MXFField(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<JPEG2000PictureComponent.JPEG2000PictureComponentBO> picture_component_sizing = null;
-        @MXFField(size=0, depends=false) private final byte[] coding_style_default = null;
-        @MXFField(size=0, depends=false) private final byte[] quantisation_default = null;
+        @MXFProperty(size=16) protected final byte[] generation_uid = null;
+        @MXFProperty(size=2) protected final Short rSiz = null;
+        @MXFProperty(size=4) protected final Integer xSiz = null;
+        @MXFProperty(size=4) protected final Integer ySiz = null;
+        @MXFProperty(size=4) protected final Integer xoSiz = null;
+        @MXFProperty(size=4) protected final Integer yoSiz = null;
+        @MXFProperty(size=4) protected final Integer xtSiz = null;
+        @MXFProperty(size=4) protected final Integer ytSiz = null;
+        @MXFProperty(size=4) protected final Integer xtoSiz = null;
+        @MXFProperty(size=4) protected final Integer ytoSiz = null;
+        @MXFProperty(size=2) protected final Short cSiz = null;
+        @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<JPEG2000PictureComponent.JPEG2000PictureComponentBO> picture_component_sizing = null;
+        @MXFProperty(size=0, depends=false) private final byte[] coding_style_default = null;
+        @MXFProperty(size=0, depends=false) private final byte[] quantisation_default = null;
 
         /**
          * Instantiates a new JPEG2000 picture sub descriptor ByteObject.

@@ -21,8 +21,8 @@ package com.netflix.imflibrary.st0377;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.annotations.MXFProperty;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -50,8 +50,8 @@ public interface CompoundDataTypes
         @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
         public static final class Header
         {
-            @MXFField(size=4) private final Long numberOfElements = null;
-            @MXFField(size=4) private final Long sizeOfElement = null;
+            @MXFProperty(size=4) private final Long numberOfElements = null;
+            @MXFProperty(size=4) private final Long sizeOfElement = null;
 
             /**
              * Instantiates a new collection Header.
@@ -61,8 +61,8 @@ public interface CompoundDataTypes
              */
             public Header(ByteProvider byteProvider) throws IOException
             {
-                MXFFieldPopulator.populateField(byteProvider, this, "numberOfElements");
-                MXFFieldPopulator.populateField(byteProvider, this, "sizeOfElement");
+                MXFPropertyPopulator.populateField(byteProvider, this, "numberOfElements");
+                MXFPropertyPopulator.populateField(byteProvider, this, "sizeOfElement");
             }
 
             /**
@@ -188,8 +188,8 @@ public interface CompoundDataTypes
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     final class Rational
     {
-        @MXFField(size=4) private final Long numerator = null;
-        @MXFField(size=4) private final Long denominator = null;
+        @MXFProperty(size=4) private final Long numerator = null;
+        @MXFProperty(size=4) private final Long denominator = null;
 
         /**
          * Instantiates a new Rational.
@@ -199,8 +199,8 @@ public interface CompoundDataTypes
          */
         public Rational(ByteProvider byteProvider) throws IOException
         {
-            MXFFieldPopulator.populateField(byteProvider, this, "numerator");
-            MXFFieldPopulator.populateField(byteProvider, this, "denominator");
+            MXFPropertyPopulator.populateField(byteProvider, this, "numerator");
+            MXFPropertyPopulator.populateField(byteProvider, this, "denominator");
         }
 
         /**
@@ -271,13 +271,13 @@ public interface CompoundDataTypes
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     final class Timestamp
     {
-        @MXFField(size=2) private final Short year = null;
-        @MXFField(size=1) private final Short month = null;
-        @MXFField(size=1) private final Short day = null;
-        @MXFField(size=1) private final Short hour = null;
-        @MXFField(size=1) private final Short minute = null;
-        @MXFField(size=1) private final Short second = null;
-        @MXFField(size=1) private final Short msecByFour = null;
+        @MXFProperty(size=2) private final Short year = null;
+        @MXFProperty(size=1) private final Short month = null;
+        @MXFProperty(size=1) private final Short day = null;
+        @MXFProperty(size=1) private final Short hour = null;
+        @MXFProperty(size=1) private final Short minute = null;
+        @MXFProperty(size=1) private final Short second = null;
+        @MXFProperty(size=1) private final Short msecByFour = null;
 
         /**
          * Instantiates a new Timestamp.
@@ -287,13 +287,13 @@ public interface CompoundDataTypes
          */
         public Timestamp(ByteProvider byteProvider) throws IOException
         {
-            MXFFieldPopulator.populateField(byteProvider, this, "year");
-            MXFFieldPopulator.populateField(byteProvider, this, "month");
-            MXFFieldPopulator.populateField(byteProvider, this, "day");
-            MXFFieldPopulator.populateField(byteProvider, this, "hour");
-            MXFFieldPopulator.populateField(byteProvider, this, "minute");
-            MXFFieldPopulator.populateField(byteProvider, this, "second");
-            MXFFieldPopulator.populateField(byteProvider, this, "msecByFour");
+            MXFPropertyPopulator.populateField(byteProvider, this, "year");
+            MXFPropertyPopulator.populateField(byteProvider, this, "month");
+            MXFPropertyPopulator.populateField(byteProvider, this, "day");
+            MXFPropertyPopulator.populateField(byteProvider, this, "hour");
+            MXFPropertyPopulator.populateField(byteProvider, this, "minute");
+            MXFPropertyPopulator.populateField(byteProvider, this, "second");
+            MXFPropertyPopulator.populateField(byteProvider, this, "msecByFour");
         }
 
         /**

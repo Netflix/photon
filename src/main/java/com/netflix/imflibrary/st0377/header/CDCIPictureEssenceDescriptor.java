@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -63,9 +63,9 @@ public final class CDCIPictureEssenceDescriptor extends GenericPictureEssenceDes
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class CDCIPictureEssenceDescriptorBO extends GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO
     {
-        @MXFField(size=4) private final Long component_depth = null;
-        @MXFField(size=4) private final Long horizontal_subsampling = null;
-        @MXFField(size=4) private final Long vertical_subsampling = null;
+        @MXFProperty(size=4) private final Long component_depth = null;
+        @MXFProperty(size=4) private final Long horizontal_subsampling = null;
+        @MXFProperty(size=4) private final Long vertical_subsampling = null;
 
         /**
          * Instantiates a new parsed CDCIPictureEssenceDescriptor object by virtue of parsing the MXF file bitstream

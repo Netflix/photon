@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 
 /**
  * Object model corresponding to GenericTrack structural metadata set defined in st377-1:2011
@@ -33,15 +33,15 @@ public abstract class GenericTrack extends InterchangeObject
         /**
          * The Track _ id.
          */
-        @MXFField(size=4) protected final Long track_id = null;
+        @MXFProperty(size=4) protected final Long track_id = null;
         /**
          * The Track _ number.
          */
-        @MXFField(size=4) protected final Long track_number = null;
+        @MXFProperty(size=4) protected final Long track_number = null;
         /**
          * The Sequence.
          */
-        @MXFField(size=16, depends=true) protected final StrongRef sequence = null;
+        @MXFProperty(size=16, depends=true) protected final StrongRef sequence = null;
 
         /**
          * Instantiates a new Generic track ByteObject.

@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -112,9 +112,9 @@ public final class EssenceContainerData extends InterchangeObject
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class EssenceContainerDataBO  extends InterchangeObjectBO
     {
-        @MXFField(size=32, depends=true) private final byte[] linked_package_uid = null; //PackageRef type
-        @MXFField(size=4) private final Long index_sid = null;
-        @MXFField(size=4) private final Long body_sid = null;
+        @MXFProperty(size=32, depends=true) private final byte[] linked_package_uid = null; //PackageRef type
+        @MXFProperty(size=4) private final Long index_sid = null;
+        @MXFProperty(size=4) private final Long body_sid = null;
 
         /**
          * Instantiates a new parsed EssenceContainerData object by virtue of parsing the MXF file bitstream

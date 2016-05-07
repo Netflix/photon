@@ -22,7 +22,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 
 import java.io.IOException;
@@ -570,14 +570,14 @@ public final class StructuralMetadata
             /*From smpte st 377-1:2011 section 9.6, all structural header metadata objects shall be implemented as MXF Local Sets
             which implies that the data item local tag is always 2 bytes long*/
             //read local tag
-            int localTag = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
+            int localTag = MXFPropertyPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
             numBytesRead += 2;
 
             //read length
             long length;
             if (object.getHeader().getRegistryDesignator() == 0x53)
             {
-                length = MXFFieldPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
+                length = MXFPropertyPopulator.getUnsignedShortAsInt(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER);
                 numBytesRead += 2;
             }
             else if (object.getHeader().getRegistryDesignator() == 0x13)
@@ -597,13 +597,13 @@ public final class StructuralMetadata
             if ((mxfUL != null) && (StructuralMetadata.ItemULToItemName.get(mxfUL) != null))
             {
                 String itemName = StructuralMetadata.ItemULToItemName.get(mxfUL);
-                int expectedLength = MXFFieldPopulator.getFieldSizeInBytes(object, itemName);
+                int expectedLength = MXFPropertyPopulator.getFieldSizeInBytes(object, itemName);
                 if((expectedLength > 0) && (length != expectedLength))
                 {
                     throw new MXFException(String.format("Actual length from bitstream = %d is different from expected length = %d",
                             length, expectedLength));
                 }
-                MXFFieldPopulator.populateField((int) length, byteProvider, object, itemName);
+                MXFPropertyPopulator.populateField((int) length, byteProvider, object, itemName);
             }
             else
             {

@@ -18,15 +18,12 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.net.URI;
-import java.util.UUID;
 
 /**
  * This class represents a thin, immutable wrapper around a PackingList {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset}. It holds

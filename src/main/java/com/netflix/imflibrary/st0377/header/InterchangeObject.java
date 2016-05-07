@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public abstract class InterchangeObject
         /**
          * The Instance _ uid.
          */
-        @MXFField(size=16) protected final byte[] instance_uid = null;
+        @MXFProperty(size=16) protected final byte[] instance_uid = null;
 
 
         /**

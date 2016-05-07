@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
@@ -113,8 +113,8 @@ public final class TimelineTrack extends GenericTrack
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class TimelineTrackBO extends GenericTrackBO
     {
-        @MXFField(size=0) private final CompoundDataTypes.Rational edit_rate = null;
-        @MXFField(size=8) private final Long origin = null; //Position type
+        @MXFProperty(size=0) private final CompoundDataTypes.Rational edit_rate = null;
+        @MXFProperty(size=8) private final Long origin = null; //Position type
 
         /**
          * Instantiates a new parsed TimelineTrack object by virtue of parsing the MXF file bitstream

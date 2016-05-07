@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -125,7 +125,7 @@ public final class SourcePackage extends GenericPackage
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class SourcePackageBO extends GenericPackageBO
     {
-        @MXFField(size=16, depends=true) private final StrongRef descriptor = null;
+        @MXFProperty(size=16, depends=true) private final StrongRef descriptor = null;
 
         /**
          * Instantiates a new parsed SourcePackage object by virtue of parsing the MXF file bitstream

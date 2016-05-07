@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 import java.util.ArrayList;
@@ -32,9 +32,9 @@ public abstract class FileDescriptor extends GenericDescriptor {
 
     public static abstract class FileDescriptorBO extends GenericDescriptorBO {
 
-        @MXFField(size = 0)
+        @MXFProperty(size = 0)
         protected final CompoundDataTypes.Rational sample_rate = null;
-        @MXFField(size = 16)
+        @MXFProperty(size = 16)
         protected final UL essence_container = null;
 
         /**

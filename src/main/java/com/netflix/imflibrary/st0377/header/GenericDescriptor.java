@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
 /**
@@ -32,7 +32,7 @@ public abstract class GenericDescriptor extends InterchangeObject
         /**
          * Collection of subdescriptors.
          */
-        @MXFField(size = 0, depends = true) protected final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> subdescriptors = null;
+        @MXFProperty(size = 0, depends = true) protected final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> subdescriptors = null;
 
         /**
          * Instantiates a new Generic descriptor ByteObject.

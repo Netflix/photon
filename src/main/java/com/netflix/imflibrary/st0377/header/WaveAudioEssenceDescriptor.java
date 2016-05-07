@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -185,9 +185,9 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class WaveAudioEssenceDescriptorBO extends GenericSoundEssenceDescriptor.GenericSoundEssenceDescriptorBO
     {
-        @MXFField(size=2) private final Integer block_align = null;
-        @MXFField(size=4) private final Long average_bytes_per_second = null;
-        @MXFField(size=16) private final UL channel_assignment = null;
+        @MXFProperty(size=2) private final Integer block_align = null;
+        @MXFProperty(size=4) private final Long average_bytes_per_second = null;
+        @MXFProperty(size=16) private final UL channel_assignment = null;
 
         /**
          * Instantiates a new parsed WaveAudioEssenceDescriptor object by virtue of parsing the MXF file bitstream

@@ -19,7 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 
 /**
  * Object model corresponding to Structural Component structural metadata set defined in st377-1:2011
@@ -35,11 +35,11 @@ public abstract class StructuralComponent extends InterchangeObject
         /**
          * The Data _ definition.
          */
-        @MXFField(size=16) protected final byte[] data_definition = null;
+        @MXFProperty(size=16) protected final byte[] data_definition = null;
         /**
          * The Duration.
          */
-        @MXFField(size=8) protected final Long duration = null;
+        @MXFProperty(size=8) protected final Long duration = null;
 
         /**
          * Instantiates a new Structural component ByteObject.

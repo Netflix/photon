@@ -24,7 +24,7 @@ import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
@@ -221,7 +221,7 @@ public final class HeaderPartition
         {
             Node node = entry.getValue();
             InterchangeObject.InterchangeObjectBO interchangeObjectBO = uidToBOs.get(node.uid);
-            List<MXFUID> dependentUIDs = MXFFieldPopulator.getDependentUIDs(interchangeObjectBO);
+            List<MXFUID> dependentUIDs = MXFPropertyPopulator.getDependentUIDs(interchangeObjectBO);
             for(MXFUID MXFUID : dependentUIDs)
             {
                 InterchangeObject.InterchangeObjectBO dependentInterchangeObjectBO = uidToBOs.get(MXFUID);

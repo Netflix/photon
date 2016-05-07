@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 
@@ -88,7 +88,7 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
     public static final class AudioChannelLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
     {
 
-        @MXFField(size=16) private final byte[] soundfield_group_link_id = null; //UUID
+        @MXFProperty(size=16) private final byte[] soundfield_group_link_id = null; //UUID
 
         /**
          * Instantiates a new parsed AudioChannelLabelSubDescriptor object by virtue of parsing the MXF file bitstream

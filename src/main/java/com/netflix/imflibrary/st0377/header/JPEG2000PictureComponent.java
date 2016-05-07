@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st0377.header;
 
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -44,9 +44,9 @@ public final class JPEG2000PictureComponent {
      */
     @Immutable
     public static final class JPEG2000PictureComponentBO{
-        @MXFField(size=1) protected final Short sSiz;
-        @MXFField(size=1) protected final Short xrSiz;
-        @MXFField(size=1) protected final Short yrSiz;
+        @MXFProperty(size=1) protected final Short sSiz;
+        @MXFProperty(size=1) protected final Short xrSiz;
+        @MXFProperty(size=1) protected final Short yrSiz;
 
         /**
          * Instantiates a new parsed JPEG2000PictureComponent object

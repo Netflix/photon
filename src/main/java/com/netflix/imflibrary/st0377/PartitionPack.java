@@ -23,8 +23,8 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.annotations.MXFProperty;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -48,18 +48,18 @@ public final class  PartitionPack
 
     private final KLVPacket.Header header;
 
-    @MXFField(size=2) private final Integer major_version = null;
-    @MXFField(size=2) private final Integer minor_version = null;
-    @MXFField(size=4) private final Long KAG_size = null;
-    @MXFField(size=8) private final Long this_partition = null;
-    @MXFField(size=8) private final Long previous_partition = null;
-    @MXFField(size=8) private final Long footer_partition = null;
-    @MXFField(size=8) private final Long header_byte_count = null;
-    @MXFField(size=8) private final Long index_byte_count = null;
-    @MXFField(size=4) private final Long index_SID = null;
-    @MXFField(size=8) private final Long body_offset = null;
-    @MXFField(size=4) private final Long body_SID = null;
-    @MXFField(size=16) private final byte[] operational_pattern = null;
+    @MXFProperty(size=2) private final Integer major_version = null;
+    @MXFProperty(size=2) private final Integer minor_version = null;
+    @MXFProperty(size=4) private final Long KAG_size = null;
+    @MXFProperty(size=8) private final Long this_partition = null;
+    @MXFProperty(size=8) private final Long previous_partition = null;
+    @MXFProperty(size=8) private final Long footer_partition = null;
+    @MXFProperty(size=8) private final Long header_byte_count = null;
+    @MXFProperty(size=8) private final Long index_byte_count = null;
+    @MXFProperty(size=4) private final Long index_SID = null;
+    @MXFProperty(size=8) private final Long body_offset = null;
+    @MXFProperty(size=4) private final Long body_SID = null;
+    @MXFProperty(size=16) private final byte[] operational_pattern = null;
 
     private final CompoundDataTypes.MXFCollections.MXFCollection<UL> essenceContainerBatch;
 
@@ -194,11 +194,11 @@ public final class  PartitionPack
 
         this.partitionPackType = PartitionPackType.getPartitionPackTypeKey(this.header.getSetOrPackKindKey());
 
-        MXFFieldPopulator.populateField(byteProvider, this, "major_version");
-        MXFFieldPopulator.populateField(byteProvider, this, "minor_version");
-        MXFFieldPopulator.populateField(byteProvider, this, "KAG_size");
+        MXFPropertyPopulator.populateField(byteProvider, this, "major_version");
+        MXFPropertyPopulator.populateField(byteProvider, this, "minor_version");
+        MXFPropertyPopulator.populateField(byteProvider, this, "KAG_size");
 
-        MXFFieldPopulator.populateField(byteProvider, this, "this_partition");
+        MXFPropertyPopulator.populateField(byteProvider, this, "this_partition");
         if (this.this_partition < 0)
         {
             String errorMessage = String.format("Value of this_partition = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -206,7 +206,7 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "previous_partition");
+        MXFPropertyPopulator.populateField(byteProvider, this, "previous_partition");
         if (this.previous_partition < 0)
         {
             String errorMessage = String.format("Value of previous_partition = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -214,7 +214,7 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "footer_partition");
+        MXFPropertyPopulator.populateField(byteProvider, this, "footer_partition");
         if (this.footer_partition < 0)
         {
             String errorMessage = String.format("Value of footer_partition = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -222,7 +222,7 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "header_byte_count");
+        MXFPropertyPopulator.populateField(byteProvider, this, "header_byte_count");
         if (this.header_byte_count < 0)
         {
             String errorMessage = String.format("Value of header_byte_count = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -230,7 +230,7 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "index_byte_count");
+        MXFPropertyPopulator.populateField(byteProvider, this, "index_byte_count");
         if (this.index_byte_count < 0)
         {
             String errorMessage = String.format("Value of index_byte_count = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -238,9 +238,9 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "index_SID");
+        MXFPropertyPopulator.populateField(byteProvider, this, "index_SID");
 
-        MXFFieldPopulator.populateField(byteProvider, this, "body_offset");
+        MXFPropertyPopulator.populateField(byteProvider, this, "body_offset");
         if (this.body_offset < 0)
         {
             String errorMessage = String.format("Value of body_offset = %d(0x%x) which is outside the supported range 0-0x%x",
@@ -248,8 +248,8 @@ public final class  PartitionPack
             handleError(imfErrorLogger, errorMessage);
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "body_SID");
-        MXFFieldPopulator.populateField(byteProvider, this, "operational_pattern");
+        MXFPropertyPopulator.populateField(byteProvider, this, "body_SID");
+        MXFPropertyPopulator.populateField(byteProvider, this, "operational_pattern");
 
         CompoundDataTypes.MXFCollections.Header cHeader = new CompoundDataTypes.MXFCollections.Header(byteProvider);
         List<UL> cList = new ArrayList<>();

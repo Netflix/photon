@@ -20,8 +20,8 @@ package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.annotations.MXFField;
-import com.netflix.imflibrary.MXFFieldPopulator;
+import com.netflix.imflibrary.annotations.MXFProperty;
+import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 
 import javax.annotation.concurrent.Immutable;
@@ -48,7 +48,7 @@ public final class RandomIndexPack
     private final KLVPacket.Header header;
     private final Map<Long, List<Long>> partitionMap = new LinkedHashMap<Long, List<Long>>();
     private final List<Long> allPartitionByteOffsets = new ArrayList<Long>();
-    @MXFField(size=4) private final Long length = null;
+    @MXFProperty(size=4) private final Long length = null;
 
     /**
      * Instantiates a new Random index pack.
@@ -76,8 +76,8 @@ public final class RandomIndexPack
         Integer bodySIDByteOffsetPairSize = 0;
         Field[] fields =  BodySIDByteOffsetPair.class.getDeclaredFields();
         for(Field field : fields){
-            if(field.isAnnotationPresent(MXFField.class)){
-                bodySIDByteOffsetPairSize += field.getAnnotation(MXFField.class).size();
+            if(field.isAnnotationPresent(MXFProperty.class)){
+                bodySIDByteOffsetPairSize += field.getAnnotation(MXFProperty.class).size();
             }
         }
 
@@ -102,7 +102,7 @@ public final class RandomIndexPack
             allPartitionByteOffsets.add(bodySIDByteOffsetPair.getByteOffset());
         }
 
-        MXFFieldPopulator.populateField(byteProvider, this, "length");
+        MXFPropertyPopulator.populateField(byteProvider, this, "length");
         if (this.length != fullPackLength)
         {
             throw new MXFException(String.format("Observed length = %d is different from expected length = %d of RandomIndexPack",
@@ -175,8 +175,8 @@ public final class RandomIndexPack
     @Immutable
     public static final class BodySIDByteOffsetPair
     {
-        @MXFField(size=4) private final Long bodySID = null;
-        @MXFField(size=8) private final Long byteOffset = null;
+        @MXFProperty(size=4) private final Long bodySID = null;
+        @MXFProperty(size=8) private final Long byteOffset = null;
 
         /**
          * Instantiates a new Body sID byte offset pair.
@@ -186,8 +186,8 @@ public final class RandomIndexPack
          */
         BodySIDByteOffsetPair(ByteProvider byteProvider) throws IOException
         {
-            MXFFieldPopulator.populateField(byteProvider, this, "bodySID");
-            MXFFieldPopulator.populateField(byteProvider, this, "byteOffset");
+            MXFPropertyPopulator.populateField(byteProvider, this, "bodySID");
+            MXFPropertyPopulator.populateField(byteProvider, this, "byteOffset");
         }
 
         private long getBodySID()

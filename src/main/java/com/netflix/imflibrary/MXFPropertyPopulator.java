@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary;
 
-import com.netflix.imflibrary.annotations.MXFField;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
@@ -38,10 +38,10 @@ import java.util.List;
 /**
  * A utility class that provides methods for populating fields with MXF metadata sets
  */
-public final class MXFFieldPopulator
+public final class MXFPropertyPopulator
 {
     //to prevent instantiation
-    private MXFFieldPopulator()
+    private MXFPropertyPopulator()
     {
     }
 
@@ -395,14 +395,14 @@ public final class MXFFieldPopulator
         {
 
             Field field = getField(object.getClass(), fieldName);
-            if (field.isAnnotationPresent(MXFField.class))
+            if (field.isAnnotationPresent(MXFProperty.class))
             {
-                fieldSizeInBytes = field.getAnnotation(MXFField.class).size();
+                fieldSizeInBytes = field.getAnnotation(MXFProperty.class).size();
 
             }
             else
             {
-                throw new MXFException(String.format("field %s is not annotated with %s", fieldName, MXFField.class.getSimpleName()));
+                throw new MXFException(String.format("field %s is not annotated with %s", fieldName, MXFProperty.class.getSimpleName()));
             }
         }
         catch(NoSuchFieldException e)
@@ -426,13 +426,13 @@ public final class MXFFieldPopulator
         {
 
             Field field = getField(object.getClass(), fieldName);
-            if (field.isAnnotationPresent(MXFField.class))
+            if (field.isAnnotationPresent(MXFProperty.class))
             {
-                fieldCharset = Charset.forName(field.getAnnotation(MXFField.class).charset());
+                fieldCharset = Charset.forName(field.getAnnotation(MXFProperty.class).charset());
             }
             else
             {
-                throw new MXFException(String.format("field %s is not annotated with %s", fieldName, MXFField.class.getSimpleName()));
+                throw new MXFException(String.format("field %s is not annotated with %s", fieldName, MXFProperty.class.getSimpleName()));
             }
         }
         catch(NoSuchFieldException e)
@@ -478,9 +478,9 @@ public final class MXFFieldPopulator
             for (Field field : fields)
             {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(MXFField.class))
+                if (field.isAnnotationPresent(MXFProperty.class))
                 {
-                    boolean depends = field.getAnnotation(MXFField.class).depends();
+                    boolean depends = field.getAnnotation(MXFProperty.class).depends();
                     if (depends)
                     {
                         try
