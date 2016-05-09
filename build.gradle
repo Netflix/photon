@@ -80,8 +80,6 @@ test {
     }
 }
 
-repositories { mavenCentral() }
-
 task getDependencies(type: Copy) {
   from sourceSets.main.runtimeClasspath
   into 'build/libs/'
