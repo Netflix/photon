@@ -513,7 +513,7 @@ public final class CompositionPlaylist
                      * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
                      * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
                      * synchronized wrapping it around a synchronized list collection, although in this case it
-                     * is perhaps not required since this method is only invoked only from the context of the constructor.
+                     * is perhaps not required since this method is only invoked from the context of the constructor.
                      */
                     List<TrackFileResourceType> trackFileResources = Collections.synchronizedList(new LinkedList<>());
                     for (BaseResourceType resource : sequence.getResourceList().getResource())
@@ -774,7 +774,7 @@ public final class CompositionPlaylist
          * @return the list of TrackFileResources associated with this VirtualTrack.
          */
         public List<TrackFileResourceType> getResourceList(){
-            return this.resourceList;
+            return Collections.unmodifiableList(this.resourceList);
         }
     }
 
