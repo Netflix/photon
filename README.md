@@ -55,7 +55,8 @@ It will download all dependencies into ./build/libs directory, where Photon.*.ja
 Two sample applications have been provided with this project. You can run them as follows:
 
 ```
-java -cp build/libs/*: com.netflix.imflibrary.app.IMFEssenceComponentReader <inputFile> <workingDirectory>
+
+java -cp target/dependency/*: com.netflix.imflibrary.app.IMFTrackFileReader <inputFile> <workingDirectory>
 ```
 
 ```

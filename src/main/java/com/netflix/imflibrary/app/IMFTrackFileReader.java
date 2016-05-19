@@ -52,7 +52,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @ThreadSafe
-final class IMFEssenceComponentReader
+final class IMFTrackFileReader
 {
     private final File workingDirectory;
     private final ResourceByteRangeProvider resourceByteRangeProvider;
@@ -63,14 +63,14 @@ final class IMFEssenceComponentReader
     private volatile List<IndexTableSegment> indexTableSegments = null;
 
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFEssenceComponentReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
 
     /**
      * Lazily creates a model instance corresponding to a st2067-5 compliant MXF file
      * @param workingDirectory the working directory
      * @param resourceByteRangeProvider the MXF file represented as a {@link com.netflix.imflibrary.utils.ResourceByteRangeProvider}
      */
-    IMFEssenceComponentReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
+    IMFTrackFileReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
     {
         this.workingDirectory = workingDirectory;
         this.resourceByteRangeProvider = resourceByteRangeProvider;
@@ -554,7 +554,7 @@ final class IMFEssenceComponentReader
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFEssenceComponentReader.class.getName()));
+        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFTrackFileReader.class.getName()));
         return sb.toString();
     }
 
@@ -571,18 +571,18 @@ final class IMFEssenceComponentReader
         File workingDirectory = new File(args[1]);
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
-        IMFEssenceCPLBuilder imfEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
+        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
+        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
 
         try {
-            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfEssenceComponentReader.getEssenceDescriptors()) {
+            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors()) {
                 /* create dom */
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
                 Document document = docBuilder.newDocument();
                 /*Output file containing the RegXML representation of the EssenceDescriptor*/
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                File outputFile = imfEssenceCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader);
+                File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader);
             }
         }
         catch(ParserConfigurationException | TransformerException e){
@@ -590,6 +590,6 @@ final class IMFEssenceComponentReader
         }
 
 
-        logger.info(String.format("%n %s", imfEssenceComponentReader.toString()));
+        logger.info(String.format("%n %s", imfTrackFileReader.toString()));
     }
 }
