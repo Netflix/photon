@@ -80,6 +80,11 @@ test {
     }
 }
 
+task getDependencies(type: Copy) {
+  from sourceSets.main.runtimeClasspath
+  into 'build/libs/'
+}
+
 /**
  * Use the following task judiciously, i.e. only
  * when you want to create a gradle wrapper for the
