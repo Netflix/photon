@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
+import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -71,6 +72,44 @@ public class IMPValidatorFunctionalTests {
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);
+        Assert.assertTrue(errors.size() == 0);
+    }
+
+    @Test
+    public void validateEssencesHeaderPartition() throws IOException {
+        List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
+
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        essencesHeaderPartition.add(payloadRecord);
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        essencesHeaderPartition.add(payloadRecord);
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_LAS20.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        essencesHeaderPartition.add(payloadRecord);
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_LAS51.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        essencesHeaderPartition.add(payloadRecord);
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        essencesHeaderPartition.add(payloadRecord);
+
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 0);
     }
 
