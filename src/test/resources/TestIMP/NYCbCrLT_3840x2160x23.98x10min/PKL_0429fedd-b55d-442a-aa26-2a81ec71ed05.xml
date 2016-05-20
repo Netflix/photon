@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/429-8/2007/PKL">
+	<Id>urn:uuid:0429fedd-b55d-442a-aa26-2a81ec71ed05</Id>
+	<AnnotationText>NYCbCrLT_3820x2160x23.98</AnnotationText>
+	<IssueDate>2015-04-08T23:17:57-00:00</IssueDate>
+	<Issuer></Issuer>
+	<Creator>Clipster 5.9.3.0 (build 87795)</Creator>
+	<AssetList>
+		<Asset>
+			<Id>urn:uuid:a453b63a-cf4d-454a-8c34-141f560c0100</Id>
+			<Hash>+Zwe9RV3xySjm5NEUtNd22b5X1E=</Hash>
+			<Size>2462</Size>
+			<Type>text/xml</Type>
+			<OriginalFileName>CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml</OriginalFileName>
+		</Asset>
+		<Asset>
+			<Id>urn:uuid:dc418b71-3ff2-4049-9a03-3988476285bc</Id>
+			<Hash>P8ha1W8Mz8APVEtVOaP2tKo7U90=</Hash>
+			<Size>493406530</Size>
+			<Type>application/mxf</Type>
+			<OriginalFileName>NYCbCrLT_3840x2160x2398_full_full.mxf</OriginalFileName>
+		</Asset>
+		<Asset>
+			<Id>urn:uuid:3782c89e-37c3-4f7c-a8ee-34f5be00d8e3</Id>
+			<Hash>xa5cA4qSwY2AwEVcgEXCejOhZIg=</Hash>
+			<Size>8665662</Size>
+			<Type>application/mxf</Type>
+			<OriginalFileName>NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf</OriginalFileName>
+		</Asset>
+	</AssetList>
+</PackingList>

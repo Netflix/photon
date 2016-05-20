@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -93,7 +95,7 @@ public final class CompositionPlaylist
     public CompositionPlaylist(File compositionPlaylistXMLFile, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
-        CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
+        CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile, imfErrorLogger);
 
         try(InputStream input = new FileInputStream(compositionPlaylistXMLFile);
             InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -152,7 +154,7 @@ public final class CompositionPlaylist
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
-        CompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider);
+        CompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() -1);
             InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -561,12 +563,12 @@ public final class CompositionPlaylist
         return result;
     }
 
-    private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
+    private static void validateCompositionPlaylistSchema(File xmlFile, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
-        validateCompositionPlaylistSchema(resourceByteRangeProvider);
+        validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
     }
 
-    private static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, URISyntaxException, SAXException {
+    private static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException {
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -586,6 +588,22 @@ public final class CompositionPlaylist
             Schema schema = schemaFactory.newSchema(streamSources);
 
             Validator validator = schema.newValidator();
+            validator.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage()));
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage()));
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage()));
+                }
+            });
             validator.validate(inputSource);
         }
     }
