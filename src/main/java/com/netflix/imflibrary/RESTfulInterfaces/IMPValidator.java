@@ -211,6 +211,12 @@ public class IMPValidator {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
 
+            List<ErrorLogger.ErrorObject> errors = validateCPL(cplPayloadRecord);
+            errors.addAll(validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition));
+            if(errors.size() > 0){
+                return errors;
+            }
+
             CompositionPlaylist compositionPlaylist = new CompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
             List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
             for(PayloadRecord payloadRecord : essencesHeaderPartition){

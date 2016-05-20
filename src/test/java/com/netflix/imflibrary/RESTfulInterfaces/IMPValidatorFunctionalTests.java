@@ -74,4 +74,13 @@ public class IMPValidatorFunctionalTests {
         Assert.assertTrue(errors.size() == 0);
     }
 
+    @Test
+    public void cplConformanceTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+
+
+    }
 }
