@@ -2,6 +2,8 @@ package com.netflix.imflibrary.utils;
 
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.util.List;
  * represent them in the form of a file with a specific extension, for e.g. ".hdr" for HeaderPartition.
  */
 public class IMFTrackFilePartitionsExtractor {
+
+    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFilePartitionsExtractor.class);
 
     private static File extractHeaderPartition(File input, File workingDirectory) throws IOException {
 
@@ -47,7 +51,9 @@ public class IMFTrackFilePartitionsExtractor {
 
         File headerPartition = resourceByteRangeProvider.getByteRange(partitionByteOffsets.get(0), partitionByteOffsets.get(1) - 1, workingDirectory);
         String inputPath = input.getAbsolutePath();
-        headerPartition.renameTo(new File(inputPath + ".hdr"));
+        if(!headerPartition.renameTo(new File(inputPath + ".hdr"))){
+            logger.info(String.format("Couldn't rename the file containing the header partition"));
+        }
         return headerPartition;
     }
 
