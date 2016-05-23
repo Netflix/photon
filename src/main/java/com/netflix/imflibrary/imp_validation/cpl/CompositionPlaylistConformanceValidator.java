@@ -145,7 +145,7 @@ public class CompositionPlaylistConformanceValidator {
          * the physical essence files referenced by the resources of a virtual track and are equal.
          */
         /*The following check simultaneously verifies 1) and 2) from above.*/
-        if(!getEssenceDescriptorIdsSet(compositionPlaylist).equals(getResourceEssenceDescriptorIdsSet(compositionPlaylist))){
+        if(!getEssenceDescriptorIdsSet(compositionPlaylist).containsAll(getResourceEssenceDescriptorIdsSet(compositionPlaylist))){
             result = false;
             throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
         }

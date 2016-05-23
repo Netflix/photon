@@ -257,6 +257,7 @@
       <Id>urn:uuid:e9e18479-6116-40f4-a891-9ef999c80f2a</Id>
       <Annotation>BLACKL_202_HD_REC709_178_ENG</Annotation>
       <SequenceList>
+        <!--
         <cc:MarkerSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
           <Id>urn:uuid:3fe86415-7d9c-49af-bb6b-97af2054c0d4</Id>
           <TrackId>urn:uuid:19de6c38-d921-448c-b4e0-ecadc459b36b</TrackId>
@@ -412,7 +413,11 @@
             </Resource>
           </ResourceList>
         </cc:MarkerSequence>
+        -->
+        <!--
         <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
+        -->
+        <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:eec38926-fa52-4345-8986-e66ed7c338d5</Id>
           <TrackId>urn:uuid:8546a723-ccb1-4d69-8834-b8ff96222d53</TrackId>
           <ResourceList>
@@ -427,11 +432,16 @@
               <SourceEncoding>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
+              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+              -->
             </Resource>
           </ResourceList>
         </cc:MainImageSequence>
+        <!--
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
+        -->
+        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:55d22716-556d-41ff-822e-e0feea75b9e3</Id>
           <TrackId>urn:uuid:55b1a5a6-d62d-4903-aca5-f766f86696fc</TrackId>
           <ResourceList>
@@ -446,11 +456,16 @@
               <SourceEncoding>urn:uuid:6086c285-d8b2-4c03-ba5b-b31f3b8cf059</SourceEncoding>
               <TrackFileId>urn:uuid:c808001c-da54-4295-a721-dcaa00659699</TrackFileId>
               <Hash>1BQxIai36yZDj3CuRXEdVxPV7mg=</Hash>
+              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+              -->
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
+        <!--
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
+        -->
+        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:daa41b9f-4214-47d3-9750-2908d35592b9</Id>
           <TrackId>urn:uuid:b8ee769c-b768-451c-bb5f-9c38fd3a5d18</TrackId>
           <ResourceList>
@@ -465,10 +480,13 @@
               <SourceEncoding>urn:uuid:fe0ca4ce-2877-411b-9fbf-e8c64d561a6d</SourceEncoding>
               <TrackFileId>urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34</TrackFileId>
               <Hash>9zit4G2zsmwpLqwXwFEJTu7UG50=</Hash>
+              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+              -->
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
+        <!--
         <cc:MainSubtitleSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
           <Id>urn:uuid:15fe223d-d18a-4add-8b62-f8a9a9cb6000</Id>
           <TrackId>urn:uuid:4925ff85-4f5a-4dcc-b904-e5005a189ffc</TrackId>
@@ -488,6 +506,7 @@
             </Resource>
           </ResourceList>
         </cc:MainSubtitleSequence>
+        -->
       </SequenceList>
     </Segment>
   </SegmentList>

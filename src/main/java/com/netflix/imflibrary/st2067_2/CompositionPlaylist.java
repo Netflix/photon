@@ -133,7 +133,7 @@ public final class CompositionPlaylist
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType, imfErrorLogger);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -192,7 +192,7 @@ public final class CompositionPlaylist
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType, imfErrorLogger);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -340,7 +340,7 @@ public final class CompositionPlaylist
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
-        Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType);
+        Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType, imfErrorLogger);
 
         //process first segment to create virtual track map
         SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
@@ -378,6 +378,10 @@ public final class CompositionPlaylist
 
         for (Object object : segment.getSequenceList().getAny())
         {
+            if(!(object instanceof JAXBElement)){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                continue;
+            }
             JAXBElement jaxbElement = (JAXBElement)(object);
             String name = jaxbElement.getName().getLocalPart();
             sequence = (SequenceType)(jaxbElement).getValue();
@@ -458,6 +462,10 @@ public final class CompositionPlaylist
 
             for (Object object : segment.getSequenceList().getAny())
             {
+                if(!(object instanceof JAXBElement)){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                    continue;
+                }
                 JAXBElement jaxbElement = (JAXBElement)(object);
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
@@ -497,7 +505,7 @@ public final class CompositionPlaylist
         }
     }
 
-    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType)
+    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
@@ -506,6 +514,10 @@ public final class CompositionPlaylist
             SequenceType sequence;
             for (Object object : segment.getSequenceList().getAny())
             {
+                if(!(object instanceof JAXBElement)){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                    continue;
+                }
                 JAXBElement jaxbElement = (JAXBElement)(object);
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)

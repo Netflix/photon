@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -211,10 +212,10 @@ public class IMPValidator {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
 
-            List<ErrorLogger.ErrorObject> errors = validateCPL(cplPayloadRecord);
+            List<ErrorLogger.ErrorObject> errors = new ArrayList<>(validateCPL(cplPayloadRecord));
             errors.addAll(validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition));
             if(errors.size() > 0){
-                return errors;
+                return Collections.unmodifiableList(errors);
             }
 
             CompositionPlaylist compositionPlaylist = new CompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);

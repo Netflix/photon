@@ -54,6 +54,9 @@ public class DOMNodeObjectModel {
                     child = child.getNextSibling();
                 }
                 break;
+            case Node.COMMENT_NODE:
+                child = child.getNextSibling();
+                break;
             default:
                 throw new IMFException(String.format("Internal error occurred while constructing a DOM Node object model"));
         }
