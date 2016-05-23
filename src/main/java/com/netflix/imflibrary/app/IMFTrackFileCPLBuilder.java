@@ -155,7 +155,7 @@ final class IMFTrackFileCPLBuilder {
     }
 
     private File serializeCPL() throws IOException {
-        File outputFile = new File(this.workingDirectory + "/" + "CPL.xml");
+        File outputFile = new File(this.workingDirectory + "/" + this.mxfFile.getName() + ".xml");
         IMFUtils.writeCPLToFile(this.cplRoot, outputFile);
         return outputFile;
     }
