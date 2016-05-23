@@ -336,7 +336,7 @@ public final class CompositionPlaylist
         return this.compositionPlaylistType;
     }
 
-    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nullable IMFErrorLogger imfErrorLogger)
+    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
