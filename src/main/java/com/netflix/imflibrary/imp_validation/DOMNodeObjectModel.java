@@ -7,9 +7,12 @@ import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by schakrovorthy on 2/26/16.
@@ -79,6 +82,13 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A getter for the Fields represented in the DOMNodeObjectModel
+     */
+    public Map<String, List<String>> getFields(){
+        return Collections.unmodifiableMap(this.fields);
+    }
+
+    /**
      * A method to compare 2 DOMObjectNodeModel objects to verify if 2 DOM Nodes have the same
      * content.
      * @param other the node to compare with.
@@ -98,8 +108,25 @@ public class DOMNodeObjectModel {
             return false;
         }
 
-        if(this.fields.size() == otherDOMNodeObjectModel.fields.size()){
-            return false;
+        if(this.fields.size() != otherDOMNodeObjectModel.fields.size()){
+            Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>(this.getFields().entrySet());
+            Integer thisFieldsSetSize = fieldsSet.size();
+            Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>(((DOMNodeObjectModel) other).getFields().entrySet());
+            Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
+
+            boolean result = fieldsSet.retainAll(otherFieldsSet);
+            if(result){
+                long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
+                if(confidenceScore > 80){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+                return false;
+            }
         }
 
         for(DOMNodeObjectModel children : this.childrenDOMNodes){
