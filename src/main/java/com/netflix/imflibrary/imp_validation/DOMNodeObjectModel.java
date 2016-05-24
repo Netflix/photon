@@ -104,52 +104,45 @@ public class DOMNodeObjectModel {
 
         DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
 
-        if(this.childrenDOMNodes.size() != otherDOMNodeObjectModel.childrenDOMNodes.size()){
+        Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
+        for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
+            fieldsSet.add(entry);
+        }
+        Integer thisFieldsSetSize = fieldsSet.size();
+        Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
+        for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
+            otherFieldsSet.add(entry);
+        }
+        Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
+
+        if(thisFieldsSetSize == 0
+                || otherFieldsSetSize == 0){
             return false;
         }
 
-        if(this.fields.size() != otherDOMNodeObjectModel.fields.size()){
-            Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
-            for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
-                fieldsSet.add(entry);
-            }
-            Integer thisFieldsSetSize = fieldsSet.size();
-            Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
-            for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
-                otherFieldsSet.add(entry);
-            }
-            Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
-
-            boolean result = fieldsSet.retainAll(otherFieldsSet);
-            if(result){
-                long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
-                if(confidenceScore > 80){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            }
-            else{
+        boolean result = fieldsSet.retainAll(otherFieldsSet);//If there is a change in FieldsSet then we want to see if there was atleast an 80% match of the fields
+        if(result){
+            long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
+            if(confidenceScore < 80){
                 return false;
             }
         }
 
-        for(DOMNodeObjectModel children : this.childrenDOMNodes){
+        if(this.childrenDOMNodes.size() != otherDOMNodeObjectModel.childrenDOMNodes.size()){
+            return false;
+        }
+
+        for(DOMNodeObjectModel child : this.childrenDOMNodes){
             boolean intermediateResult = false;
-            for(DOMNodeObjectModel otherChildren : otherDOMNodeObjectModel.childrenDOMNodes){
-                if(otherChildren.getNodeType() == children.getNodeType()
-                        && otherChildren.getLocalName().equals(children.getLocalName())){
-                    intermediateResult |= children.equals(otherChildren);
+            for(DOMNodeObjectModel otherChild : otherDOMNodeObjectModel.childrenDOMNodes){
+                if(otherChild.getNodeType() == child.getNodeType()
+                        && otherChild.getLocalName().equals(child.getLocalName())){
+                    intermediateResult |= child.equals(otherChild);
                 }
             }
             if(!intermediateResult){
                 return false;
             }
-        }
-
-        if(!this.fields.equals(otherDOMNodeObjectModel.fields)){
-            return false;
         }
         return true;
     }
