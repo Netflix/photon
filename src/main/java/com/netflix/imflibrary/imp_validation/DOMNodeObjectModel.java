@@ -109,9 +109,15 @@ public class DOMNodeObjectModel {
         }
 
         if(this.fields.size() != otherDOMNodeObjectModel.fields.size()){
-            Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>(this.getFields().entrySet());
+            Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
+            for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
+                fieldsSet.add(entry);
+            }
             Integer thisFieldsSetSize = fieldsSet.size();
-            Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>(((DOMNodeObjectModel) other).getFields().entrySet());
+            Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
+            for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
+                otherFieldsSet.add(entry);
+            }
             Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
 
             boolean result = fieldsSet.retainAll(otherFieldsSet);
