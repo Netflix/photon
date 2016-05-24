@@ -27,7 +27,10 @@ import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0377.StructuralMetadataID;
 import com.netflix.imflibrary.st0377.header.EssenceContainerData;
 import com.netflix.imflibrary.st0377.header.FileDescriptor;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -529,6 +532,20 @@ final class IMFTrackFileReader
     BigInteger getEssenceDuration() throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         return this.getHeaderPartition(imfErrorLogger).getEssenceDuration();
+    }
+
+    /**
+     * A method to return the TrackFileId which is a UUID identifying the track file
+     * @return UUID identifying the Track File
+     */
+    UUID getTrackFileId(){
+
+        Preface preface = this.headerPartition.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        SourcePackage filePackage = (SourcePackage)genericPackage;
+
+        UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+        return packageUUID;
     }
 
     public String toString()

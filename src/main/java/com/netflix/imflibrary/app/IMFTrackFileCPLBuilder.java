@@ -330,7 +330,7 @@ final class IMFTrackFileCPLBuilder {
         /*Source Encoding*/
         trackFileResourceType.setSourceEncoding(uuidList.get(index));/*For the moment we assume that an EssenceDescriptor reference changes only at the Sequence Level*/
         /*Track File Id*/
-        trackFileResourceType.setTrackFileId(IMFUUIDGenerator.getInstance().getUUID());
+        trackFileResourceType.setTrackFileId("urn" + ":" + "uuid" + ":" + this.imfTrackFileReader.getTrackFileId().toString());
         /*Key Id*/
         trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUUID());
         /*Hash*/
