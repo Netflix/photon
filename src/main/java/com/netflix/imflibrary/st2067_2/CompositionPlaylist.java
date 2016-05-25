@@ -336,11 +336,59 @@ public final class CompositionPlaylist
         return this.compositionPlaylistType;
     }
 
+    /**
+     * Getter for the video VirtualTrack in this Composition
+     * @return the video virtual track that is a part of this composition or null if there is not video virtual track
+     */
+    @Nullable
+    public VirtualTrack getVideoVirtualTrack(){
+        Set<Map.Entry<UUID, CompositionPlaylist.VirtualTrack>> virtualTrackMapEntrySet =  this.getVirtualTrackMap().entrySet();
+        Iterator iterator = virtualTrackMapEntrySet.iterator();
+        while(iterator != null
+                && iterator.hasNext()) {
+            CompositionPlaylist.VirtualTrack virtualTrack = ((Map.Entry<UUID, CompositionPlaylist.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)) {
+                return virtualTrack;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Getter for the audio VirtualTracks in this Composition
+     * @return a list of audio virtual tracks that are a part of this composition or an empty list if there are none
+     */
+    public List<VirtualTrack> getAudioVirtualTracks(){
+        List<VirtualTrack> audioVirtualTracks = new ArrayList<>();
+        Set<Map.Entry<UUID, CompositionPlaylist.VirtualTrack>> virtualTrackMapEntrySet =  this.getVirtualTrackMap().entrySet();
+        Iterator iterator = virtualTrackMapEntrySet.iterator();
+        while(iterator != null
+                && iterator.hasNext()) {
+            CompositionPlaylist.VirtualTrack virtualTrack = ((Map.Entry<UUID, CompositionPlaylist.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
+                audioVirtualTracks.add(virtualTrack);
+            }
+        }
+        return Collections.unmodifiableList(audioVirtualTracks);
+    }
+
+    public Map<UUID, EssenceDescriptorBaseType> getEssenceDescriptorListMap(){
+        List<EssenceDescriptorBaseType> essenceDescriptors = this.compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor();
+        Map<UUID, EssenceDescriptorBaseType> essenceDescriptorMap = new HashMap<>();
+        for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
+            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
+            essenceDescriptorMap.put(uuid, essenceDescriptorBaseType);
+        }
+        return essenceDescriptorMap;
+    }
+
     Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
         Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType, imfErrorLogger);
+
+        boolean foundMainImageEssence = false;
 
         //process first segment to create virtual track map
         SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
@@ -401,6 +449,7 @@ public final class CompositionPlaylist
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
                     if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence){
+                        foundMainImageEssence = true;
                         EditRate compositionEditRate = new EditRate(this.compositionPlaylistType.getEditRate());
                         for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
                             EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
@@ -430,6 +479,10 @@ public final class CompositionPlaylist
         checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
+
+        if(!foundMainImageEssence){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", this.getUUID().toString()));
+        }
 
         return virtualTrackMap;
     }
@@ -805,6 +858,34 @@ public final class CompositionPlaylist
          */
         public List<TrackFileResourceType> getResourceList(){
             return Collections.unmodifiableList(this.resourceList);
+        }
+
+        /**
+         * A method to determine the equivalence of any 2 virtual tracks.
+         * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
+         */
+        public boolean equivalent(VirtualTrack other){
+            boolean result = true;
+            List<TrackFileResourceType> otherResourceList = other.getResourceList();
+            if(otherResourceList.size() != this.resourceList.size()){
+                return false;
+            }
+            for(int i=0; i<this.getResourceList().size(); i++){
+                TrackFileResourceType thisResource = this.resourceList.get(i);
+                TrackFileResourceType otherResource = otherResourceList.get(i);
+
+                /**
+                 * Compare the following fields of the track file resources that have to be equal
+                 * for the 2 resources to be considered equivalent/representing the same timeline.
+                 */
+                result &= thisResource.getTrackFileId().equals(otherResource.getTrackFileId());
+                result &= thisResource.getEditRate().equals(otherResource.getEditRate());
+                result &= thisResource.getEntryPoint().equals(otherResource.getEntryPoint());
+                result &= thisResource.getIntrinsicDuration().equals(otherResource.getIntrinsicDuration());
+                result &= thisResource.getRepeatCount().equals(otherResource.getRepeatCount());
+                result &= thisResource.getSourceEncoding().equals(otherResource.getSourceEncoding());
+            }
+            return  result;
         }
     }
 

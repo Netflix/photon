@@ -144,4 +144,32 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> errors = IMPValidator.isCPLConformed(cplPayloadRecord, essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 1);
     }
+
+    @Test
+    public void cplMergeabilityTest() throws IOException {
+
+        File cpl1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml");
+        File cpl2 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
+
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(cpl1);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord cplPayloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+        errors.addAll(IMPValidator.validateCPL(cplPayloadRecord1));
+
+        resourceByteRangeProvider = new FileByteRangeProvider(cpl2);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord cplPayloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+        errors.addAll(IMPValidator.validateCPL(cplPayloadRecord2));
+
+
+        if(errors.size() == 0) {
+            errors.addAll(IMPValidator.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
+                add(cplPayloadRecord2);
+            }}));
+        }
+
+        Assert.assertTrue(errors.size() == 1);
+    }
 }

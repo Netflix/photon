@@ -18,6 +18,9 @@ import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.UUIDHelper;
+import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
+import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -26,7 +29,13 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * A RESTful interface for validating an IMF Master Package.
@@ -249,9 +258,83 @@ public class IMPValidator {
      *                          that need to be verified for mergeability
      * @return a boolean indicating if the CPLs can be merged or not
      */
-    public static boolean isCPLMergeable(List<PayloadRecord> cplPayloadRecords){
-        boolean result = true;
+    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloadRecords) throws IOException {
 
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
+        try {
+            compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
+        } catch (SAXException | JAXBException | URISyntaxException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            return imfErrorLogger.getErrors();
+        }
+        for(PayloadRecord cpl : cplPayloadRecords) {
+            try {
+                compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
+            } catch (SAXException | JAXBException | URISyntaxException e) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+                return imfErrorLogger.getErrors();
+            }
+        }
+
+        CompositionPlaylist.VirtualTrack referenceVideoVirtualTrack = compositionPlaylists.get(0).getVideoVirtualTrack();
+        UUID referenceCPLUUID = compositionPlaylists.get(0).getUUID();
+        for(int i=1; i<compositionPlaylists.size(); i++){
+            if(!referenceVideoVirtualTrack.equivalent(compositionPlaylists.get(i).getVideoVirtualTrack())){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
+            }
+        }
+
+        if(imfErrorLogger.getErrors().size() > 0){
+            return imfErrorLogger.getErrors();
+        }
+
+        /**
+         * Perform AudioTrack mergeability checks
+         * 1) Identify AudioTracks that are the same language
+         * 2) Compare language tracks to see if they represent the same timeline
+         */
+        List<Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
+        for(CompositionPlaylist compositionPlaylist : compositionPlaylists){
+            audioVirtualTracksMapList.add(constructAudioVirtualTracksMap(compositionPlaylist));
+        }
+
+        Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
+        for(int i=1; i<audioVirtualTracksMapList.size(); i++){
+            if(!compareAudioVirtualTrackMaps(referenceAudioVirtualTracksMap, audioVirtualTracksMapList.get(i))){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
+            }
+        }
+
+        return imfErrorLogger.getErrors();
+    }
+
+    private static Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
+        Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
+        List<CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracks = cpl.getAudioVirtualTracks();
+        Map<UUID, EssenceDescriptorBaseType> referenceEssenceDescriptorListMap = cpl.getEssenceDescriptorListMap();
+        for(CompositionPlaylist.VirtualTrack audioVirtualTrack : referenceAudioVirtualTracks){
+            Set<EssenceDescriptorBaseType> set = new HashSet<>();
+            List<TrackFileResourceType> resources = audioVirtualTrack.getResourceList();
+            for(TrackFileResourceType resource : resources){
+                set.add(referenceEssenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
+            }
+            audioVirtualTrackMap.put(set, audioVirtualTrack);
+        }
+        return Collections.unmodifiableMap(audioVirtualTrackMap);
+    }
+
+    private static boolean compareAudioVirtualTrackMaps(Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> map1, Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> map2){
+        boolean result = true;
+        Iterator refIterator = map1.entrySet().iterator();
+        while(refIterator.hasNext()){
+            Map.Entry<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> entry = (Map.Entry<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack>) refIterator.next();
+            CompositionPlaylist.VirtualTrack refVirtualTrack = entry.getValue();
+            CompositionPlaylist.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
+            if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.
+                result &= refVirtualTrack.equivalent(otherVirtualTrack);
+            }
+        }
         return result;
     }
 
