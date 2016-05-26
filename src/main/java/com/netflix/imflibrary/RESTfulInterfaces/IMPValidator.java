@@ -6,6 +6,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
 import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistConformanceValidator;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -239,8 +240,8 @@ public class IMPValidator {
                                                             imfErrorLogger),
                                                             new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!new CompositionPlaylistConformanceValidator().isCompositionPlaylistConformed(compositionPlaylist, headerPartitionTuples)){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, "CompositionPlaylist is not conformed since its EssenceDescriptorList does not match the EssenceDescriptors of its Resources");
+            if(!new CompositionPlaylistConformanceValidator().isCompositionPlaylistConformed(compositionPlaylist, headerPartitionTuples, imfErrorLogger)){
+                return imfErrorLogger.getErrors();
             }
         }
         catch (SAXException | JAXBException | URISyntaxException | MXFException e){
@@ -294,12 +295,12 @@ public class IMPValidator {
          * 1) Identify AudioTracks that are the same language
          * 2) Compare language tracks to see if they represent the same timeline
          */
-        List<Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
+        List<Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
         for(CompositionPlaylist compositionPlaylist : compositionPlaylists){
             audioVirtualTracksMapList.add(constructAudioVirtualTracksMap(compositionPlaylist));
         }
 
-        Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
+        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
         for(int i=1; i<audioVirtualTracksMapList.size(); i++){
             if(!compareAudioVirtualTrackMaps(referenceAudioVirtualTracksMap, audioVirtualTracksMapList.get(i))){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
@@ -309,26 +310,26 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    private static Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
-        Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
-        List<CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracks = cpl.getAudioVirtualTracks();
-        Map<UUID, EssenceDescriptorBaseType> referenceEssenceDescriptorListMap = cpl.getEssenceDescriptorListMap();
-        for(CompositionPlaylist.VirtualTrack audioVirtualTrack : referenceAudioVirtualTracks){
-            Set<EssenceDescriptorBaseType> set = new HashSet<>();
+    private static Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
+        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
+        List<CompositionPlaylist.VirtualTrack> audioVirtualTracks = cpl.getAudioVirtualTracks();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = cpl.getEssenceDescriptorListMap();
+        for(CompositionPlaylist.VirtualTrack audioVirtualTrack : audioVirtualTracks){
+            Set<DOMNodeObjectModel> set = new HashSet<>();
             List<TrackFileResourceType> resources = audioVirtualTrack.getResourceList();
             for(TrackFileResourceType resource : resources){
-                set.add(referenceEssenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
+                set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
             }
             audioVirtualTrackMap.put(set, audioVirtualTrack);
         }
         return Collections.unmodifiableMap(audioVirtualTrackMap);
     }
 
-    private static boolean compareAudioVirtualTrackMaps(Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> map1, Map<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> map2){
+    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map2){
         boolean result = true;
         Iterator refIterator = map1.entrySet().iterator();
         while(refIterator.hasNext()){
-            Map.Entry<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack> entry = (Map.Entry<Set<EssenceDescriptorBaseType>, CompositionPlaylist.VirtualTrack>) refIterator.next();
+            Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>) refIterator.next();
             CompositionPlaylist.VirtualTrack refVirtualTrack = entry.getValue();
             CompositionPlaylist.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
             if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -105,7 +106,7 @@ public final class CompositionPlaylistHelper {
                                                                 , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
             }
         }
-        return virtualTrackResourceIDs;
+        return Collections.unmodifiableList(virtualTrackResourceIDs);
     }
 
     /**

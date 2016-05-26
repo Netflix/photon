@@ -21,6 +21,8 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
+import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistHelper;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
@@ -31,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -372,12 +375,18 @@ public final class CompositionPlaylist
         return Collections.unmodifiableList(audioVirtualTracks);
     }
 
-    public Map<UUID, EssenceDescriptorBaseType> getEssenceDescriptorListMap(){
+    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap(){
         List<EssenceDescriptorBaseType> essenceDescriptors = this.compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor();
-        Map<UUID, EssenceDescriptorBaseType> essenceDescriptorMap = new HashMap<>();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
         for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
             UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
-            essenceDescriptorMap.put(uuid, essenceDescriptorBaseType);
+            DOMNodeObjectModel domNodeObjectModel = null;
+            for(Object object : essenceDescriptorBaseType.getAny()) {
+                 domNodeObjectModel = CompositionPlaylistHelper.getObjectModelForDOMNode((Node) object);
+            }
+            if(domNodeObjectModel != null) {
+                essenceDescriptorMap.put(uuid, domNodeObjectModel);
+            }
         }
         return essenceDescriptorMap;
     }

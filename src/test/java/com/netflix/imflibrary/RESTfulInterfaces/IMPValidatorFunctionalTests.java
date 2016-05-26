@@ -114,7 +114,7 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
-    public void cplConformanceTest() throws IOException {
+    public void cplConformanceNegativeTest() throws IOException {
 
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
