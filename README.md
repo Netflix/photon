@@ -1,9 +1,12 @@
 # Photon
 
-Photon is an implementation of the Material Exchange Format (MXF) standard. MXF is a SMPTE standard defined in the
-specification SMPTE st0377-1:2011. Photon parses and completely reads an MXF file containing a single audio or video essence
-as defined by the IMF Essence Component (SMPTE st2067-5:2013) and serializes the metadata into an IMF Composition
-Playlist (SMPTE st2067-3:2013).
+Photon is an implementation of the Interoperable Master Format (IMF) standard. IMF is a SMPTE standard defined in the
+specification st2067-2:2013. Photon offers tools for parsing, interpreting and validating constituent files that make an
+Interoperable Master Package (IMP). These include AssetMap (st429-9:2014), PackingList (st429-8:2007), Composition
+Playlist (st2067-3:2013), and the essence containing IMF track file (st2067-5:2013) which follows the Material eXchange
+Format (MXF) format (st377-1:2011). Specifically, Photon parses and completely reads an MXF file containing a single
+audio or video essence as defined by the IMF Essence Component specification (st2067-5:2013) and serializes the metadata
+into an IMF Composition Playlist (SMPTE st2067-3:2013).
 
 The goal of the Photon is to provide a simple standardized interface to completely interpret an MXF essence.
 
