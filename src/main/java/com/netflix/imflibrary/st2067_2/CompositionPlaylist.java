@@ -21,6 +21,8 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
+import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistHelper;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.RepeatableInputStream;
@@ -31,8 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -93,7 +98,7 @@ public final class CompositionPlaylist
     public CompositionPlaylist(File compositionPlaylistXMLFile, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
-        CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile);
+        CompositionPlaylist.validateCompositionPlaylistSchema(compositionPlaylistXMLFile, imfErrorLogger);
 
         try(InputStream input = new FileInputStream(compositionPlaylistXMLFile);
             InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -131,7 +136,7 @@ public final class CompositionPlaylist
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType, imfErrorLogger);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -152,7 +157,7 @@ public final class CompositionPlaylist
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
-        CompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider);
+        CompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() -1);
             InputStream xmldsig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -190,7 +195,7 @@ public final class CompositionPlaylist
 
         this.editRate = new EditRate(this.compositionPlaylistType.getEditRate());
 
-        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType);
+        this.virtualTrackResourceMap = populateVirtualTrackResourceList(this.compositionPlaylistType, imfErrorLogger);
 
         if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
         {
@@ -334,11 +339,49 @@ public final class CompositionPlaylist
         return this.compositionPlaylistType;
     }
 
-    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nullable IMFErrorLogger imfErrorLogger)
+    /**
+     * Getter for the video VirtualTrack in this Composition
+     * @return the video virtual track that is a part of this composition or null if there is not video virtual track
+     */
+    @Nullable
+    public VirtualTrack getVideoVirtualTrack(){
+        Set<Map.Entry<UUID, CompositionPlaylist.VirtualTrack>> virtualTrackMapEntrySet =  this.getVirtualTrackMap().entrySet();
+        Iterator iterator = virtualTrackMapEntrySet.iterator();
+        while(iterator != null
+                && iterator.hasNext()) {
+            CompositionPlaylist.VirtualTrack virtualTrack = ((Map.Entry<UUID, CompositionPlaylist.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)) {
+                return virtualTrack;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Getter for the audio VirtualTracks in this Composition
+     * @return a list of audio virtual tracks that are a part of this composition or an empty list if there are none
+     */
+    public List<VirtualTrack> getAudioVirtualTracks(){
+        List<VirtualTrack> audioVirtualTracks = new ArrayList<>();
+        Set<Map.Entry<UUID, CompositionPlaylist.VirtualTrack>> virtualTrackMapEntrySet =  this.getVirtualTrackMap().entrySet();
+        Iterator iterator = virtualTrackMapEntrySet.iterator();
+        while(iterator != null
+                && iterator.hasNext()) {
+            CompositionPlaylist.VirtualTrack virtualTrack = ((Map.Entry<UUID, CompositionPlaylist.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
+                audioVirtualTracks.add(virtualTrack);
+            }
+        }
+        return Collections.unmodifiableList(audioVirtualTracks);
+    }
+
+    Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
-        Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType);
+        Map<UUID, List<TrackFileResourceType>>virtualTrackResourceMap =  this.populateVirtualTrackResourceList(compositionPlaylistType, imfErrorLogger);
+
+        boolean foundMainImageEssence = false;
 
         //process first segment to create virtual track map
         SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
@@ -376,6 +419,10 @@ public final class CompositionPlaylist
 
         for (Object object : segment.getSequenceList().getAny())
         {
+            if(!(object instanceof JAXBElement)){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                continue;
+            }
             JAXBElement jaxbElement = (JAXBElement)(object);
             String name = jaxbElement.getName().getLocalPart();
             sequence = (SequenceType)(jaxbElement).getValue();
@@ -395,6 +442,7 @@ public final class CompositionPlaylist
                     VirtualTrack virtualTrack = new VirtualTrack(uuid, virtualTrackResourceList, SequenceTypeEnum.getSequenceTypeEnum(name));
                     virtualTrackMap.put(uuid, virtualTrack);
                     if(SequenceTypeEnum.getSequenceTypeEnum(name) == SequenceTypeEnum.MainImageSequence){
+                        foundMainImageEssence = true;
                         EditRate compositionEditRate = new EditRate(this.compositionPlaylistType.getEditRate());
                         for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
                             EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
@@ -424,6 +472,10 @@ public final class CompositionPlaylist
         checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
+
+        if(!foundMainImageEssence){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", this.getUUID().toString()));
+        }
 
         return virtualTrackMap;
     }
@@ -456,6 +508,10 @@ public final class CompositionPlaylist
 
             for (Object object : segment.getSequenceList().getAny())
             {
+                if(!(object instanceof JAXBElement)){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                    continue;
+                }
                 JAXBElement jaxbElement = (JAXBElement)(object);
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
@@ -495,7 +551,7 @@ public final class CompositionPlaylist
         }
     }
 
-    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType)
+    private Map<UUID, List<TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
@@ -504,6 +560,10 @@ public final class CompositionPlaylist
             SequenceType sequence;
             for (Object object : segment.getSequenceList().getAny())
             {
+                if(!(object instanceof JAXBElement)){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                    continue;
+                }
                 JAXBElement jaxbElement = (JAXBElement)(object);
                 sequence = (SequenceType)(jaxbElement).getValue();
                 if (sequence != null)
@@ -513,7 +573,7 @@ public final class CompositionPlaylist
                      * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
                      * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
                      * synchronized wrapping it around a synchronized list collection, although in this case it
-                     * is perhaps not required since this method is only invoked only from the context of the constructor.
+                     * is perhaps not required since this method is only invoked from the context of the constructor.
                      */
                     List<TrackFileResourceType> trackFileResources = Collections.synchronizedList(new LinkedList<>());
                     for (BaseResourceType resource : sequence.getResourceList().getResource())
@@ -561,12 +621,12 @@ public final class CompositionPlaylist
         return result;
     }
 
-    private static void validateCompositionPlaylistSchema(File xmlFile) throws IOException, URISyntaxException, SAXException {
+    private static void validateCompositionPlaylistSchema(File xmlFile, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(xmlFile);
-        validateCompositionPlaylistSchema(resourceByteRangeProvider);
+        validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
     }
 
-    private static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, URISyntaxException, SAXException {
+    private static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, URISyntaxException, SAXException {
 
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
             InputStream xmldig_core_is = CompositionPlaylist.class.getResourceAsStream(CompositionPlaylist.xmldsig_core_schema_path);
@@ -586,6 +646,22 @@ public final class CompositionPlaylist
             Schema schema = schemaFactory.newSchema(streamSources);
 
             Validator validator = schema.newValidator();
+            validator.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage()));
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage()));
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage()));
+                }
+            });
             validator.validate(inputSource);
         }
     }
@@ -774,7 +850,35 @@ public final class CompositionPlaylist
          * @return the list of TrackFileResources associated with this VirtualTrack.
          */
         public List<TrackFileResourceType> getResourceList(){
-            return this.resourceList;
+            return Collections.unmodifiableList(this.resourceList);
+        }
+
+        /**
+         * A method to determine the equivalence of any 2 virtual tracks.
+         * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
+         */
+        public boolean equivalent(VirtualTrack other){
+            boolean result = true;
+            List<TrackFileResourceType> otherResourceList = other.getResourceList();
+            if(otherResourceList.size() != this.resourceList.size()){
+                return false;
+            }
+            for(int i=0; i<this.getResourceList().size(); i++){
+                TrackFileResourceType thisResource = this.resourceList.get(i);
+                TrackFileResourceType otherResource = otherResourceList.get(i);
+
+                /**
+                 * Compare the following fields of the track file resources that have to be equal
+                 * for the 2 resources to be considered equivalent/representing the same timeline.
+                 */
+                result &= thisResource.getTrackFileId().equals(otherResource.getTrackFileId());
+                result &= thisResource.getEditRate().equals(otherResource.getEditRate());
+                result &= thisResource.getEntryPoint().equals(otherResource.getEntryPoint());
+                result &= thisResource.getIntrinsicDuration().equals(otherResource.getIntrinsicDuration());
+                result &= thisResource.getRepeatCount().equals(otherResource.getRepeatCount());
+                result &= thisResource.getSourceEncoding().equals(otherResource.getSourceEncoding());
+            }
+            return  result;
         }
     }
 

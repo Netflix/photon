@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -105,7 +107,29 @@ public final class CompositionPlaylistHelper {
                                                                 , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
             }
         }
-        return virtualTrackResourceIDs;
+        return Collections.unmodifiableList(virtualTrackResourceIDs);
+    }
+
+    /**
+     * A stateless method that will analyze the EssenceDescriptorList in a CompositionPlaylist and construct a HashMap mapping
+     * a UUID to a EssenceDescriptor.
+     * @param compositionPlaylist - the compositionPlaylist to be analyzed
+     * @return a HashMap mapping a UUID to a EssenceDescriptor
+     */
+    public static Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap(CompositionPlaylist compositionPlaylist){
+        List<EssenceDescriptorBaseType> essenceDescriptors = compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
+        for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
+            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
+            DOMNodeObjectModel domNodeObjectModel = null;
+            for(Object object : essenceDescriptorBaseType.getAny()) {
+                domNodeObjectModel = getObjectModelForDOMNode((Node) object);
+            }
+            if(domNodeObjectModel != null) {
+                essenceDescriptorMap.put(uuid, domNodeObjectModel);
+            }
+        }
+        return essenceDescriptorMap;
     }
 
     /**

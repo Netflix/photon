@@ -7,9 +7,12 @@ import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by schakrovorthy on 2/26/16.
@@ -54,6 +57,9 @@ public class DOMNodeObjectModel {
                     child = child.getNextSibling();
                 }
                 break;
+            case Node.COMMENT_NODE:
+                //Ignore comment nodes
+                break;
             default:
                 throw new IMFException(String.format("Internal error occurred while constructing a DOM Node object model"));
         }
@@ -76,6 +82,13 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A getter for the Fields represented in the DOMNodeObjectModel
+     */
+    public Map<String, List<String>> getFields(){
+        return Collections.unmodifiableMap(this.fields);
+    }
+
+    /**
      * A method to compare 2 DOMObjectNodeModel objects to verify if 2 DOM Nodes have the same
      * content.
      * @param other the node to compare with.
@@ -91,29 +104,40 @@ public class DOMNodeObjectModel {
 
         DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
 
+        Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
+        for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
+            fieldsSet.add(entry);
+        }
+
+        Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
+        for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
+            otherFieldsSet.add(entry);
+        }
+
+        boolean result = fieldsSet.retainAll(otherFieldsSet);//If there is a change in FieldsSet then we want to see if there was atleast an 80% match of the fields
+        if(result){
+            /*long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
+            if(confidenceScore < 80){
+                return false;
+            }*/
+            return false;
+        }
+
         if(this.childrenDOMNodes.size() != otherDOMNodeObjectModel.childrenDOMNodes.size()){
             return false;
         }
 
-        if(this.fields.size() == otherDOMNodeObjectModel.fields.size()){
-            return false;
-        }
-
-        for(DOMNodeObjectModel children : this.childrenDOMNodes){
+        for(DOMNodeObjectModel child : this.childrenDOMNodes){
             boolean intermediateResult = false;
-            for(DOMNodeObjectModel otherChildren : otherDOMNodeObjectModel.childrenDOMNodes){
-                if(otherChildren.getNodeType() == children.getNodeType()
-                        && otherChildren.getLocalName().equals(children.getLocalName())){
-                    intermediateResult |= children.equals(otherChildren);
+            for(DOMNodeObjectModel otherChild : otherDOMNodeObjectModel.childrenDOMNodes){
+                if(otherChild.getNodeType() == child.getNodeType()
+                        && otherChild.getLocalName().equals(child.getLocalName())){
+                    intermediateResult |= child.equals(otherChild);
                 }
             }
             if(!intermediateResult){
                 return false;
             }
-        }
-
-        if(!this.fields.equals(otherDOMNodeObjectModel.fields)){
-            return false;
         }
         return true;
     }

@@ -1,13 +1,14 @@
 package com.netflix.imflibrary.imp_validation.cpl;
 
 import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
-import com.netflix.imflibrary.reader_interfaces.MXFEssenceReader;
+import com.netflix.imflibrary.app.MXFEssenceReader;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
@@ -17,7 +18,6 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
@@ -32,15 +32,13 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,7 +66,7 @@ public class CompositionPlaylistConformanceValidator {
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean isCompositionPlaylistConformed(CompositionPlaylistRecord compositionPlaylistRecord) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+    public boolean isCompositionPlaylistConformed(CompositionPlaylistRecord compositionPlaylistRecord, IMFErrorLogger imfErrorLogger) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
 
         /*
          * The algorithm for conformance checking a CompositionPlaylist (CPL) would be
@@ -79,7 +77,7 @@ public class CompositionPlaylistConformanceValidator {
          * the physical essence files referenced by the resources of a virtual track and are equal.
          */
         CompositionPlaylist compositionPlaylist = compositionPlaylistRecord.getCompositionPlaylist();
-        Map<UUID, List<Node>> eDLMap = getCPLEssenceDescriptorListMap(compositionPlaylist);
+        Map<UUID, DOMNodeObjectModel> eDLMap = getCPLEssenceDescriptorListMap(compositionPlaylist);
 
         /**
          * Get the complete list of SourceEncoding elements in all the TrackFileResources in the CPL.
@@ -111,14 +109,19 @@ public class CompositionPlaylistConformanceValidator {
          * Create a HashMap <sourceEncodingElement List<DOM Nodes> exhaustively by reading all the EssenceDescriptors in every Essence referred
          * by every TrackFileResource in every Virtual Track in the CPL.
          */
-        Map<UUID, List<Node>> essenceDescriptorMap = new LinkedHashMap<>();/*Map <sourceEncodingElement List<Node>> from the physical essence files*/
+        Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorMap = new LinkedHashMap<>();/*Map <sourceEncodingElement List<Node>> from the physical essence files*/
         for(Map.Entry entry : sourceEncodingElementByteRangeProviderMap.entrySet()){
             MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(sourceEncodingElementByteRangeProviderMap.get(entry.getKey()));
             if(essenceDescriptorMap.get(entry.getKey()) == null) {
-                essenceDescriptorMap.put((UUID) entry.getKey(), mxfEssenceReader.getEssenceDescriptorsDOMNodes());
+                List<Node> essenceDescriptorsDOMNodes = mxfEssenceReader.getEssenceDescriptorsDOMNodes();
+                List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
+                for(Node node : essenceDescriptorsDOMNodes){
+                    domNodeObjectModels.add(CompositionPlaylistHelper.getObjectModelForDOMNode(node));
+                }
+                essenceDescriptorMap.put((UUID) entry.getKey(), domNodeObjectModels);
             }
         }
-        return compareEssenceDescriptors(essenceDescriptorMap, eDLMap);
+        return compareEssenceDescriptors(essenceDescriptorMap, eDLMap, imfErrorLogger);
     }
 
     /**
@@ -134,7 +137,7 @@ public class CompositionPlaylistConformanceValidator {
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean isCompositionPlaylistConformed(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
+    public boolean isCompositionPlaylistConformed(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples, IMFErrorLogger imfErrorLogger) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         boolean result = true;
         /*
          * The algorithm for conformance checking a CompositionPlaylist (CPL) would be
@@ -145,12 +148,32 @@ public class CompositionPlaylistConformanceValidator {
          * the physical essence files referenced by the resources of a virtual track and are equal.
          */
         /*The following check simultaneously verifies 1) and 2) from above.*/
-        if(!getEssenceDescriptorIdsSet(compositionPlaylist).equals(getResourceEssenceDescriptorIdsSet(compositionPlaylist))){
-            result = false;
-            throw new IMFException(String.format("At least one of the EssenceDescriptors in the EssenceDescriptorList is not referenced by a TrackFileResource or there is at least one TrackFileResource that is not referenced by a EssenceDescriptor in the EssenceDescriptorList"));
+        Set<UUID> resourceEssenceDescriptorIDsSet = getResourceEssenceDescriptorIdsSet(compositionPlaylist);
+        Iterator resourceEssenceDescriptorIDs = resourceEssenceDescriptorIDsSet.iterator();
+        Set<UUID> cplEssenceDescriptorIDsSet = getEssenceDescriptorIdsSet(compositionPlaylist);
+        Iterator cplEssenceDescriptorIDs = cplEssenceDescriptorIDsSet.iterator();
+        while(resourceEssenceDescriptorIDs.hasNext()){
+            UUID resourceEssenceDescriptorUUID = (UUID) resourceEssenceDescriptorIDs.next();
+            if(!cplEssenceDescriptorIDsSet.contains(resourceEssenceDescriptorUUID)) {
+                result &= false;
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor ID %s referenced by a VirtualTrack Resource does not have a corresponding EssenceDescriptor in the EssenceDescriptorList in the CPL", resourceEssenceDescriptorUUID.toString()));
+            }
         }
+
+        while(cplEssenceDescriptorIDs.hasNext()){
+            UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
+            if(!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
+                result &= false;
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptorID %s in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", cplEssenceDescriptorUUID.toString()));
+            }
+        }
+
+        if(!result){
+            return result;
+        }
+
         /*The following check verifies 3) from above.*/
-        result = compareEssenceDescriptors(getCPLEssenceDescriptorListMap(compositionPlaylist), getResourcesEssenceDescriptorMap(compositionPlaylist, headerPartitionTuples));
+        result &= compareEssenceDescriptors(getResourcesEssenceDescriptorMap(compositionPlaylist, headerPartitionTuples), getCPLEssenceDescriptorListMap(compositionPlaylist), imfErrorLogger);
         return result;
     }
 
@@ -165,19 +188,8 @@ public class CompositionPlaylistConformanceValidator {
         return essenceDescriptorIdsSet;
     }
 
-    private Map<UUID, List<Node>> getCPLEssenceDescriptorListMap(CompositionPlaylist compositionPlaylist){
-        List<EssenceDescriptorBaseType> essenceDescriptorList = compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor();
-        Map<UUID, List<Node>> eDLMap = new HashMap<>();/*Map <sourceEncodingElement List<Node>> from the EssenceDescriptorList*/
-        for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptorList){
-            List<Node> essenceDescriptorNodes = new ArrayList<>();
-            for(Object object : essenceDescriptorBaseType.getAny()){
-                essenceDescriptorNodes.add((Node) object);
-            }
-            UUID sourceEncodingElement = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
-            /*Construct a map <SourceEncodingElement/ID  DOM Node> corresponding to every EssenceDescriptor in the any list of this EssenceDescriptorBaseType in the EssenceDescriptorList*/
-            eDLMap.put(sourceEncodingElement, essenceDescriptorNodes);
-        }
-        return eDLMap;
+    private Map<UUID, DOMNodeObjectModel> getCPLEssenceDescriptorListMap(CompositionPlaylist compositionPlaylist){
+        return CompositionPlaylistHelper.getEssenceDescriptorListMap(compositionPlaylist);
     }
 
     private Set<UUID> getResourceEssenceDescriptorIdsSet (CompositionPlaylist compositionPlaylist) throws IOException, SAXException, JAXBException, URISyntaxException{
@@ -193,10 +205,10 @@ public class CompositionPlaylistConformanceValidator {
         return resourceSourceEncodingElementsSet;
     }
 
-    private Map<UUID, List<Node>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
-        Map<UUID, List<Node>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
+    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorMap(CompositionPlaylist compositionPlaylist, List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
+        Map<UUID, List<DOMNodeObjectModel>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
 
-        /*Create a Map of FilePackage UUID which should be equal to the TrackId of the resource in the CompositionPlaylist if the asset is referenced and the HeaderPartitionTuple, Map<UUID, HeaderPartitionTuple>*/
+        /*Create a Map of FilePackage UUID which should be equal to the TrackFileId of the resource in the CompositionPlaylist if the asset is referenced and the HeaderPartitionTuple, Map<UUID, HeaderPartitionTuple>*/
         Map<UUID, IMPValidator.HeaderPartitionTuple> resourceUUIDHeaderPartitionMap = new HashMap<>();
         for(IMPValidator.HeaderPartitionTuple headerPartitionTuple : headerPartitionTuples) {
             //validate header partition
@@ -216,9 +228,13 @@ public class CompositionPlaylistConformanceValidator {
             for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 IMPValidator.HeaderPartitionTuple headerPartitionTuple = resourceUUIDHeaderPartitionMap.get(resourceIdTuple.getTrackFileId());
                 if(headerPartitionTuple != null){
-                    /*Create a DOM Node representation of the header partition*/
-                    List<Node> nodes = getEssenceDescriptorDOMNodes(headerPartitionTuple);
-                    resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), nodes);
+                    /*Create a DOM Node representation of the EssenceDescriptors present in this header partition corresponding to an IMFTrackFile*/
+                    List<Node> essenceDescriptorDOMNodes = getEssenceDescriptorDOMNodes(headerPartitionTuple);
+                    List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
+                    for(Node node : essenceDescriptorDOMNodes){
+                        domNodeObjectModels.add(CompositionPlaylistHelper.getObjectModelForDOMNode(node));
+                    }
+                    resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), domNodeObjectModels);
                 }
             }
         }
@@ -287,64 +303,39 @@ public class CompositionPlaylistConformanceValidator {
         return byteProvider;
     }
 
-    private boolean compareEssenceDescriptors(Map<UUID, List<Node>> essenceDescriptorMap, Map<UUID, List<Node>> eDLMap){
+    private boolean compareEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap, IMFErrorLogger imfErrorLogger){
 
         /**
-         * An exhaustive compare of the eDLMap and essenceDescriptorMap is required to ensure that the essence descriptors
+         * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
          * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
          * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
          */
-        Map<UUID, List<DOMNodeObjectModel>> virtualTracksEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(essenceDescriptorMap);/*A map of <SourceEncodingElement/ID List<DOMNodeObjectModel>> corresponding to every EssenceDescriptor in that essence*/
-        Map<UUID, List<DOMNodeObjectModel>> cplEDLEssenceDescriptorsMap = getEssenceDescriptorsObjectModel(eDLMap);/*A map of <SourceEncodingElement/ID List<DOMNodeObjectModel>> corresponding to every EssenceDescriptor identified by the SourceEncodingElement in the EDL*/
 
         /**
-         * We now have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
-         * the essence descriptor in each of the essences referenced from the track file resource within each
-         * virtual track.
+         * The Maps passed in have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
+         * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
          */
-        for(Map.Entry entry : cplEDLEssenceDescriptorsMap.entrySet()){
-
-            if(cplEDLEssenceDescriptorsMap.get(entry.getKey()).size() > 0){ /*Check if the list of EssenceDescriptors corresponding to this ID is non-empty*/
-                List<DOMNodeObjectModel> cplEDLList = cplEDLEssenceDescriptorsMap.get(entry.getKey());/*List of all the EssenceDescriptors identified by the SourceEncodingElement in the EDL*/
-                List<DOMNodeObjectModel> virtualTrackEDList = virtualTracksEssenceDescriptorsMap.get(entry.getKey());/*List of all the EssenceDescriptors in the Essence identified by the SourceEncodingElement in the EDL*/
-                for(DOMNodeObjectModel domNodeObjectModel : cplEDLList){/*This assumes that there could be multiple EssenceDescriptors in the EDL identified by the same ID*/
-                    boolean intermediateResult = false;
-                    /**
-                     * Find atleast one EssenceDescriptor in the Essence that matches every EssenceDescriptor identified by
-                     * this source encoding element ID in the EssenceDescriptorList.
-                     */
-                    for(DOMNodeObjectModel otherDomNodeObjectModel : virtualTrackEDList) {
-                        intermediateResult |= domNodeObjectModel.equals(otherDomNodeObjectModel);
-                        if(intermediateResult){
-                            break;
-                        }
-                    }
-                    if(!intermediateResult) {
-                        return false;
-                    }
-                }
+        Iterator<Map.Entry<UUID, DOMNodeObjectModel>> eDLMapIterator = eDLMap.entrySet().iterator();
+        while(eDLMapIterator.hasNext()){
+            Map.Entry<UUID, DOMNodeObjectModel> entry = (Map.Entry<UUID, DOMNodeObjectModel>) eDLMapIterator.next();
+            List<DOMNodeObjectModel> domNodeObjectModels = essenceDescriptorsMap.get(entry.getKey());
+            if(domNodeObjectModels == null){
+                //This implies we did not find a single VirtualTrack that referenced this particular EssenceDescriptor in the EDL
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL is not referenced by a single resource within any of the VirtualTracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", entry.getKey().toString()));
+                return false;
+            }
+            DOMNodeObjectModel referenceDOMNodeObjectModel = entry.getValue();
+            boolean intermediateResult = false;
+            for(DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels){
+                intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
+            }
+            if(!intermediateResult){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL doesn't match any EssenceDescriptors within the IMFTrackFile that references it", entry.getKey().toString()));
+                return false;
             }
         }
+
         return true;
-    }
-
-    private Map<UUID, List<DOMNodeObjectModel>> getEssenceDescriptorsObjectModel(Map<UUID, List<Node>> map){
-        Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap = new LinkedHashMap<>();
-        for(Map.Entry entry : map.entrySet()){
-            List<Node> cplEssenceDescriptorNodes = (List<Node>) entry.getValue(); /*List of nodes corresponding to this essence's essence descriptors*/
-            /**
-             * Every essence descriptor in the CPL's EDL would be represented using a map as its object model.
-             * In this case the implementation allows for multiple essence descriptors of the same type in the EDL, for e.g.
-             * multiple CDCIPictureEssenceDescriptors in a single essence.
-             */
-            List<DOMNodeObjectModel> essenceDescriptorsNodeList = new ArrayList<>();
-            for(Node node : cplEssenceDescriptorNodes){
-                DOMNodeObjectModel DOMNodeObjectModel = CompositionPlaylistHelper.getObjectModelForDOMNode(node);
-                essenceDescriptorsNodeList.add(DOMNodeObjectModel);
-            }
-            essenceDescriptorsMap.put((UUID)entry.getKey(), essenceDescriptorsNodeList);
-        }
-        return essenceDescriptorsMap;
     }
 
 }

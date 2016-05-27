@@ -69,13 +69,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class that builds an IMF CPL representation of an IMF Essence
+ * A class that builds an IMF CompositionPlaylist representation of an IMF Essence
  */
 @Immutable
-final class IMFEssenceCPLBuilder {
+final class IMFTrackFileCPLBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFEssenceComponentReader.class);
-    private final IMFEssenceComponentReader imfEssenceComponentReader;
+    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
+    private final IMFTrackFileReader imfTrackFileReader;
     private final RegXMLLibHelper regXMLLibHelper;
     private final File workingDirectory;
     private final CompositionPlaylistType cplRoot;
@@ -84,17 +84,17 @@ final class IMFEssenceCPLBuilder {
 
 
     /**
-     * A constructor for the IMFEssenceCPLBuilder class. This class creates an IMF CPL representation of an IMF Essence
+     * A constructor for the IMFTrackFileCPLBuilder class. This class creates an IMF CPL representation of an IMF Essence
      * @param workingDirectory - A location on a file system used for processing the essence.
      *                         This would also be the location where the CPL representation of the IMFEssence would be written into.
      * @param essenceFile - File representing an IMF Essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public IMFEssenceCPLBuilder(File workingDirectory, File essenceFile) throws IOException {
+    public IMFTrackFileCPLBuilder(File workingDirectory, File essenceFile) throws IOException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceFile);
-        this.imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
-        KLVPacket.Header primerPackHeader = this.imfEssenceComponentReader.getPrimerPackHeader();
-        this.regXMLLibHelper = new RegXMLLibHelper(primerPackHeader, this.imfEssenceComponentReader.getByteProvider(primerPackHeader));
+        this.imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
+        KLVPacket.Header primerPackHeader = this.imfTrackFileReader.getPrimerPackHeader();
+        this.regXMLLibHelper = new RegXMLLibHelper(primerPackHeader, this.imfTrackFileReader.getByteProvider(primerPackHeader));
         this.workingDirectory = workingDirectory;
         /*Peek into the CompositionPlayListType and recursively construct its constituent fields*/
         this.cplRoot = IMFCPLFactory.constructCompositionPlaylistType();
@@ -103,7 +103,7 @@ final class IMFEssenceCPLBuilder {
     }
 
     /**
-     * A template method to get an IMF CPL representation of the IMF Essence that the IMFEssenceCPLBuilder was
+     * A template method to get an IMF CPL representation of the IMF Essence that the IMFTrackFileCPLBuilder was
      * initialized with.
      *
      * @throws IOException - any I/O related error will be exposed through an IOException
@@ -126,7 +126,7 @@ final class IMFEssenceCPLBuilder {
         this.cplRoot.getContentTitle().setValue(name);
         this.cplRoot.getContentTitle().setLanguage("en");
         /*Content Kind*/
-        String essenceType = this.imfEssenceComponentReader.getEssenceType();
+        String essenceType = this.imfTrackFileReader.getEssenceType();
         this.cplRoot.getContentKind().setValue(essenceType);
         this.cplRoot.getContentKind().setScope("General");
         /*Extension Properties*/
@@ -141,7 +141,7 @@ final class IMFEssenceCPLBuilder {
         /*CompositionTimeCode*/
         buildCompositionTimeCode();
         /*Edit Rate*/
-        List<Long> list = this.imfEssenceComponentReader.getEssenceEditRateAsList();
+        List<Long> list = this.imfTrackFileReader.getEssenceEditRateAsList();
         this.cplRoot.getEditRate().addAll(list);
         /*Locale List*/
         this.buildLocaleList();
@@ -155,7 +155,7 @@ final class IMFEssenceCPLBuilder {
     }
 
     private File serializeCPL() throws IOException {
-        File outputFile = new File(this.workingDirectory + "/" + "CPL.xml");
+        File outputFile = new File(this.workingDirectory + "/" + this.mxfFile.getName() + ".xml");
         IMFUtils.writeCPLToFile(this.cplRoot, outputFile);
         return outputFile;
     }
@@ -197,10 +197,10 @@ final class IMFEssenceCPLBuilder {
 
         try {
             List<EssenceDescriptorBaseType> essenceDescriptorList = this.cplRoot.getEssenceDescriptorList().getEssenceDescriptor();
-            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.imfEssenceComponentReader.getEssenceDescriptors();
+            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.imfTrackFileReader.getEssenceDescriptors();
             for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                List<KLVPacket.Header> subDescriptorHeaders = this.imfEssenceComponentReader.getSubDescriptorKLVHeader(essenceDescriptor);
+                List<KLVPacket.Header> subDescriptorHeaders = this.imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor);
                 /*Create a dom*/
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -231,7 +231,7 @@ final class IMFEssenceCPLBuilder {
         /* Following serves as SampleCode to getCompositionPlaylist a CompositionTimecode object*/
         CompositionTimecodeType compositionTimecodeType = this.cplRoot.getCompositionTimecode();
         compositionTimecodeType.setTimecodeDropFrame(false);/*TimecodeDropFrame set to false by default*/
-        compositionTimecodeType.setTimecodeRate(this.imfEssenceComponentReader.getEssenceEditRate());
+        compositionTimecodeType.setTimecodeRate(this.imfTrackFileReader.getEssenceEditRate());
         compositionTimecodeType.setTimecodeStartAddress(IMFUtils.generateTimecodeStartAddress());
     }
 
@@ -282,10 +282,10 @@ final class IMFEssenceCPLBuilder {
         SequenceType sequenceType = this.buildSequenceType(uuidList, index);
         ObjectFactory objectFactory = new ObjectFactory();
         JAXBElement<SequenceType> element = null;
-        if(this.imfEssenceComponentReader.getEssenceType().equals("MainImageSequence")){
+        if(this.imfTrackFileReader.getEssenceType().equals("MainImageSequence")){
             element = objectFactory.createMainImageSequence(sequenceType);
         }
-        else if(this.imfEssenceComponentReader.getEssenceType().equals("MainAudioSequence")){
+        else if(this.imfTrackFileReader.getEssenceType().equals("MainAudioSequence")){
             element = objectFactory.createMainAudioSequence(sequenceType);
         }
         else{
@@ -318,9 +318,9 @@ final class IMFEssenceCPLBuilder {
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
         trackFileResourceType.setAnnotation(buildUserTextType(name, "en"));
         /*Edit Rate*/
-        trackFileResourceType.getEditRate().addAll(this.imfEssenceComponentReader.getEssenceEditRateAsList());
+        trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList());
         /*Intrinsic Duration*/
-        trackFileResourceType.setIntrinsicDuration(this.imfEssenceComponentReader.getEssenceDuration());
+        trackFileResourceType.setIntrinsicDuration(this.imfTrackFileReader.getEssenceDuration());
         /*Entry Point*/
         trackFileResourceType.setEntryPoint(BigInteger.valueOf(0L));
         /*Source Duration*/
@@ -330,7 +330,7 @@ final class IMFEssenceCPLBuilder {
         /*Source Encoding*/
         trackFileResourceType.setSourceEncoding(uuidList.get(index));/*For the moment we assume that an EssenceDescriptor reference changes only at the Sequence Level*/
         /*Track File Id*/
-        trackFileResourceType.setTrackFileId(IMFUUIDGenerator.getInstance().getUUID());
+        trackFileResourceType.setTrackFileId("urn" + ":" + "uuid" + ":" + this.imfTrackFileReader.getTrackFileId().toString());
         /*Key Id*/
         trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUUID());
         /*Hash*/
@@ -365,7 +365,7 @@ final class IMFEssenceCPLBuilder {
 
         document.setXmlStandalone(true);
 
-        Triplet triplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfEssenceComponentReader.getByteProvider(essenceDescriptor));
+        Triplet triplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfTrackFileReader.getByteProvider(essenceDescriptor));
         DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(triplet, document);
         document.appendChild(documentFragment);
 
@@ -392,12 +392,12 @@ final class IMFEssenceCPLBuilder {
     private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException {
         document.setXmlStandalone(true);
 
-        Triplet essenceDescriptorTriplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfEssenceComponentReader.getByteProvider(essenceDescriptor));
+        Triplet essenceDescriptorTriplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfTrackFileReader.getByteProvider(essenceDescriptor));
         //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
         /*Get the Triplets corresponding to the SubDescriptors*/
         List<Triplet> subDescriptorTriplets = new ArrayList<>();
         for(KLVPacket.Header subDescriptorHeader : subDescriptors){
-            subDescriptorTriplets.add(this.regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.imfEssenceComponentReader.getByteProvider(subDescriptorHeader)));
+            subDescriptorTriplets.add(this.regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.imfTrackFileReader.getByteProvider(subDescriptorHeader)));
         }
         return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
     }
@@ -406,7 +406,7 @@ final class IMFEssenceCPLBuilder {
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFEssenceCPLBuilder.class.getName()));
+        sb.append(String.format("%s <inputFilePath> <workingDirectory>%n", IMFTrackFileCPLBuilder.class.getName()));
         return sb.toString();
     }
 
@@ -423,23 +423,23 @@ final class IMFEssenceCPLBuilder {
 
         logger.info(String.format("File Name is %s", inputFile.getName()));
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
+        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
 
         try
         {
-            IMFEssenceCPLBuilder IMFEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
-            sb.append(imfEssenceComponentReader.getRandomIndexPack());
+            IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
+            sb.append(imfTrackFileReader.getRandomIndexPack());
             logger.info(String.format("%s", sb.toString()));
 
-            IMFEssenceCPLBuilder.getCompositionPlaylist();
+            imfTrackFileCPLBuilder.getCompositionPlaylist();
         }
         catch(IOException e)
         {
             throw new IMFException(e);
         }
 
-        logger.info(imfEssenceComponentReader.toString());
+        logger.info(imfTrackFileReader.toString());
     }
 
 }
