@@ -1,4 +1,4 @@
-package com.netflix.imflibrary.app;
+package com.netflix.imflibrary.reader_interfaces;
 
 
 import com.netflix.imflibrary.IMFConstraints;
