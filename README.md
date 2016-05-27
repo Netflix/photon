@@ -50,15 +50,11 @@ If you need to download all dependencies, you just have to run:
 ./gradlew getDependencies
 ```
 
-It will download all dependencies into ./build/libs directory, where Photon.*.jar is builded
+It will download all dependencies into ./build/libs directory, where Photon.*.jar is built
 
-Two sample applications have been provided with this project. You can run them as follows:
-
-```
-
-java -cp target/dependency/*: com.netflix.imflibrary.app.IMFTrackFileReader <inputFile> <workingDirectory>
-```
+Multiple sample applications have been provided with this project (e.g., com.netflix.imflibrary.app.IMFTrackFileReader). You can run them as follows:
 
 ```
-java -cp build/libs/*: com.netflix.imflibrary.app.IMFEssenceCPLBuilder <inputFile> <workingDirectory>
+
+java -cp target/dependency/*: <fully qualified class name> <inputFile> <workingDirectory>
 ```
