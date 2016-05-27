@@ -8,7 +8,7 @@ Format (MXF) format (st377-1:2011). Specifically, Photon parses and completely r
 audio or video essence as defined by the IMF Essence Component specification (st2067-5:2013) and serializes the metadata
 into an IMF Composition Playlist (SMPTE st2067-3:2013).
 
-The goal of the Photon is to provide a simple standardized interface to completely interpret an MXF essence.
+The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
 
 ## Build
 
