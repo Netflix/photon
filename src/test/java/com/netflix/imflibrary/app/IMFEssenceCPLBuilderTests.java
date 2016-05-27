@@ -25,14 +25,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @Test(groups = "unit")
-public class IMFTrackFileCPLBuilderTests {
+public class IMFEssenceCPLBuilderTests {
 
     @Test
     public void IMFEssenceCPLBuilderTest() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();
-        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
-        Assert.assertTrue(imfTrackFileCPLBuilder.getCompositionPlaylist().length() > 0);
+        IMFEssenceCPLBuilder imfEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
+        Assert.assertTrue(imfEssenceCPLBuilder.getCompositionPlaylist().length() > 0);
     }
 }

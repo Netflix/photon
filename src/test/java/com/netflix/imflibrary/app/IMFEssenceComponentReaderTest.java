@@ -32,7 +32,7 @@ import java.nio.file.Files;
 import static org.mockito.Mockito.*;
 
 @Test(groups = "unit")
-public class IMFTrackFileReaderTest
+public class IMFEssenceComponentReaderTest
 {
     @Test
     public void IMFEssenceComponentReaderTest() throws IOException
@@ -40,8 +40,8 @@ public class IMFTrackFileReaderTest
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-        Assert.assertTrue(imfTrackFileReader.toString().length() > 0);
+        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
+        Assert.assertTrue(imfEssenceComponentReader.toString().length() > 0);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
     }
 
@@ -53,7 +53,7 @@ public class IMFTrackFileReaderTest
         ResourceByteRangeProvider resourceByteRangeProvider = mock(ResourceByteRangeProvider.class);
         when(resourceByteRangeProvider.getResourceSize()).thenReturn(16L);
         when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(File.class))).thenReturn(inputFile);
-        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-        imfTrackFileReader.getRandomIndexPack();
+        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, resourceByteRangeProvider);
+        imfEssenceComponentReader.getRandomIndexPack();
     }
 }

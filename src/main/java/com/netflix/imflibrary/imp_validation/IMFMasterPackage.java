@@ -114,6 +114,7 @@ public final class IMFMasterPackage {
         }
 
         List<UUID> assetUUIDsAssetMapList = new ArrayList<>();
+        assetUUIDsAssetMapList.add(assetMap.getUUID());//Add the AssetMap's UUID to the list since that should be present in the PKL's asset list
         for(AssetMap.Asset asset : assetMap.getAssetList()){
             assetUUIDsAssetMapList.add(asset.getUUID());
         }
@@ -131,7 +132,6 @@ public final class IMFMasterPackage {
         /* Collect all the assets in all of the PKLs that are a part of this IMP delivery */
         List<UUID> assetUUIDsPackingList = new ArrayList<>();
         for(PackingList packingList : packingLists) {
-            assetUUIDsPackingList.add(packingList.getUUID());//PKL's UUID is also added to this list since that should be present in the AssetMap
             for (PackingList.Asset asset : packingList.getAssets()) {
                 assetUUIDsPackingList.add(asset.getUUID());
             }
@@ -155,7 +155,7 @@ public final class IMFMasterPackage {
         for(UUID uuid : assetUUIDsPKLSet){
             if(!assetUUIDsAssetMapSet.contains(uuid)) {
                 unreferencedPKLAssetsUUIDs.append(uuid.toString());
-                unreferencedPKLAssetsUUIDs.append(", ");
+                unreferencedPKLAssetsUUIDs.append(" ");
             }
         }
 

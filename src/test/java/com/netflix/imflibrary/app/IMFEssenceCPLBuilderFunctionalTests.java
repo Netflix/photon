@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Test(groups = "functional")
-public class IMFTrackFileCPLBuilderFunctionalTests {
+public class IMFEssenceCPLBuilderFunctionalTests {
 
     @Test
     public void IMFCPLFactoryTest(){
@@ -64,16 +64,16 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
         /*AudioEssence*/
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();
-        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
-        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, new FileByteRangeProvider(inputFile));
-        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = imfTrackFileReader.getEssenceDescriptors();
+        IMFEssenceCPLBuilder imfEssenceCPLBuilder = new IMFEssenceCPLBuilder(workingDirectory, inputFile);
+        IMFEssenceComponentReader imfEssenceComponentReader = new IMFEssenceComponentReader(workingDirectory, new FileByteRangeProvider(inputFile));
+        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = imfEssenceComponentReader.getEssenceDescriptors();
         Assert.assertTrue(essenceDescriptors.size() == 1);
         /* create dom */
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;
         docBuilder = docFactory.newDocumentBuilder();
         Document document = docBuilder.newDocument();
-        Assert.assertTrue(imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfTrackFileReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0))) != null);
+        Assert.assertTrue(imfEssenceCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfEssenceComponentReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0))) != null);
     }
 
     @Test
