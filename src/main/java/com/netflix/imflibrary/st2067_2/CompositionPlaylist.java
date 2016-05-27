@@ -375,22 +375,6 @@ public final class CompositionPlaylist
         return Collections.unmodifiableList(audioVirtualTracks);
     }
 
-    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap(){
-        List<EssenceDescriptorBaseType> essenceDescriptors = this.compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor();
-        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
-        for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
-            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
-            DOMNodeObjectModel domNodeObjectModel = null;
-            for(Object object : essenceDescriptorBaseType.getAny()) {
-                 domNodeObjectModel = CompositionPlaylistHelper.getObjectModelForDOMNode((Node) object);
-            }
-            if(domNodeObjectModel != null) {
-                essenceDescriptorMap.put(uuid, domNodeObjectModel);
-            }
-        }
-        return essenceDescriptorMap;
-    }
-
     Map<UUID, VirtualTrack> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();

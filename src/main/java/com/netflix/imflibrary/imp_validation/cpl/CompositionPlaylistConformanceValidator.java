@@ -189,7 +189,7 @@ public class CompositionPlaylistConformanceValidator {
     }
 
     private Map<UUID, DOMNodeObjectModel> getCPLEssenceDescriptorListMap(CompositionPlaylist compositionPlaylist){
-        return compositionPlaylist.getEssenceDescriptorListMap();
+        return CompositionPlaylistHelper.getEssenceDescriptorListMap(compositionPlaylist);
     }
 
     private Set<UUID> getResourceEssenceDescriptorIdsSet (CompositionPlaylist compositionPlaylist) throws IOException, SAXException, JAXBException, URISyntaxException{
