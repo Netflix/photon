@@ -108,12 +108,11 @@ public class DOMNodeObjectModel {
         for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
             fieldsSet.add(entry);
         }
-        Integer thisFieldsSetSize = fieldsSet.size();
+
         Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
         for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
             otherFieldsSet.add(entry);
         }
-        Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
 
         boolean result = fieldsSet.retainAll(otherFieldsSet);//If there is a change in FieldsSet then we want to see if there was atleast an 80% match of the fields
         if(result){
