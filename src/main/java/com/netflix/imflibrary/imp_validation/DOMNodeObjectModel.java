@@ -115,17 +115,13 @@ public class DOMNodeObjectModel {
         }
         Integer otherFieldsSetSize = ((DOMNodeObjectModel) other).getFields().entrySet().size();
 
-        if(thisFieldsSetSize == 0
-                || otherFieldsSetSize == 0){
-            return false;
-        }
-
         boolean result = fieldsSet.retainAll(otherFieldsSet);//If there is a change in FieldsSet then we want to see if there was atleast an 80% match of the fields
         if(result){
-            long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
+            /*long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
             if(confidenceScore < 80){
                 return false;
-            }
+            }*/
+            return false;
         }
 
         if(this.childrenDOMNodes.size() != otherDOMNodeObjectModel.childrenDOMNodes.size()){
