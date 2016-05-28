@@ -50,7 +50,7 @@ and for Ivy:
 If you need to download all dependencies, you just have to run:
 
 ```
-./gradlew getDependencies
+$ ./gradlew getDependencies
 ```
 
 It will download all dependencies into ./build/libs directory, where Photon.*.jar is built
