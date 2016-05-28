@@ -30,7 +30,7 @@ Photon can be built using JDK-8. Support for earlier jdk versions has not been t
 ## Binaries
 Binaries and dependency information for Maven, Ivy, Gradle and others can be found at [http://search.maven.org](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.netflix.photon%22).
 
-Change history and version numbers are available at [CHANGELOG.md](https://github.com/Netflix/photon/blob/master/CHANGELOG.md)
+Change history and version numbers are available at [CHANGELOG.md.](https://github.com/Netflix/photon/blob/master/CHANGELOG.md)
 
 Example for Maven:
 
