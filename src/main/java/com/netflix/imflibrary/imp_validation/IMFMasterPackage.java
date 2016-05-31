@@ -50,6 +50,7 @@ public final class IMFMasterPackage {
     /**
      * A constructor that models an IMF Master Package as an object.
      * @param resourceByteRangeProviders - list of ResourceByteRangeProvider objects corresponding to the files that are a part of the IMF Master Package
+     * @param imfErrorLogger - an error object for reporting errors
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public IMFMasterPackage(List<ResourceByteRangeProvider> resourceByteRangeProviders, IMFErrorLogger imfErrorLogger) throws IOException{

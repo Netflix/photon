@@ -256,9 +256,12 @@ public class IMPValidator {
      * A stateless method that determines if 2 or more CompositionPlaylist documents corresponding to the same title can be inferred to
      * represent the same presentation timeline. This method is present to work around current limitations in the IMF eco system
      * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
+     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference CompositionPlaylist document, perhaps the first
+     *                                  composition playlist document that was delivered for a particular composition.
      * @param cplPayloadRecords - a list of payload records corresponding to each of the CompositionPlaylist documents
      *                          that need to be verified for mergeability
      * @return a boolean indicating if the CPLs can be merged or not
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloadRecords) throws IOException {
 

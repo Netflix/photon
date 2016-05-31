@@ -83,6 +83,7 @@ public class DOMNodeObjectModel {
 
     /**
      * A getter for the Fields represented in the DOMNodeObjectModel
+     * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
      */
     public Map<String, List<String>> getFields(){
         return Collections.unmodifiableMap(this.fields);

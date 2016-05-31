@@ -59,6 +59,7 @@ public class CompositionPlaylistConformanceValidator {
      * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
      * resources referenced by the CompositionPlaylist.
      * @param compositionPlaylistRecord corresponding to the CompositionPlaylist
+     * @param imfErrorLogger - an error object for reporting errors
      * @return boolean to indicate of the CompositionPlaylist is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException

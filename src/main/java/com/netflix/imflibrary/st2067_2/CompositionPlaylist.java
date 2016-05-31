@@ -21,11 +21,8 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
-import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistHelper;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
@@ -33,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -41,7 +37,6 @@ import org.xml.sax.SAXParseException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -55,7 +50,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -814,6 +808,7 @@ public final class CompositionPlaylist
         private final UUID trackID;
         private final SequenceTypeEnum sequenceTypeEnum;
         private final List<TrackFileResourceType> resourceList;
+        private final Map<UUID, List<VirtualTrackIndexTuple>> virtualTrackIndex;
 
         /**
          * Constructor for a VirtualTrack object
@@ -826,6 +821,31 @@ public final class CompositionPlaylist
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
             this.resourceList = resourceList;
+            this.virtualTrackIndex = new HashMap<>();
+
+            /**
+             * Create an index for this VirtualTrack, the index provides information on every EditUnit
+             * of the composition, the TrackFile, its location in the Track's timeline and its location
+             * in the composition timeline.
+             */
+            /*Long compositionEditUnitIndex = 0L;
+            for(TrackFileResourceType resource : this.resourceList){
+                UUID trackFileId = UUIDHelper.fromUUIDAsURNStringToUUID(resource.getTrackFileId());
+                List<VirtualTrackIndexTuple> virtualTrackIndexTupleList = this.virtualTrackIndex.get(trackFileId);
+                if(virtualTrackIndexTupleList == null) {
+                    virtualTrackIndexTupleList = new ArrayList<>();
+                }
+                Integer repeatCount = (resource.getRepeatCount() == null) ? 0: resource.getRepeatCount().intValue();
+                for(Integer j = 0; j < repeatCount; j++) {
+                    Long sourceDuration = (resource.getSourceDuration() == null) ? resource.getIntrinsicDuration().longValue() - resource.getEntryPoint().longValue() : resource.getSourceDuration().longValue();
+                    Long entryPoint = (resource.getEntryPoint() == null) ? 0L : resource.getEntryPoint().longValue();
+                    for (long i = entryPoint; i < sourceDuration; i++) {
+                        virtualTrackIndexTupleList.add(new VirtualTrackIndexTuple(i, compositionEditUnitIndex));
+                        compositionEditUnitIndex++;
+                    }
+                }
+                this.virtualTrackIndex.put(trackFileId, virtualTrackIndexTupleList);
+            }*/
         }
 
         /**
@@ -853,11 +873,24 @@ public final class CompositionPlaylist
             return Collections.unmodifiableList(this.resourceList);
         }
 
+
+        private static class VirtualTrackIndexTuple {
+            private final Long compositionEditUnitIndex;
+            private final Long trackFileEditUnitIndex;
+
+            private VirtualTrackIndexTuple(Long compositionEditUnitIndex, Long trackFileEditUnitIndex){
+                this.compositionEditUnitIndex = compositionEditUnitIndex;
+                this.trackFileEditUnitIndex = trackFileEditUnitIndex;
+            }
+        }
+
         /**
          * A method to determine the equivalence of any 2 virtual tracks.
+         * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
          */
         public boolean equivalent(VirtualTrack other){
+
             boolean result = true;
             List<TrackFileResourceType> otherResourceList = other.getResourceList();
             if(otherResourceList.size() != this.resourceList.size()){
@@ -867,10 +900,9 @@ public final class CompositionPlaylist
                 TrackFileResourceType thisResource = this.resourceList.get(i);
                 TrackFileResourceType otherResource = otherResourceList.get(i);
 
-                /**
-                 * Compare the following fields of the track file resources that have to be equal
-                 * for the 2 resources to be considered equivalent/representing the same timeline.
-                 */
+                //Compare the following fields of the track file resources that have to be equal
+                //for the 2 resources to be considered equivalent/representing the same timeline.
+
                 result &= thisResource.getTrackFileId().equals(otherResource.getTrackFileId());
                 result &= thisResource.getEditRate().equals(otherResource.getEditRate());
                 result &= thisResource.getEntryPoint().equals(otherResource.getEntryPoint());
@@ -879,6 +911,9 @@ public final class CompositionPlaylist
                 result &= thisResource.getSourceEncoding().equals(otherResource.getSourceEncoding());
             }
             return  result;
+
+
+            //return this.virtualTrackIndex.equals(other.virtualTrackIndex);
         }
     }
 
