@@ -77,7 +77,7 @@ public class IMPValidatorFunctionalTests {
 
     @Test
     public void getRandomIndexPackSizeTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4K_Test_Master_Audio_002.mxf");
+        File inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
@@ -91,7 +91,7 @@ public class IMPValidatorFunctionalTests {
 
     @Test
     public void getAllPartitionByteOffsetsTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4K_Test_Master_Audio_002.mxf");
+        File inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
