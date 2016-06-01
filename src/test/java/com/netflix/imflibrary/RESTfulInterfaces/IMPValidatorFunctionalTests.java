@@ -76,7 +76,49 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
-    public void validateEssencesHeaderPartition() throws IOException {
+    public void getRandomIndexPackSizeTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long rangeEnd = archiveFileSize - 1;
+        long rangeStart = archiveFileSize - 4;
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
+        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+        Assert.assertTrue(randomIndexPackSize == 72);
+    }
+
+    @Test
+    public void getAllPartitionByteOffsetsTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long rangeEnd = archiveFileSize - 1;
+        long rangeStart = archiveFileSize - 4;
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
+        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+        Assert.assertTrue(randomIndexPackSize == 72);
+
+        rangeStart = archiveFileSize - randomIndexPackSize;
+        rangeEnd = archiveFileSize - 1;
+
+        Assert.assertTrue(rangeStart >= 0);
+
+        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
+        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+        Assert.assertTrue(partitionByteOffsets.size() == 4);
+        Assert.assertTrue(partitionByteOffsets.get(0) == 0);
+        Assert.assertTrue(partitionByteOffsets.get(1) == 11868);
+        Assert.assertTrue(partitionByteOffsets.get(2) == 12104);
+        Assert.assertTrue(partitionByteOffsets.get(3) == 223644);
+    }
+
+    @Test
+    public void validateEssencesHeaderPartitionTest() throws IOException {
         List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
 
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");

@@ -131,6 +131,7 @@ public class CompositionPlaylistConformanceValidator {
      * resources referenced by the CompositionPlaylist.
      * @param compositionPlaylist corresponding to the CompositionPlaylist payload
      * @param headerPartitionTuples list of HeaderPartitionTuples corresponding to the IMF essences referenced in the CompositionPlaylist
+     * @param imfErrorLogger an error logging object
      * @return boolean to indicate of the CompositionPlaylist is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
