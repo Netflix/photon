@@ -8,7 +8,6 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
-import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistConformanceValidator;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
@@ -238,7 +237,7 @@ public class IMPValidator {
                                                             imfErrorLogger),
                                                             new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!new CompositionPlaylistConformanceValidator().isCompositionPlaylistConformed(compositionPlaylist, headerPartitionTuples, imfErrorLogger)){
+            if(!compositionPlaylist.isCompositionPlaylistConformed(headerPartitionTuples, imfErrorLogger)){
                 return imfErrorLogger.getErrors();
             }
         }
