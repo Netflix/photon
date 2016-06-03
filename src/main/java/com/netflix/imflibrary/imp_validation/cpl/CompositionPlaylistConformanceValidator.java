@@ -83,7 +83,7 @@ public class CompositionPlaylistConformanceValidator {
         /**
          * Get the complete list of SourceEncoding elements in all the TrackFileResources in the CPL.
          */
-        List<CompositionPlaylist.VirtualTrack>virtualTracks =  CompositionPlaylistHelper.getVirtualTracks(compositionPlaylistRecord);
+        List<CompositionPlaylist.VirtualTrack>virtualTracks =  compositionPlaylistRecord.getCompositionPlaylist().getVirtualTracks();
         Set<UUID> resourceSourceEncodingElementsSet = getResourceEssenceDescriptorIdsSet(compositionPlaylistRecord.getCompositionPlaylist());
         Map<UUID, ResourceByteRangeProvider>sourceEncodingElementByteRangeProviderMap = new HashMap<>();/*Map containing <SourceEncodingElement, ResourceByteRangeProvider> entries*/
 
@@ -92,9 +92,9 @@ public class CompositionPlaylistConformanceValidator {
          * and a map of <SourceEncodingElement/ID ResourceByteRangeProvider> for every TrackFileResource in every VirtualTrack in the CPL
          */
         for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
-            List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);
+            List<CompositionPlaylist.ResourceIdTuple> resourceIdTuples = compositionPlaylist.getVirtualTrackResourceIDs(virtualTrack);
             Map<UUID, ResourceByteRangeProvider> imfEssenceMap = compositionPlaylistRecord.getImfEssenceMap();
-            for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
+            for(CompositionPlaylist.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 /*Construct a set of SourceEncodingElements corresponding to every TrackFileResource of this VirtualTrack*/
                 resourceSourceEncodingElementsSet.add(resourceIdTuple.getSourceEncoding());
                 /*Construct a Map of <SourceEncodingElement/ID ResourceByteRangeProvider> for every TrackFileResource of this VirtualTrack*/
@@ -117,7 +117,7 @@ public class CompositionPlaylistConformanceValidator {
                 List<Node> essenceDescriptorsDOMNodes = mxfEssenceReader.getEssenceDescriptorsDOMNodes();
                 List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
                 for(Node node : essenceDescriptorsDOMNodes){
-                    domNodeObjectModels.add(CompositionPlaylistHelper.getObjectModelForDOMNode(node));
+                    domNodeObjectModels.add(new DOMNodeObjectModel(node));
                 }
                 essenceDescriptorMap.put((UUID) entry.getKey(), domNodeObjectModels);
             }
@@ -191,15 +191,15 @@ public class CompositionPlaylistConformanceValidator {
     }
 
     private Map<UUID, DOMNodeObjectModel> getCPLEssenceDescriptorListMap(CompositionPlaylist compositionPlaylist){
-        return CompositionPlaylistHelper.getEssenceDescriptorListMap(compositionPlaylist);
+        return compositionPlaylist.getEssenceDescriptorListMap();
     }
 
     private Set<UUID> getResourceEssenceDescriptorIdsSet (CompositionPlaylist compositionPlaylist) throws IOException, SAXException, JAXBException, URISyntaxException{
         List<CompositionPlaylist.VirtualTrack> virtualTracks = new ArrayList<>(compositionPlaylist.getVirtualTrackMap().values());
         LinkedHashSet<UUID> resourceSourceEncodingElementsSet = new LinkedHashSet<>();
         for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
-            List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);
-            for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
+            List<CompositionPlaylist.ResourceIdTuple> resourceIdTuples = compositionPlaylist.getVirtualTrackResourceIDs(virtualTrack);
+            for(CompositionPlaylist.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 /*Construct a set of SourceEncodingElements corresponding to every TrackFileResource of this VirtualTrack*/
                 resourceSourceEncodingElementsSet.add(resourceIdTuple.getSourceEncoding());
             }
@@ -226,15 +226,15 @@ public class CompositionPlaylistConformanceValidator {
 
         /*Go through all the Virtual Tracks in the CompositionPlaylist and construct a map of Resource Source Encoding Element and a list of DOM nodes representing every EssenceDescriptor in the HeaderPartition corresponding to that Resource*/
         for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
-            List<CompositionPlaylistHelper.ResourceIdTuple> resourceIdTuples = CompositionPlaylistHelper.getVirtualTrackResourceIDs(virtualTrack);/*Retrieve a list of ResourceIDTuples corresponding to this virtual track*/
-            for(CompositionPlaylistHelper.ResourceIdTuple resourceIdTuple : resourceIdTuples){
+            List<CompositionPlaylist.ResourceIdTuple> resourceIdTuples = compositionPlaylist.getVirtualTrackResourceIDs(virtualTrack);/*Retrieve a list of ResourceIDTuples corresponding to this virtual track*/
+            for(CompositionPlaylist.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 IMPValidator.HeaderPartitionTuple headerPartitionTuple = resourceUUIDHeaderPartitionMap.get(resourceIdTuple.getTrackFileId());
                 if(headerPartitionTuple != null){
                     /*Create a DOM Node representation of the EssenceDescriptors present in this header partition corresponding to an IMFTrackFile*/
                     List<Node> essenceDescriptorDOMNodes = getEssenceDescriptorDOMNodes(headerPartitionTuple);
                     List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
                     for(Node node : essenceDescriptorDOMNodes){
-                        domNodeObjectModels.add(CompositionPlaylistHelper.getObjectModelForDOMNode(node));
+                        domNodeObjectModels.add(new DOMNodeObjectModel(node));
                     }
                     resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), domNodeObjectModels);
                 }

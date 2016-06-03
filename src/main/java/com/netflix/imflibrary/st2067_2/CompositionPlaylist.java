@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -917,12 +919,146 @@ public final class CompositionPlaylist
         }
     }
 
-    public static void main(String args[]) throws Exception
+    /**
+     * A utility method to retrieve the VirtualTracks referenced from a CompositionPlaylistRecord.
+     * @return A list of VirtualTracks in the CompositionPlaylist.
+     * @throws IOException - any I/O related error is exposed through an IOException.
+     * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    @Nonnull
+    public List<CompositionPlaylist.VirtualTrack> getVirtualTracks() throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, CompositionPlaylist.VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
+        return new ArrayList<>(virtualTrackMap.values());
+    }
+
+    /**
+     * A utility method to retrieve the UUIDs of the Track files referenced by a Virtual track within a CompositionPlaylist.
+     * @param virtualTrack - object model of an IMF virtual track {@link com.netflix.imflibrary.st2067_2.CompositionPlaylist.VirtualTrack}
+     * @return A list of TrackFileResourceType objects corresponding to the virtual track in the CompositionPlaylist.
+     * @throws IOException - any I/O related error is exposed through an IOException.
+     * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    @Nonnull
+    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull CompositionPlaylist.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+
+        List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
+        List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
+        if(resourceList != null
+                && resourceList.size() > 0) {
+            for (TrackFileResourceType trackFileResourceType : resourceList) {
+                virtualTrackResourceIDs.add(new ResourceIdTuple(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getTrackFileId())
+                        , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
+            }
+        }
+        return Collections.unmodifiableList(virtualTrackResourceIDs);
+    }
+
+    /**
+     * A stateless method that will analyze the EssenceDescriptorList in a CompositionPlaylist and construct a HashMap mapping
+     * a UUID to a EssenceDescriptor.
+     * @return a HashMap mapping the UUID to its corresponding EssenceDescriptor in the CompositionPlaylist
+     */
+    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap(){
+        List<EssenceDescriptorBaseType> essenceDescriptors = this.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
+        for(EssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
+            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(essenceDescriptorBaseType.getId());
+            DOMNodeObjectModel domNodeObjectModel = null;
+            for(Object object : essenceDescriptorBaseType.getAny()) {
+                domNodeObjectModel = new DOMNodeObjectModel((Node) object);
+            }
+            if(domNodeObjectModel != null) {
+                essenceDescriptorMap.put(uuid, domNodeObjectModel);
+            }
+        }
+        return essenceDescriptorMap;
+    }
+
+    /**
+     * This class is a representation of a Resource SourceEncoding element and trackFileId tuple.
+     */
+    public static final class ResourceIdTuple{
+        private final UUID trackFileId;
+        private final UUID sourceEncoding;
+
+        private ResourceIdTuple(UUID trackFileId, UUID sourceEncoding){
+            this.trackFileId = trackFileId;
+            this.sourceEncoding = sourceEncoding;
+        }
+
+        /**
+         * A getter for the trackFileId referenced by the resource corresponding to this ResourceIdTuple
+         * @return the trackFileId associated with this ResourceIdTuple
+         */
+        public UUID getTrackFileId(){
+            return this.trackFileId;
+        }
+
+        /**
+         * A getter for the source encoding element referenced by the resource corresponding to this ResourceIdTuple
+         * @return the source encoding element associated with this ResourceIdTuple
+         */
+        public UUID getSourceEncoding(){
+            return this.sourceEncoding;
+        }
+    }
+
+    private static String usage()
     {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFile>%n", CompositionPlaylist.class.getName()));
+        return sb.toString();
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        if (args.length != 1)
+        {
+            logger.error(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         File inputFile = new File(args[0]);
 
-        CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, new IMFErrorLoggerImpl());
-        logger.warn(compositionPlaylist.toString());
+        logger.info(String.format("File Name is %s", inputFile.getName()));
+
+        try
+        {
+            IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(inputFile, imfErrorLogger);
+            logger.info(compositionPlaylist.toString());
+
+            List<CompositionPlaylist.VirtualTrack> virtualTracks = compositionPlaylist.getVirtualTracks();
+
+            for(CompositionPlaylist.VirtualTrack virtualTrack : virtualTracks){
+                List<TrackFileResourceType> resourceList = virtualTrack.getResourceList();
+                if(resourceList.size() == 0){
+                    throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
+                }
+            }
+            List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
+            for(EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylist.getCompositionPlaylistType().getEssenceDescriptorList().getEssenceDescriptor()){
+                for(Object object : essenceDescriptorBaseType.getAny()){
+                    Node node = (Node)object;
+                    domNodeObjectModels.add(new DOMNodeObjectModel(node));
+                }
+            }
+            for(int i=0; i<domNodeObjectModels.size(); i++) {
+                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
+            }
+            System.out.println(String.format("De-serialized composition playlist : %n%s", compositionPlaylist.toString()));
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e);
+        }
     }
 
 }
