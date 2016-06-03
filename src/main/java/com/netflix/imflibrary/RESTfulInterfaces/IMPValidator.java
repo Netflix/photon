@@ -9,7 +9,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
 import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
 import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistConformanceValidator;
-import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistHelper;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
@@ -17,11 +16,9 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.xml.sax.SAXException;
 
@@ -317,7 +314,7 @@ public class IMPValidator {
     private static Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
         Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
         List<CompositionPlaylist.VirtualTrack> audioVirtualTracks = cpl.getAudioVirtualTracks();
-        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = CompositionPlaylistHelper.getEssenceDescriptorListMap(cpl);
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = cpl.getEssenceDescriptorListMap();
         for(CompositionPlaylist.VirtualTrack audioVirtualTrack : audioVirtualTracks){
             Set<DOMNodeObjectModel> set = new HashSet<>();
             List<TrackFileResourceType> resources = audioVirtualTrack.getResourceList();
