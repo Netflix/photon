@@ -12,7 +12,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -41,9 +41,9 @@ import java.util.UUID;
 public class IMPValidator {
 
     /**
-     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or CompositionPlaylist
+     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
      * @param payloadRecord - a payload record corresponding to the asset whose type needs to be confirmed
-     * @return asset type of the payload either one of AssetMap, PackingList or CompositionPlaylist
+     * @return asset type of the payload either one of AssetMap, PackingList or Composition
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static PayloadRecord.PayloadAssetType getPayloadType(PayloadRecord payloadRecord) throws IOException {
@@ -55,7 +55,7 @@ public class IMPValidator {
         else if(PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.PackingList;
         }
-        else if(CompositionPlaylist.isFileOfSupportedSchema(resourceByteRangeProvider)){
+        else if(Composition.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
         }
         return PayloadRecord.PayloadAssetType.Unknown;
@@ -130,8 +130,8 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that will validate an IMF CompositionPlaylist document
-     * @param cpl - a payload record for a CompositionPlaylist document
+     * A stateless method that will validate an IMF Composition document
+     * @param cpl - a payload record for a Composition document
      * @return list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
@@ -141,7 +141,7 @@ public class IMPValidator {
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try{
-            new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+            new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
         }
         catch(SAXException | JAXBException | URISyntaxException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
@@ -204,12 +204,12 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that can be used to determine if a CompositionPlaylist is conformant. Conformance checks
-     * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
-     * resources referenced by the CompositionPlaylist
-     * @param cplPayloadRecord a payload record corresponding to the CompositionPlaylist payload
-     * @param essencesHeaderPartition list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the CompositionPlaylist
-     * @return list of error messages encountered while performing conformance validation of the CompositionPlaylist document
+     * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
+     * resources referenced by the Composition
+     * @param cplPayloadRecord a payload record corresponding to the Composition payload
+     * @param essencesHeaderPartition list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the Composition
+     * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> isCPLConformed(
@@ -225,7 +225,7 @@ public class IMPValidator {
                 return Collections.unmodifiableList(errors);
             }
 
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
+            Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
             List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
             for(PayloadRecord payloadRecord : essencesHeaderPartition){
                 if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
@@ -237,7 +237,7 @@ public class IMPValidator {
                                                             imfErrorLogger),
                                                             new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!compositionPlaylist.isCompositionPlaylistConformed(headerPartitionTuples, imfErrorLogger)){
+            if(!composition.isCompositionPlaylistConformed(headerPartitionTuples, imfErrorLogger)){
                 return imfErrorLogger.getErrors();
             }
         }
@@ -249,12 +249,12 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that determines if 2 or more CompositionPlaylist documents corresponding to the same title can be inferred to
+     * A stateless method that determines if 2 or more Composition documents corresponding to the same title can be inferred to
      * represent the same presentation timeline. This method is present to work around current limitations in the IMF eco system
      * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
-     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference CompositionPlaylist document, perhaps the first
+     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference Composition document, perhaps the first
      *                                  composition playlist document that was delivered for a particular composition.
-     * @param cplPayloadRecords - a list of payload records corresponding to each of the CompositionPlaylist documents
+     * @param cplPayloadRecords - a list of payload records corresponding to each of the Composition documents
      *                          that need to be verified for mergeability
      * @return a boolean indicating if the CPLs can be merged or not
      * @throws IOException - any I/O related error is exposed through an IOException
@@ -262,27 +262,27 @@ public class IMPValidator {
     public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloadRecords) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
+        List<Composition> compositions = new ArrayList<>();
         try {
-            compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
+            compositions.add(new Composition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
         } catch (SAXException | JAXBException | URISyntaxException e) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }
         for(PayloadRecord cpl : cplPayloadRecords) {
             try {
-                compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
+                compositions.add(new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
             } catch (SAXException | JAXBException | URISyntaxException e) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
                 return imfErrorLogger.getErrors();
             }
         }
 
-        CompositionPlaylist.VirtualTrack referenceVideoVirtualTrack = compositionPlaylists.get(0).getVideoVirtualTrack();
-        UUID referenceCPLUUID = compositionPlaylists.get(0).getUUID();
-        for(int i=1; i<compositionPlaylists.size(); i++){
-            if(!referenceVideoVirtualTrack.equivalent(compositionPlaylists.get(i).getVideoVirtualTrack())){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
+        Composition.VirtualTrack referenceVideoVirtualTrack = compositions.get(0).getVideoVirtualTrack();
+        UUID referenceCPLUUID = compositions.get(0).getUUID();
+        for(int i = 1; i< compositions.size(); i++){
+            if(!referenceVideoVirtualTrack.equivalent(compositions.get(i).getVideoVirtualTrack())){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
             }
         }
 
@@ -295,43 +295,28 @@ public class IMPValidator {
          * 1) Identify AudioTracks that are the same language
          * 2) Compare language tracks to see if they represent the same timeline
          */
-        List<Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
-        for(CompositionPlaylist compositionPlaylist : compositionPlaylists){
-            audioVirtualTracksMapList.add(constructAudioVirtualTracksMap(compositionPlaylist));
+        List<Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
+        for(Composition composition : compositions){
+            audioVirtualTracksMapList.add(composition.getAudioVirtualTracksMap());
         }
 
-        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
+        Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
         for(int i=1; i<audioVirtualTracksMapList.size(); i++){
             if(!compareAudioVirtualTrackMaps(referenceAudioVirtualTracksMap, audioVirtualTracksMapList.get(i))){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
             }
         }
 
         return imfErrorLogger.getErrors();
     }
 
-    private static Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
-        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
-        List<CompositionPlaylist.VirtualTrack> audioVirtualTracks = cpl.getAudioVirtualTracks();
-        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = cpl.getEssenceDescriptorListMap();
-        for(CompositionPlaylist.VirtualTrack audioVirtualTrack : audioVirtualTracks){
-            Set<DOMNodeObjectModel> set = new HashSet<>();
-            List<TrackFileResourceType> resources = audioVirtualTrack.getResourceList();
-            for(TrackFileResourceType resource : resources){
-                set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
-            }
-            audioVirtualTrackMap.put(set, audioVirtualTrack);
-        }
-        return Collections.unmodifiableMap(audioVirtualTrackMap);
-    }
-
-    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map2){
+    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map2){
         boolean result = true;
         Iterator refIterator = map1.entrySet().iterator();
         while(refIterator.hasNext()){
-            Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>) refIterator.next();
-            CompositionPlaylist.VirtualTrack refVirtualTrack = entry.getValue();
-            CompositionPlaylist.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
+            Map.Entry<Set<DOMNodeObjectModel>, Composition.VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, Composition.VirtualTrack>) refIterator.next();
+            Composition.VirtualTrack refVirtualTrack = entry.getValue();
+            Composition.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
             if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.
                 result &= refVirtualTrack.equivalent(otherVirtualTrack);
             }
@@ -361,8 +346,8 @@ public class IMPValidator {
         }
 
         /**
-         * A getter for the HeaderPartition object corresponding to a resource referenced from the CompositionPlaylist
-         * @return HeaderPartition of a certain resource in the CompositionPlaylist
+         * A getter for the HeaderPartition object corresponding to a resource referenced from the Composition
+         * @return HeaderPartition of a certain resource in the Composition
          */
         public HeaderPartition getHeaderPartition(){
             return this.headerPartition;

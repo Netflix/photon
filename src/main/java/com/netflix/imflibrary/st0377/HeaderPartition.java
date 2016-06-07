@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
@@ -948,21 +948,21 @@ function visit(node n)
      * An enumeration of all possible essence types that could be contained in a MXF file.
      */
     public enum EssenceTypeEnum {
-        MarkerEssence(CompositionPlaylist.SequenceTypeEnum.MarkerSequence),
-        MainImageEssence(CompositionPlaylist.SequenceTypeEnum.MainImageSequence),
-        MainAudioEssence(CompositionPlaylist.SequenceTypeEnum.MainAudioSequence),
-        SubtitlesEssence(CompositionPlaylist.SequenceTypeEnum.SubtitlesSequence),
-        HearingImpairedCaptionsEssence(CompositionPlaylist.SequenceTypeEnum.HearingImpairedCaptionsSequence),
-        VisuallyImpairedTextEssence(CompositionPlaylist.SequenceTypeEnum.VisuallyImpairedTextSequence),
-        CommentaryEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
-        KaraokeEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
-        AncillaryDataEssence(CompositionPlaylist.SequenceTypeEnum.AncillaryDataSequence),
-        UnknownEssence(CompositionPlaylist.SequenceTypeEnum.Unknown);
+        MarkerEssence(Composition.SequenceTypeEnum.MarkerSequence),
+        MainImageEssence(Composition.SequenceTypeEnum.MainImageSequence),
+        MainAudioEssence(Composition.SequenceTypeEnum.MainAudioSequence),
+        SubtitlesEssence(Composition.SequenceTypeEnum.SubtitlesSequence),
+        HearingImpairedCaptionsEssence(Composition.SequenceTypeEnum.HearingImpairedCaptionsSequence),
+        VisuallyImpairedTextEssence(Composition.SequenceTypeEnum.VisuallyImpairedTextSequence),
+        CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
+        UnknownEssence(Composition.SequenceTypeEnum.Unknown);
 
-        private final CompositionPlaylist.SequenceTypeEnum sequenceType;
+        private final Composition.SequenceTypeEnum sequenceType;
         private final String name;
 
-        private EssenceTypeEnum(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        private EssenceTypeEnum(Composition.SequenceTypeEnum sequenceType)
         {
             this.sequenceType = sequenceType;
             this.name = getEssenceTypeString(sequenceType);
@@ -995,7 +995,7 @@ function visit(node n)
             }
         }
 
-        private static String getEssenceTypeString(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        private static String getEssenceTypeString(Composition.SequenceTypeEnum sequenceType)
         {
             switch (sequenceType)
             {

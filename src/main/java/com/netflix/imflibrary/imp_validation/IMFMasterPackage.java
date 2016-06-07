@@ -2,29 +2,20 @@ package com.netflix.imflibrary.imp_validation;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +52,7 @@ public final class IMFMasterPackage {
                 assetMaps.add(resourceByteRangeProvider);
             } else if (PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 packingListsResourceByteRangeProviders.add(resourceByteRangeProvider);
-            } else if (CompositionPlaylist.isFileOfSupportedSchema(resourceByteRangeProvider)) {
+            } else if (Composition.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 compositionPlaylists.add(resourceByteRangeProvider);
             }
         }
@@ -192,7 +183,7 @@ public final class IMFMasterPackage {
         //Validate the CompositionPlaylists
         for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
             try {
-                new CompositionPlaylist(resourceByteRangeProvider, this.imfErrorLogger);
+                new Composition(resourceByteRangeProvider, this.imfErrorLogger);
             }
             catch (SAXException | JAXBException | URISyntaxException e){
                 this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one of the CPLs delivered in this package is invalid"));
@@ -232,20 +223,20 @@ public final class IMFMasterPackage {
     }
 
     /**
-     * A getter for a list of CompositionPlaylist objects corresponding to the CompositionPlaylist documents in the IMF Master Package
-     * @return the object model corresponding to every CompositionPlaylist document in the IMF Master Package
+     * A getter for a list of Compositions objects corresponding to the Composition documents in the IMF Master Package
+     * @return the object model corresponding to every Composition document in the IMF Master Package
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public List<CompositionPlaylist> getCompositionPlayLists() throws IOException, SAXException, JAXBException, URISyntaxException{
-        List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
+    public List<Composition> getCompositions() throws IOException, SAXException, JAXBException, URISyntaxException{
+        List<Composition> compositions = new ArrayList<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(ResourceByteRangeProvider resourceByteRangeProvider : this.compositionPlaylists){
-            compositionPlaylists.add(new CompositionPlaylist(resourceByteRangeProvider, imfErrorLogger));
+            compositions.add(new Composition(resourceByteRangeProvider, imfErrorLogger));
         }
-        return compositionPlaylists;
+        return compositions;
     }
 
     /**

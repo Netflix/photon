@@ -28,7 +28,7 @@ import java.nio.file.Files;
 public class IMFTrackFileCPLBuilderTests {
 
     @Test
-    public void IMFEssenceCPLBuilderTest() throws IOException
+    public void IMFTrackFileCPLBuilderTest() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();
