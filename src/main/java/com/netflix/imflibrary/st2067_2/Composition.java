@@ -117,7 +117,6 @@ public final class Composition
     private final UUID uuid;
     private final EditRate editRate;
     private final Map<UUID, ? extends VirtualTrack> virtualTrackMap;
-    private final Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap;
 
     /**
      * Constructor for a {@link Composition Composition} object from a XML file
@@ -194,15 +193,20 @@ public final class Composition
         this.compositionPlaylistTypeJAXBElement = jaxbElement;
         this.coreConstraintsVersion = getNamespaceVersion(coreConstraintsSchema.getCoreConstraintsContext());//Should be one of 2013, 2016 etc.
 
-        //TODO : Check against core constraints namespace and not the CPL namespace
         switch(coreConstraintsVersion){
             case "org.smpte_ra.schemas.st2067_2_2013":
                 org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
-                this.virtualTrackMap = IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, imfErrorLogger);
+                this.virtualTrackMap = CompositionModel_st2067_2_2013.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
+                if(!IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger)){
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for(int i=numErrors; i<imfErrorLogger.getErrors().size() ; i++){
+                        stringBuilder.append(String.format("%n"));
+                        stringBuilder.append(imfErrorLogger.getErrors().get(i));
+                    }
+                    throw new IMFException(String.format("Found following errors while validating the virtual tracks in the Composition %n %s", stringBuilder.toString()));
+                }
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
-                this.virtualTrackResourceMap = IMFCoreConstraintsChecker_st2067_2_2013.populateVirtualTrackResourceList(compositionPlaylistType, imfErrorLogger);
-
                 break;
             case "org.smpte_ra.schemas.st2067_2_2016":
                 throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the 2013 CoreConstraints schema URI"));
@@ -397,16 +401,6 @@ public final class Composition
     }
 
     /**
-     * Getter for the lists of type {@link org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType TrackFileResourceType} indexed by the VirtualTrackID.
-     * The VirtualTrack concept is defined in Section 6.9.3 of st2067-3:2013.
-     * @return Map&lt;UUID,List &lt;{@link org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType TrackFileResourceType}&gt;&gt;. The UUID key corresponds to VirtualTrackID
-     */
-    public Map<UUID, List<TrackFileResourceType>> getVirtualTrackResourceMap()
-    {
-        return Collections.unmodifiableMap(this.virtualTrackResourceMap);
-    }
-
-    /**
      * Getter for the virtual track map associated with this Composition
      * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link Composition.VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
      */
@@ -474,7 +468,7 @@ public final class Composition
         Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
         while(iterator != null
                 && iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, Composition.VirtualTrack>) iterator.next()).getValue();
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
             if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
                 audioVirtualTracks.add(virtualTrack);
             }
@@ -646,6 +640,11 @@ public final class Composition
             this.name = name;
         }
 
+        /**
+         * A getter for the SequenceTypeEnum given a string that represents the name of a SequenceTypeEnum
+         * @param name the string that should represent the SequenceTypeEnum
+         * @return the SequenceTypeEnum value corresponding to the name that was passed
+         */
         public static SequenceTypeEnum getSequenceTypeEnum(String name)
         {
             switch (name)
@@ -669,6 +668,15 @@ public final class Composition
                 default:
                     return Unknown;
             }
+        }
+
+        /**
+         * An override of the toString() method
+         * @return a string representing the SequenceTypeEnum
+         */
+        @Override
+        public String toString(){
+            return this.name;
         }
 
     }
