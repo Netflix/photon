@@ -29,7 +29,6 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 
 import javax.annotation.Nullable;
 import java.util.List;

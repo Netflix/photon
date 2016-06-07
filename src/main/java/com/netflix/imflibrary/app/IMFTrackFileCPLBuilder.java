@@ -69,7 +69,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class that builds an IMF CompositionPlaylist representation of an IMF Essence
+ * A class that builds an IMF Composition representation of an IMF Essence
  */
 @Immutable
 final class IMFTrackFileCPLBuilder {
