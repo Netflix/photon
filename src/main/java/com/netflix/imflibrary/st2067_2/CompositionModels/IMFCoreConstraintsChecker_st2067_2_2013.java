@@ -16,6 +16,7 @@ import javax.xml.bind.JAXBElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,112 +30,47 @@ import java.util.UUID;
  */
 public class IMFCoreConstraintsChecker_st2067_2_2013 {
 
-    public static Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> checkVirtualTracks(CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
-    {
-        Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> virtualTrackMap = new LinkedHashMap<>();
 
-        Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>>virtualTrackResourceMap =  populateVirtualTrackResourceList(compositionPlaylistType, imfErrorLogger);
+    public static boolean checkVirtualTracks(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
 
         boolean foundMainImageEssence = false;
-
-        //process first segment to create virtual track map
-        org.smpte_ra.schemas.st2067_2_2013.SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
-        org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
-        sequence = segment.getSequenceList().getMarkerSequence();
-        if (sequence != null)
-        {
-            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-            if (virtualTrackMap.get(uuid) == null)
-            {
-                List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = null;
-                if(virtualTrackResourceMap.get(uuid) == null){
-                    virtualTrackResourceList = new ArrayList<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>();
-                }
-                else{
-                    virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
-                }
-                CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack = new CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013(uuid, Composition.SequenceTypeEnum.MarkerSequence, virtualTrackResourceList);
-                virtualTrackMap.put(uuid, virtualTrack);
+        boolean result = true;
+        Iterator iterator = virtualTrackMap.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            if(!(virtualTrack instanceof CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013)){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Internal error occurred while trying to cast a VirtualTrack to a 2013 VirtualTrack model."));
+                return false;
             }
-            else
-            {
-                String message = String.format(
-                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s", uuid);
-                if (imfErrorLogger != null)
-                {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                }
-                else
-                {
-                    throw new IMFException(message);
+            List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = ((CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013)virtualTrack).getResourceList();
+            result &= checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
+            if(!result){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with id %s is invalid, please see errors reported earlier.", virtualTrack.getTrackID().toString()));
+            }
+
+            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                foundMainImageEssence = true;
+                Composition.EditRate compositionEditRate = new Composition.EditRate(compositionPlaylistType.getEditRate());
+                for (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResourceType : virtualTrackResourceList) {
+                    Composition.EditRate trackResourceEditRate = new Composition.EditRate(trackFileResourceType.getEditRate());
+                    if (!trackResourceEditRate.equals(compositionEditRate)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
+                        result &= false;
+                    }
                 }
             }
         }
-
-        for (Object object : segment.getSequenceList().getAny())
-        {
-            if(!(object instanceof JAXBElement)){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
-                continue;
-            }
-            JAXBElement jaxbElement = (JAXBElement)(object);
-            String name = jaxbElement.getName().getLocalPart();
-            sequence = (org.smpte_ra.schemas.st2067_2_2013.SequenceType)(jaxbElement).getValue();
-            if (sequence != null)
-            {
-                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                if (virtualTrackMap.get(uuid) == null)
-                {
-                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = null;
-                    if(virtualTrackResourceMap.get(uuid) == null){
-                        virtualTrackResourceList = new ArrayList<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>();
-                    }
-                    else{
-                        virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
-                    }
-                    checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
-                    CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack = new CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013(uuid, Composition.SequenceTypeEnum.getSequenceTypeEnum(name), virtualTrackResourceList);
-                    virtualTrackMap.put(uuid, virtualTrack);
-                    if(Composition.SequenceTypeEnum.getSequenceTypeEnum(name) == Composition.SequenceTypeEnum.MainImageSequence){
-                        foundMainImageEssence = true;
-                        Composition.EditRate compositionEditRate = new Composition.EditRate(compositionPlaylistType.getEditRate());
-                        for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
-                            Composition.EditRate trackResourceEditRate = new Composition.EditRate(trackFileResourceType.getEditRate());
-                            if(!trackResourceEditRate.equals(compositionEditRate)){
-                                throw new IMFException(String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    String message = String.format(
-                            "First segment in Composition XML file has multiple occurrences of virtual track UUID %s", uuid);
-                    if (imfErrorLogger != null)
-                    {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                    }
-                    else
-                    {
-                        throw new IMFException(message);
-                    }
-                }
-            }
-
-        }
-
-        checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
 
         if(!foundMainImageEssence){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId()).toString()));
+            result &= false;
         }
-
-        return virtualTrackMap;
+        return result;
     }
 
-    static void checkSegments(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
+    public static void checkSegments(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
         for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
@@ -205,61 +141,13 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
         }
     }
 
-    public static Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> populateVirtualTrackResourceList(@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
-    {
-        Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
-        for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
-        {
-
-            org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
-            for (Object object : segment.getSequenceList().getAny())
-            {
-                if(!(object instanceof JAXBElement)){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
-                    continue;
-                }
-                JAXBElement jaxbElement = (JAXBElement)(object);
-                sequence = (org.smpte_ra.schemas.st2067_2_2013.SequenceType)(jaxbElement).getValue();
-                if (sequence != null)
-                {
-                    UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                    /**
-                     * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
-                     * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
-                     * synchronized wrapping it around a synchronized list collection, although in this case it
-                     * is perhaps not required since this method is only invoked from the context of the constructor.
-                     */
-                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> trackFileResources = Collections.synchronizedList(new LinkedList<>());
-                    for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource())
-                    {
-                        org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)resource;
-                        trackFileResources.add(trackFileResource);
-                    }
-                    checkTrackResourceList(trackFileResources, null);
-                    if (virtualTrackResourceMap.get(uuid) == null)
-                    {
-                        virtualTrackResourceMap.put(uuid, trackFileResources);
-                    }
-                    else
-                    {
-                        virtualTrackResourceMap.get(uuid).addAll(trackFileResources);
-                    }
-                }
-            }
-        }
-
-        //make virtualTrackResourceMap immutable
-        for(Map.Entry<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> entry : virtualTrackResourceMap.entrySet())
-        {
-            List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> trackFileResources = entry.getValue();
-            entry.setValue(Collections.unmodifiableList(trackFileResources));
-        }
-
-        return virtualTrackResourceMap;
-    }
-
-    static boolean checkTrackResourceList(List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
+    public static boolean checkTrackResourceList(List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
         boolean result = true;
+        if(virtualTrackResourceList == null
+                || virtualTrackResourceList.size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack does not have any associated resources this is invalid"));
+            return false;
+        }
         for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
             //WARNING : We might be losing some precision here since EntryPoint is an XML non-negative integer with no upper-bound
