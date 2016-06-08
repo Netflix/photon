@@ -4,21 +4,11 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
-import org.smpte_ra.schemas.st2067_2_2013.SegmentType;
-import org.smpte_ra.schemas.st2067_2_2013.SequenceType;
-import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +33,7 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
                 return false;
             }
             List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = ((CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013)virtualTrack).getResourceList();
-            result &= checkTrackResourceList(virtualTrackResourceList, imfErrorLogger);
+            result &= checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList, imfErrorLogger);
             if(!result){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with id %s is invalid, please see errors reported earlier.", virtualTrack.getTrackID().toString()));
             }
@@ -141,22 +131,22 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
         }
     }
 
-    public static boolean checkTrackResourceList(List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
+    public static boolean checkVirtualTrackResourceList(UUID trackID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
         boolean result = true;
         if(virtualTrackResourceList == null
                 || virtualTrackResourceList.size() == 0){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack does not have any associated resources this is invalid"));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s does not have any associated resources this is invalid", trackID.toString()));
             return false;
         }
         for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
-            //WARNING : We might be losing some precision here since EntryPoint is an XML non-negative integer with no upper-bound
             long compositionPlaylistResourceEntryPoint = (trackFileResource.getEntryPoint() == null) ? 0L : trackFileResource.getEntryPoint().longValue();
             //Check to see if the Resource's source duration value is in the valid range as specified in st2067-3:2013 section 6.11.6
             if(trackFileResource.getSourceDuration() != null){
                 if(trackFileResource.getSourceDuration().longValue() < 0
                         || trackFileResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
-                    throw new IMFException(String.format("Invalid resource source duration value %d, should be in the range [0,%d]", trackFileResource.getSourceDuration().longValue(), (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has a resource with ID %s, that has an invalid source duration value %d, should be in the range [0,%d]", trackID.toString(), trackFileResource.getId(), trackFileResource.getSourceDuration().longValue(), (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
+                    result = false;
                 }
             }
         }

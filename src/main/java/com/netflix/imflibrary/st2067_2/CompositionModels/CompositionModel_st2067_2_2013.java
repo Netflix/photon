@@ -4,7 +4,6 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 
 import javax.annotation.Nonnull;
@@ -150,7 +149,7 @@ public class CompositionModel_st2067_2_2013 {
                         org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)resource;
                         trackFileResources.add(trackFileResource);
                     }
-                    IMFCoreConstraintsChecker_st2067_2_2013.checkTrackResourceList(trackFileResources, null);
+                    IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, trackFileResources, null);
                     if (virtualTrackResourceMap.get(uuid) == null)
                     {
                         virtualTrackResourceMap.put(uuid, trackFileResources);
