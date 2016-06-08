@@ -46,7 +46,6 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st2067_2_2013.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -147,7 +146,7 @@ public final class Composition
         this.validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
         String cplNameSpaceURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
 
-        String namespaceVersion = getNamespaceVersion(cplNameSpaceURI);
+        String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);
         String imf_cpl_schema_path = getIMFCPLSchemaPath(namespaceVersion);
         CoreConstraintsSchemas coreConstraintsSchema = this.supportedIMFCoreConstraintsSchemas.get(0);
         JAXBElement jaxbElement = null;
@@ -191,7 +190,7 @@ public final class Composition
         }
 
         this.compositionPlaylistTypeJAXBElement = jaxbElement;
-        this.coreConstraintsVersion = getNamespaceVersion(coreConstraintsSchema.getCoreConstraintsContext());//Should be one of 2013, 2016 etc.
+        this.coreConstraintsVersion = coreConstraintsSchema.getCoreConstraintsContext();
 
         switch(coreConstraintsVersion){
             case "org.smpte_ra.schemas.st2067_2_2013":
@@ -287,7 +286,7 @@ public final class Composition
         return result;
     }
 
-    private final String getNamespaceVersion(String namespaceURI){
+    private final String getCPLNamespaceVersion(String namespaceURI){
         String[] uriComponents = namespaceURI.split("/");
         String namespaceVersion = uriComponents[uriComponents.length - 1];
         return namespaceVersion;
@@ -480,7 +479,7 @@ public final class Composition
 
 
         String cplNameSpaceURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
-        String namespaceVersion = getNamespaceVersion(cplNameSpaceURI);
+        String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);
         String imf_cpl_schema_path = getIMFCPLSchemaPath(namespaceVersion);
 
         for(int i=0; i<supportedIMFCoreConstraintsSchemas.size(); i++) {
