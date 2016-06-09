@@ -140,7 +140,7 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s does not have any associated resources this is invalid", trackID.toString()));
             return false;
         }
-        Composition.EditRate refTrackResourceEditRate = virtualTrackResourceList.get(0).getEditRate().isEmpty() ? null : new Composition.EditRate(virtualTrackResourceList.get(0).getEditRate());
+        Set<Composition.EditRate> editRates = new HashSet<>();
         Composition.EditRate trackResourceEditRate = null;
         for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
@@ -150,19 +150,23 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
                 if(trackFileResource.getSourceDuration().longValue() < 0
                         || trackFileResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has a resource with ID %s, that has an invalid source duration value %d, should be in the range [0,%d]", trackID.toString(), trackFileResource.getId(), trackFileResource.getSourceDuration().longValue(), (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
-                    result = false;
+                    result &= false;
                 }
             }
             trackResourceEditRate = trackFileResource.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResource.getEditRate());
-            if(refTrackResourceEditRate != null
-                    && trackResourceEditRate != null
-                    &&(!trackResourceEditRate.equals(refTrackResourceEditRate))){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s, %s", trackID.toString(), trackResourceEditRate.toString(), refTrackResourceEditRate));
-                result = false;
+            if(trackResourceEditRate != null){
+                editRates.add(trackResourceEditRate);
             }
-            if( trackResourceEditRate != null) {
-                refTrackResourceEditRate = trackResourceEditRate;
+        }
+
+        if(editRates.size() > 1){
+            StringBuilder editRatesString = new StringBuilder();
+            Iterator iterator = editRates.iterator();
+            while(iterator.hasNext()){
+                editRatesString.append(iterator.next().toString());
+                editRatesString.append(String.format("%n"));
             }
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s", trackID.toString(), editRatesString.toString()));
         }
         return result;
     }
