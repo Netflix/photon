@@ -77,9 +77,10 @@ import java.util.*;
 import java.util.List;
 
 /**
- * This class represents a rich, immutable wrapper around the XML type 'CompositionPlaylistType' which is defined in Section 6.1,
- * st2067-3:2013. A Composition object can be constructed from an XML file only if it satisfies all the constraints specified
- * in st2067-3:2013 and st2067-2:2013
+ * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
+ * A Composition object can be constructed from an XML file only if it satisfies all the constraints specified
+ * in st2067-3 and st2067-2. This object model is intended to be agnostic of specific versions of the definitions of a
+ * CompositionPlaylist(st2067-3) and its accompanying Core constraints(st2067-2).
  */
 @Immutable
 public final class Composition

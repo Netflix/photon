@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * A class that represents certain aspects of a Composition such as a VirtualTrack compliant with the 2013 CoreConstraints Schema.
+ * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2013 CompositionPlaylist specification st2067-3:2013.
  */
 public final class CompositionModel_st2067_2_2013 {
 
@@ -117,7 +117,7 @@ public final class CompositionModel_st2067_2_2013 {
      * A stateless method that completely reads and parses the resources of all the VirtualTracks that are a part of the Composition
      * @param compositionPlaylistType - a CompositionPlaylist object model
      * @param imfErrorLogger - an object for logging errors
-     * @return a map containing mappings of a VirtualTrack identifier to the list of all the Track's resources
+     * @return map of VirtualTrack identifier to the list of all the Track's resources, for every VirtualTrack of the Composition
      */
     public static Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> getVirtualTrackResourceMap(@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
