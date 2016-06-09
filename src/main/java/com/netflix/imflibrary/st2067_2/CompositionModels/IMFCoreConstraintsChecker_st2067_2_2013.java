@@ -141,6 +141,7 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
             return false;
         }
         Composition.EditRate refTrackResourceEditRate = virtualTrackResourceList.get(0).getEditRate().isEmpty() ? null : new Composition.EditRate(virtualTrackResourceList.get(0).getEditRate());
+        Composition.EditRate trackResourceEditRate = null;
         for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
             long compositionPlaylistResourceEntryPoint = (trackFileResource.getEntryPoint() == null) ? 0L : trackFileResource.getEntryPoint().longValue();
@@ -152,14 +153,16 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
                     result = false;
                 }
             }
-            Composition.EditRate trackResourceEditRate = trackFileResource.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResource.getEditRate());
+            trackResourceEditRate = trackFileResource.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResource.getEditRate());
             if(refTrackResourceEditRate != null
                     && trackResourceEditRate != null
                     &&(!trackResourceEditRate.equals(refTrackResourceEditRate))){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates (First TrackResource EditRate %s), %s", trackID.toString(), trackResourceEditRate.toString(), refTrackResourceEditRate));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s, %s", trackID.toString(), trackResourceEditRate.toString(), refTrackResourceEditRate));
                 result = false;
             }
-
+            if( trackResourceEditRate != null) {
+                refTrackResourceEditRate = trackResourceEditRate;
+            }
         }
         return result;
     }
