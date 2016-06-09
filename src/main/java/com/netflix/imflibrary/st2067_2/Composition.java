@@ -551,6 +551,12 @@ public final class Composition
                         "Input list is expected to contain 2 numbers representing numerator and denominator respectively, found %d numbers in list %s",
                         numbers.size(), Arrays.toString(numbers.toArray())));
             }
+            else if(numbers.get(0) == 0
+                    || numbers.get(1) == 0){
+                throw new IMFException(String.format(
+                        "Input list is expected to contain 2 non-zero numbers representing numerator and denominator of the EditRate respectively, found Numerator %d, Denominator %d",
+                        numbers.get(0), numbers.get(1)));
+            }
             this.numerator = numbers.get(0);
             this.denominator = numbers.get(1);
         }
