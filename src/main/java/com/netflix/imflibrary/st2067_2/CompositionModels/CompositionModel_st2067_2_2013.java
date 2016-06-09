@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  * A class that represents certain aspects of a Composition such as a VirtualTrack compliant with the 2013 CoreConstraints Schema.
  */
-public class CompositionModel_st2067_2_2013 {
+public final class CompositionModel_st2067_2_2013 {
 
     /**
      * A stateless method that reads and parses all the virtual tracks of a Composition
@@ -172,7 +172,7 @@ public class CompositionModel_st2067_2_2013 {
         return virtualTrackResourceMap;
     }
 
-    public static class VirtualTrack_st2067_2_2013 extends Composition.VirtualTrack {
+    public final static class VirtualTrack_st2067_2_2013 extends Composition.VirtualTrack {
         private final List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList;
         VirtualTrack_st2067_2_2013(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
                                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList){
