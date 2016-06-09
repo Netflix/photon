@@ -19,7 +19,7 @@ import java.util.UUID;
  * A class that performs 2013 CoreConstraints related checks on the elements of a Composition Playlist. It plays a significant role in
  * reading and parsing aspects of a Composition such as VirtualTracks, Segments, Sequences and Resources.
  */
-public class IMFCoreConstraintsChecker_st2067_2_2013 {
+public final class IMFCoreConstraintsChecker_st2067_2_2013 {
 
 
     public static boolean checkVirtualTracks(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
