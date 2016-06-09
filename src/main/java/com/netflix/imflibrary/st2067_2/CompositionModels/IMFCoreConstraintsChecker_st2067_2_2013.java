@@ -42,8 +42,9 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
                 foundMainImageEssence = true;
                 Composition.EditRate compositionEditRate = new Composition.EditRate(compositionPlaylistType.getEditRate());
                 for (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResourceType : virtualTrackResourceList) {
-                    Composition.EditRate trackResourceEditRate = new Composition.EditRate(trackFileResourceType.getEditRate());
-                    if (!trackResourceEditRate.equals(compositionEditRate)) {
+                    Composition.EditRate trackResourceEditRate = trackFileResourceType.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResourceType.getEditRate());
+                    if (trackResourceEditRate != null
+                            && !trackResourceEditRate.equals(compositionEditRate)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
                         result &= false;
                     }
@@ -74,7 +75,7 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
                 if (virtualTrackMap.get(uuid) == null)
                 {
                     String message = String.format(
-                            "A segment in Composition XML file does not contain virtual track UUID %s", uuid);
+                            "A segment in Composition XML file does not contain virtual track UUID %s", uuid.toString());
                     if (imfErrorLogger != null)
                     {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
