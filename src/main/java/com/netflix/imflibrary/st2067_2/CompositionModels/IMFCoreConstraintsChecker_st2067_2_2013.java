@@ -5,6 +5,7 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import java.util.HashSet;
@@ -132,13 +133,14 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
         }
     }
 
-    public static boolean checkVirtualTrackResourceList(UUID trackID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nullable IMFErrorLogger imfErrorLogger){
+    public static boolean checkVirtualTrackResourceList(UUID trackID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList, @Nonnull IMFErrorLogger imfErrorLogger){
         boolean result = true;
         if(virtualTrackResourceList == null
                 || virtualTrackResourceList.size() == 0){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s does not have any associated resources this is invalid", trackID.toString()));
             return false;
         }
+        Composition.EditRate refTrackResourceEditRate = virtualTrackResourceList.get(0).getEditRate().isEmpty() ? null : new Composition.EditRate(virtualTrackResourceList.get(0).getEditRate());
         for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
             long compositionPlaylistResourceEntryPoint = (trackFileResource.getEntryPoint() == null) ? 0L : trackFileResource.getEntryPoint().longValue();
@@ -150,6 +152,14 @@ public class IMFCoreConstraintsChecker_st2067_2_2013 {
                     result = false;
                 }
             }
+            Composition.EditRate trackResourceEditRate = trackFileResource.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResource.getEditRate());
+            if(refTrackResourceEditRate != null
+                    && trackResourceEditRate != null
+                    &&(!trackResourceEditRate.equals(refTrackResourceEditRate))){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates (First TrackResource EditRate %s), %s", trackID.toString(), trackResourceEditRate.toString(), refTrackResourceEditRate));
+                result = false;
+            }
+
         }
         return result;
     }

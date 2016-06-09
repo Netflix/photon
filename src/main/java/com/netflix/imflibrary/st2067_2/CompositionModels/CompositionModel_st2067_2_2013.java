@@ -149,7 +149,7 @@ public class CompositionModel_st2067_2_2013 {
                         org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)resource;
                         trackFileResources.add(trackFileResource);
                     }
-                    IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, trackFileResources, null);
+                    IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, trackFileResources, imfErrorLogger);
                     if (virtualTrackResourceMap.get(uuid) == null)
                     {
                         virtualTrackResourceMap.put(uuid, trackFileResources);
