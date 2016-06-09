@@ -399,7 +399,7 @@ public final class CompositionPlaylist
             else
             {
                 String message = String.format(
-                        "First segment in CompositionPlaylist XML file has multiple occurrences of virtual track UUID %s", uuid);
+                        "First segment in CompositionPlaylist XML file has multiple occurrences of virtual track UUID %s", uuid.toString());
                 if (imfErrorLogger != null)
                 {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
@@ -439,9 +439,10 @@ public final class CompositionPlaylist
                         foundMainImageEssence = true;
                         EditRate compositionEditRate = new EditRate(this.compositionPlaylistType.getEditRate());
                         for(TrackFileResourceType trackFileResourceType : virtualTrackResourceList){
-                            EditRate trackResourceEditRate = new EditRate(trackFileResourceType.getEditRate());
-                            if(!trackResourceEditRate.equals(compositionEditRate)){
-                                throw new IMFException(String.format("This CompositionPlaylist is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", this.editRate.toString(), trackResourceEditRate.toString()));
+                            EditRate trackResourceEditRate = (trackFileResourceType.getEditRate().isEmpty()) ? null : new EditRate(trackFileResourceType.getEditRate());
+                            if(trackResourceEditRate != null
+                                    && !trackResourceEditRate.equals(compositionEditRate)){
+                                throw new IMFException(String.format("This CompositionPlaylist is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
                             }
                         }
                     }
