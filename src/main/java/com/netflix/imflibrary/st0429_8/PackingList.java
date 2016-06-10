@@ -67,7 +67,8 @@ public final class PackingList
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
 
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
-    public static final List<String> supportedPKLNamespaces = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");}});
+    public static final List<String> supportedPKLNamespaces = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");
+                                                                                                                        add("http://www.smpte-ra.org/schemas/2067-2/2016/PKL");}});
 
     private final UUID uuid;
     private final JAXBElement packingListTypeJAXBElement;
@@ -93,7 +94,7 @@ public final class PackingList
     }
     public static final List<PKLSchema> supportedPKLSchemas = Collections.unmodifiableList
             (new ArrayList<PKLSchema>() {{ add( new PKLSchema("org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd", "org.smpte_ra.schemas.st0429_8_2007.PKL"));
-                add( new PKLSchema("org/smpte_ra/schemas/st0429_8_2016/PKL/packingList_schema.xsd", "org.smpte_ra.schemas.st0429_8_2016.PKL"));}});
+                                            add( new PKLSchema("org/smpte_ra/schemas/st2067_2_2016/PKL/packingList_schema.xsd", "org.smpte_ra.schemas.st2067_2_2016.PKL"));}});
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
