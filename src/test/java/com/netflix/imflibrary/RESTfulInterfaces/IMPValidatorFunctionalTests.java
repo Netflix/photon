@@ -1,10 +1,12 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.testng.Assert;
+import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
@@ -16,7 +18,7 @@ import java.util.List;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
-    @Test
+    @Test(expectedExceptions = IMFException.class)
     public void invalidPKLTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);

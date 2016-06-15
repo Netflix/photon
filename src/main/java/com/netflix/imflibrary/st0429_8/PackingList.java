@@ -122,7 +122,7 @@ public final class PackingList
 
         JAXBElement<PackingListType> packingListTypeJAXBElement = null;
         String packingListNamespaceURI = getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
-        PKLSchema pklSchema = supportedPKLSchemas.get(0);
+        PKLSchema pklSchema = null;
 
         switch(packingListNamespaceURI){
             case "http://www.smpte-ra.org/schemas/429-8/2007/PKL":
