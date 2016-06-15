@@ -12,6 +12,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
+import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
@@ -178,27 +179,7 @@ public class MXFEssenceReader {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public String getAudioEssenceSpokenLanguage() throws IOException {
-        String rfc5646SpokenLanguage = "";
-        if(this.getHeaderPartition().hasWaveAudioEssenceDescriptor()){
-            List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getHeaderPartition().getSoundFieldGroupLabelSubDescriptors();
-            if(soundfieldGroupLabelSubDescriptors.size() > 0) {
-                for (InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors) {
-                    SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
-                    if (rfc5646SpokenLanguage.equals("")) {
-                        rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
-                    } else if (!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())) {
-                        throw new MXFException(String.format("Language Codes (%s, %s) do not match across the AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
-                    }
-                }
-            }
-            else{
-                throw new MXFException(String.format("This MXF file does not have any SoundFieldGroupLabelSubDescriptors and hence spoken language cannot be inferred."));
-            }
-        }
-        else{
-            throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
-        }
-        return rfc5646SpokenLanguage;
+        return this.getHeaderPartition().getAudioEssenceSpokenLanguage();
     }
 
     private PartitionPack getPartitionPack(long resourceOffset) throws IOException

@@ -81,6 +81,14 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
     }
 
     /**
+     * A getter for the spoken language in this SubDescriptor
+     * @return string representing the spoken language as defined in RFC-5646
+     */
+    public String getRFC5646SpokenLanguage(){
+        return this.audioChannelLabelSubDescriptorBO.rfc_5646_spoken_language;
+    }
+
+    /**
      * Object corresponding to a parsed AudioChannelLabelSubDescriptor structural metadata set defined in st377-4:2012
      */
     @Immutable

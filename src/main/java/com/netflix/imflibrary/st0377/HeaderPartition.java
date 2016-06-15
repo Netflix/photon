@@ -605,6 +605,41 @@ public final class HeaderPartition
     }
 
     /**
+     * A method that returns the spoken language within this essence provided it is an Audio Essence
+     * @return string representing a spoken language as defined in RFC-5646, null if the spoken language tag is missing
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    @Nullable
+    public String getAudioEssenceSpokenLanguage() throws IOException {
+        String rfc5646SpokenLanguage = null;
+        if(this.hasWaveAudioEssenceDescriptor()){
+            List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getSoundFieldGroupLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors) {
+                SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    throw new MXFException(String.format("Language Codes (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
+
+            List<InterchangeObject> audioChannelLabelSubDescriptors = this.getAudioChannelLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : audioChannelLabelSubDescriptors) {
+                AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
+        }
+        else{
+            throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
+        }
+        return rfc5646SpokenLanguage;
+    }
+
+    /**
      * Getter for a parsed InterchangeObject by ID
      * @param structuralMetadataID identifier for the structural metadata set
      * @return the InterchangeObjectBO corresponding to the class name

@@ -31,6 +31,7 @@ import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public final class IMFConstraints
      * @param headerPartitionOP1A the OP1A-conformant header partition
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A)
+    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
     {
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
@@ -125,6 +126,12 @@ public final class IMFConstraints
                 }
             }
         }
+
+        /*if(headerPartition.hasWaveAudioEssenceDescriptor()){
+            if(headerPartition.getAudioEssenceSpokenLanguage() == null){
+                throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
+            }
+        }*/
 
         return new HeaderPartitionIMF(headerPartitionOP1A);
     }
