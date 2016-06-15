@@ -118,6 +118,12 @@ public final class IMFConstraints
 //                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
 //                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUid(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
 //                        }
+                        //TODO: Enable following check once we have assets that adhere to the specification that the RFC5646 spoken language tag is present in the SoundFieldGroupLabelSubDescriptor and/or AudioChannelLableSubDescriptor
+                        /*
+                        if(headerPartition.getAudioEssenceSpokenLanguage() == null){
+                            throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
+                        }
+                        */
                     }
                     else
                     {
@@ -126,12 +132,6 @@ public final class IMFConstraints
                 }
             }
         }
-
-        /*if(headerPartition.hasWaveAudioEssenceDescriptor()){
-            if(headerPartition.getAudioEssenceSpokenLanguage() == null){
-                throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
-            }
-        }*/
 
         return new HeaderPartitionIMF(headerPartitionOP1A);
     }
