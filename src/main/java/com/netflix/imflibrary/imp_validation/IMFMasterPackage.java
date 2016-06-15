@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 public final class IMFMasterPackage {
 
-    private final List<ResourceByteRangeProvider> packingListsResourceByteRangeProviders = new ArrayList<>();
+    private final List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
     private final List<ResourceByteRangeProvider> assetMaps = new ArrayList<>();
     private final List<ResourceByteRangeProvider> compositionPlaylists = new ArrayList<>();
     private final Integer numberOfAssets;
@@ -51,7 +51,7 @@ public final class IMFMasterPackage {
             if (AssetMap.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 assetMaps.add(resourceByteRangeProvider);
             } else if (PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)) {
-                packingListsResourceByteRangeProviders.add(resourceByteRangeProvider);
+                packingLists.add(resourceByteRangeProvider);
             } else if (Composition.isFileOfSupportedSchema(resourceByteRangeProvider)) {
                 compositionPlaylists.add(resourceByteRangeProvider);
             }
@@ -84,8 +84,8 @@ public final class IMFMasterPackage {
             return false;
         }
 
-        if(packingListsResourceByteRangeProviders.size() == 0){
-            this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingListsResourceByteRangeProviders.size()));
+        if(packingLists.size() == 0){
+            this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingLists.size()));
             return false;
         }
 
@@ -96,8 +96,8 @@ public final class IMFMasterPackage {
 
         List<PackingList> packingLists = new ArrayList<>();
         try {
-            for (ResourceByteRangeProvider resourceByteRangeProvider : packingListsResourceByteRangeProviders) {
-                packingLists.add(new PackingList(this.packingListsResourceByteRangeProviders.get(0), this.imfErrorLogger));
+            for (ResourceByteRangeProvider resourceByteRangeProvider : this.packingLists) {
+                packingLists.add(new PackingList(this.packingLists.get(0), this.imfErrorLogger));
             }
         }
         catch (SAXException | JAXBException e){
@@ -216,7 +216,7 @@ public final class IMFMasterPackage {
      */
     public List<PackingList> getPackingLists() throws IOException, SAXException, JAXBException, URISyntaxException{
         List<PackingList> packingLists = new ArrayList<>();
-        for(ResourceByteRangeProvider resourceByteRangeProvider : this.packingListsResourceByteRangeProviders) {
+        for(ResourceByteRangeProvider resourceByteRangeProvider : this.packingLists) {
             packingLists.add(new PackingList(resourceByteRangeProvider, this.imfErrorLogger));
         }
         return packingLists;

@@ -121,44 +121,49 @@ public final class PackingList
         validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
 
         JAXBElement<PackingListType> packingListTypeJAXBElement = null;
-        PKLSchema pklSchema = null;
+        String packingListNamespaceURI = getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
+        PKLSchema pklSchema = supportedPKLSchemas.get(0);
 
-        for(int i=0; i<supportedPKLSchemas.size(); i++) {
-            try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-                 InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
-                 InputStream pkl_is = ClassLoader.getSystemResourceAsStream(supportedPKLSchemas.get(i).getPKLSchemaPath());
-            ) {
-                StreamSource[] streamSources = new StreamSource[2];
-                streamSources[0] = new StreamSource(xmldsig_core_is);
-                streamSources[1] = new StreamSource(pkl_is);
-
-                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-                Schema schema = schemaFactory.newSchema(streamSources);
-
-                ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
-                JAXBContext jaxbContext = JAXBContext.newInstance(supportedPKLSchemas.get(i).getPKLContext());
-                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-                unmarshaller.setEventHandler(validationEventHandlerImpl);
-                unmarshaller.setSchema(schema);
-
-                packingListTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
-                pklSchema = supportedPKLSchemas.get(i);
-
-                if (validationEventHandlerImpl.hasErrors()) {
-                    List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
-                    for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
-                    }
-                    throw new IMFException(validationEventHandlerImpl.toString());
-                }
+        switch(packingListNamespaceURI){
+            case "http://www.smpte-ra.org/schemas/429-8/2007/PKL":
+                pklSchema = supportedPKLSchemas.get(0);
                 break;
-            }
-            catch (SAXException | JAXBException e){
-                if(i == supportedPKLSchemas.size()-1){
-                    throw e;
+            case "http://www.smpte-ra.org/schemas/2067-2/2016/PKL":
+                pklSchema = supportedPKLSchemas.get(1);
+                break;
+            default:
+                throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString(supportedPKLSchemas)));
+        }
+
+
+        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
+        ) {
+            StreamSource[] streamSources = new StreamSource[2];
+            streamSources[0] = new StreamSource(xmldsig_core_is);
+            streamSources[1] = new StreamSource(pkl_is);
+
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(streamSources);
+
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            JAXBContext jaxbContext = JAXBContext.newInstance(pklSchema.getPKLContext());
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            packingListTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
+
+            if (validationEventHandlerImpl.hasErrors()) {
+                List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
+                for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
                 }
+                throw new IMFException(validationEventHandlerImpl.toString());
             }
         }
+
         this.pklSchema = pklSchema;
         this.packingListTypeJAXBElement = packingListTypeJAXBElement;
 
@@ -173,7 +178,7 @@ public final class PackingList
                     this.assetList.add(asset);
                 }
                 break;
-            case "org.smpte_ra.schemas.st0429_8_2016.PKL":
+            case "org.smpte_ra.schemas.st2067_2_2016.PKL":
                 throw new IMFException(String.format("Please check the PKL document and namespace URI, currently we only support the 2007 PKL schema URI"));
             default:
                 throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString(supportedPKLSchemas)));
