@@ -21,6 +21,11 @@ import java.util.UUID;
 public final class IMFCoreConstraintsChecker_st2067_2_2013 {
 
 
+    //To prevent instantiation
+    private IMFCoreConstraintsChecker_st2067_2_2013(){
+
+    }
+
     public static boolean checkVirtualTracks(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
 
         boolean foundMainImageEssence = false;

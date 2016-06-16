@@ -41,6 +41,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
@@ -143,7 +144,7 @@ public final class Composition
     public Composition(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
-        
+
         String cplNameSpaceURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
 
         String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);
@@ -231,7 +232,7 @@ public final class Composition
                 imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2016/imf-cpl.xsd";
                 break;
             default:
-                throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", serializeCollectionToString(supportedCPLSchemaURIs)));
+                throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedCPLSchemaURIs)));
         }
         return imf_cpl_schema_path;
     }
@@ -281,7 +282,7 @@ public final class Composition
             throw new IMFException(String.format("Error occurred while trying to determine the Composition Playlist Namespace URI, invalid CPL document Error Message : %s", e.getMessage()));
         }
         if(result.isEmpty()) {
-            throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", serializeCollectionToString(supportedCPLSchemaURIs)));
+            throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedCPLSchemaURIs)));
         }
         return result;
     }
@@ -290,15 +291,6 @@ public final class Composition
         String[] uriComponents = namespaceURI.split("/");
         String namespaceVersion = uriComponents[uriComponents.length - 1];
         return namespaceVersion;
-    }
-
-    private final String serializeCollectionToString(Collection<String> set){
-        StringBuilder stringBuilder = new StringBuilder();
-        for(String string : set){
-            stringBuilder.append(string);
-            stringBuilder.append("%n");
-        }
-        return stringBuilder.toString();
     }
 
     private final String serializeIMFCoreConstaintsSchemasToString(List<CoreConstraintsSchemas> coreConstraintsSchemas){
@@ -421,7 +413,7 @@ public final class Composition
      * Getter for the CompositionPlaylistType object model of the Composition defined by the st2067-3 schema.
      * @return the composition playlist type object model.
      */
-    public JAXBElement getCompositionPlaylistTypeJAXBElement(){
+    private JAXBElement getCompositionPlaylistTypeJAXBElement(){
         return this.compositionPlaylistTypeJAXBElement;
     }
 
