@@ -222,7 +222,7 @@ public final class Composition
         }
     }
 
-    private final String getIMFCPLSchemaPath(String namespaceVersion){
+    private static final String getIMFCPLSchemaPath(String namespaceVersion){
         String imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
         switch(namespaceVersion){
             case "2013":
@@ -238,7 +238,7 @@ public final class Composition
     }
 
     @Nullable
-    private final String getCompositionNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static final String getCompositionNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
 
         String result = "";
 
@@ -287,7 +287,7 @@ public final class Composition
         return result;
     }
 
-    private final String getCPLNamespaceVersion(String namespaceURI){
+    private static final String getCPLNamespaceVersion(String namespaceURI){
         String[] uriComponents = namespaceURI.split("/");
         String namespaceVersion = uriComponents[uriComponents.length - 1];
         return namespaceVersion;
@@ -467,7 +467,7 @@ public final class Composition
         return Collections.unmodifiableList(audioVirtualTracks);
     }
 
-    private void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    public static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
         String cplNameSpaceURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
         String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);

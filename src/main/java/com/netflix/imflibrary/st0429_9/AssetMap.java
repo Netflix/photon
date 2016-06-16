@@ -25,6 +25,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +123,7 @@ public final class AssetMap
     {
 
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
-        validateAssetMapSchema(resourceByteRangeProvider, imfErrorLogger);
+
         JAXBElement assetMapTypeJAXBElement = null;
 
         String assetMapNamespaceURI = getAssetMapNamespaceURI(resourceByteRangeProvider);
@@ -193,7 +194,7 @@ public final class AssetMap
 
     }
 
-    private final String serializeAssetMapSchemasToString(){
+    private static final String serializeAssetMapSchemasToString(){
         StringBuilder stringBuilder = new StringBuilder();
         Iterator iterator = supportedAssetMapSchemas.values().iterator();
         while(iterator.hasNext()){
@@ -237,7 +238,7 @@ public final class AssetMap
         return false;
     }
 
-    public String getAssetMapNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
+    private static String getAssetMapNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
 
         String assetMapNamespaceURI = "";
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
@@ -263,19 +264,10 @@ public final class AssetMap
             throw new IMFException(String.format("Error occurred while trying to determine the AssetMap Namespace URI, invalid AssetMap document Error Message : %s", e.getMessage()));
         }
         if(assetMapNamespaceURI.isEmpty()) {
-            throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the following schema URIs %s", serializeCollectionToString(supportedAssetMapSchemaURIs)));
+            throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedAssetMapSchemaURIs)));
         }
 
         return assetMapNamespaceURI;
-    }
-
-    private final String serializeCollectionToString(Collection<String> set){
-        StringBuilder stringBuilder = new StringBuilder();
-        for(String string : set){
-            stringBuilder.append(string);
-            stringBuilder.append("%n");
-        }
-        return stringBuilder.toString();
     }
 
     private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
@@ -470,7 +462,7 @@ public final class AssetMap
 
     }
 
-    private void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    public static void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
         String assetMapSchemaURI = getAssetMapNamespaceURI(resourceByteRangeProvider);
         AssetMapSchema assetMapSchema = supportedAssetMapSchemas.get(assetMapSchemaURI);

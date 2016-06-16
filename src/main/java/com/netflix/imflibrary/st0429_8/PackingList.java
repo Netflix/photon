@@ -118,8 +118,6 @@ public final class PackingList
      */
     public PackingList(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)throws IOException, SAXException, JAXBException {
 
-        validatePackingListSchema(resourceByteRangeProvider, imfErrorLogger);
-
         JAXBElement<PackingListType> packingListTypeJAXBElement = null;
         String packingListNamespaceURI = getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
         PKLSchema pklSchema = supportedPKLSchemas.get(packingListNamespaceURI);
@@ -127,7 +125,6 @@ public final class PackingList
         if(pklSchema == null){
             throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
         }
-
 
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
              InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
@@ -179,7 +176,7 @@ public final class PackingList
 
     }
 
-    private String getPackingListSchemaURI(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static String getPackingListSchemaURI(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
 
         String packingListSchemaURI = "";
         try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
@@ -226,7 +223,7 @@ public final class PackingList
         return packingListSchemaURI;
     }
 
-    private final String serializePKLSchemasToString(){
+    private static final String serializePKLSchemasToString(){
         StringBuilder stringBuilder = new StringBuilder();
         Iterator iterator = supportedPKLSchemas.values().iterator();
         while(iterator.hasNext()){
@@ -394,9 +391,9 @@ public final class PackingList
 
     }
 
-    private void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    public static void validatePackingListSchema(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
-        String pklNamespaceURI = getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
+        String pklNamespaceURI = PackingList.getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
         PKLSchema pklSchema = supportedPKLSchemas.get(pklNamespaceURI);
         if(pklSchema == null){
             throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
