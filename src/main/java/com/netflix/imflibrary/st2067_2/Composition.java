@@ -143,8 +143,7 @@ public final class Composition
     public Composition(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
-
-        this.validateCompositionPlaylistSchema(resourceByteRangeProvider, imfErrorLogger);
+        
         String cplNameSpaceURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
 
         String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);
