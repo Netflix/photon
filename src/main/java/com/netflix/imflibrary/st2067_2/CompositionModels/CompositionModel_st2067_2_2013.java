@@ -21,6 +21,11 @@ import java.util.UUID;
  */
 public final class CompositionModel_st2067_2_2013 {
 
+    //To prevent instantiation
+    private CompositionModel_st2067_2_2013(){
+
+    }
+
     /**
      * A stateless method that reads and parses all the virtual tracks of a Composition
      * @param compositionPlaylistType - a CompositionPlaylist object model
