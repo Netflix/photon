@@ -105,6 +105,10 @@ public class DOMNodeObjectModel {
 
         DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
 
+        /**
+         * The following loops construct a Set that supports the retainAll operation. This is required since
+         * the getFields() method returns an unmodifiable map, whereas retainAll() is a modifying call on a Map's entry set.
+         */
         Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
         for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
             fieldsSet.add(entry);
