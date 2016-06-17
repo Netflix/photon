@@ -1,4 +1,4 @@
-package com.netflix.imflibrary.imp_validation;
+package com.netflix.imflibrary.utils;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.slf4j.Logger;
@@ -111,7 +111,7 @@ public class DOMNodeObjectModel {
         }
 
         Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
-        for(Map.Entry<String, List<String>> entry : ((DOMNodeObjectModel) other).getFields().entrySet()){
+        for(Map.Entry<String, List<String>> entry : otherDOMNodeObjectModel.getFields().entrySet()){
             otherFieldsSet.add(entry);
         }
 

@@ -264,7 +264,7 @@ public final class AssetMap
             throw new IMFException(String.format("Error occurred while trying to determine the AssetMap Namespace URI, invalid AssetMap document Error Message : %s", e.getMessage()));
         }
         if(assetMapNamespaceURI.isEmpty()) {
-            throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedAssetMapSchemaURIs)));
+            throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedAssetMapSchemaURIs)));
         }
 
         return assetMapNamespaceURI;

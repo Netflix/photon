@@ -26,7 +26,7 @@ import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
@@ -232,7 +232,7 @@ public final class Composition
                 imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2016/imf-cpl.xsd";
                 break;
             default:
-                throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedCPLSchemaURIs)));
+                throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedCPLSchemaURIs)));
         }
         return imf_cpl_schema_path;
     }
@@ -282,7 +282,7 @@ public final class Composition
             throw new IMFException(String.format("Error occurred while trying to determine the Composition Playlist Namespace URI, invalid CPL document Error Message : %s", e.getMessage()));
         }
         if(result.isEmpty()) {
-            throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeStringCollectionToString(supportedCPLSchemaURIs)));
+            throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedCPLSchemaURIs)));
         }
         return result;
     }
