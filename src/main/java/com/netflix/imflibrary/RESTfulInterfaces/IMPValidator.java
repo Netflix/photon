@@ -104,12 +104,13 @@ public class IMPValidator {
      * A stateless method that will validate IMF AssetMap and PackingList documents for all the data
      * that should be cross referenced by both
      * @param assetMap - a payload record for an AssetMap document
-     * @param pkls - a list of payload records for Packing List documents referenced by the AssetMap
+     * @param pklPayloads - a list of payload records for Packing List documents referenced by the AssetMap
      * @return list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMap, List<PayloadRecord> pkls) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMap, List<PayloadRecord> pklPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> pkls = Collections.unmodifiableList(pklPayloads);
         List<ResourceByteRangeProvider> resourceByteRangeProviders = new ArrayList<>();
         if(assetMap.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
@@ -179,12 +180,13 @@ public class IMPValidator {
     /**
      * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
      * to perform preliminary validation of IMF essences
-     * @param essencesHeaderPartition - a list of IMF Essence Component header partition payloads
+     * @param essencesHeaderPartitionPayloads - a list of IMF Essence Component header partition payloads
      * @return a list of errors encountered while performing compliance checks on the IMF Essence Component Header partition
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validateIMFEssenceComponentHeaderMetadata(List<PayloadRecord> essencesHeaderPartition) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateIMFEssenceComponentHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
         for(PayloadRecord payloadRecord : essencesHeaderPartition){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -204,15 +206,16 @@ public class IMPValidator {
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
      * resources referenced by the Composition
      * @param cplPayloadRecord a payload record corresponding to the Composition payload
-     * @param essencesHeaderPartition list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the Composition
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the Composition
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> isCPLConformed(
             PayloadRecord cplPayloadRecord,
-            List<PayloadRecord> essencesHeaderPartition) throws IOException {
+            List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
         try {
 
             List<ErrorLogger.ErrorObject> errors = new ArrayList<>(validateCPL(cplPayloadRecord));
@@ -233,7 +236,7 @@ public class IMPValidator {
                                                             imfErrorLogger),
                                                             new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!composition.isCompositionPlaylistConformed(headerPartitionTuples, imfErrorLogger)){
+            if(!composition.isCompositionPlaylistConformed(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger)){
                 return imfErrorLogger.getErrors();
             }
         }
@@ -250,14 +253,15 @@ public class IMPValidator {
      * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
      * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference Composition document, perhaps the first
      *                                  composition playlist document that was delivered for a particular composition.
-     * @param cplPayloadRecords - a list of payload records corresponding to each of the Composition documents
+     * @param cplPayloads - a list of payload records corresponding to each of the Composition documents
      *                          that need to be verified for mergeability
      * @return a boolean indicating if the CPLs can be merged or not
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloadRecords) throws IOException {
+    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> cplPayloadRecords = Collections.unmodifiableList(cplPayloads);
         List<Composition> compositions = new ArrayList<>();
         try {
             compositions.add(new Composition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
@@ -298,7 +302,7 @@ public class IMPValidator {
 
         Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
         for(int i=1; i<audioVirtualTracksMapList.size(); i++){
-            if(!compareAudioVirtualTrackMaps(referenceAudioVirtualTracksMap, audioVirtualTracksMapList.get(i))){
+            if(!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)))){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
             }
         }

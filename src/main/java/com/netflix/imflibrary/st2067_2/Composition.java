@@ -801,7 +801,7 @@ public final class Composition
             default:
                 throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
         }
-        return essenceDescriptorMap;
+        return Collections.unmodifiableMap(essenceDescriptorMap);
     }
 
     public Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> getAudioVirtualTracksMap() {
@@ -981,7 +981,7 @@ public final class Composition
         if(resourcesEssenceDescriptorMap.entrySet().size() == 0){
             throw new MXFException(String.format("Composition does not refer to a single IMFEssence represented by the HeaderPartitions that were passed in."));
         }
-        return resourcesEssenceDescriptorMap;
+        return Collections.unmodifiableMap(resourcesEssenceDescriptorMap);
     }
 
     private List<Node> getEssenceDescriptorDOMNodes(IMPValidator.HeaderPartitionTuple headerPartitionTuple) throws IOException {
