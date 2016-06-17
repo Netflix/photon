@@ -1055,6 +1055,21 @@ public final class Composition
          * The Maps passed in have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
          * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
          */
+
+        /**
+         * The following check ensures that we do not have a Track Resource that does not have a corresponding EssenceDescriptor element in the CPL's EDL
+         */
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> essenceDescriptorsMapIterator = essenceDescriptorsMap.entrySet().iterator();
+        while(essenceDescriptorsMapIterator.hasNext()){
+            UUID sourceEncodingElement = essenceDescriptorsMapIterator.next().getKey();
+            if(!eDLMap.keySet().contains(sourceEncodingElement)){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL", sourceEncodingElement.toString()));
+                return false;
+            }
+        }
+        /**
+         * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
+         */
         Iterator<Map.Entry<UUID, DOMNodeObjectModel>> eDLMapIterator = eDLMap.entrySet().iterator();
         while(eDLMapIterator.hasNext()){
             Map.Entry<UUID, DOMNodeObjectModel> entry = (Map.Entry<UUID, DOMNodeObjectModel>) eDLMapIterator.next();
