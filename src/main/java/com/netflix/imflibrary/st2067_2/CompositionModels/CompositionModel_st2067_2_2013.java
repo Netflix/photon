@@ -183,6 +183,9 @@ public final class CompositionModel_st2067_2_2013 {
                                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList){
             super(trackID, sequenceTypeEnum);
             this.resourceList = Collections.unmodifiableList(resourceList);
+            for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType resource : this.resourceList){
+                this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getTrackFileId()));
+            }
         }
 
         /**
@@ -206,7 +209,7 @@ public final class CompositionModel_st2067_2_2013 {
             }
             VirtualTrack_st2067_2_2013 otherVirtualTrack = VirtualTrack_st2067_2_2013.class.cast(other);
             boolean result = true;
-            List<TrackFileResourceType> otherResourceList = otherVirtualTrack.getResourceList();
+            List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> otherResourceList = otherVirtualTrack.getResourceList();
             if(otherResourceList.size() != this.resourceList.size()){
                 return false;
             }

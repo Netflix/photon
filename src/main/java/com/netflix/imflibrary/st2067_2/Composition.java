@@ -687,6 +687,7 @@ public final class Composition
     {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
+        protected final List<UUID> resourceIds = new ArrayList<>();
 
         /**
          * Constructor for a VirtualTrack object
@@ -714,6 +715,14 @@ public final class Composition
          */
         public UUID getTrackID(){
             return this.trackID;
+        }
+
+        /**
+         * Getter for the UUIDs of the resources that are a part of this virtual track
+         * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
+         */
+        public List<UUID> getTrackResourceIds(){
+            return Collections.unmodifiableList(this.resourceIds);
         }
 
         /**

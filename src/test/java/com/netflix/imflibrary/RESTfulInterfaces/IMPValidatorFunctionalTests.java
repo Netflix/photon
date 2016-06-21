@@ -1,12 +1,10 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.testng.Assert;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
@@ -153,7 +151,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         essencesHeaderPartition.add(payloadRecord);
 
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 0);
     }
 

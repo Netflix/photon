@@ -16,8 +16,10 @@ import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.Utilities;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -111,11 +113,20 @@ public class IMPValidator {
     public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMapPayload, List<PayloadRecord> pklPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> packingListPayloadRecords = Collections.unmodifiableList(pklPayloads);
-        List<ResourceByteRangeProvider> assetMaps = new ArrayList<>();
+
         if(assetMapPayload.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
         }
-        assetMaps.add(new ByteArrayByteRangeProvider(assetMapPayload.getPayload()));
+
+        ResourceByteRangeProvider assetMapByteRangeProvider = new ByteArrayByteRangeProvider(assetMapPayload.getPayload());
+        AssetMap assetMapObjectModel;
+        try {
+            assetMapObjectModel = new AssetMap(assetMapByteRangeProvider, imfErrorLogger);
+        }
+        catch (SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The AssetMap delivered in this package is invalid. Error %s ocurred while trying to read and parse an AssetMap document", e.getMessage()));
+            return imfErrorLogger.getErrors();
+        }
 
         List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
         for(PayloadRecord payloadRecord : packingListPayloadRecords){
@@ -123,20 +134,6 @@ public class IMPValidator {
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
             }
             packingLists.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
-        }
-
-
-        if(assetMaps.size() > 1){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
-        }
-
-        AssetMap assetMapObjectModel;
-        try {
-            assetMapObjectModel = new AssetMap(assetMaps.get(0), imfErrorLogger);
-        }
-        catch (SAXException | JAXBException | URISyntaxException e){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The AssetMap delivered in this package is invalid. Error %s ocurred while trying to read and parse an AssetMap document", e.getMessage()));
-            return imfErrorLogger.getErrors();
         }
 
         if(packingLists.size() == 0){
@@ -250,76 +247,29 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    /* IMF essence related inspection calls*/
-
     /**
-     * A stateless method that will return the size of the RandomIndexPack present within a MXF file. In a typical IMF workflow
-     * this would be the first method that would need to be invoked to perform IMF essence component level validation
-     * @param essenceFooter4Bytes - the last 4 bytes of the MXF file used to infer the size of the RandomIndexPack
-     * @return a long integer value representing the size of the RandomIndexPack
-     */
-    public static Long getRandomIndexPackSize(PayloadRecord essenceFooter4Bytes){
-        if(essenceFooter4Bytes.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssenceFooter4Bytes){
-            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", essenceFooter4Bytes.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssenceFooter4Bytes.toString()));
-        }
-        return (long)(ByteBuffer.wrap(essenceFooter4Bytes.getPayload()).getInt());
-    }
-
-    /**
-     * A stateless method that will read and parse the RandomIndexPack within a MXF file and return a list of byte offsets
-     * corresponding to the partitions of the MXF file. In a typical IMF workflow this would be the second method after
-     * {@link #getRandomIndexPackSize(PayloadRecord)} that would need to be invoked to perform IMF essence component
-     * level validation
-     * @param randomIndexPackPayload - a payload containing the raw bytes corresponding to the RandomIndexPack of the MXF file
-     * @param randomIndexPackSize - size of the RandomIndexPack of the MXF file
-     * @return list of long integer values representing the byte offsets of the partitions in the MXF file
+     * A stateless method to retrieve all the VirtualTracks that are a part of a Composition
+     * @param cpl - a payload corresponding to the Composition Playlist
+     * @return list of VirtualTracks
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<Long> getEssencePartitionOffsets(PayloadRecord randomIndexPackPayload, Long randomIndexPackSize) throws IOException {
-        RandomIndexPack randomIndexPack = new RandomIndexPack(new ByteArrayDataProvider(randomIndexPackPayload.getPayload()), 0L, randomIndexPackSize);
-        return randomIndexPack.getAllPartitionByteOffsets();
-    }
-
-    /**
-     * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
-     * to perform preliminary validation of IMF essences
-     * @param essencesHeaderPartitionPayloads - a list of IMF Essence Component header partition payloads
-     * @return a list of errors encountered while performing compliance checks on the IMF Essence Component Header partition
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<ErrorLogger.ErrorObject> validateIMFEssenceComponentHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+    public static List<? extends Composition.VirtualTrack> getVirtualTracks(PayloadRecord cpl) throws IOException {
+        validateCPL(cpl);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
-        for(PayloadRecord payloadRecord : essencesHeaderPartition){
-            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+        Composition composition;
+        try{
+            composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+            return composition.getVirtualTracks();
+        }
+        catch(SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            StringBuilder stringBuilder = new StringBuilder();
+            for(ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors()){
+                stringBuilder.append(errorObject.toString());
+                stringBuilder.append(String.format("%n"));
             }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long)payloadRecord.getPayload().length,
-                    imfErrorLogger);
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            throw new IMFException(stringBuilder.toString());
         }
-        return imfErrorLogger.getErrors();
-    }
-
-    /**
-     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
-     * @param essenceHeaderPartition - a payload corresponding to the Header Partition of an Audio Essence
-     * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static String getAudioEssenceLanguage(PayloadRecord essenceHeaderPartition) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        if(essenceHeaderPartition.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
-            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", essenceHeaderPartition.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-        }
-        HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(essenceHeaderPartition.getPayload()),
-                0L,
-                (long)essenceHeaderPartition.getPayload().length,
-                imfErrorLogger);
-        return headerPartition.getAudioEssenceSpokenLanguage();
     }
 
     /**
@@ -340,7 +290,7 @@ public class IMPValidator {
         try {
 
             List<ErrorLogger.ErrorObject> errors = new ArrayList<>(validateCPL(cplPayloadRecord));
-            errors.addAll(validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition));
+            errors.addAll(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
             if(errors.size() > 0){
                 return Collections.unmodifiableList(errors);
             }
@@ -352,10 +302,10 @@ public class IMPValidator {
                     throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                 }
                 headerPartitionTuples.add(new HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                                                            0L,
-                                                            (long)payloadRecord.getPayload().length,
-                                                            imfErrorLogger),
-                                                            new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
+                        0L,
+                        (long)payloadRecord.getPayload().length,
+                        imfErrorLogger),
+                        new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
             if(!composition.isCompositionPlaylistConformed(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger)){
                 return imfErrorLogger.getErrors();
@@ -429,6 +379,86 @@ public class IMPValidator {
         }
 
         return imfErrorLogger.getErrors();
+    }
+
+    /* IMF essence related inspection calls*/
+
+    /**
+     * A stateless method that will return the size of the RandomIndexPack present within a MXF file. In a typical IMF workflow
+     * this would be the first method that would need to be invoked to perform IMF essence component level validation
+     * @param essenceFooter4Bytes - the last 4 bytes of the MXF file used to infer the size of the RandomIndexPack
+     * @return a long integer value representing the size of the RandomIndexPack
+     */
+    public static Long getRandomIndexPackSize(PayloadRecord essenceFooter4Bytes){
+        if(essenceFooter4Bytes.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssenceFooter4Bytes){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", essenceFooter4Bytes.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssenceFooter4Bytes.toString()));
+        }
+        return (long)(ByteBuffer.wrap(essenceFooter4Bytes.getPayload()).getInt());
+    }
+
+    /**
+     * A stateless method that will read and parse the RandomIndexPack within a MXF file and return a list of byte offsets
+     * corresponding to the partitions of the MXF file. In a typical IMF workflow this would be the second method after
+     * {@link #getRandomIndexPackSize(PayloadRecord)} that would need to be invoked to perform IMF essence component
+     * level validation
+     * @param randomIndexPackPayload - a payload containing the raw bytes corresponding to the RandomIndexPack of the MXF file
+     * @param randomIndexPackSize - size of the RandomIndexPack of the MXF file
+     * @return list of long integer values representing the byte offsets of the partitions in the MXF file
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<Long> getEssencePartitionOffsets(PayloadRecord randomIndexPackPayload, Long randomIndexPackSize) throws IOException {
+        RandomIndexPack randomIndexPack = new RandomIndexPack(new ByteArrayDataProvider(randomIndexPackPayload.getPayload()), 0L, randomIndexPackSize);
+        return randomIndexPack.getAllPartitionByteOffsets();
+    }
+
+    /**
+     * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
+     * to perform preliminary validation of IMF essences
+     * @param essencesHeaderPartitionPayloads - a list of IMF Essence Component header partition payloads
+     * @return a list of errors encountered while performing compliance checks on the IMF Essence Component Header partition
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> validateIMFTrackFileHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
+        for(PayloadRecord payloadRecord : essencesHeaderPartition){
+            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+            }
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                    0L,
+                    (long)payloadRecord.getPayload().length,
+                    imfErrorLogger);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
+            IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
+     * @param essencesHeaderPartition - a list of payloads corresponding to the Header Partitions of TrackFiles that are a part of an Audio VirtualTrack
+     * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    @Nullable
+    public static String getAudioTrackSpokenLanguage(List<PayloadRecord> essencesHeaderPartition) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        Set<String> audioLanguageSet = new HashSet<>();
+        for (PayloadRecord payloadRecord : essencesHeaderPartition){
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+            }
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                0L,
+                (long) payloadRecord.getPayload().length,
+                imfErrorLogger);
+            audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
+        }
+        if(audioLanguageSet.size() > 1){
+            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across resources of this Audio Virtual Track found %s languages", Utilities.serializeObjectCollectionToString(audioLanguageSet)));
+        }
+        return audioLanguageSet.iterator().next();
     }
 
     private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map2){
