@@ -7,7 +7,6 @@ import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
@@ -25,6 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -103,26 +103,129 @@ public class IMPValidator {
     /**
      * A stateless method that will validate IMF AssetMap and PackingList documents for all the data
      * that should be cross referenced by both
-     * @param assetMap - a payload record for an AssetMap document
+     * @param assetMapPayload - a payload record for an AssetMap document
      * @param pklPayloads - a list of payload records for Packing List documents referenced by the AssetMap
      * @return list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMap, List<PayloadRecord> pklPayloads) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMapPayload, List<PayloadRecord> pklPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> pkls = Collections.unmodifiableList(pklPayloads);
-        List<ResourceByteRangeProvider> resourceByteRangeProviders = new ArrayList<>();
-        if(assetMap.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
-            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
+        List<PayloadRecord> packingListPayloadRecords = Collections.unmodifiableList(pklPayloads);
+        List<ResourceByteRangeProvider> assetMaps = new ArrayList<>();
+        if(assetMapPayload.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
         }
-        resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(assetMap.getPayload()));
-        for(PayloadRecord payloadRecord : pkls){
+        assetMaps.add(new ByteArrayByteRangeProvider(assetMapPayload.getPayload()));
+
+        List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
+        for(PayloadRecord payloadRecord : packingListPayloadRecords){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
             }
-            resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
+            packingLists.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
         }
-        new IMFMasterPackage(resourceByteRangeProviders, imfErrorLogger);
+
+
+        if(assetMaps.size() > 1){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("If the IMP has an AssetMap exactly one is expected, however %d are present in the IMP", assetMaps.size()));
+        }
+
+        AssetMap assetMapObjectModel;
+        try {
+            assetMapObjectModel = new AssetMap(assetMaps.get(0), imfErrorLogger);
+        }
+        catch (SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The AssetMap delivered in this package is invalid. Error %s ocurred while trying to read and parse an AssetMap document", e.getMessage()));
+            return imfErrorLogger.getErrors();
+        }
+
+        if(packingLists.size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingLists.size()));
+            return imfErrorLogger.getErrors();
+        }
+
+        if(assetMapObjectModel.getPackingListAssets().size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Asset map should reference atleast one PackingList, %d references found", assetMapObjectModel.getPackingListAssets().size()));
+            return imfErrorLogger.getErrors();
+        }
+
+        List<PackingList> packingListObjectModels = new ArrayList<>();
+        try {
+            for (ResourceByteRangeProvider resourceByteRangeProvider : packingLists) {
+                packingListObjectModels.add(new PackingList(resourceByteRangeProvider, imfErrorLogger));
+            }
+        }
+        catch (SAXException | JAXBException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one of the PKLs delivered in this package is invalid. Error %s ocurred while trying to read and parse a PKL document", e.getMessage()));
+            return imfErrorLogger.getErrors();
+        }
+
+        List<UUID> assetUUIDsAssetMapList = new ArrayList<>();
+        for(AssetMap.Asset asset : assetMapObjectModel.getAssetList()){
+            assetUUIDsAssetMapList.add(asset.getUUID());
+        }
+
+/*
+        //Sort the UUIDs in the AssetMap
+        assetUUIDsAssetMapList.sort(new Comparator<UUID>() {
+                                    @Override
+                                    public int compare(UUID o1, UUID o2) {
+                                        return o1.compareTo(o2);
+                                    }
+                                });
+*/
+
+        /* Collect all the assets in all of the PKLs that are a part of this IMP delivery */
+        List<UUID> assetUUIDsPackingList = new ArrayList<>();
+        for(PackingList packingList : packingListObjectModels) {
+            assetUUIDsPackingList.add(packingList.getUUID());//PKL's UUID is also added to this list since that should be present in the AssetMap
+            for (PackingList.Asset asset : packingList.getAssets()) {
+                assetUUIDsPackingList.add(asset.getUUID());
+            }
+        }
+
+/*
+        //Sort the UUIDs in the PackingList
+        assetUUIDsPackingList.sort(new Comparator<UUID>() {
+            @Override
+            public int compare(UUID o1, UUID o2) {
+                return o1.compareTo(o2);
+            }
+        });
+*/
+
+        /* Check to see if all the Assets referenced in the PKL are also referenced by the Asset Map */
+        Set<UUID> assetUUIDsAssetMapSet = new HashSet<>(assetUUIDsAssetMapList);
+        Set<UUID> assetUUIDsPKLSet = new HashSet<>(assetUUIDsPackingList);
+
+        StringBuilder unreferencedPKLAssetsUUIDs = new StringBuilder();
+        for(UUID uuid : assetUUIDsPKLSet){
+            if(!assetUUIDsAssetMapSet.contains(uuid)) {
+                unreferencedPKLAssetsUUIDs.append(uuid.toString());
+                unreferencedPKLAssetsUUIDs.append(", ");
+            }
+        }
+
+        if(!unreferencedPKLAssetsUUIDs.toString().isEmpty()){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following UUID/s %s in the Packing list are not referenced by the AssetMap.", unreferencedPKLAssetsUUIDs.toString()));
+            return imfErrorLogger.getErrors();
+        }
+
+        /* Check if all the assets in the AssetMap that are supposed to be PKLs have the same UUIDs as the PKLs themselves */
+        Set<UUID> packingListAssetsUUIDsSet = new HashSet<>();
+        for(AssetMap.Asset asset : assetMapObjectModel.getPackingListAssets()){
+            packingListAssetsUUIDsSet.add(asset.getUUID());
+        }
+        StringBuilder unreferencedPKLUUIDs = new StringBuilder();
+        for(PackingList packingList : packingListObjectModels) {
+            if (!packingListAssetsUUIDsSet.contains(packingList.getUUID())) {
+                unreferencedPKLUUIDs.append(packingList.getUUID());
+            }
+        }
+        if(!unreferencedPKLUUIDs.toString().isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following Packing lists %s are not referenced in the AssetMap", unreferencedPKLUUIDs.toString()));
+            return imfErrorLogger.getErrors();
+        }
         return imfErrorLogger.getErrors();
     }
 
@@ -199,6 +302,24 @@ public class IMPValidator {
             IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
         }
         return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
+     * @param essenceHeaderPartition - a payload corresponding to the Header Partition of an Audio Essence
+     * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static String getAudioEssenceLanguage(PayloadRecord essenceHeaderPartition) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        if(essenceHeaderPartition.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", essenceHeaderPartition.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+        }
+        HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(essenceHeaderPartition.getPayload()),
+                0L,
+                (long)essenceHeaderPartition.getPayload().length,
+                imfErrorLogger);
+        return headerPartition.getAudioEssenceSpokenLanguage();
     }
 
     /**

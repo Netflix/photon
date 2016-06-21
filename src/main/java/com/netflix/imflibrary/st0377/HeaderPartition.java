@@ -622,7 +622,11 @@ public final class HeaderPartition
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }
-
+            /**
+             * According to IMF Core Constraints st2067-2:2013 Section 5.3.6.5 the RFC5646 Spoken Language Tag in AudioChannelLabelSubDescriptor shall be ignored.
+             * However leaving this code commented out to serve as a sample in case we want to enable it in the future and check that this language tag matches
+             * what is present in the SoundFieldGroupLabelSubDescriptors.
+             * /
             List<InterchangeObject> audioChannelLabelSubDescriptors = this.getAudioChannelLabelSubDescriptors();
             for (InterchangeObject subDescriptor : audioChannelLabelSubDescriptors) {
                 AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) subDescriptor;
@@ -631,7 +635,7 @@ public final class HeaderPartition
                 } else if (!rfc5646SpokenLanguage.equals(audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage())) {
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
-            }
+            }*/
         }
         else{
             throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
