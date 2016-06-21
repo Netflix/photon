@@ -23,9 +23,9 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.RepeatableInputStream;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +50,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -68,16 +66,36 @@ import java.util.*;
 @Immutable
 public final class AssetMap
 {
-    private static final String assetMap_schema_path = "/org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd";
-
     private final UUID uuid;
     private final List<Asset> assetList = new ArrayList<>();
     private final List<Asset> packingListAssets = new ArrayList<>();
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
-    private final AssetMapType assetMapType;
-    public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
+    private final JAXBElement assetMapTypeJAXBElement;
+    public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");
+                                                                                                                            add("http://www.smpte-ra.org/schemas/429-9/2016/AM");}});
 
+    public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
+            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));
+                                                        put("http://www.smpte-ra.org/schemas/429-9/2016/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2016/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2016.AM"));}});
+
+    private static class AssetMapSchema {
+        private final String assetMapSchemaPath;
+        private final String assetMapContext;
+
+        private AssetMapSchema(String assetMapSchemaPath, String assetMapContext){
+            this.assetMapSchemaPath = assetMapSchemaPath;
+            this.assetMapContext = assetMapContext;
+        }
+
+        private String getAssetMapSchemaPath(){
+            return this.assetMapSchemaPath;
+        }
+
+        private String getAssetMapContext(){
+            return this.assetMapContext;
+        }
+    }
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
      * @param assetMapXmlFile the input XML file
@@ -105,57 +123,68 @@ public final class AssetMap
     {
 
         int numErrors = (imfErrorLogger != null) ? imfErrorLogger.getNumberOfErrors() : 0;
-        validateAssetMapSchema(resourceByteRangeProvider, imfErrorLogger);
 
-        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
-            InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);)
-        {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
+        JAXBElement assetMapTypeJAXBElement = null;
+
+        String assetMapNamespaceURI = getAssetMapNamespaceURI(resourceByteRangeProvider);
+        AssetMapSchema assetMapSchema = supportedAssetMapSchemas.get(assetMapNamespaceURI);
+        if(assetMapSchema == null){
+            throw new IMFException(String.format("Please check the AssetMap document, currently we only support the following schema URIs %s", serializeAssetMapSchemasToString()));
+        }
+
+        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+             InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             StreamSource schemaSource = new StreamSource(assetMap_schema_is);
             Schema schema = schemaFactory.newSchema(schemaSource);
 
             ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_9_2007.AM");
+            JAXBContext jaxbContext = JAXBContext.newInstance(assetMapSchema.getAssetMapContext());
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setEventHandler(validationEventHandlerImpl);
             unmarshaller.setSchema(schema);
 
-            JAXBElement<AssetMapType> assetMapTypeJAXBElement = (JAXBElement)unmarshaller.unmarshal(inputStream);
-            if(validationEventHandlerImpl.hasErrors())
-            {
+            assetMapTypeJAXBElement  = (JAXBElement) unmarshaller.unmarshal(inputStream);
+
+            if (validationEventHandlerImpl.hasErrors()) {
                 List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
-                for(ValidationEventHandlerImpl.ValidationErrorObject error : errors){
+                for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
                 }
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
-
-            this.assetMapType  = AssetMap.checkConformance(assetMapTypeJAXBElement.getValue(), imfErrorLogger);
         }
+        this.assetMapTypeJAXBElement = assetMapTypeJAXBElement;
 
-        UUID uuid = null;
-        try
-        {
-            uuid = UUIDHelper.fromUUIDAsURNStringToUUID(this.assetMapType.getId());
-        }
-        catch(IMFException e)
-        {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    e.getMessage());
+        switch(assetMapSchema.getAssetMapContext()) {
+            case "org.smpte_ra.schemas.st0429_9_2007.AM":
+                UUID uuid = null;
+                org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = (org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType) this.assetMapTypeJAXBElement.getValue();
+                try {
+                    uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetMapType.getId());
+                } catch (IMFException e) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            e.getMessage());
 
-            throw e;
-        }
-        this.uuid = uuid;
+                    throw e;
+                }
+                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetMapType.getId());
 
-        for (AssetType assetType : this.assetMapType.getAssetList().getAsset())
-        {
-            Asset asset = new Asset(assetType);
-            this.assetList.add(asset);
-            this.uuidToPath.put(asset.getUUID(), asset.getPath());
-            if ((assetType.isPackingList() != null) && (assetType.isPackingList()))
-            {
-                this.packingListAssets.add(asset);
-            }
+                for (org.smpte_ra.schemas.st0429_9_2007.AM.AssetType assetType : assetMapType.getAssetList().getAsset()) {
+                    boolean isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
+                    String path = assetType.getChunkList().getChunk().get(0).getPath();
+                    Asset asset = new Asset(assetType.getId(), isPackingList, path);
+                    this.assetList.add(asset);
+                    this.uuidToPath.put(asset.getUUID(), asset.getPath());
+                    if ((assetType.isPackingList() != null) && (assetType.isPackingList())) {
+                        this.packingListAssets.add(asset);
+                    }
+                }
+                break;
+            case "org.smpte_ra.schemas.st0429_9_2016.AM":
+                throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the 2007 AssetMap schema URI"));
+            default:
+                throw new IMFException(String.format("Please check the AssetMap document, currently we only support the following schema URIs %s", serializeAssetMapSchemasToString()));
         }
 
         if (imfErrorLogger.getNumberOfErrors() > numErrors)
@@ -163,6 +192,16 @@ public final class AssetMap
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
         }
 
+    }
+
+    private static final String serializeAssetMapSchemasToString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        Iterator iterator = supportedAssetMapSchemas.values().iterator();
+        while(iterator.hasNext()){
+            stringBuilder.append(String.format("%n"));
+            stringBuilder.append(((AssetMapSchema)iterator.next()).getAssetMapContext());
+        }
+        return stringBuilder.toString();
     }
 
     /**
@@ -197,6 +236,38 @@ public final class AssetMap
         }
 
         return false;
+    }
+
+    private static String getAssetMapNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
+
+        String assetMapNamespaceURI = "";
+        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
+        {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(inputStream);
+            NodeList nodeList = null;
+            for(String supportedSchemaURI : supportedAssetMapSchemaURIs) {
+                //obtain root node
+                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "AssetMap");
+                if (nodeList != null
+                        && nodeList.getLength() == 1)
+                {
+                    assetMapNamespaceURI = supportedSchemaURI;
+                    break;
+                }
+            }
+        }
+        catch(ParserConfigurationException | SAXException e)
+        {
+            throw new IMFException(String.format("Error occurred while trying to determine the AssetMap Namespace URI, invalid AssetMap document Error Message : %s", e.getMessage()));
+        }
+        if(assetMapNamespaceURI.isEmpty()) {
+            throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedAssetMapSchemaURIs)));
+        }
+
+        return assetMapNamespaceURI;
     }
 
     private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
@@ -334,16 +405,17 @@ public final class AssetMap
         /**
          * Constructor for the wrapping {@link com.netflix.imflibrary.st0429_9.AssetMap.Asset Asset} object from the wrapped model version of XML type 'AssetType'. Construction
          * fails in case the URI associated with wrapped object is invalid
-         * @param assetType the wrapped object
+         * @param uuid - the ID corresponding to an Asset in the AssetMap
+         * @param isPackingList - a boolean flag to indicate if this Asset is a PackingList
+         * @param path - URI associated with this asset
          * @throws URISyntaxException - exposes any issues with the URI associated with the wrapped object
          */
-        public Asset(AssetType assetType) throws URISyntaxException
+        public Asset(String uuid, boolean isPackingList, String path) throws URISyntaxException
         {
-            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetType.getId());
-            this.isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
-            String path = assetType.getChunkList().getChunk().get(0).getPath();
+            this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(uuid);
+            this.isPackingList = isPackingList;
             if(path.matches("^[a-zA-Z0-9._-]+") == true) {
-                this.path = new URI(assetType.getChunkList().getChunk().get(0).getPath());
+                this.path = new URI(path);
             }
             else{
                 throw new URISyntaxException(path, String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -)", path));
@@ -390,14 +462,20 @@ public final class AssetMap
 
     }
 
-    private void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
+    public static void validateAssetMapSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
 
-        InputStream assetMap_is = null;
-        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
-        {
+        String assetMapSchemaURI = getAssetMapNamespaceURI(resourceByteRangeProvider);
+        AssetMapSchema assetMapSchema = supportedAssetMapSchemas.get(assetMapSchemaURI);
+        if(assetMapSchema == null){
+            throw new IMFException(String.format("Please check the AssetMap document, currently we only support the following schema URIs %s", serializeAssetMapSchemasToString()));
+        }
+
+        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+             InputStream assetMap_is = AssetMap.class.getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());
+        ) {
             StreamSource inputSource = new StreamSource(inputStream);
 
-            assetMap_is = AssetMap.class.getResourceAsStream(AssetMap.assetMap_schema_path);
+
             StreamSource[] streamSources = new StreamSource[1];
             streamSources[0] = new StreamSource(assetMap_is);
 
@@ -422,13 +500,6 @@ public final class AssetMap
                 }
             });
             validator.validate(inputSource);
-        }
-        finally
-        {
-            if (assetMap_is != null)
-            {
-                assetMap_is.close();
-            }
         }
     }
 

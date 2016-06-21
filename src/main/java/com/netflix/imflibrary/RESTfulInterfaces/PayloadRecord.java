@@ -48,7 +48,7 @@ public class PayloadRecord {
      */
     public enum PayloadAssetType {
 
-        CompositionPlaylist("CompositionPlaylist"),
+        CompositionPlaylist("Composition"),
         PackingList ("PackingList"),
         AssetMap("AssetMap"),
         TextPartition("TextPartition"),

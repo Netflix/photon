@@ -29,9 +29,9 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -55,7 +55,7 @@ public final class IMFConstraints
      * @param headerPartitionOP1A the OP1A-conformant header partition
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A)
+    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
     {
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
@@ -118,6 +118,12 @@ public final class IMFConstraints
 //                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
 //                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUid(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
 //                        }
+                        //TODO: Enable following check once we have assets that adhere to the specification that the RFC5646 spoken language tag is present in the SoundFieldGroupLabelSubDescriptor and/or AudioChannelLableSubDescriptor
+                        /*
+                        if(headerPartition.getAudioEssenceSpokenLanguage() == null){
+                            throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
+                        }
+                        */
                     }
                     else
                     {

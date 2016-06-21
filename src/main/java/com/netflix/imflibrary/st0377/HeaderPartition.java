@@ -21,7 +21,7 @@ package com.netflix.imflibrary.st0377;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
@@ -605,6 +605,45 @@ public final class HeaderPartition
     }
 
     /**
+     * A method that returns the spoken language within this essence provided it is an Audio Essence
+     * @return string representing a spoken language as defined in RFC-5646, null if the spoken language tag is missing
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    @Nullable
+    public String getAudioEssenceSpokenLanguage() throws IOException {
+        String rfc5646SpokenLanguage = null;
+        if(this.hasWaveAudioEssenceDescriptor()){
+            List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getSoundFieldGroupLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors) {
+                SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    throw new MXFException(String.format("Language Codes (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
+            /**
+             * According to IMF Core Constraints st2067-2:2013 Section 5.3.6.5 the RFC5646 Spoken Language Tag in AudioChannelLabelSubDescriptor shall be ignored.
+             * However leaving this code commented out to serve as a sample in case we want to enable it in the future and check that this language tag matches
+             * what is present in the SoundFieldGroupLabelSubDescriptors.
+             * /
+            List<InterchangeObject> audioChannelLabelSubDescriptors = this.getAudioChannelLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : audioChannelLabelSubDescriptors) {
+                AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }*/
+        }
+        else{
+            throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
+        }
+        return rfc5646SpokenLanguage;
+    }
+
+    /**
      * Getter for a parsed InterchangeObject by ID
      * @param structuralMetadataID identifier for the structural metadata set
      * @return the InterchangeObjectBO corresponding to the class name
@@ -948,21 +987,21 @@ function visit(node n)
      * An enumeration of all possible essence types that could be contained in a MXF file.
      */
     public enum EssenceTypeEnum {
-        MarkerEssence(CompositionPlaylist.SequenceTypeEnum.MarkerSequence),
-        MainImageEssence(CompositionPlaylist.SequenceTypeEnum.MainImageSequence),
-        MainAudioEssence(CompositionPlaylist.SequenceTypeEnum.MainAudioSequence),
-        SubtitlesEssence(CompositionPlaylist.SequenceTypeEnum.SubtitlesSequence),
-        HearingImpairedCaptionsEssence(CompositionPlaylist.SequenceTypeEnum.HearingImpairedCaptionsSequence),
-        VisuallyImpairedTextEssence(CompositionPlaylist.SequenceTypeEnum.VisuallyImpairedTextSequence),
-        CommentaryEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
-        KaraokeEssence(CompositionPlaylist.SequenceTypeEnum.CommentarySequence),
-        AncillaryDataEssence(CompositionPlaylist.SequenceTypeEnum.AncillaryDataSequence),
-        UnknownEssence(CompositionPlaylist.SequenceTypeEnum.Unknown);
+        MarkerEssence(Composition.SequenceTypeEnum.MarkerSequence),
+        MainImageEssence(Composition.SequenceTypeEnum.MainImageSequence),
+        MainAudioEssence(Composition.SequenceTypeEnum.MainAudioSequence),
+        SubtitlesEssence(Composition.SequenceTypeEnum.SubtitlesSequence),
+        HearingImpairedCaptionsEssence(Composition.SequenceTypeEnum.HearingImpairedCaptionsSequence),
+        VisuallyImpairedTextEssence(Composition.SequenceTypeEnum.VisuallyImpairedTextSequence),
+        CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
+        UnknownEssence(Composition.SequenceTypeEnum.Unknown);
 
-        private final CompositionPlaylist.SequenceTypeEnum sequenceType;
+        private final Composition.SequenceTypeEnum sequenceType;
         private final String name;
 
-        private EssenceTypeEnum(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        private EssenceTypeEnum(Composition.SequenceTypeEnum sequenceType)
         {
             this.sequenceType = sequenceType;
             this.name = getEssenceTypeString(sequenceType);
@@ -995,7 +1034,7 @@ function visit(node n)
             }
         }
 
-        private static String getEssenceTypeString(CompositionPlaylist.SequenceTypeEnum sequenceType)
+        private static String getEssenceTypeString(Composition.SequenceTypeEnum sequenceType)
         {
             switch (sequenceType)
             {

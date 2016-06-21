@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 public class IMFTrackFileReaderTest
 {
     @Test
-    public void IMFEssenceComponentReaderTest() throws IOException
+    public void IMFTrackFileReaderTest() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();

@@ -69,7 +69,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class that builds an IMF CompositionPlaylist representation of an IMF Essence
+ * A class that builds an IMF Composition representation of an IMF Essence
  */
 @Immutable
 final class IMFTrackFileCPLBuilder {
@@ -275,7 +275,8 @@ final class IMFTrackFileCPLBuilder {
         segmentType.setId(IMFUUIDGenerator.getInstance().getUUID());
         /*Segment Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
-        segmentType.setAnnotation(buildUserTextType(name, "en"));
+        String annotationText = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
+        segmentType.setAnnotation(buildUserTextType(name, annotationText));
         /*Sequence List*/
         SegmentType.SequenceList sequenceList = new SegmentType.SequenceList();
         int index = 0;
@@ -316,7 +317,8 @@ final class IMFTrackFileCPLBuilder {
         trackFileResourceType.setId(IMFUUIDGenerator.getInstance().getUUID());
         /*Resource Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
-        trackFileResourceType.setAnnotation(buildUserTextType(name, "en"));
+        String annotationText = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
+        trackFileResourceType.setAnnotation(buildUserTextType(name, annotationText));
         /*Edit Rate*/
         trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList());
         /*Intrinsic Duration*/

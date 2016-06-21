@@ -6,32 +6,26 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.imp_validation.DOMNodeObjectModel;
-import com.netflix.imflibrary.imp_validation.IMFMasterPackage;
-import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistConformanceValidator;
-import com.netflix.imflibrary.imp_validation.cpl.CompositionPlaylistHelper;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
-import com.netflix.imflibrary.st2067_2.CompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
-import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
-import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
+import com.netflix.imflibrary.utils.Utilities;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,9 +39,9 @@ import java.util.UUID;
 public class IMPValidator {
 
     /**
-     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or CompositionPlaylist
+     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
      * @param payloadRecord - a payload record corresponding to the asset whose type needs to be confirmed
-     * @return asset type of the payload either one of AssetMap, PackingList or CompositionPlaylist
+     * @return asset type of the payload either one of AssetMap, PackingList or Composition
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static PayloadRecord.PayloadAssetType getPayloadType(PayloadRecord payloadRecord) throws IOException {
@@ -59,7 +53,7 @@ public class IMPValidator {
         else if(PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.PackingList;
         }
-        else if(CompositionPlaylist.isFileOfSupportedSchema(resourceByteRangeProvider)){
+        else if(Composition.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
         }
         return PayloadRecord.PayloadAssetType.Unknown;
@@ -111,31 +105,130 @@ public class IMPValidator {
     /**
      * A stateless method that will validate IMF AssetMap and PackingList documents for all the data
      * that should be cross referenced by both
-     * @param assetMap - a payload record for an AssetMap document
-     * @param pkls - a list of payload records for Packing List documents referenced by the AssetMap
+     * @param assetMapPayload - a payload record for an AssetMap document
+     * @param pklPayloads - a list of payload records for Packing List documents referenced by the AssetMap
      * @return list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMap, List<PayloadRecord> pkls) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMapPayload, List<PayloadRecord> pklPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<ResourceByteRangeProvider> resourceByteRangeProviders = new ArrayList<>();
-        if(assetMap.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
-            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
+        List<PayloadRecord> packingListPayloadRecords = Collections.unmodifiableList(pklPayloads);
+
+        if(assetMapPayload.getPayloadAssetType() != PayloadRecord.PayloadAssetType.AssetMap){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
         }
-        resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(assetMap.getPayload()));
-        for(PayloadRecord payloadRecord : pkls){
+
+        ResourceByteRangeProvider assetMapByteRangeProvider = new ByteArrayByteRangeProvider(assetMapPayload.getPayload());
+        AssetMap assetMapObjectModel;
+        try {
+            assetMapObjectModel = new AssetMap(assetMapByteRangeProvider, imfErrorLogger);
+        }
+        catch (SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The AssetMap delivered in this package is invalid. Error %s ocurred while trying to read and parse an AssetMap document", e.getMessage()));
+            return imfErrorLogger.getErrors();
+        }
+
+        List<ResourceByteRangeProvider> packingLists = new ArrayList<>();
+        for(PayloadRecord payloadRecord : packingListPayloadRecords){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMap.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
             }
-            resourceByteRangeProviders.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
+            packingLists.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
         }
-        new IMFMasterPackage(resourceByteRangeProviders, imfErrorLogger);
+
+        if(packingLists.size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingLists.size()));
+            return imfErrorLogger.getErrors();
+        }
+
+        if(assetMapObjectModel.getPackingListAssets().size() == 0){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Asset map should reference atleast one PackingList, %d references found", assetMapObjectModel.getPackingListAssets().size()));
+            return imfErrorLogger.getErrors();
+        }
+
+        List<PackingList> packingListObjectModels = new ArrayList<>();
+        try {
+            for (ResourceByteRangeProvider resourceByteRangeProvider : packingLists) {
+                packingListObjectModels.add(new PackingList(resourceByteRangeProvider, imfErrorLogger));
+            }
+        }
+        catch (SAXException | JAXBException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one of the PKLs delivered in this package is invalid. Error %s ocurred while trying to read and parse a PKL document", e.getMessage()));
+            return imfErrorLogger.getErrors();
+        }
+
+        List<UUID> assetUUIDsAssetMapList = new ArrayList<>();
+        for(AssetMap.Asset asset : assetMapObjectModel.getAssetList()){
+            assetUUIDsAssetMapList.add(asset.getUUID());
+        }
+
+/*
+        //Sort the UUIDs in the AssetMap
+        assetUUIDsAssetMapList.sort(new Comparator<UUID>() {
+                                    @Override
+                                    public int compare(UUID o1, UUID o2) {
+                                        return o1.compareTo(o2);
+                                    }
+                                });
+*/
+
+        /* Collect all the assets in all of the PKLs that are a part of this IMP delivery */
+        List<UUID> assetUUIDsPackingList = new ArrayList<>();
+        for(PackingList packingList : packingListObjectModels) {
+            assetUUIDsPackingList.add(packingList.getUUID());//PKL's UUID is also added to this list since that should be present in the AssetMap
+            for (PackingList.Asset asset : packingList.getAssets()) {
+                assetUUIDsPackingList.add(asset.getUUID());
+            }
+        }
+
+/*
+        //Sort the UUIDs in the PackingList
+        assetUUIDsPackingList.sort(new Comparator<UUID>() {
+            @Override
+            public int compare(UUID o1, UUID o2) {
+                return o1.compareTo(o2);
+            }
+        });
+*/
+
+        /* Check to see if all the Assets referenced in the PKL are also referenced by the Asset Map */
+        Set<UUID> assetUUIDsAssetMapSet = new HashSet<>(assetUUIDsAssetMapList);
+        Set<UUID> assetUUIDsPKLSet = new HashSet<>(assetUUIDsPackingList);
+
+        StringBuilder unreferencedPKLAssetsUUIDs = new StringBuilder();
+        for(UUID uuid : assetUUIDsPKLSet){
+            if(!assetUUIDsAssetMapSet.contains(uuid)) {
+                unreferencedPKLAssetsUUIDs.append(uuid.toString());
+                unreferencedPKLAssetsUUIDs.append(", ");
+            }
+        }
+
+        if(!unreferencedPKLAssetsUUIDs.toString().isEmpty()){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following UUID/s %s in the Packing list are not referenced by the AssetMap.", unreferencedPKLAssetsUUIDs.toString()));
+            return imfErrorLogger.getErrors();
+        }
+
+        /* Check if all the assets in the AssetMap that are supposed to be PKLs have the same UUIDs as the PKLs themselves */
+        Set<UUID> packingListAssetsUUIDsSet = new HashSet<>();
+        for(AssetMap.Asset asset : assetMapObjectModel.getPackingListAssets()){
+            packingListAssetsUUIDsSet.add(asset.getUUID());
+        }
+        StringBuilder unreferencedPKLUUIDs = new StringBuilder();
+        for(PackingList packingList : packingListObjectModels) {
+            if (!packingListAssetsUUIDsSet.contains(packingList.getUUID())) {
+                unreferencedPKLUUIDs.append(packingList.getUUID());
+            }
+        }
+        if(!unreferencedPKLUUIDs.toString().isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The following Packing lists %s are not referenced in the AssetMap", unreferencedPKLUUIDs.toString()));
+            return imfErrorLogger.getErrors();
+        }
         return imfErrorLogger.getErrors();
     }
 
     /**
-     * A stateless method that will validate an IMF CompositionPlaylist document
-     * @param cpl - a payload record for a CompositionPlaylist document
+     * A stateless method that will validate an IMF Composition document
+     * @param cpl - a payload record for a Composition document
      * @return list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
@@ -145,12 +238,146 @@ public class IMPValidator {
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try{
-            new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+            new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
         }
         catch(SAXException | JAXBException | URISyntaxException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A stateless method to retrieve all the VirtualTracks that are a part of a Composition
+     * @param cpl - a payload corresponding to the Composition Playlist
+     * @return list of VirtualTracks
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<? extends Composition.VirtualTrack> getVirtualTracks(PayloadRecord cpl) throws IOException {
+        validateCPL(cpl);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        Composition composition;
+        try{
+            composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+            return composition.getVirtualTracks();
+        }
+        catch(SAXException | JAXBException | URISyntaxException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            StringBuilder stringBuilder = new StringBuilder();
+            for(ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors()){
+                stringBuilder.append(errorObject.toString());
+                stringBuilder.append(String.format("%n"));
+            }
+            throw new IMFException(stringBuilder.toString());
+        }
+    }
+
+    /**
+     * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
+     * resources referenced by the Composition
+     * @param cplPayloadRecord a payload record corresponding to the Composition payload
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the Composition
+     * @return list of error messages encountered while performing conformance validation of the Composition document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> isCPLConformed(
+            PayloadRecord cplPayloadRecord,
+            List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
+        try {
+
+            List<ErrorLogger.ErrorObject> errors = new ArrayList<>(validateCPL(cplPayloadRecord));
+            errors.addAll(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
+            if(errors.size() > 0){
+                return Collections.unmodifiableList(errors);
+            }
+
+            Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
+            List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
+            for(PayloadRecord payloadRecord : essencesHeaderPartition){
+                if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+                    throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                }
+                headerPartitionTuples.add(new HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                        0L,
+                        (long)payloadRecord.getPayload().length,
+                        imfErrorLogger),
+                        new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
+            }
+            if(!composition.isCompositionPlaylistConformed(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger)){
+                return imfErrorLogger.getErrors();
+            }
+        }
+        catch (SAXException | JAXBException | URISyntaxException | MXFException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            return imfErrorLogger.getErrors();
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A stateless method that determines if 2 or more Composition documents corresponding to the same title can be inferred to
+     * represent the same presentation timeline. This method is present to work around current limitations in the IMF eco system
+     * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
+     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference Composition document, perhaps the first
+     *                                  composition playlist document that was delivered for a particular composition.
+     * @param cplPayloads - a list of payload records corresponding to each of the Composition documents
+     *                          that need to be verified for mergeability
+     * @return a boolean indicating if the CPLs can be merged or not
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloads) throws IOException {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> cplPayloadRecords = Collections.unmodifiableList(cplPayloads);
+        List<Composition> compositions = new ArrayList<>();
+        try {
+            compositions.add(new Composition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
+        } catch (SAXException | JAXBException | URISyntaxException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            return imfErrorLogger.getErrors();
+        }
+        for(PayloadRecord cpl : cplPayloadRecords) {
+            try {
+                compositions.add(new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
+            } catch (SAXException | JAXBException | URISyntaxException e) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+                return imfErrorLogger.getErrors();
+            }
+        }
+
+        Composition.VirtualTrack referenceVideoVirtualTrack = compositions.get(0).getVideoVirtualTrack();
+        UUID referenceCPLUUID = compositions.get(0).getUUID();
+        for(int i = 1; i< compositions.size(); i++){
+            if(!referenceVideoVirtualTrack.equivalent(compositions.get(i).getVideoVirtualTrack())){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
+            }
+        }
+
+        if(imfErrorLogger.getErrors().size() > 0){
+            return imfErrorLogger.getErrors();
+        }
+
+        /**
+         * Perform AudioTrack mergeability checks
+         * 1) Identify AudioTracks that are the same language
+         * 2) Compare language tracks to see if they represent the same timeline
+         */
+        List<Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
+        for(Composition composition : compositions){
+            audioVirtualTracksMapList.add(composition.getAudioVirtualTracksMap());
+        }
+
+        Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
+        for(int i=1; i<audioVirtualTracksMapList.size(); i++){
+            if(!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)))){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
+            }
+        }
+
         return imfErrorLogger.getErrors();
     }
 
@@ -187,12 +414,13 @@ public class IMPValidator {
     /**
      * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
      * to perform preliminary validation of IMF essences
-     * @param essencesHeaderPartition - a list of IMF Essence Component header partition payloads
+     * @param essencesHeaderPartitionPayloads - a list of IMF Essence Component header partition payloads
      * @return a list of errors encountered while performing compliance checks on the IMF Essence Component Header partition
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validateIMFEssenceComponentHeaderMetadata(List<PayloadRecord> essencesHeaderPartition) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateIMFTrackFileHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
         for(PayloadRecord payloadRecord : essencesHeaderPartition){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -208,134 +436,38 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that can be used to determine if a CompositionPlaylist is conformant. Conformance checks
-     * perform deeper inspection of the CompositionPlaylist and the EssenceDescriptors corresponding to the
-     * resources referenced by the CompositionPlaylist
-     * @param cplPayloadRecord a payload record corresponding to the CompositionPlaylist payload
-     * @param essencesHeaderPartition list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the CompositionPlaylist
-     * @return list of error messages encountered while performing conformance validation of the CompositionPlaylist document
+     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
+     * @param essencesHeaderPartition - a list of payloads corresponding to the Header Partitions of TrackFiles that are a part of an Audio VirtualTrack
+     * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> isCPLConformed(
-            PayloadRecord cplPayloadRecord,
-            List<PayloadRecord> essencesHeaderPartition) throws IOException {
-
+    @Nullable
+    public static String getAudioTrackSpokenLanguage(List<PayloadRecord> essencesHeaderPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        try {
-
-            List<ErrorLogger.ErrorObject> errors = new ArrayList<>(validateCPL(cplPayloadRecord));
-            errors.addAll(validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition));
-            if(errors.size() > 0){
-                return Collections.unmodifiableList(errors);
+        Set<String> audioLanguageSet = new HashSet<>();
+        for (PayloadRecord payloadRecord : essencesHeaderPartition){
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
             }
-
-            CompositionPlaylist compositionPlaylist = new CompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
-            List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
-            for(PayloadRecord payloadRecord : essencesHeaderPartition){
-                if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
-                    throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                }
-                headerPartitionTuples.add(new HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                                                            0L,
-                                                            (long)payloadRecord.getPayload().length,
-                                                            imfErrorLogger),
-                                                            new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
-            }
-            if(!new CompositionPlaylistConformanceValidator().isCompositionPlaylistConformed(compositionPlaylist, headerPartitionTuples, imfErrorLogger)){
-                return imfErrorLogger.getErrors();
-            }
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                0L,
+                (long) payloadRecord.getPayload().length,
+                imfErrorLogger);
+            audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
         }
-        catch (SAXException | JAXBException | URISyntaxException | MXFException e){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
-            return imfErrorLogger.getErrors();
+        if(audioLanguageSet.size() > 1){
+            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across resources of this Audio Virtual Track found %s languages", Utilities.serializeObjectCollectionToString(audioLanguageSet)));
         }
-        return imfErrorLogger.getErrors();
+        return audioLanguageSet.iterator().next();
     }
 
-    /**
-     * A stateless method that determines if 2 or more CompositionPlaylist documents corresponding to the same title can be inferred to
-     * represent the same presentation timeline. This method is present to work around current limitations in the IMF eco system
-     * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
-     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference CompositionPlaylist document, perhaps the first
-     *                                  composition playlist document that was delivered for a particular composition.
-     * @param cplPayloadRecords - a list of payload records corresponding to each of the CompositionPlaylist documents
-     *                          that need to be verified for mergeability
-     * @return a boolean indicating if the CPLs can be merged or not
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloadRecords) throws IOException {
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<CompositionPlaylist> compositionPlaylists = new ArrayList<>();
-        try {
-            compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
-        } catch (SAXException | JAXBException | URISyntaxException e) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
-            return imfErrorLogger.getErrors();
-        }
-        for(PayloadRecord cpl : cplPayloadRecords) {
-            try {
-                compositionPlaylists.add(new CompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
-            } catch (SAXException | JAXBException | URISyntaxException e) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
-                return imfErrorLogger.getErrors();
-            }
-        }
-
-        CompositionPlaylist.VirtualTrack referenceVideoVirtualTrack = compositionPlaylists.get(0).getVideoVirtualTrack();
-        UUID referenceCPLUUID = compositionPlaylists.get(0).getUUID();
-        for(int i=1; i<compositionPlaylists.size(); i++){
-            if(!referenceVideoVirtualTrack.equivalent(compositionPlaylists.get(i).getVideoVirtualTrack())){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
-            }
-        }
-
-        if(imfErrorLogger.getErrors().size() > 0){
-            return imfErrorLogger.getErrors();
-        }
-
-        /**
-         * Perform AudioTrack mergeability checks
-         * 1) Identify AudioTracks that are the same language
-         * 2) Compare language tracks to see if they represent the same timeline
-         */
-        List<Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
-        for(CompositionPlaylist compositionPlaylist : compositionPlaylists){
-            audioVirtualTracksMapList.add(constructAudioVirtualTracksMap(compositionPlaylist));
-        }
-
-        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
-        for(int i=1; i<audioVirtualTracksMapList.size(); i++){
-            if(!compareAudioVirtualTrackMaps(referenceAudioVirtualTracksMap, audioVirtualTracksMapList.get(i))){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositionPlaylists.get(i).getUUID(), referenceCPLUUID));
-            }
-        }
-
-        return imfErrorLogger.getErrors();
-    }
-
-    private static Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> constructAudioVirtualTracksMap(CompositionPlaylist cpl){
-        Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> audioVirtualTrackMap = new HashMap<>();
-        List<CompositionPlaylist.VirtualTrack> audioVirtualTracks = cpl.getAudioVirtualTracks();
-        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = CompositionPlaylistHelper.getEssenceDescriptorListMap(cpl);
-        for(CompositionPlaylist.VirtualTrack audioVirtualTrack : audioVirtualTracks){
-            Set<DOMNodeObjectModel> set = new HashSet<>();
-            List<TrackFileResourceType> resources = audioVirtualTrack.getResourceList();
-            for(TrackFileResourceType resource : resources){
-                set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
-            }
-            audioVirtualTrackMap.put(set, audioVirtualTrack);
-        }
-        return Collections.unmodifiableMap(audioVirtualTrackMap);
-    }
-
-    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> map2){
+    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> map2){
         boolean result = true;
         Iterator refIterator = map1.entrySet().iterator();
         while(refIterator.hasNext()){
-            Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, CompositionPlaylist.VirtualTrack>) refIterator.next();
-            CompositionPlaylist.VirtualTrack refVirtualTrack = entry.getValue();
-            CompositionPlaylist.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
+            Map.Entry<Set<DOMNodeObjectModel>, Composition.VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, Composition.VirtualTrack>) refIterator.next();
+            Composition.VirtualTrack refVirtualTrack = entry.getValue();
+            Composition.VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
             if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.
                 result &= refVirtualTrack.equivalent(otherVirtualTrack);
             }
@@ -365,8 +497,8 @@ public class IMPValidator {
         }
 
         /**
-         * A getter for the HeaderPartition object corresponding to a resource referenced from the CompositionPlaylist
-         * @return HeaderPartition of a certain resource in the CompositionPlaylist
+         * A getter for the HeaderPartition object corresponding to a resource referenced from the Composition
+         * @return HeaderPartition of a certain resource in the Composition
          */
         public HeaderPartition getHeaderPartition(){
             return this.headerPartition;

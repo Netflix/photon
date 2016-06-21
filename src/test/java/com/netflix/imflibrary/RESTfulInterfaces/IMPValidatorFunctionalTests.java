@@ -1,6 +1,6 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
-import com.netflix.imflibrary.st0429_9.AssetMap;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -16,7 +16,7 @@ import java.util.List;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
-    @Test
+    @Test(expectedExceptions = IMFException.class)
     public void invalidPKLTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -151,7 +151,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         essencesHeaderPartition.add(payloadRecord);
 
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFEssenceComponentHeaderMetadata(essencesHeaderPartition);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 0);
     }
 
@@ -185,6 +185,8 @@ public class IMPValidatorFunctionalTests {
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.isCPLConformed(cplPayloadRecord, essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 1);
+        //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
+        Assert.assertTrue(errors.get(0).toString().equals("IMF CPL Error-FATAL-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1"));
     }
 
     @Test

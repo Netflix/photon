@@ -424,9 +424,6 @@ final class IMFTrackFileReader
         return subDescriptorHeaders;
     }
 
-
-
-
     String getEssenceType() throws IOException {
         String result = "";
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -546,6 +543,11 @@ final class IMFTrackFileReader
 
         UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
         return packageUUID;
+    }
+
+    String getAudioEssenceLanguage() throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        return this.getHeaderPartition(imfErrorLogger).getAudioEssenceSpokenLanguage();
     }
 
     public String toString()
