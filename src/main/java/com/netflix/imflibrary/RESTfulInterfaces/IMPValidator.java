@@ -6,6 +6,9 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -277,7 +280,7 @@ public class IMPValidator {
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
      * resources referenced by the Composition
      * @param cplPayloadRecord a payload record corresponding to the Composition payload
-     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF essences referenced in the Composition
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Composition
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
@@ -438,13 +441,19 @@ public class IMPValidator {
     /**
      * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
      * @param essencesHeaderPartition - a list of payloads corresponding to the Header Partitions of TrackFiles that are a part of an Audio VirtualTrack
+     * @param audioVirtualTrack - the audio virtual track whose spoken language needs to be ascertained
      * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     @Nullable
-    public static String getAudioTrackSpokenLanguage(List<PayloadRecord> essencesHeaderPartition) throws IOException {
+    public static String getAudioTrackSpokenLanguage(Composition.VirtualTrack audioVirtualTrack, List<PayloadRecord> essencesHeaderPartition) throws IOException {
+        if(audioVirtualTrack.getSequenceTypeEnum() != Composition.SequenceTypeEnum.MainAudioSequence){
+            throw new IMFException(String.format("Virtual track that was passed in is of type %s, spoken language is currently supported for only %s tracks", audioVirtualTrack.getSequenceTypeEnum().toString(), Composition.SequenceTypeEnum.MainAudioSequence.toString()));
+        }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Set<String> audioLanguageSet = new HashSet<>();
+        Set<HeaderPartition> headerPartitions = new HashSet<>();
+        Set<UUID> trackFileIDsSet = new HashSet<>();
         for (PayloadRecord payloadRecord : essencesHeaderPartition){
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -453,10 +462,38 @@ public class IMPValidator {
                 0L,
                 (long) payloadRecord.getPayload().length,
                 imfErrorLogger);
+            headerPartitions.add(headerPartition);
+            /**
+             * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
+             * are in fact from the constituent resources of the AudioVirtualTack
+             */
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            trackFileIDsSet.add(packageUUID);
+        }
+
+        Set<UUID> virtualTrackResourceIDsSet = new HashSet<>(audioVirtualTrack.getTrackResourceIds());
+        if(virtualTrackResourceIDsSet.size() != trackFileIDsSet.size()) {
+            throw new IMFException(String.format("It seems that the AudioVirtualTrack ResourceIds %s, perhaps do not match with the TrackFileIds %s present in the HeaderPartition payloads, please verify that the correct Header Partitions payloads for the Audio Track were passed in", Utilities.serializeObjectCollectionToString(virtualTrackResourceIDsSet), Utilities.serializeObjectCollectionToString(trackFileIDsSet)));
+        }
+        Set<UUID> unreferencedUUIDsSet = new HashSet<>();
+        for (UUID uuid : trackFileIDsSet) {
+            if (!virtualTrackResourceIDsSet.contains(uuid)) {
+                unreferencedUUIDsSet.add(uuid);
+            }
+        }
+        if(unreferencedUUIDsSet.size() > 0){
+            throw new IMFException(String.format("It seems that the HeaderPartition Payloads with the following Package UUIDs %s are not a part of the AudioVirtual Track, please verify that the correct Header Partitions payloads for the Audio Track were passed in", Utilities.serializeObjectCollectionToString(unreferencedUUIDsSet)));
+        }
+        for(HeaderPartition headerPartition : headerPartitions){
             audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
         }
         if(audioLanguageSet.size() > 1){
-            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across resources of this Audio Virtual Track found %s languages", Utilities.serializeObjectCollectionToString(audioLanguageSet)));
+            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across resources of this Audio Virtual Track, found references to %s languages in the HeaderPartition", Utilities.serializeObjectCollectionToString(audioLanguageSet)));
         }
         return audioLanguageSet.iterator().next();
     }
