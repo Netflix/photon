@@ -276,17 +276,52 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
-     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
-     * resources referenced by the Composition
+     * A stateless method that can be used to determine if a Virtual Track in a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the Virtual Track
      * @param cplPayloadRecord a payload record corresponding to the Composition payload
-     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Composition
+     * @param virtualTrack that needs to be conformed in the Composition
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of
+     *                                        the Virtual Track to be conformed
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> isCPLConformed(
+    public static List<ErrorLogger.ErrorObject> isVirtualTrackInCPLConformed(PayloadRecord cplPayloadRecord,
+                                                                             Composition.VirtualTrack virtualTrack,
+                                                                             List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException
+    {
+        List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
+        virtualTracks.add(virtualTrack);
+        checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartitionPayloads, new IMFErrorLoggerImpl());
+        return conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads, false);
+    }
+
+    /**
+     * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
+     * Virtual Tracks that are a part of the Composition
+     * @param cplPayloadRecord a payload record corresponding to the Composition payload
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
+     * @return list of error messages encountered while performing conformance validation of the Composition document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> areAllVirtualTracksInCPLConformed(
             PayloadRecord cplPayloadRecord,
             List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
+            List<Composition.VirtualTrack> virtualTracks = new ArrayList<>(composition.getVirtualTracks());
+            checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartitionPayloads, imfErrorLogger);
+        }
+        catch (SAXException | JAXBException | URISyntaxException | MXFException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
+            return imfErrorLogger.getErrors();
+        }
+        return conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads, true);
+    }
+
+    private static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord, List<PayloadRecord> essencesHeaderPartitionPayloads, boolean conformAllVirtualTracks) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
@@ -310,7 +345,7 @@ public class IMPValidator {
                         imfErrorLogger),
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!composition.isCompositionPlaylistConformed(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger)){
+            if(!composition.conformVirtualTrackInComposition(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger, conformAllVirtualTracks)){
                 return imfErrorLogger.getErrors();
             }
         }
@@ -451,9 +486,11 @@ public class IMPValidator {
             throw new IMFException(String.format("Virtual track that was passed in is of type %s, spoken language is currently supported for only %s tracks", audioVirtualTrack.getSequenceTypeEnum().toString(), Composition.SequenceTypeEnum.MainAudioSequence.toString()));
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
+        virtualTracks.add(audioVirtualTrack);
+        checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartition, imfErrorLogger);
+
         Set<String> audioLanguageSet = new HashSet<>();
-        Set<HeaderPartition> headerPartitions = new HashSet<>();
-        Set<UUID> trackFileIDsSet = new HashSet<>();
         for (PayloadRecord payloadRecord : essencesHeaderPartition){
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -462,36 +499,9 @@ public class IMPValidator {
                 0L,
                 (long) payloadRecord.getPayload().length,
                 imfErrorLogger);
-            headerPartitions.add(headerPartition);
-            /**
-             * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-             * are in fact from the constituent resources of the AudioVirtualTack
-             */
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage)genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-            trackFileIDsSet.add(packageUUID);
-        }
-
-        Set<UUID> virtualTrackResourceIDsSet = new HashSet<>(audioVirtualTrack.getTrackResourceIds());
-        if(virtualTrackResourceIDsSet.size() != trackFileIDsSet.size()) {
-            throw new IMFException(String.format("It seems that the AudioVirtualTrack ResourceIds %s, perhaps do not match with the TrackFileIds %s present in the HeaderPartition payloads, please verify that the correct Header Partitions payloads for the Audio Track were passed in", Utilities.serializeObjectCollectionToString(virtualTrackResourceIDsSet), Utilities.serializeObjectCollectionToString(trackFileIDsSet)));
-        }
-        Set<UUID> unreferencedUUIDsSet = new HashSet<>();
-        for (UUID uuid : trackFileIDsSet) {
-            if (!virtualTrackResourceIDsSet.contains(uuid)) {
-                unreferencedUUIDsSet.add(uuid);
-            }
-        }
-        if(unreferencedUUIDsSet.size() > 0){
-            throw new IMFException(String.format("It seems that the HeaderPartition Payloads with the following Package UUIDs %s are not a part of the AudioVirtual Track, please verify that the correct Header Partitions payloads for the Audio Track were passed in", Utilities.serializeObjectCollectionToString(unreferencedUUIDsSet)));
-        }
-        for(HeaderPartition headerPartition : headerPartitions){
             audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
         }
+
         if(audioLanguageSet.size() > 1){
             throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across resources of this Audio Virtual Track, found references to %s languages in the HeaderPartition", Utilities.serializeObjectCollectionToString(audioLanguageSet)));
         }
@@ -510,6 +520,62 @@ public class IMPValidator {
             }
         }
         return result;
+    }
+
+    private static void checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<Composition.VirtualTrack> virtualTracks, List<PayloadRecord> essencesHeaderPartition, IMFErrorLogger imfErrorLogger) throws IOException {
+        Set<UUID> trackFileIDsSet = new HashSet<>();
+
+        for (PayloadRecord payloadRecord : essencesHeaderPartition){
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+            }
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                    0L,
+                    (long) payloadRecord.getPayload().length,
+                    imfErrorLogger);
+            /**
+             * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
+             * are in fact from the constituent resources of the AudioVirtualTack
+             */
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            trackFileIDsSet.add(packageUUID);
+        }
+
+        Set<UUID> virtualTrackResourceIDsSet = new HashSet<>();
+        for(Composition.VirtualTrack virtualTrack : virtualTracks){
+            virtualTrackResourceIDsSet.addAll(virtualTrack.getTrackResourceIds());
+        }
+        /**
+         * Following check ensures that the Header Partitions corresponding to all the VirtualTrackResources were passed in.
+         */
+        Set<UUID> unreferencedResourceIDsSet = new HashSet<>();
+        for(UUID uuid : virtualTrackResourceIDsSet){
+            if(!trackFileIDsSet.contains(uuid)){
+                unreferencedResourceIDsSet.add(uuid);
+            }
+        }
+        if(unreferencedResourceIDsSet.size() > 0){
+            throw new IMFException(String.format("It seems that no EssenceHeaderPartition data was passed in for VirtualTrack Resource Ids %s, please verify that the correct Header Partition payloads for the Virtual Track were passed in", Utilities.serializeObjectCollectionToString(unreferencedResourceIDsSet)));
+        }
+
+        /**
+         * Following check ensures that the Header Partitions corresponding to only the VirtualTrackResources were passed in.
+         */
+        Set<UUID> unreferencedTrackFileIDsSet = new HashSet<>();
+        for(UUID uuid : trackFileIDsSet){
+            if(!virtualTrackResourceIDsSet.contains(uuid)){
+                unreferencedTrackFileIDsSet.add(uuid);
+            }
+        }
+        if(unreferencedTrackFileIDsSet.size() > 0){
+            throw new IMFException(String.format("It seems that EssenceHeaderPartition data was passed in for Resource Ids %s which are not part of this virtual track, please verify that only the Header Partition payloads for the Virtual Track were passed in", Utilities.serializeObjectCollectionToString(unreferencedTrackFileIDsSet)));
+        }
+
     }
 
     /**

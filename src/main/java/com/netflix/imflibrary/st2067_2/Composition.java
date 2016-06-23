@@ -879,11 +879,14 @@ public final class Composition
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean isCompositionPlaylistConformed(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples, IMFErrorLogger imfErrorLogger) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
+    public boolean conformVirtualTrackInComposition(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples,
+                                                    IMFErrorLogger imfErrorLogger,
+                                                    boolean conformAllVirtualTracks)
+            throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         boolean result = true;
         /*
          * The algorithm for conformance checking a Composition (CPL) would be
-         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list is referenced through its id element
+         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list (EDL) is referenced through its id element if conformAllVirtualTracks is enabled
          * by at least one TrackFileResource within the Virtual tracks in the Composition (see section 6.1.10 of SMPTE st2067-3:2-13).
          * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
          * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
@@ -902,11 +905,17 @@ public final class Composition
             }
         }
 
-        while(cplEssenceDescriptorIDs.hasNext()){
-            UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
-            if(!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
-                result &= false;
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptorID %s in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", cplEssenceDescriptorUUID.toString()));
+        /**
+         * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
+         * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
+         */
+        if(conformAllVirtualTracks) {
+            while (cplEssenceDescriptorIDs.hasNext()) {
+                UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
+                if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
+                    result &= false;
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptorID %s in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", cplEssenceDescriptorUUID.toString()));
+                }
             }
         }
 
