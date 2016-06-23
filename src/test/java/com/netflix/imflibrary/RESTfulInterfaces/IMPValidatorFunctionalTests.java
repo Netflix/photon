@@ -183,7 +183,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         essencesHeaderPartition.add(payloadRecord);
 
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.isCPLConformed(cplPayloadRecord, essencesHeaderPartition);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
         Assert.assertTrue(errors.size() == 1);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().equals("IMF CPL Error-FATAL-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1"));
