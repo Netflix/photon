@@ -535,7 +535,7 @@ public class IMPValidator {
                     imfErrorLogger);
             /**
              * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-             * are in fact from the constituent resources of the AudioVirtualTack
+             * are in fact from the constituent resources of the VirtualTack
              */
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
             IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
@@ -551,7 +551,7 @@ public class IMPValidator {
             virtualTrackResourceIDsSet.addAll(virtualTrack.getTrackResourceIds());
         }
         /**
-         * Following check ensures that the Header Partitions corresponding to all the VirtualTrackResources were passed in.
+         * Following check ensures that the Header Partitions corresponding to all the Resources of the VirtualTracks were passed in.
          */
         Set<UUID> unreferencedResourceIDsSet = new HashSet<>();
         for(UUID uuid : virtualTrackResourceIDsSet){
@@ -564,7 +564,7 @@ public class IMPValidator {
         }
 
         /**
-         * Following check ensures that the Header Partitions corresponding to only the VirtualTrackResources were passed in.
+         * Following check ensures that the Header Partitions corresponding to only the Resource that are a part of the VirtualTracks were passed in.
          */
         Set<UUID> unreferencedTrackFileIDsSet = new HashSet<>();
         for(UUID uuid : trackFileIDsSet){
