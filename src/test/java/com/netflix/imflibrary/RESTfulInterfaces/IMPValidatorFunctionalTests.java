@@ -16,6 +16,30 @@ import java.util.List;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
+    @Test
+    public void getPayloadTypeTest() throws IOException {
+        //AssetMap
+        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
+        Assert.assertTrue(IMPValidator.getPayloadType(payloadRecord) == PayloadRecord.PayloadAssetType.AssetMap);
+
+        //PKL
+        inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/PKL_0429fedd-b55d-442a-aa26-2a81ec71ed05.xml");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
+        Assert.assertTrue(IMPValidator.getPayloadType(payloadRecord) == PayloadRecord.PayloadAssetType.PackingList);
+
+        //CPL
+        inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
+        Assert.assertTrue(IMPValidator.getPayloadType(payloadRecord) == PayloadRecord.PayloadAssetType.CompositionPlaylist);
+    }
+
     @Test(expectedExceptions = IMFException.class)
     public void invalidPKLTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c.xml");

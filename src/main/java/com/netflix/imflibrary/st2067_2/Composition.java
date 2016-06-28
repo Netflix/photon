@@ -320,7 +320,7 @@ public final class Composition
             NodeList nodeList = null;
             for(String supportedSchemaURI : supportedCPLSchemaURIs) {
                 //obtain root node
-                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "Composition");
+                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "CompositionPlaylist");
                 if (nodeList != null
                         && nodeList.getLength() == 1)
                 {
