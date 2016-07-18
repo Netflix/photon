@@ -53,11 +53,12 @@ class IMFCPLSerializer {
      */
 
     public void write(CompositionPlaylistType cplType, OutputStream output, boolean formatted) throws IOException, org.xml.sax.SAXException, JAXBException {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
-                InputStream cplSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
-                InputStream dcmlSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
-                InputStream dsigSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-                InputStream coreConstraintsSchemaAsAStream = ClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd")
+                InputStream cplSchemaAsAStream = contextClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
+                InputStream dcmlSchemaAsAStream = contextClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
+                InputStream dsigSchemaAsAStream = contextClassLoader.getSystemResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
+                InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getSystemResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd")
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );

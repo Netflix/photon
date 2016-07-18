@@ -126,10 +126,12 @@ public final class PackingList
             throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
         }
 
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
-             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
-        ) {
+             InputStream xmldsig_core_is = contextClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+             InputStream pkl_is = contextClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
+        )
+        {
             StreamSource[] streamSources = new StreamSource[2];
             streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(pkl_is);
@@ -157,13 +159,15 @@ public final class PackingList
         this.pklSchema = pklSchema;
         this.packingListTypeJAXBElement = packingListTypeJAXBElement;
 
-        switch(this.pklSchema.getPKLContext()) {
+        switch(this.pklSchema.getPKLContext())
+        {
             case "org.smpte_ra.schemas.st0429_8_2007.PKL":
                 //this.packingListType = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
                 org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType packingListType_st0429_8_2007_PKL = (org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType) this.packingListTypeJAXBElement.getValue();
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(packingListType_st0429_8_2007_PKL.getId());
 
-                for (org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType assetType : packingListType_st0429_8_2007_PKL.getAssetList().getAsset()) {
+                for (org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType assetType : packingListType_st0429_8_2007_PKL.getAssetList().getAsset())
+                {
                     Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
                             assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
                     this.assetList.add(asset);
@@ -173,7 +177,8 @@ public final class PackingList
                 org.smpte_ra.schemas.st2067_2_2016.PKL.PackingListType packingListType_st2067_2_2016_PKL = (org.smpte_ra.schemas.st2067_2_2016.PKL.PackingListType) this.packingListTypeJAXBElement.getValue();
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(packingListType_st2067_2_2016_PKL.getId());
 
-                for (org.smpte_ra.schemas.st2067_2_2016.PKL.AssetType assetType : packingListType_st2067_2_2016_PKL.getAssetList().getAsset()) {
+                for (org.smpte_ra.schemas.st2067_2_2016.PKL.AssetType assetType : packingListType_st2067_2_2016_PKL.getAssetList().getAsset())
+                {
                     Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
                             assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue(),
                             assetType.getHashAlgorithm().getAlgorithm());
@@ -419,10 +424,12 @@ public final class PackingList
             throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
         }
 
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream xmldsig_core_is = ClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
-             InputStream pkl_is = ClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
-        ) {
+             InputStream xmldsig_core_is = contextClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
+             InputStream pkl_is = contextClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
+        )
+        {
             StreamSource inputSource = new StreamSource(inputStream);
 
             StreamSource[] streamSources = new StreamSource[2];
