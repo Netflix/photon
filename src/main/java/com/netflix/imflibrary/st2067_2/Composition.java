@@ -1144,13 +1144,20 @@ public final class Composition
             {
                 case "org.smpte_ra.schemas.st2067_2_2013":
                     org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) composition.getCompositionPlaylistTypeJAXBElement().getValue();
-                    for(org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor())
+                    if (compositionPlaylistType.getEssenceDescriptorList() != null)
                     {
-                        for(Object object : essenceDescriptorBaseType.getAny())
+                        for (org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor())
                         {
-                            Node node = (Node)object;
-                            domNodeObjectModels.add(new DOMNodeObjectModel(node));
+                            for (Object object : essenceDescriptorBaseType.getAny())
+                            {
+                                Node node = (Node) object;
+                                domNodeObjectModels.add(new DOMNodeObjectModel(node));
+                            }
                         }
+                    }
+                    else
+                    {
+                        System.out.println("No essence descriptor list was found in CPL");
                     }
                     for(Composition.VirtualTrack virtualTrack : virtualTracks)
                     {
@@ -1174,7 +1181,6 @@ public final class Composition
             {
                 System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
-            System.out.println(String.format("De-serialized composition playlist : %n%s", composition.toString()));
         }
         catch(Exception e)
         {
