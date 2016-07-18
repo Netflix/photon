@@ -160,16 +160,26 @@ public final class PackingList
         switch(this.pklSchema.getPKLContext()) {
             case "org.smpte_ra.schemas.st0429_8_2007.PKL":
                 //this.packingListType = PackingList.checkConformance(packingListTypeJAXBElement.getValue());
-                org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType packingListType = (org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType) this.packingListTypeJAXBElement.getValue();
-                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(packingListType.getId());
+                org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType packingListType_st0429_8_2007_PKL = (org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType) this.packingListTypeJAXBElement.getValue();
+                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(packingListType_st0429_8_2007_PKL.getId());
 
-                for (org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType assetType : packingListType.getAssetList().getAsset()) {
-                    Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length), assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
+                for (org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType assetType : packingListType_st0429_8_2007_PKL.getAssetList().getAsset()) {
+                    Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
+                            assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
                     this.assetList.add(asset);
                 }
                 break;
             case "org.smpte_ra.schemas.st2067_2_2016.PKL":
-                throw new IMFException(String.format("Please check the PKL document and namespace URI, currently we only support the 2007 PKL schema URI"));
+                org.smpte_ra.schemas.st2067_2_2016.PKL.PackingListType packingListType_st2067_2_2016_PKL = (org.smpte_ra.schemas.st2067_2_2016.PKL.PackingListType) this.packingListTypeJAXBElement.getValue();
+                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(packingListType_st2067_2_2016_PKL.getId());
+
+                for (org.smpte_ra.schemas.st2067_2_2016.PKL.AssetType assetType : packingListType_st2067_2_2016_PKL.getAssetList().getAsset()) {
+                    Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
+                            assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue(),
+                            assetType.getHashAlgorithm().getAlgorithm());
+                    this.assetList.add(asset);
+                }
+                break;
             default:
                 throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
         }
@@ -313,11 +323,14 @@ public final class PackingList
      */
     public static final class Asset
     {
+        private static final String DEFAULT_HASH_ALGORITHM = "http://www.w3.org/2000/09/xmldig#sha1";
+
         private final UUID uuid;
         private final byte[] hash;
         private final long size;
         private final String type;
         private final String original_filename;
+        private final String hash_algorithm;
 
         /**
          * Constructor for the wrapping {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset} object from the wrapped model version of XML type 'AssetType'
@@ -329,11 +342,17 @@ public final class PackingList
          */
         public Asset(String uuid, byte[] hash, long size, String type, String original_filename)
         {
+            this(uuid, hash, size, type, original_filename, Asset.DEFAULT_HASH_ALGORITHM);
+        }
+
+        public Asset(String uuid, byte[] hash, long size, String type, String original_filename, String hash_algorithm)
+        {
             this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(uuid);
             this.hash = Arrays.copyOf(hash, hash.length);
             this.size = size;
             this.type = type;
             this.original_filename = original_filename;
+            this.hash_algorithm = hash_algorithm;
         }
 
         /**
@@ -386,6 +405,7 @@ public final class PackingList
             sb.append(String.format("size = %d%n", this.getSize()));
             sb.append(String.format("type = %s%n", this.getType()));
             sb.append(String.format("original_filename = %s%n", this.getOriginalFilename()));
+            sb.append(String.format("hash_algorithm = %s%n", this.hash_algorithm));
             return sb.toString();
         }
 

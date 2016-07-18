@@ -48,6 +48,7 @@ build/
 
 # IntelliJ specific files/directories
 out
+classes
 .idea
 *.ipr
 *.iws

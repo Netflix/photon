@@ -27,4 +27,21 @@ public class PackingListTest
         Assert.assertEquals(asset.getOriginalFilename(),"CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
         Assert.assertTrue(asset.toString().length() > 0);
     }
+
+    @Test
+    public void testPackingList2016() throws Exception
+    {
+        File inputFile = TestHelper.findResourceByPath("PKL_2067_2_2016.xml");
+        PackingList packingList = new PackingList(inputFile, new IMFErrorLoggerImpl());
+        Assert.assertEquals(packingList.getUUID(), UUID.fromString("7281a71b-0dcb-4ed7-93a4-97b7929e2a7c"));
+        Assert.assertEquals(packingList.getAssets().size(), 2);
+        Assert.assertTrue(packingList.toString().length() > 0);
+
+        PackingList.Asset asset = packingList.getAssets().get(0);
+        Assert.assertEquals(asset.getUUID(), UUID.fromString("88b5b453-a342-46eb-bc0a-4c9645f4d627"));
+        Assert.assertEquals(asset.getSize(), 19139240035L);
+        Assert.assertEquals(asset.getType(),"application/mxf");
+        Assert.assertEquals(asset.getOriginalFilename(),"1.mxf");
+        Assert.assertTrue(asset.toString().length() > 0);
+    }
 }
