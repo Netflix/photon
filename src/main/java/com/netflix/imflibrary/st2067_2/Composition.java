@@ -1136,6 +1136,10 @@ public final class Composition
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             Composition composition = new Composition(inputFile, imfErrorLogger);
             logger.info(composition.toString());
+            for (ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors())
+            {
+                logger.error(errorObject.toString());
+            }
 
             List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
             List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
@@ -1157,7 +1161,7 @@ public final class Composition
                     }
                     else
                     {
-                        System.out.println("No essence descriptor list was found in CPL");
+                        logger.error("No essence descriptor list was found in CPL");
                     }
                     for(Composition.VirtualTrack virtualTrack : virtualTracks)
                     {
@@ -1179,7 +1183,7 @@ public final class Composition
 
             for(int i=0; i<domNodeObjectModels.size(); i++)
             {
-                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
+                logger.info(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
         }
         catch(Exception e)
