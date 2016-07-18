@@ -42,7 +42,6 @@ public class IMFTrackFileReaderTest
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         Assert.assertTrue(imfTrackFileReader.toString().length() > 0);
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
     }
 
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "randomIndexPackSize = .*")
