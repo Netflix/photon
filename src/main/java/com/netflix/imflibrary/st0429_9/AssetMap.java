@@ -75,7 +75,7 @@ public final class AssetMap
     public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
-            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));}});
+            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));}});
 
     private static class AssetMapSchema {
         private final String assetMapSchemaPath;
@@ -131,7 +131,7 @@ public final class AssetMap
         }
 
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream assetMap_schema_is = AssetMap.class.getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
+             InputStream assetMap_schema_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             StreamSource schemaSource = new StreamSource(assetMap_schema_is);
             Schema schema = schemaFactory.newSchema(schemaSource);
@@ -467,7 +467,7 @@ public final class AssetMap
         }
 
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream assetMap_is = AssetMap.class.getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());
+             InputStream assetMap_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());
         ) {
             StreamSource inputSource = new StreamSource(inputStream);
 

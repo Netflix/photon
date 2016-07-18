@@ -68,14 +68,16 @@ public final class RegXMLLibHelper {
      */
     public RegXMLLibHelper(KLVPacket.Header primerPack, ByteProvider primerPackByteProvider) throws IOException{
 
-        try {
-            InputStream in = ClassLoader.getSystemResourceAsStream("reference-registers/Elements.xml");
+        try
+        {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            InputStream in = contextClassLoader.getResourceAsStream("reference-registers/Elements.xml");
             Reader elementsRegister = new InputStreamReader(in, Charset.forName("UTF-8"));
 
-            in = ClassLoader.getSystemResourceAsStream("reference-registers/Types.xml");
+            in = contextClassLoader.getResourceAsStream("reference-registers/Types.xml");
             Reader typesRegister = new InputStreamReader(in, Charset.forName("UTF-8"));
 
-            in = ClassLoader.getSystemResourceAsStream("reference-registers/Groups.xml");
+            in = contextClassLoader.getResourceAsStream("reference-registers/Groups.xml");
             Reader groupsRegister = new InputStreamReader(in, Charset.forName("UTF-8"));
 
             /*in = ClassLoader.getSystemResourceAsStream("reference-registers/Labels.xml");

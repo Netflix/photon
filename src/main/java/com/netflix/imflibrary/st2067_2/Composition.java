@@ -88,8 +88,8 @@ public final class Composition
 {
     private static final Logger logger = LoggerFactory.getLogger(Composition.class);
 
-    private static final String dcmlTypes_schema_path = "/org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
-    private static final String xmldsig_core_schema_path = "/org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+    private static final String dcmlTypes_schema_path = "org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
+    private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
     public static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}});
 
     private static class CoreConstraintsSchemas{
@@ -110,8 +110,8 @@ public final class Composition
         }
     }
     public static final List<CoreConstraintsSchemas> supportedIMFCoreConstraintsSchemas = Collections.unmodifiableList
-            (new ArrayList<CoreConstraintsSchemas>() {{ add( new CoreConstraintsSchemas("/org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd", "org.smpte_ra.schemas.st2067_2_2013"));
-                                                        add( new CoreConstraintsSchemas("/org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints.xsd", "org.smpte_ra.schemas.st2067_2_2016"));}});
+            (new ArrayList<CoreConstraintsSchemas>() {{ add( new CoreConstraintsSchemas("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd", "org.smpte_ra.schemas.st2067_2_2013"));
+                                                        add( new CoreConstraintsSchemas("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints.xsd", "org.smpte_ra.schemas.st2067_2_2016"));}});
 
     private final JAXBElement compositionPlaylistTypeJAXBElement;
     private final String coreConstraintsVersion;
@@ -152,12 +152,15 @@ public final class Composition
         CoreConstraintsSchemas coreConstraintsSchema = this.supportedIMFCoreConstraintsSchemas.get(0);
         JAXBElement jaxbElement = null;
 
-        for(int i=0; i<supportedIMFCoreConstraintsSchemas.size(); i++) {
+        for(int i=0; i<supportedIMFCoreConstraintsSchemas.size(); i++)
+        {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-                 InputStream xmldsig_core_is = Composition.class.getResourceAsStream(Composition.xmldsig_core_schema_path);
-                 InputStream dcmlTypes_is = Composition.class.getResourceAsStream(Composition.dcmlTypes_schema_path);
-                 InputStream imf_cpl_is = Composition.class.getResourceAsStream(imf_cpl_schema_path);
-                 InputStream imf_core_constraints_is = Composition.class.getResourceAsStream(supportedIMFCoreConstraintsSchemas.get(i).coreConstraintsSchemaPath);) {
+                 InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(Composition.xmldsig_core_schema_path);
+                 InputStream dcmlTypes_is = contextClassLoader.getResourceAsStream(Composition.dcmlTypes_schema_path);
+                 InputStream imf_cpl_is = contextClassLoader.getResourceAsStream(imf_cpl_schema_path);
+                 InputStream imf_core_constraints_is = contextClassLoader.getResourceAsStream(supportedIMFCoreConstraintsSchemas.get(i).coreConstraintsSchemaPath);)
+            {
                 StreamSource[] streamSources = new StreamSource[4];
                 streamSources[0] = new StreamSource(xmldsig_core_is);
                 streamSources[1] = new StreamSource(dcmlTypes_is);
@@ -176,15 +179,18 @@ public final class Composition
                 jaxbElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
                 coreConstraintsSchema = supportedIMFCoreConstraintsSchemas.get(i);
 
-                if (validationEventHandlerImpl.hasErrors()) {
+                if (validationEventHandlerImpl.hasErrors())
+                {
                     throw new IMFException(validationEventHandlerImpl.toString());
                 }
                 //CompositionPlaylistType compositionPlaylistType = compositionPlaylistTypeJAXBElement.getValue();
                 //this.compositionPlaylistType = compositionPlaylistType;
                 break; //No errors so we can break out without trying other Core constraints schema namespaces.
             }
-            catch (SAXException | JAXBException e){
-                if(i == supportedIMFCoreConstraintsSchemas.size()-1){
+            catch (SAXException | JAXBException e)
+            {
+                if(i == supportedIMFCoreConstraintsSchemas.size()-1)
+                {
                     throw e;
                 }
             }
@@ -223,13 +229,13 @@ public final class Composition
     }
 
     private static final String getIMFCPLSchemaPath(String namespaceVersion){
-        String imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
+        String imf_cpl_schema_path;
         switch(namespaceVersion){
             case "2013":
-                imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
+                imf_cpl_schema_path = "org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
                 break;
             case "2016":
-                imf_cpl_schema_path = "/org/smpte_ra/schemas/st2067_3_2016/imf-cpl.xsd";
+                imf_cpl_schema_path = "org/smpte_ra/schemas/st2067_3_2016/imf-cpl.xsd";
                 break;
             default:
                 throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedCPLSchemaURIs)));
@@ -473,13 +479,15 @@ public final class Composition
         String namespaceVersion = getCPLNamespaceVersion(cplNameSpaceURI);
         String imf_cpl_schema_path = getIMFCPLSchemaPath(namespaceVersion);
 
-        for(int i=0; i<supportedIMFCoreConstraintsSchemas.size(); i++) {
-
+        for (int i=0; i<supportedIMFCoreConstraintsSchemas.size(); i++)
+        {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-                 InputStream xmldsig_core_is = Composition.class.getResourceAsStream(Composition.xmldsig_core_schema_path);
-                 InputStream dcmlTypes_is = Composition.class.getResourceAsStream(Composition.dcmlTypes_schema_path);
-                 InputStream imf_cpl_is = Composition.class.getResourceAsStream(imf_cpl_schema_path);
-                 InputStream imf_core_constraints_is = Composition.class.getResourceAsStream(supportedIMFCoreConstraintsSchemas.get(i).coreConstraintsSchemaPath);) {
+                 InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(Composition.xmldsig_core_schema_path);
+                 InputStream dcmlTypes_is = contextClassLoader.getResourceAsStream(Composition.dcmlTypes_schema_path);
+                 InputStream imf_cpl_is = contextClassLoader.getResourceAsStream(imf_cpl_schema_path);
+                 InputStream imf_core_constraints_is = contextClassLoader.getResourceAsStream(supportedIMFCoreConstraintsSchemas.get(i).coreConstraintsSchemaPath);)
+            {
 
                 StreamSource inputSource = new StreamSource(inputStream);
 
@@ -512,8 +520,10 @@ public final class Composition
                 validator.validate(inputSource);
                 break;//No errors so we can break out without trying other Core constraints schema namespaces.
             }
-            catch (SAXException e){
-                if(i == supportedIMFCoreConstraintsSchemas.size()-1){
+            catch (SAXException e)
+            {
+                if(i == supportedIMFCoreConstraintsSchemas.size()-1)
+                {
                     throw e;
                 }
             }
