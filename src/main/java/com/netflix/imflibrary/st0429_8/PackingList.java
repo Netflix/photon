@@ -128,8 +128,8 @@ public final class PackingList
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream xmldsig_core_is = contextClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
-             InputStream pkl_is = contextClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
+             InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(PackingList.xmldsig_core_schema_path);
+             InputStream pkl_is = contextClassLoader.getResourceAsStream(pklSchema.getPKLSchemaPath());
         )
         {
             StreamSource[] streamSources = new StreamSource[2];
@@ -426,8 +426,8 @@ public final class PackingList
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream xmldsig_core_is = contextClassLoader.getSystemResourceAsStream(PackingList.xmldsig_core_schema_path);
-             InputStream pkl_is = contextClassLoader.getSystemResourceAsStream(pklSchema.getPKLSchemaPath());
+             InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(PackingList.xmldsig_core_schema_path);
+             InputStream pkl_is = contextClassLoader.getResourceAsStream(pklSchema.getPKLSchemaPath());
         )
         {
             StreamSource inputSource = new StreamSource(inputStream);
