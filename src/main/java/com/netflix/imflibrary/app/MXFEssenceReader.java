@@ -41,14 +41,18 @@ public class MXFEssenceReader {
     private final IMFErrorLogger imfErrorLogger;
     private final ResourceByteRangeProvider resourceByteRangeProvider;
     private final File workingDirectory;
+
     /**
      * A constructor for the MXFEssenceReader object
+     * @param workingDirectory the working directory
      * @param resourceByteRangeProvider corresponding to the MXF essence, referred to as the essence in the rest of the documentation
      */
-    public MXFEssenceReader(ResourceByteRangeProvider resourceByteRangeProvider){
+    public MXFEssenceReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
+    {
         this.imfErrorLogger = new IMFErrorLoggerImpl();
+        this.workingDirectory = workingDirectory;
         this.resourceByteRangeProvider = resourceByteRangeProvider;
-        this.workingDirectory = new File(System.getProperty("user.dir") + File.separator + "MXFEssenceReaderWorkingDirectory");
+
     }
 
     /**

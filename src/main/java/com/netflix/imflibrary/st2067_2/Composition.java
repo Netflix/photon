@@ -1136,39 +1136,55 @@ public final class Composition
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             Composition composition = new Composition(inputFile, imfErrorLogger);
             logger.info(composition.toString());
+            for (ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors())
+            {
+                logger.error(errorObject.toString());
+            }
 
             List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
             List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
 
-            for(Composition.VirtualTrack virtualTrack : virtualTracks){
-                switch(composition.getCoreConstraintsVersion()) {
-                    case "org.smpte_ra.schemas.st2067_2_2013":
-                        CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack_st2067_2_2013 = (CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013) virtualTrack;
-                        List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2013.getResourceList();
-                        if (resourceList.size() == 0) {
-                            throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
-                        }
-                        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) composition.getCompositionPlaylistTypeJAXBElement().getValue();
-                        for(org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor()){
-                            for(Object object : essenceDescriptorBaseType.getAny()){
-                                Node node = (Node)object;
+            switch(composition.getCoreConstraintsVersion())
+            {
+                case "org.smpte_ra.schemas.st2067_2_2013":
+                    org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) composition.getCompositionPlaylistTypeJAXBElement().getValue();
+                    if (compositionPlaylistType.getEssenceDescriptorList() != null)
+                    {
+                        for (org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor())
+                        {
+                            for (Object object : essenceDescriptorBaseType.getAny())
+                            {
+                                Node node = (Node) object;
                                 domNodeObjectModels.add(new DOMNodeObjectModel(node));
                             }
                         }
+                    }
+                    else
+                    {
+                        logger.error("No essence descriptor list was found in CPL");
+                    }
+                    for(Composition.VirtualTrack virtualTrack : virtualTracks)
+                    {
+                        CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack_st2067_2_2013 = (CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013) virtualTrack;
+                        List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2013.getResourceList();
+                        if (resourceList.size() == 0)
+                        {
+                            throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
+                        }
+                    }
                     break;
 
-                    case "org.smpte_ra.schemas.st2067_2_2016":
-                        throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the 2013 CoreConstraints schema URI"));
-                    default:
-                        throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", composition.serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
+                case "org.smpte_ra.schemas.st2067_2_2016":
+                    throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the 2013 CoreConstraints schema URI"));
+                default:
+                    throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", composition.serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
 
-                }
             }
 
-            for(int i=0; i<domNodeObjectModels.size(); i++) {
-                System.out.println(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
+            for(int i=0; i<domNodeObjectModels.size(); i++)
+            {
+                logger.info(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
-            System.out.println(String.format("De-serialized composition playlist : %n%s", composition.toString()));
         }
         catch(Exception e)
         {

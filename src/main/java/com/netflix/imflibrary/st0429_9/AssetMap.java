@@ -72,12 +72,10 @@ public final class AssetMap
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
     private final JAXBElement assetMapTypeJAXBElement;
-    public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");
-                                                                                                                            add("http://www.smpte-ra.org/schemas/429-9/2016/AM");}});
+    public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
-            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));
-                                                        put("http://www.smpte-ra.org/schemas/429-9/2016/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2016/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2016.AM"));}});
+            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("/org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));}});
 
     private static class AssetMapSchema {
         private final String assetMapSchemaPath;
@@ -181,8 +179,6 @@ public final class AssetMap
                     }
                 }
                 break;
-            case "org.smpte_ra.schemas.st0429_9_2016.AM":
-                throw new IMFException(String.format("Please check the AssetMap document and namespace URI, currently we only support the 2007 AssetMap schema URI"));
             default:
                 throw new IMFException(String.format("Please check the AssetMap document, currently we only support the following schema URIs %s", serializeAssetMapSchemasToString()));
         }

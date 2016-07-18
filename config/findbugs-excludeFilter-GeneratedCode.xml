@@ -16,6 +16,11 @@
         <Bug pattern="EI_EXPOSE_REP" />
     </Match>
 
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_2_2016.PKL" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
         <Package name="org.smpte_ra.schemas.st2067_2_2013" />
@@ -29,6 +34,11 @@
 
     <Match>
         <Package name="org.smpte_ra.schemas.st0429_9_2007.AM" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_2_2016.PKL" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 
