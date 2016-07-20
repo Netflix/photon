@@ -54,5 +54,5 @@ Multiple sample applications have been provided with this project (e.g., com.net
 
 ```
 
-java -cp target/dependency/*: <fully qualified class name> <inputFile> <workingDirectory>
+java -cp ./build/libs/*: <fully qualified class name (e.g., com.netflix.imflibrary.app.IMFTrackFileReader)> <zero or more arguments>
 ```
