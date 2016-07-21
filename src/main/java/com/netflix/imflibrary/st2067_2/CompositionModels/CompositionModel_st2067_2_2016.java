@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBElement;
 import java.util.*;
 
 /**
- * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2013 CompositionPlaylist specification st2067-3:2013.
+ * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2016 CompositionPlaylist specification st2067-3:2016.
  */
 public final class CompositionModel_st2067_2_2016
 {
@@ -119,7 +119,7 @@ public final class CompositionModel_st2067_2_2016
      * @param imfErrorLogger - an object for logging errors
      * @return map of VirtualTrack identifier to the list of all the Track's resources, for every VirtualTrack of the Composition
      */
-    public static Map<UUID, List<TrackFileResourceType>> getVirtualTrackResourceMap(@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    private static Map<UUID, List<TrackFileResourceType>> getVirtualTrackResourceMap(@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         Map<UUID, List<TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (org.smpte_ra.schemas.st2067_2_2016.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())

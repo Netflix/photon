@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBElement;
 import java.util.*;
 
 /**
- * A class that performs 2013 CoreConstraints st2067-2:2013 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
+ * A class that performs 2016 CoreConstraints st2067-2:2016 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
  */
 public final class IMFCoreConstraintsChecker_st2067_2_2016
 {
@@ -30,13 +30,14 @@ public final class IMFCoreConstraintsChecker_st2067_2_2016
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
             if(!(virtualTrack instanceof CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016)){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Internal error occurred while trying to cast a VirtualTrack to a 2013 VirtualTrack model."));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Internal error occurred while trying to cast a VirtualTrack to a 2016 VirtualTrack model."));
                 return false;
             }
             List<org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType> virtualTrackResourceList = ((CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016)virtualTrack).getResourceList();
             result &= checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList, imfErrorLogger);
             if(!result){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with id %s is invalid, please see errors reported earlier.", virtualTrack.getTrackID().toString()));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("VirtualTrack with id %s is invalid, please see errors reported earlier.", virtualTrack.getTrackID().toString()));
             }
 
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
@@ -46,7 +47,9 @@ public final class IMFCoreConstraintsChecker_st2067_2_2016
                     Composition.EditRate trackResourceEditRate = trackFileResourceType.getEditRate().isEmpty() ? null : new Composition.EditRate(trackFileResourceType.getEditRate());
                     if (trackResourceEditRate != null
                             && !trackResourceEditRate.equals(compositionEditRate)) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2016 Section 6.4",
+                                        compositionEditRate.toString(), trackResourceEditRate.toString()));
                         result &= false;
                     }
                 }
@@ -145,7 +148,7 @@ public final class IMFCoreConstraintsChecker_st2067_2_2016
         for(org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource : virtualTrackResourceList){
             long compositionPlaylistResourceIntrinsicDuration = trackFileResource.getIntrinsicDuration().longValue();
             long compositionPlaylistResourceEntryPoint = (trackFileResource.getEntryPoint() == null) ? 0L : trackFileResource.getEntryPoint().longValue();
-            //Check to see if the Resource's source duration value is in the valid range as specified in st2067-3:2013 section 6.11.6
+            //Check to see if the Resource's source duration value is in the valid range as specified in st2067-3:2016 section 6.11.6
             if(trackFileResource.getSourceDuration() != null){
                 if(trackFileResource.getSourceDuration().longValue() < 0
                         || trackFileResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
