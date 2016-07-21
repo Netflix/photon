@@ -26,6 +26,8 @@ import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st2067_2.CompositionModels.CompositionModel_st2067_2_2016;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFCoreConstraintsChecker_st2067_2_2016;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
@@ -201,11 +203,14 @@ public final class Composition
 
         switch(coreConstraintsVersion){
             case "org.smpte_ra.schemas.st2067_2_2013":
+            {
                 org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
                 this.virtualTrackMap = CompositionModel_st2067_2_2013.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-                if(!IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger)){
+                if (!IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger))
+                {
                     StringBuilder stringBuilder = new StringBuilder();
-                    for(int i=numErrors; i<imfErrorLogger.getErrors().size() ; i++){
+                    for (int i = numErrors; i < imfErrorLogger.getErrors().size(); i++)
+                    {
                         stringBuilder.append(String.format("%n"));
                         stringBuilder.append(imfErrorLogger.getErrors().get(i));
                     }
@@ -213,9 +218,26 @@ public final class Composition
                 }
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+            }
                 break;
             case "org.smpte_ra.schemas.st2067_2_2016":
-                throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the 2013 CoreConstraints schema URI"));
+            {
+                org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
+                this.virtualTrackMap = CompositionModel_st2067_2_2016.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
+                if (!IMFCoreConstraintsChecker_st2067_2_2016.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger))
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = numErrors; i < imfErrorLogger.getErrors().size(); i++)
+                    {
+                        stringBuilder.append(String.format("%n"));
+                        stringBuilder.append(imfErrorLogger.getErrors().get(i));
+                    }
+                    throw new IMFException(String.format("Found following errors while validating the virtual tracks in the Composition %n %s", stringBuilder.toString()));
+                }
+                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
+                this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+            }
+                break;
             default:
                 throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
 
