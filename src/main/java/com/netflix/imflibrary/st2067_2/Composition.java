@@ -78,6 +78,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -92,9 +93,10 @@ public final class Composition
 
     private static final String dcmlTypes_schema_path = "org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
-    public static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}});
+    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}});
 
-    private static class CoreConstraintsSchemas{
+    private static class CoreConstraintsSchemas
+    {
         private final String coreConstraintsSchemaPath;
         private final String coreConstraintsContext;
 
@@ -111,9 +113,10 @@ public final class Composition
             return this.coreConstraintsContext;
         }
     }
-    public static final List<CoreConstraintsSchemas> supportedIMFCoreConstraintsSchemas = Collections.unmodifiableList
+
+    private static final List<CoreConstraintsSchemas> supportedIMFCoreConstraintsSchemas = Collections.unmodifiableList
             (new ArrayList<CoreConstraintsSchemas>() {{ add( new CoreConstraintsSchemas("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd", "org.smpte_ra.schemas.st2067_2_2013"));
-                                                        add( new CoreConstraintsSchemas("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints.xsd", "org.smpte_ra.schemas.st2067_2_2016"));}});
+                                                        add( new CoreConstraintsSchemas("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd", "org.smpte_ra.schemas.st2067_2_2016"));}});
 
     private final JAXBElement compositionPlaylistTypeJAXBElement;
     private final String coreConstraintsVersion;
@@ -143,7 +146,8 @@ public final class Composition
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public Composition(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
+    public Composition(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException
+    {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
@@ -204,38 +208,39 @@ public final class Composition
         switch(coreConstraintsVersion){
             case "org.smpte_ra.schemas.st2067_2_2013":
             {
-                org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
+                org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType =
+                        (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
+
                 this.virtualTrackMap = CompositionModel_st2067_2_2013.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-                if (!IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger))
-                {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = numErrors; i < imfErrorLogger.getErrors().size(); i++)
-                    {
-                        stringBuilder.append(String.format("%n"));
-                        stringBuilder.append(imfErrorLogger.getErrors().get(i));
-                    }
-                    throw new IMFException(String.format("Found following errors while validating the virtual tracks in the Composition %n %s", stringBuilder.toString()));
-                }
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+
+                IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
+
+                if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
+                        (compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() < 1))
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty");
+                }
             }
                 break;
             case "org.smpte_ra.schemas.st2067_2_2016":
             {
                 org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
+
                 this.virtualTrackMap = CompositionModel_st2067_2_2016.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-                if (!IMFCoreConstraintsChecker_st2067_2_2016.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger))
-                {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = numErrors; i < imfErrorLogger.getErrors().size(); i++)
-                    {
-                        stringBuilder.append(String.format("%n"));
-                        stringBuilder.append(imfErrorLogger.getErrors().get(i));
-                    }
-                    throw new IMFException(String.format("Found following errors while validating the virtual tracks in the Composition %n %s", stringBuilder.toString()));
-                }
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+
+                IMFCoreConstraintsChecker_st2067_2_2016.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
+
+                if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
+                        (compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() < 1))
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty");
+                }
             }
                 break;
             default:
@@ -244,9 +249,15 @@ public final class Composition
         }
 
 
-        if ((imfErrorLogger != null) && (imfErrorLogger.getNumberOfErrors() > numErrors))
+        if (imfErrorLogger.getNumberOfErrors() > numErrors)
         {
-            throw new IMFException(String.format("Found %d errors in CompositionPlaylist XML file", imfErrorLogger.getNumberOfErrors() - numErrors));
+            int numFatalErrors = imfErrorLogger.getErrors().subList(numErrors, imfErrorLogger.getNumberOfErrors()).stream()
+                    .filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()).size();
+
+            if (numFatalErrors > 0)
+            {
+                throw new IMFException(String.format("Found %d fatal errors in CompositionPlaylist XML file", numFatalErrors));
+            }
         }
     }
 
@@ -257,7 +268,7 @@ public final class Composition
                 imf_cpl_schema_path = "org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd";
                 break;
             case "2016":
-                imf_cpl_schema_path = "org/smpte_ra/schemas/st2067_3_2016/imf-cpl.xsd";
+                imf_cpl_schema_path = "org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd";
                 break;
             default:
                 throw new IMFException(String.format("Please check the CPL document and namespace URI, currently we only support the following schema URIs %s", Utilities.serializeObjectCollectionToString(supportedCPLSchemaURIs)));

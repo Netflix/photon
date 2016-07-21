@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
@@ -95,8 +97,10 @@ public class IMPValidatorFunctionalTests {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
-        List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(payloadRecord);
+        List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL))
+                .collect(Collectors.toList());
+        Assert.assertTrue(fatalErrors.size() == 0);
     }
 
     @Test
