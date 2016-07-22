@@ -123,6 +123,11 @@ public final class Composition
     private final UUID uuid;
     private final EditRate editRate;
     private final Map<UUID, ? extends VirtualTrack> virtualTrackMap;
+    private final String annotation;
+    private final String issuer;
+    private final String creator;
+    private final String contentOriginator;
+    private final String contentTitle;
 
     /**
      * Constructor for a {@link Composition Composition} object from a XML file
@@ -214,6 +219,11 @@ public final class Composition
                 this.virtualTrackMap = CompositionModel_st2067_2_2013.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+                this.annotation = (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue());
+                this.issuer = (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue());
+                this.creator = (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue());
+                this.contentOriginator = (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue());
+                this.contentTitle = (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue());
 
                 IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
 
@@ -232,6 +242,11 @@ public final class Composition
                 this.virtualTrackMap = CompositionModel_st2067_2_2016.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
                 this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
                 this.editRate = new EditRate(compositionPlaylistType.getEditRate());
+                this.annotation = (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue());
+                this.issuer = (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue());
+                this.creator = (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue());
+                this.contentOriginator = (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue());
+                this.contentTitle = (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue());
 
                 IMFCoreConstraintsChecker_st2067_2_2016.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
 
@@ -431,6 +446,51 @@ public final class Composition
     public EditRate getEditRate()
     {
         return this.editRate;
+    }
+
+    /**
+     * Getter method for Annotation child element of CompositionPlaylist
+     * @return value of Annotation child element or null if it is not exist
+     */
+    public @Nullable String getAnnotation()
+    {
+        return this.annotation;
+    }
+
+    /**
+     * Getter method for Issuer child element of CompositionPlaylist
+     * @return value of Issuer child element or null if it is not exist
+     */
+    public @Nullable String getIssuer()
+    {
+        return this.issuer;
+    }
+
+    /**
+     * Getter method for Creator child element of CompositionPlaylist
+     * @return value of Creator child element or null if it is not exist
+     */
+    public @Nullable String getCreator()
+    {
+        return this.creator;
+    }
+
+    /**
+     * Getter method for ContentOriginator child element of CompositionPlaylist
+     * @return value of ContentOriginator child element or null if it is not exist
+     */
+    public @Nullable  String getContentOriginator()
+    {
+        return this.contentOriginator;
+    }
+
+    /**
+     * Getter method for ContentTitle child element of CompositionPlaylist
+     * @return value of ContentTitle child element or null if it is not exist
+     */
+    public @Nullable String getContentTitle()
+    {
+        return this.contentTitle;
     }
 
     /**
