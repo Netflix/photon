@@ -132,10 +132,11 @@ public final class Composition
     /**
      * Constructor for a {@link Composition Composition} object from a XML file
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
-     * @param imfErrorLogger an error logger for recording any errors - cannot be null
-     * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @param imfErrorLogger A non-nullable error logger for recording all errors. Construction is failed by throwing a {@link RuntimeException RuntimeException}
+     * if any {@link com.netflix.imflibrary.IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @throws IOException any I/O related error is exposed through an IOException
+     * @throws SAXException exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public Composition(File compositionPlaylistXMLFile, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException {
@@ -145,10 +146,11 @@ public final class Composition
     /**
      * Constructor for a {@link Composition Composition} object from a XML file
      * @param resourceByteRangeProvider corresponding to the Composition XML file.
-     * @param imfErrorLogger an error logger for recording any errors - cannot be null
-     * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @param imfErrorLogger A non-nullable error logger for recording all errors. Construction is failed by throwing a {@link RuntimeException RuntimeException}
+     * if any {@link com.netflix.imflibrary.IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @throws IOException any I/O related error is exposed through an IOException
+     * @throws SAXException exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public Composition(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)  throws IOException, SAXException, JAXBException, URISyntaxException
