@@ -27,5 +27,11 @@ public class CompositionTest
         Assert.assertEquals(composition.getVirtualTrackMap().size(), 2);
         Composition.VirtualTrack virtualTrack = composition.getVirtualTrackMap().get(uuid);
         Assert.assertEquals(virtualTrack.getSequenceTypeEnum(), Composition.SequenceTypeEnum.MainImageSequence);
+
+        Assert.assertTrue(composition.getAnnotation().length() > 0);
+        Assert.assertTrue(composition.getIssuer().length() > 0);
+        Assert.assertTrue(composition.getCreator().length() > 0);
+        Assert.assertTrue(composition.getContentOriginator().length() > 0);
+        Assert.assertTrue(composition.getContentTitle().length() > 0);
     }
 }

@@ -70,6 +70,11 @@ public interface ErrorLogger
             return this.errorDescription;
         }
 
+        public Enum getErrorLevel()
+        {
+            return this.errorLevel;
+        }
+
         /**
          * toString() method to return a string representation of this error object
          * @return string representation of the error object

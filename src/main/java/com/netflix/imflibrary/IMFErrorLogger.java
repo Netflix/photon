@@ -102,6 +102,11 @@ public interface IMFErrorLogger extends ErrorLogger
             IMF_CORE_CONSTRAINTS_ERROR("IMF Core Constraints Error"),
 
             /**
+             * EssenceDescriptorList element is mssing from an IMF CPL (st2067-2:2016 Section 6.8)
+             */
+            IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING("IMF Core Constraints Essence Descriptor List Missing"),
+
+            /**
              * The IMF_MASTER_PACKAGE_ERROR.
              */
             IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error");
