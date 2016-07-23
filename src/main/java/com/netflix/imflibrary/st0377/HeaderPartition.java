@@ -369,6 +369,21 @@ public final class HeaderPartition
                     CDCIPictureEssenceDescriptor cdciPictureEssenceDescriptor = new CDCIPictureEssenceDescriptor((CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(cdciPictureEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), cdciPictureEssenceDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(RGBAPictureEssenceDescriptor.class)){
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        /*Although we do retrieve the dependent SubDescriptor for this RGBAPictureEssenceDescriptor we do not really have a need for it,
+                        * since it can always be retrieved using the strong reference present in the subDescriptors collection of the RGBAPictureEssenceDescriptor
+                        * on the other hand passing a reference to the SubDescriptor to the constructor can be problematic since SubDescriptors are optional*/
+                        JPEG2000PictureSubDescriptor jpeg2000PictureSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof JPEG2000PictureSubDescriptor){
+                            jpeg2000PictureSubDescriptor = (JPEG2000PictureSubDescriptor) dependentInterchangeObject;
+                        }
+                        /*Add similar casting code for other sub descriptors when relevant*/
+                    }
+                    RGBAPictureEssenceDescriptor rgbaPictureEssenceDescriptor = new RGBAPictureEssenceDescriptor((RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(rgbaPictureEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), rgbaPictureEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(WaveAudioEssenceDescriptor.class)){
                     List<InterchangeObject> subDescriptors = new ArrayList<InterchangeObject>();
                     for(Node dependent : node.depends) {
@@ -636,9 +651,6 @@ public final class HeaderPartition
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }*/
-        }
-        else{
-            throw new MXFException(String.format("Spoken language is only relevant for Audio essences"));
         }
         return rfc5646SpokenLanguage;
     }
