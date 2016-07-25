@@ -185,6 +185,13 @@ public final class CompositionModel_st2067_2_2013 {
             this.resourceList = Collections.unmodifiableList(resourceList);
             for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType resource : this.resourceList){
                 this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getTrackFileId()));
+                this.resources.add(new Composition.TrackResource(resource.getId(),
+                        resource.getTrackFileId(),
+                        resource.getEditRate(),
+                        resource.getIntrinsicDuration(),
+                        resource.getEntryPoint(),
+                        resource.getSourceDuration(),
+                        resource.getRepeatCount()));
             }
         }
 

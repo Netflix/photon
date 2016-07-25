@@ -75,6 +75,7 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
@@ -787,7 +788,8 @@ public final class Composition
 
     /**
      * The class is an immutable implementation of the virtual track concept defined in Section 6.9.3 of st2067-3:2013. A
-     * virtual track is characterized by its UUID and the type of sequence it holds
+     * virtual track is characterized by its UUID, the type of sequence and a list of UUIDs of the
+     * IMF track files that comprise it.
      */
     @Immutable
     public abstract static class VirtualTrack
@@ -795,6 +797,7 @@ public final class Composition
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
         protected final List<UUID> resourceIds = new ArrayList<>();
+        protected final List<TrackResource> resources = new ArrayList<>();
 
         /**
          * Constructor for a VirtualTrack object
@@ -839,6 +842,91 @@ public final class Composition
          */
         public abstract boolean equivalent(VirtualTrack other);
     }
+
+    @Immutable
+    public static class TrackResource{
+        protected final String id;
+        protected final String trackFileId;
+        protected final EditRate editRate;
+        protected final BigInteger intrinsicDuration;
+        protected final BigInteger entryPoint;
+        protected final BigInteger sourceDuration;
+        protected final BigInteger repeatCount;
+
+        public TrackResource (String id,
+                              String trackFileId,
+                              List<Long> editRate,
+                              BigInteger intrinsicDuration,
+                              BigInteger entryPoint,
+                              BigInteger sourceDuration,
+                              BigInteger repeatCount){
+            this.id = id;
+            this.trackFileId = trackFileId;
+            this.editRate = new EditRate(editRate);
+            this.intrinsicDuration = intrinsicDuration;
+            this.entryPoint = entryPoint;
+            this.sourceDuration = sourceDuration;
+            this.repeatCount = repeatCount;
+        }
+
+        /**
+         * Getter for the Track's Resource ID
+         * @return a string representing the urn:uuid of the resource
+         */
+        public String getId(){
+            return this.id;
+        }
+
+        /**
+         * Getter for the Track Resource's track file Id
+         * @return a string representing the urn:uuid of the Track Resource's track file Id
+         */
+        public String getTrackFileId(){
+            return this.trackFileId;
+        }
+
+        /**
+         * Getter for the EditRate of the Track's Resource
+         * @return a Composition.EditRate object of the Track's Resource
+         */
+        public EditRate getEditRate(){
+            return this.editRate;
+        }
+
+        /**
+         * Getter for the IntrinsicDuration of the Track's Resource
+         * @return a BigInteger representing the Track Resource's IntrinsicDuration
+         */
+        public BigInteger getIntrinsicDuration(){
+            return this.intrinsicDuration;
+        }
+
+        /**
+         * Getter for the EntryPoint of the Track's Resource
+         * @return a BigInteger representing the Track Resource's EntryPoint
+         */
+        public BigInteger getEntryPoint(){
+            return this.entryPoint;
+        }
+
+        /**
+         * Getter for the SourceDuration of the Track's Resource
+         * @return a BigInteger representing the Track Resource's SourceDuration
+         */
+        public BigInteger getSourceDuration(){
+            return this.sourceDuration;
+        }
+
+        /**
+         * Getter for the RepeatCount of the Track's Resource
+         * @return a BigInteger representing the Track Resource's RepeatCount
+         */
+        public BigInteger getRepeatCount(){
+            return this.repeatCount;
+        }
+    }
+
+
 
     /**
      * A utility method to retrieve the VirtualTracks within a Composition.
