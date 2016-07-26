@@ -836,6 +836,14 @@ public final class Composition
         }
 
         /**
+         * Getter for the Resources of the Virtual Track
+         * @return an unmodifiable list of resources of the Virtual Track
+         */
+        public List<TrackResource> getTrackResources(){
+            return Collections.unmodifiableList(this.resources);
+        }
+
+        /**
          * A method to determine the equivalence of any 2 virtual tracks.
          * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
@@ -843,6 +851,9 @@ public final class Composition
         public abstract boolean equivalent(VirtualTrack other);
     }
 
+    /**
+     * A class that models a VirtualTrack's track resource.
+     */
     @Immutable
     public static class TrackResource{
         protected final String id;
