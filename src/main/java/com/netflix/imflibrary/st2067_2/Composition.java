@@ -1147,9 +1147,9 @@ public final class Composition
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean conformVirtualTrackInComposition(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples,
-                                                    IMFErrorLogger imfErrorLogger,
-                                                    boolean conformAllVirtualTracks)
+    public boolean conformVirtualTracksInComposition(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples,
+                                                     IMFErrorLogger imfErrorLogger,
+                                                     boolean conformAllVirtualTracksInCpl)
             throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         boolean result = true;
         /*
@@ -1177,7 +1177,7 @@ public final class Composition
          * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
          * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
          */
-        if(conformAllVirtualTracks) {
+        if(conformAllVirtualTracksInCpl) {
             while (cplEssenceDescriptorIDs.hasNext()) {
                 UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
                 if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
@@ -1192,7 +1192,7 @@ public final class Composition
         }
 
         /*The following check verifies 3) from above.*/
-        result &= compareEssenceDescriptors(getResourcesEssenceDescriptorMap(headerPartitionTuples), this.getEssenceDescriptorListMap(), imfErrorLogger);
+        result &= conformEssenceDescriptors(this.getResourcesEssenceDescriptorsMap(headerPartitionTuples), this.getEssenceDescriptorListMap(), imfErrorLogger);
         return result;
     }
 
@@ -1250,7 +1250,7 @@ public final class Composition
         return resourceSourceEncodingElementsSet;
     }
 
-    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorMap(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
+    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
         Map<UUID, List<DOMNodeObjectModel>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
 
         /*Create a Map of FilePackage UUID which should be equal to the TrackFileId of the resource in the Composition if the asset is referenced and the HeaderPartitionTuple, Map<UUID, HeaderPartitionTuple>*/
@@ -1348,7 +1348,7 @@ public final class Composition
         return byteProvider;
     }
 
-    private boolean compareEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap, IMFErrorLogger imfErrorLogger){
+    private boolean conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap, IMFErrorLogger imfErrorLogger){
 
         /**
          * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
@@ -1375,17 +1375,18 @@ public final class Composition
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
-        Iterator<Map.Entry<UUID, DOMNodeObjectModel>> eDLMapIterator = eDLMap.entrySet().iterator();
-        while(eDLMapIterator.hasNext()){
-            Map.Entry<UUID, DOMNodeObjectModel> entry = (Map.Entry<UUID, DOMNodeObjectModel>) eDLMapIterator.next();
-            List<DOMNodeObjectModel> domNodeObjectModels = essenceDescriptorsMap.get(entry.getKey());
-            if(domNodeObjectModels == null){
-                //This implies we did not find a single VirtualTrack that referenced this particular EssenceDescriptor in the EDL
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL is not referenced by a single resource within any of the VirtualTracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", entry.getKey().toString()));
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = essenceDescriptorsMap.entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
+            List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
+            DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
+            if(referenceDOMNodeObjectModel == null){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL", entry.getKey().toString()));
                 return false;
             }
-            DOMNodeObjectModel referenceDOMNodeObjectModel = entry.getValue();
+
             boolean intermediateResult = false;
+
             for(DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels){
                 intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
             }
