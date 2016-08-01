@@ -54,6 +54,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * A simple application to exercise the core logic of Photon for reading and validating IMF Track files.
+ */
 @ThreadSafe
 final class IMFTrackFileReader
 {

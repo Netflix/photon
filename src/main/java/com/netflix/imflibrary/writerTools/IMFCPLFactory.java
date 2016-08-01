@@ -46,8 +46,8 @@ public final class IMFCPLFactory {
      *
      * @return A CompositionPlaylistType object
      */
-    public static CompositionPlaylistType constructCompositionPlaylistType(){
-        CompositionPlaylistType cplType = new CompositionPlaylistType();
+    public static org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType constructCompositionPlaylistType(){
+        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplType = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType();
         IMFCPLFactory.constructObjectFields(cplType);
         return cplType;
     }
