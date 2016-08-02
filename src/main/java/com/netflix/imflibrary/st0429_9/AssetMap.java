@@ -26,12 +26,15 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
+import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
+import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.smpte_ra.schemas.st0429_9_2007.AM.UserText;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
@@ -43,6 +46,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,7 +75,6 @@ public final class AssetMap
     private final List<Asset> packingListAssets = new ArrayList<>();
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
-    private final JAXBElement assetMapTypeJAXBElement;
     public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
@@ -152,12 +155,11 @@ public final class AssetMap
                 throw new IMFException(validationEventHandlerImpl.toString());
             }
         }
-        this.assetMapTypeJAXBElement = assetMapTypeJAXBElement;
 
         switch(assetMapSchema.getAssetMapContext()) {
             case "org.smpte_ra.schemas.st0429_9_2007.AM":
                 UUID uuid = null;
-                org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = (org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType) this.assetMapTypeJAXBElement.getValue();
+                org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = (org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType) assetMapTypeJAXBElement.getValue();
                 try {
                     uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetMapType.getId());
                 } catch (IMFException e) {

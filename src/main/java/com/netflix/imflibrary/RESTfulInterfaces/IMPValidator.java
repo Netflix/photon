@@ -44,6 +44,8 @@ public class IMPValidator {
     /**
      * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
      * @param payloadRecord - a payload record corresponding to the asset whose type needs to be confirmed
+     *                      Note: for now this method only supports text/xml documents identified in the PKL
+     *                      application/mxf asset types cannot be determined.
      * @return asset type of the payload either one of AssetMap, PackingList or Composition
      * @throws IOException - any I/O related error is exposed through an IOException
      */

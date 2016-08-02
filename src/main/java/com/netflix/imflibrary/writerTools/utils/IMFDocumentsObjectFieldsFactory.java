@@ -16,10 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.writerTools;
+package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.exceptions.MXFException;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -32,27 +31,56 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class IMFCPLFactory {
+/**
+ * A class that implements helper methods to construct object fields within IMF documents such as AssetMap, PackingList,
+ * CompositionPlaylist etc.
+ */
+public final class IMFDocumentsObjectFieldsFactory {
 
-    /*Prevent instantiation*/
-    private IMFCPLFactory (){
+    private static final Set<Class<?>> setOfWrapperTypes = new HashSet<Class<?>>()
+    {
+        {
+            /* Java Wrapper types */
+            add(Boolean.class);
+            add(Character.class);
+            add(Byte.class);
+            add(Short.class);
+            add(Integer.class);
+            add(Long.class);
+            add(Float.class);
+            add(Double.class);
+            add(Void.class);
+            add(Enum.class);
+            add(BigInteger.class);
+        }
+    };
 
-    }
+    private static final Set<Class<?>> setOfPrimitiveTypes = new HashSet<Class<?>>()
+    {
+        {
+
+            /* Java Primitive types */
+            add(boolean.class);
+            add(char.class);
+            add(byte.class);
+            add(short.class);
+            add(int.class);
+            add(long.class);
+            add(float.class);
+            add(double.class);
+            add(void.class);
+            add(byte[].class);
+        }
+    };
 
     /**
-     * A factory method that constructs a CompositionPlaylistType object and  recursively constructs all of its constituent fields.
-     * Note: Fields that are either Java primitives, wrapperTypes or a subclass of Collection
-     * are not constructed by this method for the reason that the field's accessor methods would do so.
-     *
-     * @return A CompositionPlaylistType object
+     * To prevent instantiation
      */
-    public static org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType constructCompositionPlaylistType(){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplType = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType();
-        IMFCPLFactory.constructObjectFields(cplType);
-        return cplType;
+    private IMFDocumentsObjectFieldsFactory(){
+
     }
 
-    private static void constructObjectFields(Object object) {
+    public static void constructObjectFields(Object object) {
         try {
             Field[] fields = object.getClass().getDeclaredFields();
             Object value = null;
@@ -61,9 +89,9 @@ public final class IMFCPLFactory {
                 boolean isPrimitiveType = isJavaPrimitiveType(field.getType());
                 boolean isJavaWrapperType = isJavaWrapperType(field.getType());
                 if(!(XMLGregorianCalendar.class.isAssignableFrom(field.getType())
-                     || Collection.class.isAssignableFrom(field.getType())
-                     || isPrimitiveType
-                     || isJavaWrapperType)) {
+                        || Collection.class.isAssignableFrom(field.getType())
+                        || isPrimitiveType
+                        || isJavaWrapperType)) {
                     value = constructObjectByName(field.getType());
                 }
                 else if(XMLGregorianCalendar.class.isAssignableFrom(field.getType())){
@@ -71,10 +99,10 @@ public final class IMFCPLFactory {
                     continue;
                 }
                 else if(Collection.class.isAssignableFrom(field.getType())){
-                   /**
-                    * Types that wrap a collection provide access to the collection through
-                    * an accessor hence negating the need to construct the collection.
-                    */
+                    /**
+                     * Types that wrap a collection provide access to the collection through
+                     * an accessor hence negating the need to construct the collection.
+                     */
                     continue;
                 }
                 else if(isPrimitiveType || isJavaWrapperType){
@@ -85,8 +113,8 @@ public final class IMFCPLFactory {
                 }
                 /* Construct the fields of the object just constructed unless it is a JAVA primitive or String */
                 if(!(/*field.getType().isPrimitive()*/
-                     getJavaPrimitiveTypes().contains(field.getType())
-                        || field.getType().equals(String.class))){
+                        getJavaPrimitiveTypes().contains(field.getType())
+                                || field.getType().equals(String.class))){
                     //Not one of the primitive types and not a string either
                     constructObjectFields(value);
                 }
@@ -128,13 +156,9 @@ public final class IMFCPLFactory {
     }
 
     private static boolean isJavaPrimitiveType(Class type){
-        Set<Class<?>> setOfPrimitiveTypes = getJavaPrimitiveTypes();
         boolean result = false;
-        for(Class clazz: setOfPrimitiveTypes){
-            if(clazz.getSimpleName().equals(type.getSimpleName())){
-                result = true;
-                break;
-            }
+        if(setOfPrimitiveTypes.contains(type)){
+            result = true;
         }
         return result;
     }
@@ -159,13 +183,9 @@ public final class IMFCPLFactory {
     }
 
     private static boolean isJavaWrapperType(Class type){
-        Set<Class<?>> setOfWrapperTypes = getJavaWrapperTypes();
         boolean result = false;
-        for(Class clazz: setOfWrapperTypes){
-            if(clazz.getSimpleName().equals(type.getSimpleName())){
-                result = true;
-                break;
-            }
+        if(setOfWrapperTypes.contains(type)){
+            result = true;
         }
         return result;
     }

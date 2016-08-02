@@ -40,7 +40,15 @@ public interface IMFErrorLogger extends ErrorLogger
 
     public void addAllErrors(List<ErrorObject> errorObjects);
 
-    List<ErrorObject> getErrors();
+    public List<ErrorObject> getErrors();
+
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel) throws IllegalArgumentException;
+
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel, int startIndex, int endIndex) throws IllegalArgumentException;
+
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode) throws IllegalArgumentException;
+
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException;
 
     final class IMFErrors
     {

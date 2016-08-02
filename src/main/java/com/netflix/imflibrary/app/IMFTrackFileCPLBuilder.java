@@ -18,6 +18,7 @@
 
 package com.netflix.imflibrary.app;
 
+import com.netflix.imflibrary.writerTools.common.IMFDocumentComponents;
 import com.sandflow.smpte.klv.Triplet;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
@@ -34,11 +35,10 @@ import org.smpte_ra.schemas.st2067_2_2013.LocaleType;
 import org.smpte_ra.schemas.st2067_2_2013.SegmentType;
 import org.smpte_ra.schemas.st2067_2_2013.SequenceType;
 import org.smpte_ra.schemas.st2067_2_2013.UserTextType;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.writerTools.IMFCPLFactory;
+import com.netflix.imflibrary.writerTools.IMFCPLObjectFieldsFactory;
 import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
@@ -78,7 +78,7 @@ final class IMFTrackFileCPLBuilder {
     private final IMFTrackFileReader imfTrackFileReader;
     private final RegXMLLibHelper regXMLLibHelper;
     private final File workingDirectory;
-    private final CompositionPlaylistType cplRoot;
+    private final org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot;
     private final File mxfFile;
     private final String fileName;
 
@@ -97,7 +97,7 @@ final class IMFTrackFileCPLBuilder {
         this.regXMLLibHelper = new RegXMLLibHelper(primerPackHeader, this.imfTrackFileReader.getByteProvider(primerPackHeader));
         this.workingDirectory = workingDirectory;
         /*Peek into the CompositionPlayListType and recursively construct its constituent fields*/
-        this.cplRoot = IMFCPLFactory.constructCompositionPlaylistType();
+        this.cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();
         this.mxfFile = essenceFile;
         this.fileName = this.mxfFile.getName();
     }
@@ -158,13 +158,6 @@ final class IMFTrackFileCPLBuilder {
         File outputFile = new File(this.workingDirectory + "/" + this.mxfFile.getName() + ".xml");
         IMFUtils.writeCPLToFile(this.cplRoot, outputFile);
         return outputFile;
-    }
-
-    private UserTextType buildUserTextType(String value, String language){
-        UserTextType userTextType = new UserTextType();
-        userTextType.setValue(value);
-        userTextType.setLanguage(language);
-        return userTextType;
     }
 
     private ContentKindType buildContentKindType(String value, String scope){
@@ -244,7 +237,7 @@ final class IMFTrackFileCPLBuilder {
         List<LocaleType> list = this.cplRoot.getLocaleList().getLocale();
         LocaleType localeType = new LocaleType();
         /*Locale Annotation*/
-        localeType.setAnnotation(this.buildUserTextType("Netflix-CustomLocale", "en"));
+        localeType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013("Netflix-CustomLocale", "en"));
         /*Locale Language List*/
         LocaleType.LanguageList languageList = new LocaleType.LanguageList();
         languageList.getLanguage().add("en");
@@ -276,7 +269,7 @@ final class IMFTrackFileCPLBuilder {
         /*Segment Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
         String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
-        segmentType.setAnnotation(buildUserTextType(name, language));
+        segmentType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013(name, language));
         /*Sequence List*/
         SegmentType.SequenceList sequenceList = new SegmentType.SequenceList();
         int index = 0;
@@ -318,7 +311,7 @@ final class IMFTrackFileCPLBuilder {
         /*Resource Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
         String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
-        trackFileResourceType.setAnnotation(buildUserTextType(name, language));
+        trackFileResourceType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013(name, language));
         /*Edit Rate*/
         trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList());
         /*Intrinsic Duration*/

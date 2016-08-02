@@ -24,6 +24,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * An non-thread-safe implementation of the IMFErrorLogger interface
@@ -82,9 +83,77 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
         return this.errorObjects.size();
     }
 
+    /**
+     * Getter for the list of errors monitored by this ErrorLogger implementation
+     * @return a list of errors
+     */
     public List<ErrorLogger.ErrorObject> getErrors()
     {
         return Collections.unmodifiableList(this.errorObjects);
+    }
+
+    /**
+     * Getter for the list of errors filtered by the ErrorLevel monitored by this ErrorLogger implementation
+     * @param errorLevel to be filtered
+     * @return a list of errors
+     */
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel) throws IllegalArgumentException
+    {
+        return getErrors(errorLevel, 0, this.errorObjects.size());
+    }
+
+    /**
+     * Getter for the list of errors in a specified range of errors filtered by the ErrorLevel monitored by this ErrorLogger implementation
+     * @param errorLevel to be filtered
+     * @param startIndex the start index (inclusive) within the list of errors
+     * @param endIndex the last index (exclusive) within the list of errors
+     * @return a list of errors
+     */
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel, int startIndex, int endIndex) throws IllegalArgumentException
+    {
+        validateRangeRequest(startIndex, endIndex);
+        return Collections.unmodifiableList(this.errorObjects.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+    }
+
+    /**
+     * Getter for the list of errors filtered by the ErrorCode monitored by this ErrorLogger implementation
+     * @param errorCode to be filtered
+     * @return a list of errors
+     */
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode) throws IllegalArgumentException
+    {
+        return getErrors(errorCode, 0 , this.errorObjects.size());
+    }
+
+    /**
+     * Getter for the list of errors in a specified range of errors filtered by the ErrorLevel monitored by this ErrorLogger implementation
+     * @param errorCode to be filtered
+     * @param startIndex the start index (inclusive) within the list of errors
+     * @param endIndex the last index (exclusive) within the list of errors
+     * @return a list of errors
+     */
+    public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException
+    {
+        validateRangeRequest(startIndex, endIndex);
+        return Collections.unmodifiableList(this.errorObjects.stream().filter(e -> e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+    }
+
+    private void validateRangeRequest(int rangeStart, int rangeEnd) throws IllegalArgumentException {
+
+        if (rangeStart < 0)
+        {
+            throw new IllegalArgumentException(String.format("rangeStart = %d is < 0", rangeStart));
+        }
+
+        if (rangeStart > rangeEnd)
+        {
+            throw new IllegalArgumentException(String.format("rangeStart = %d is not <= %d rangeEnd", rangeStart, rangeEnd));
+        }
+
+        if (rangeEnd > (this.errorObjects.size() - 1))
+        {
+            throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize -1) = %d", rangeEnd, (this.errorObjects.size()-1)));
+        }
     }
 
 }
