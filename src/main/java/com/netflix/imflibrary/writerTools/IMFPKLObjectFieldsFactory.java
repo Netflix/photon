@@ -34,7 +34,7 @@ public final class IMFPKLObjectFieldsFactory {
      *
      * @return A 2007 schema compliant PackingListType object
      */
-    public static org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType constructPackingListType_2013(){
+    public static org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType constructPackingListType_2007(){
         org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType pklType_2007 = new org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType();
         IMFDocumentsObjectFieldsFactory.constructObjectFields(pklType_2007);
         return pklType_2007;

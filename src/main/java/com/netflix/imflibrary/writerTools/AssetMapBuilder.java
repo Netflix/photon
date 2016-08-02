@@ -68,14 +68,14 @@ public class AssetMapBuilder {
 
     /**
      * A constructor for the AssetMapBuilder object
-     * @param uuid
-     * @param annotationText
-     * @param creator
-     * @param issueDate
-     * @param issuer
-     * @param assets
-     * @param workingDirectory
-     * @param imfErrorLogger
+     * @param uuid that uniquely identifies the AssetMap document
+     * @param annotationText a free form human readable text
+     * @param creator a free form human readable text describing the tool used to create the AssetMap document
+     * @param issueDate date at which the AssetMap was issued
+     * @param issuer a free form human readable text describing the issuer of the AssetMap document
+     * @param assets a list of AssetMapBuilder.Asset roughly modeling the AssetMap assetlist
+     * @param workingDirectory a folder location for the generated AssetMap document to be written to
+     * @param imfErrorLogger a logger object to record errors that occur during the creation of the AssetMap document
      */
     public AssetMapBuilder(@Nonnull UUID uuid,
                            @Nonnull org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText,
