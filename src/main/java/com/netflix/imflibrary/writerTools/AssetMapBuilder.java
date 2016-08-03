@@ -137,7 +137,7 @@ public class AssetMapBuilder {
         if(errors.size() > numErrors){
             List<ErrorLogger.ErrorObject> fatalErrors = imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, errors.size());
             if(fatalErrors.size() > 0){
-                throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building and AssetMap document %s", fatalErrors.toString()));
+                throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building the AssetMap document %s", fatalErrors.toString()));
             }
         }
         return outputFile;

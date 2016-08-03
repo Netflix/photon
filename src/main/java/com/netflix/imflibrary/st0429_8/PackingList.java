@@ -339,11 +339,12 @@ public final class PackingList
 
         /**
          * Constructor for the wrapping {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset} object from the wrapped model version of XML type 'AssetType'
-         * @param uuid
-         * @param hash
-         * @param size
-         * @param type
-         * @param original_filename
+         * @param uuid identifying the PackingList Asset
+         * @param hash hash a byte[] containing the Base64 encoded SHA-1 hash of this PackingList Asset
+         * @param size of the asset in bytes
+         * @param type could be either text/xml or application/mxf as defined in st0429-9:2007
+         * @param original_filename a free form human readable text that contains the name of the file
+         *                         containing the asset at the time the PackingList was created
          */
         public Asset(String uuid, byte[] hash, long size, String type, String original_filename)
         {
@@ -394,6 +395,18 @@ public final class PackingList
         public @Nullable String getOriginalFilename()
         {
             return this.original_filename;
+        }
+
+        public byte[] getHash(){
+            return Arrays.copyOf(this.hash, this.hash.length);
+        }
+
+        /**
+         * Getter for the Hash Algorithm used in generating the Hash of this Asset
+         * @return a string corresponding to the HashAlgorithm
+         */
+        public String getHashAlgorithm(){
+            return this.hash_algorithm;
         }
 
         /**

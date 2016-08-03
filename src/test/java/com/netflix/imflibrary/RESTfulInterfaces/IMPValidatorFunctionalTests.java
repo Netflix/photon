@@ -65,14 +65,15 @@ public class IMPValidatorFunctionalTests {
         Assert.assertTrue(IMPValidator.getPayloadType(payloadRecord) == PayloadRecord.PayloadAssetType.CompositionPlaylist);
     }
 
-    @Test(expectedExceptions = IMFException.class)
+    @Test
     public void invalidPKLTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
-        List<ErrorLogger.ErrorObject>errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() > 0);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(payloadRecord);
+        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.get(0).getErrorDescription().contains("we only support the following schema URIs"));
     }
 
     @Test

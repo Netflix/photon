@@ -79,7 +79,7 @@ public class IMPValidator {
         try{
             new PackingList(new ByteArrayByteRangeProvider(pkl.getPayload()), imfErrorLogger);
         }
-        catch (SAXException | JAXBException e){
+        catch (SAXException | JAXBException | IMFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             return imfErrorLogger.getErrors();
         }

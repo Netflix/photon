@@ -112,7 +112,7 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel, int startIndex, int endIndex) throws IllegalArgumentException
     {
         validateRangeRequest(startIndex, endIndex);
-        return Collections.unmodifiableList(this.errorObjects.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+        return Collections.unmodifiableList(this.errorObjects.subList(startIndex, endIndex).stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
     }
 
     /**
@@ -135,7 +135,7 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException
     {
         validateRangeRequest(startIndex, endIndex);
-        return Collections.unmodifiableList(this.errorObjects.stream().filter(e -> e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+        return Collections.unmodifiableList(this.errorObjects.subList(startIndex, endIndex).stream().filter(e -> e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
     }
 
     private void validateRangeRequest(int rangeStart, int rangeEnd) throws IllegalArgumentException {
@@ -150,7 +150,7 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
             throw new IllegalArgumentException(String.format("rangeStart = %d is not <= %d rangeEnd", rangeStart, rangeEnd));
         }
 
-        if (rangeEnd > (this.errorObjects.size() - 1))
+        if (rangeEnd > (this.errorObjects.size()))
         {
             throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize -1) = %d", rangeEnd, (this.errorObjects.size()-1)));
         }
