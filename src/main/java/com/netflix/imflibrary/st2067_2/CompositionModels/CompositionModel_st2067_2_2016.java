@@ -172,6 +172,9 @@ public final class CompositionModel_st2067_2_2016
         return virtualTrackResourceMap;
     }
 
+    /**
+     * A class that models a Virtual Track compliant with the 2016 Composition Playlist Schema
+     */
     public final static class VirtualTrack_st2067_2_2016 extends Composition.VirtualTrack {
         private final List<TrackFileResourceType> resourceList;
         VirtualTrack_st2067_2_2016(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,

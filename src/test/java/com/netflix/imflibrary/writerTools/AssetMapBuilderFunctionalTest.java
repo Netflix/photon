@@ -25,14 +25,12 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.writerTools.common.IMFDocumentComponents;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
 
-import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
@@ -66,14 +64,14 @@ public class AssetMapBuilderFunctionalTest {
 
             AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(asset.getPath().toString(), Long.valueOf(10L)); //All assets will have a length of 10 bytes perhaps okay for a functional test.
             List<AssetMapBuilder.Chunk> chunks = new ArrayList<AssetMapBuilder.Chunk>() {{ add(chunk);}};
-            AssetMapBuilder.Asset assetMapBuilderAsset = new AssetMapBuilder.Asset(asset.getUUID(), IMFDocumentComponents.buildAssetMapUserTextType_2007(annotationText, language), asset.isPackingList(), chunks);
+            AssetMapBuilder.Asset assetMapBuilderAsset = new AssetMapBuilder.Asset(asset.getUUID(), AssetMapBuilder.buildAssetMapUserTextType_2007(annotationText, language), asset.isPackingList(), chunks);
             assetMapBuilderAssets.add(assetMapBuilderAsset);
         }
 
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText = IMFDocumentComponents.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en");
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText creator = IMFDocumentComponents.buildAssetMapUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText = AssetMapBuilder.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en");
+        org.smpte_ra.schemas.st0429_9_2007.AM.UserText creator = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText issuer = IMFDocumentComponents.buildAssetMapUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas.st0429_9_2007.AM.UserText issuer = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
 
         /**
          * Create a temporary working directory under home

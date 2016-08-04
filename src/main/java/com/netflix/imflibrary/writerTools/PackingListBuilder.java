@@ -103,6 +103,32 @@ public class PackingListBuilder {
     }
 
     /**
+     * A method to construct a UserTextType compliant with the 2007 schema for IMF PackingList documents
+     * @param value the string that is a part of the annotation text
+     * @param language the language code of the annotation text
+     * @return a UserTextType
+     */
+    public static org.smpte_ra.schemas.st0429_8_2007.PKL.UserText buildPKLUserTextType_2007(String value, String language){
+        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText userText = new org.smpte_ra.schemas.st0429_8_2007.PKL.UserText();
+        userText.setValue(value);
+        userText.setLanguage(language);
+        return userText;
+    }
+
+    /**
+     * A method to construct a UserTextType compliant with the 2016 schema for IMF PackingList documents
+     * @param value the string that is a part of the annotation text
+     * @param language the language code of the annotation text
+     * @return a UserTextType
+     */
+    public static org.smpte_ra.schemas.st2067_2_2016.PKL.UserText buildPKLUserTextType_2016(String value, String language){
+        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText userText = new org.smpte_ra.schemas.st2067_2_2016.PKL.UserText();
+        userText.setValue(value);
+        userText.setLanguage(language);
+        return userText;
+    }
+
+    /**
      * A method to build a PackingList document compliant with the st0429-8:2007 schema
      * @param annotationText a free form human readable text
      * @param issuer a free form human readable text describing the issuer of the PackingList document

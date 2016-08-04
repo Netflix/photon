@@ -60,7 +60,7 @@ public class IMFUUIDGenerator {
      * Note: this method guarantees uniqueness only as long as the class remains loaded
      * @return string representation of the UUID
      */
-    public String getUUID(){
+    public String getUrnUUID(){
         //Create the UUID string
         return "urn" + ":" + "uuid" + ":" + generateUUID();
     }

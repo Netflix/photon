@@ -177,6 +177,9 @@ public final class CompositionModel_st2067_2_2013 {
         return virtualTrackResourceMap;
     }
 
+    /**
+     * A class that models a Virtual Track compliant with the 2013 Composition Playlist Schema
+     */
     public final static class VirtualTrack_st2067_2_2013 extends Composition.VirtualTrack {
         private final List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList;
         VirtualTrack_st2067_2_2013(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,

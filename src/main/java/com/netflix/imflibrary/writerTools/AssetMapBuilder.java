@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 /**
  * A class that implements the logic to build a SMPTE st0429-9:2007 schema compliant AssetMap document.
  */
+@Immutable
 public class AssetMapBuilder {
 
     private final UUID uuid;
@@ -95,6 +96,26 @@ public class AssetMapBuilder {
         this.imfErrorLogger = imfErrorLogger;
     }
 
+    /**
+     * A method to construct a UserTextType compliant with the 2007 schema for IMF AssetMap documents
+     * @param value the string that is a part of the annotation text
+     * @param language the language code of the annotation text
+     * @return a UserTextType
+     */
+    public static org.smpte_ra.schemas.st0429_9_2007.AM.UserText buildAssetMapUserTextType_2007(String value, String language){
+        org.smpte_ra.schemas.st0429_9_2007.AM.UserText userTextType = new org.smpte_ra.schemas.st0429_9_2007.AM.UserText();
+        userTextType.setValue(value);
+        userTextType.setLanguage(language);
+        return userTextType;
+    }
+
+    /**
+     * A method to build an AssetMap document
+     * @return a file containing the AssetMap document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     */
     public File build() throws IOException, SAXException, JAXBException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();

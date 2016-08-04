@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.writerTools.common.IMFDocumentComponents;
+import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.sandflow.smpte.klv.Triplet;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
@@ -109,7 +109,7 @@ final class IMFTrackFileCPLBuilder {
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public File getCompositionPlaylist() throws IOException {
-        this.cplRoot.setId(IMFUUIDGenerator.getInstance().getUUID());
+        this.cplRoot.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*CPL Annotation*/
         this.cplRoot.getAnnotation().setValue(this.fileName);
         this.cplRoot.getAnnotation().setLanguage("en");/*Setting language to English which is also the default*/
@@ -172,7 +172,7 @@ final class IMFTrackFileCPLBuilder {
         List<ContentVersionType> contentVersionTypeList = this.cplRoot.getContentVersionList().getContentVersion();
         ContentVersionType contentVersionType = new ContentVersionType();
         /*Content Version Type*/
-        String uuidString = IMFUUIDGenerator.getInstance().getUUID();
+        String uuidString = IMFUUIDGenerator.getInstance().getUrnUUID();
         contentVersionType.setId(uuidString);
         UserTextType userTextType = new UserTextType();
         userTextType.setValue(uuidString);
@@ -200,7 +200,7 @@ final class IMFTrackFileCPLBuilder {
                 Document document = docBuilder.newDocument();
 
                 EssenceDescriptorBaseType essenceDescriptorBaseType = new EssenceDescriptorBaseType();
-                String uuid = IMFUUIDGenerator.getInstance().getUUID();
+                String uuid = IMFUUIDGenerator.getInstance().getUrnUUID();
                 essenceDescriptorBaseType.setId(uuid);
                 uuidList.add(uuid);
 
@@ -237,7 +237,7 @@ final class IMFTrackFileCPLBuilder {
         List<LocaleType> list = this.cplRoot.getLocaleList().getLocale();
         LocaleType localeType = new LocaleType();
         /*Locale Annotation*/
-        localeType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013("Netflix-CustomLocale", "en"));
+        localeType.setAnnotation(CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013("Netflix-CustomLocale", "en"));
         /*Locale Language List*/
         LocaleType.LanguageList languageList = new LocaleType.LanguageList();
         languageList.getLanguage().add("en");
@@ -265,11 +265,11 @@ final class IMFTrackFileCPLBuilder {
         /*Segment Id*/
         List<SegmentType>segments = this.cplRoot.getSegmentList().getSegment();
         SegmentType segmentType = new SegmentType();
-        segmentType.setId(IMFUUIDGenerator.getInstance().getUUID());
+        segmentType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Segment Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
         String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
-        segmentType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013(name, language));
+        segmentType.setAnnotation(CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(name, language));
         /*Sequence List*/
         SegmentType.SequenceList sequenceList = new SegmentType.SequenceList();
         int index = 0;
@@ -294,9 +294,9 @@ final class IMFTrackFileCPLBuilder {
     private SequenceType buildSequenceType(List<String> uuidList, int index) throws IOException {
         SequenceType sequenceType = new SequenceType();
         /*Id*/
-        sequenceType.setId(IMFUUIDGenerator.getInstance().getUUID());
+        sequenceType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Track Id*/
-        String trackId = IMFUUIDGenerator.getInstance().getUUID();
+        String trackId = IMFUUIDGenerator.getInstance().getUrnUUID();
         sequenceType.setTrackId(trackId);
         /*ResourceList*/
         sequenceType.setResourceList(buildTrackResourceList(uuidList, index));
@@ -307,11 +307,11 @@ final class IMFTrackFileCPLBuilder {
         SequenceType.ResourceList resourceList = new SequenceType.ResourceList();
         List<BaseResourceType> baseResourceTypes = resourceList.getResource();
         TrackFileResourceType trackFileResourceType = new TrackFileResourceType();
-        trackFileResourceType.setId(IMFUUIDGenerator.getInstance().getUUID());
+        trackFileResourceType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Resource Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
         String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
-        trackFileResourceType.setAnnotation(IMFDocumentComponents.buildCPLUserTextType_2013(name, language));
+        trackFileResourceType.setAnnotation(CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(name, language));
         /*Edit Rate*/
         trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList());
         /*Intrinsic Duration*/
@@ -327,7 +327,7 @@ final class IMFTrackFileCPLBuilder {
         /*Track File Id*/
         trackFileResourceType.setTrackFileId("urn" + ":" + "uuid" + ":" + this.imfTrackFileReader.getTrackFileId().toString());
         /*Key Id*/
-        trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUUID());
+        trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Hash*/
         trackFileResourceType.setHash(IMFUtils.generateHashAndBase64Encode(this.mxfFile));
 
