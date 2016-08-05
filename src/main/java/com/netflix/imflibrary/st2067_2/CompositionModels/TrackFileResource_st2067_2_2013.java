@@ -39,16 +39,4 @@ public final class TrackFileResource_st2067_2_2013 extends TrackFileResourceType
                                            String sourceEncoding ){
         super(id, trackFileId, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount, sourceEncoding);
     }
-
-    public TrackFileResource_st2067_2_2013(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType  trackFileResource ){
-        super(trackFileResource.getId(),
-                trackFileResource.getTrackFileId(),
-                trackFileResource.getEditRate(),
-                trackFileResource.getIntrinsicDuration(),
-                trackFileResource.getEntryPoint(),
-                trackFileResource.getSourceDuration(),
-                trackFileResource.getRepeatCount(),
-                trackFileResource.getSourceEncoding());
-    }
-
 }

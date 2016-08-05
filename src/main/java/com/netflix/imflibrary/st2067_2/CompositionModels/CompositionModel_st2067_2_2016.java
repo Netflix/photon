@@ -63,11 +63,12 @@ public final class CompositionModel_st2067_2_2016
                     {
                         if( virtualTrackResourceList.get(0) instanceof TrackFileResourceType)
                         {
-                            virtualTrack = new FileVirtualTrack(uuid,
+                            virtualTrack = new EssenceComponentVirtualTrack(uuid,
                                     Composition.SequenceTypeEnum.getSequenceTypeEnum(name),
                                     virtualTrackResourceList);
                         }
-                    }                    virtualTrackMap.put(uuid, virtualTrack);
+                    }
+                    virtualTrackMap.put(uuid, virtualTrack);
                 }
                 else
                 {
@@ -124,7 +125,34 @@ public final class CompositionModel_st2067_2_2016
                     List<BaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
                     for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : sequence.getResourceList().getResource())
                     {
-                        BaseResourceType baseResource = new TrackFileResource_st2067_2_2016((org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType)resource);
+                        BaseResourceType baseResource;
+                        if(resource instanceof  org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType)
+                        {
+
+                            org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource =
+                                    (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType) resource;
+
+                            baseResource = new TrackFileResource_st2067_2_2016(
+                                    trackFileResource.getId(),
+                                    trackFileResource.getTrackFileId(),
+                                    trackFileResource.getEditRate(),
+                                    trackFileResource.getIntrinsicDuration(),
+                                    trackFileResource.getEntryPoint(),
+                                    trackFileResource.getSourceDuration(),
+                                    trackFileResource.getRepeatCount(),
+                                    trackFileResource.getSourceEncoding(),
+                                    trackFileResource.getHashAlgorithm()
+                            );
+                        }
+                        else
+                        {
+                            baseResource = new BaseResourceType(resource.getId(),
+                                    resource.getEditRate(),
+                                    resource.getIntrinsicDuration(),
+                                    resource.getEntryPoint(),
+                                    resource.getSourceDuration(),
+                                    resource.getRepeatCount());
+                        }
                         baseResources.add(baseResource);
                     }
                     IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, baseResources, imfErrorLogger);

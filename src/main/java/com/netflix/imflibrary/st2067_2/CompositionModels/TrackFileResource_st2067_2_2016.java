@@ -46,19 +46,6 @@ public final class TrackFileResource_st2067_2_2016 extends TrackFileResourceType
         this.hashAlgorithm = hashAlgorithm;
     }
 
-    public TrackFileResource_st2067_2_2016(org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType  trackFileResource ){
-        super(trackFileResource.getId(),
-                trackFileResource.getTrackFileId(),
-                trackFileResource.getEditRate(),
-                trackFileResource.getIntrinsicDuration(),
-                trackFileResource.getEntryPoint(),
-                trackFileResource.getSourceDuration(),
-                trackFileResource.getRepeatCount(),
-                trackFileResource.getSourceEncoding());
-        this.hashAlgorithm = trackFileResource.getHashAlgorithm();
-
-    }
-
     /**
      * Getter for the Track Resource's hashAlgorithm
      * @return a DigestMethodType representing the Track Resource's hashAlgorithm
