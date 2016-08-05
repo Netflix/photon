@@ -26,8 +26,7 @@ import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st2067_2.CompositionModels.CompositionModel_st2067_2_2016;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFCoreConstraintsChecker_st2067_2_2016;
+import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
@@ -35,8 +34,6 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.CompositionModels.CompositionModel_st2067_2_2013;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFCoreConstraintsChecker_st2067_2_2013;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -75,7 +72,6 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
@@ -498,7 +494,7 @@ public final class Composition
 
     /**
      * Getter for the virtual track map associated with this Composition
-     * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link Composition.VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
+     * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
      */
     public Map<UUID, ? extends VirtualTrack> getVirtualTrackMap()
     {
@@ -542,7 +538,7 @@ public final class Composition
                 Iterator iterator = this.virtualTrackMap.entrySet().iterator();
                 while (iterator != null
                         && iterator.hasNext()) {
-                    Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+                    VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends VirtualTrack>) iterator.next()).getValue();
                     if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)) {
                         return virtualTrack;
                     }
@@ -563,7 +559,7 @@ public final class Composition
         Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
         while(iterator != null
                 && iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends VirtualTrack>) iterator.next()).getValue();
             if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
                 audioVirtualTracks.add(virtualTrack);
             }
@@ -754,6 +750,8 @@ public final class Composition
         {
             switch (name)
             {
+                case "MarkerSequence":
+                    return MarkerSequence;
                 case "MainImageSequence":
                     return MainImageSequence;
                 case "MainAudioSequence":
@@ -787,159 +785,6 @@ public final class Composition
     }
 
     /**
-     * The class is an immutable implementation of the virtual track concept defined in Section 6.9.3 of st2067-3:2013. A
-     * virtual track is characterized by its UUID, the type of sequence and a list of UUIDs of the
-     * IMF track files that comprise it.
-     */
-    @Immutable
-    public abstract static class VirtualTrack
-    {
-        protected final UUID trackID;
-        protected final SequenceTypeEnum sequenceTypeEnum;
-        protected final List<UUID> resourceIds = new ArrayList<>();
-        protected final List<TrackResource> resources = new ArrayList<>();
-
-        /**
-         * Constructor for a VirtualTrack object
-         * @param trackID the UUID associated with this VirtualTrack object
-         * @param sequenceTypeEnum the type of the associated sequence
-         */
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
-        {
-            this.trackID = trackID;
-            this.sequenceTypeEnum = sequenceTypeEnum;
-        }
-
-        /**
-         * Getter for the sequence type associated with this VirtualTrack object
-         * @return the sequence type associated with this VirtualTrack object as an enum
-         */
-        public SequenceTypeEnum getSequenceTypeEnum()
-        {
-            return this.sequenceTypeEnum;
-        }
-
-        /**
-         * Getter for the UUID associated with this VirtualTrack object
-         * @return the UUID associated with the Virtual track
-         */
-        public UUID getTrackID(){
-            return this.trackID;
-        }
-
-        /**
-         * Getter for the UUIDs of the resources that are a part of this virtual track
-         * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
-         */
-        public List<UUID> getTrackResourceIds(){
-            return Collections.unmodifiableList(this.resourceIds);
-        }
-
-        /**
-         * Getter for the Resources of the Virtual Track
-         * @return an unmodifiable list of resources of the Virtual Track
-         */
-        public List<TrackResource> getTrackResources(){
-            return Collections.unmodifiableList(this.resources);
-        }
-
-        /**
-         * A method to determine the equivalence of any 2 virtual tracks.
-         * @param other - the object to compare against
-         * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
-         */
-        public abstract boolean equivalent(VirtualTrack other);
-    }
-
-    /**
-     * A class that models a VirtualTrack's track resource.
-     */
-    @Immutable
-    public static class TrackResource{
-        protected final String id;
-        protected final String trackFileId;
-        protected final EditRate editRate;
-        protected final BigInteger intrinsicDuration;
-        protected final BigInteger entryPoint;
-        protected final BigInteger sourceDuration;
-        protected final BigInteger repeatCount;
-
-        public TrackResource (String id,
-                              String trackFileId,
-                              List<Long> editRate,
-                              BigInteger intrinsicDuration,
-                              BigInteger entryPoint,
-                              BigInteger sourceDuration,
-                              BigInteger repeatCount){
-            this.id = id;
-            this.trackFileId = trackFileId;
-            this.editRate = new EditRate(editRate);
-            this.intrinsicDuration = intrinsicDuration;
-            this.entryPoint = entryPoint;
-            this.sourceDuration = sourceDuration;
-            this.repeatCount = repeatCount;
-        }
-
-        /**
-         * Getter for the Track's Resource ID
-         * @return a string representing the urn:uuid of the resource
-         */
-        public String getId(){
-            return this.id;
-        }
-
-        /**
-         * Getter for the Track Resource's track file Id
-         * @return a string representing the urn:uuid of the Track Resource's track file Id
-         */
-        public String getTrackFileId(){
-            return this.trackFileId;
-        }
-
-        /**
-         * Getter for the EditRate of the Track's Resource
-         * @return a Composition.EditRate object of the Track's Resource
-         */
-        public EditRate getEditRate(){
-            return this.editRate;
-        }
-
-        /**
-         * Getter for the IntrinsicDuration of the Track's Resource
-         * @return a BigInteger representing the Track Resource's IntrinsicDuration
-         */
-        public BigInteger getIntrinsicDuration(){
-            return this.intrinsicDuration;
-        }
-
-        /**
-         * Getter for the EntryPoint of the Track's Resource
-         * @return a BigInteger representing the Track Resource's EntryPoint
-         */
-        public BigInteger getEntryPoint(){
-            return this.entryPoint;
-        }
-
-        /**
-         * Getter for the SourceDuration of the Track's Resource
-         * @return a BigInteger representing the Track Resource's SourceDuration
-         */
-        public BigInteger getSourceDuration(){
-            return this.sourceDuration;
-        }
-
-        /**
-         * Getter for the RepeatCount of the Track's Resource
-         * @return a BigInteger representing the Track Resource's RepeatCount
-         */
-        public BigInteger getRepeatCount(){
-            return this.repeatCount;
-        }
-    }
-
-
-
-    /**
      * A utility method to retrieve the VirtualTracks within a Composition.
      * @return A list of VirtualTracks in the Composition.
      * @throws IOException - any I/O related error is exposed through an IOException.
@@ -949,14 +794,14 @@ public final class Composition
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public List<? extends Composition.VirtualTrack> getVirtualTracks() throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
+    public List<? extends VirtualTrack> getVirtualTracks() throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, ? extends VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
         return new ArrayList<>(virtualTrackMap.values());
     }
 
     /**
      * A utility method to retrieve the UUIDs of the Track files referenced by a Virtual track within a Composition.
-     * @param virtualTrack - object model of an IMF virtual track {@link Composition.VirtualTrack}
+     * @param virtualTrack - object model of an IMF virtual track {@link VirtualTrack}
      * @return A list of TrackFileResourceType objects corresponding to the virtual track in the Composition.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
@@ -965,42 +810,23 @@ public final class Composition
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull Composition.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
 
         List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
-        switch(coreConstraintsVersion){
-            case "org.smpte_ra.schemas.st2067_2_2013":
+
+        List<BaseResourceType> resourceList = virtualTrack.getResourceList();
+        if (resourceList != null
+                && resourceList.size() > 0 &&
+                virtualTrack.getResourceList().get(0) instanceof TrackFileResourceType)
+        {
+
+            for (BaseResourceType baseResource : resourceList)
             {
-                CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack_st2067_2_2013 = CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013.class.cast(virtualTrack);
-                List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2013.getResourceList();
-                if (resourceList != null
-                        && resourceList.size() > 0)
-                {
-                    for (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResourceType : resourceList)
-                    {
-                        virtualTrackResourceIDs.add(new ResourceIdTuple(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getTrackFileId())
-                                , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
-                    }
-                }
+                TrackFileResourceType trackFileResource= TrackFileResourceType.class.cast(baseResource);
+
+                virtualTrackResourceIDs.add(new ResourceIdTuple(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getTrackFileId())
+                        , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getSourceEncoding())));
             }
-            break;
-            case "org.smpte_ra.schemas.st2067_2_2016":
-            {
-                CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016 virtualTrack_st2067_2_2016 = CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016.class.cast(virtualTrack);
-                List<org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2016.getResourceList();
-                if (resourceList != null
-                        && resourceList.size() > 0)
-                {
-                    for (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResourceType : resourceList)
-                    {
-                        virtualTrackResourceIDs.add(new ResourceIdTuple(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getTrackFileId())
-                                , UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResourceType.getSourceEncoding())));
-                    }
-                }
-            }
-            break;
-            default:
-                throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
         }
 
         return Collections.unmodifiableList(virtualTrackResourceIDs);
@@ -1064,45 +890,23 @@ public final class Composition
         return Collections.unmodifiableMap(essenceDescriptorMap);
     }
 
-    public Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> getAudioVirtualTracksMap() {
+    public Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> getAudioVirtualTracksMap() {
 
-        List<? extends Composition.VirtualTrack> audioVirtualTracks = this.getAudioVirtualTracks();
+        List<? extends VirtualTrack> audioVirtualTracks = this.getAudioVirtualTracks();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = this.getEssenceDescriptorListMap();
-        switch(this.coreConstraintsVersion) {
-            case "org.smpte_ra.schemas.st2067_2_2013":
+        Map<Set<DOMNodeObjectModel>, VirtualTrack> audioVirtualTrackMap = new HashMap<>();
+        for (VirtualTrack audioVirtualTrack : audioVirtualTracks)
+        {
+            Set<DOMNodeObjectModel> set = new HashSet<>();
+            List<BaseResourceType> resources = audioVirtualTrack.getResourceList();
+            for (BaseResourceType resource : resources)
             {
-                Map<Set<DOMNodeObjectModel>, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> audioVirtualTrackMap = new HashMap<>();
-                for (Composition.VirtualTrack audioVirtualTrack : audioVirtualTracks)
-                {
-                    Set<DOMNodeObjectModel> set = new HashSet<>();
-                    CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 audioVirtualTrack_st2067_2_2013 = CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013.class.cast(audioVirtualTrack);
-                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resources = audioVirtualTrack_st2067_2_2013.getResourceList();
-                    for (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType resource : resources)
-                    {
-                        set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
-                    }
-                    audioVirtualTrackMap.put(set, audioVirtualTrack_st2067_2_2013);
-                }
-                return Collections.unmodifiableMap(audioVirtualTrackMap);
+                TrackFileResourceType trackFileResource = TrackFileResourceType.class.cast(resource);
+                set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
             }
-            case "org.smpte_ra.schemas.st2067_2_2016":
-            {
-                Map<Set<DOMNodeObjectModel>, CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016> audioVirtualTrackMap = new HashMap<>();
-                for (Composition.VirtualTrack audioVirtualTrack : audioVirtualTracks)
-                {
-                    Set<DOMNodeObjectModel> set = new HashSet<>();
-                    CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016 audioVirtualTrack_st2067_2_2016 = CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016.class.cast(audioVirtualTrack);
-                    List<org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType> resources = audioVirtualTrack_st2067_2_2016.getResourceList();
-                    for (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType resource : resources)
-                    {
-                        set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
-                    }
-                    audioVirtualTrackMap.put(set, audioVirtualTrack_st2067_2_2016);
-                }
-                return Collections.unmodifiableMap(audioVirtualTrackMap);
-            }            default:
-                throw new IMFException(String.format("Please check the CPL document, currently we only support the following CoreConstraints schema URIs %s", serializeIMFCoreConstaintsSchemasToString(supportedIMFCoreConstraintsSchemas)));
+            audioVirtualTrackMap.put(set, audioVirtualTrack);
         }
+        return Collections.unmodifiableMap(audioVirtualTrackMap);
     }
 
     /**
@@ -1147,9 +951,9 @@ public final class Composition
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public boolean conformVirtualTracksInComposition(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples,
-                                                     IMFErrorLogger imfErrorLogger,
-                                                     boolean conformAllVirtualTracksInCpl)
+    public boolean conformVirtualTrackInComposition(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples,
+                                                    IMFErrorLogger imfErrorLogger,
+                                                    boolean conformAllVirtualTracks)
             throws IOException, IMFException, SAXException, JAXBException, URISyntaxException{
         boolean result = true;
         /*
@@ -1177,7 +981,7 @@ public final class Composition
          * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
          * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
          */
-        if(conformAllVirtualTracksInCpl) {
+        if(conformAllVirtualTracks) {
             while (cplEssenceDescriptorIDs.hasNext()) {
                 UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
                 if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
@@ -1192,7 +996,7 @@ public final class Composition
         }
 
         /*The following check verifies 3) from above.*/
-        result &= conformEssenceDescriptors(this.getResourcesEssenceDescriptorsMap(headerPartitionTuples), this.getEssenceDescriptorListMap(), imfErrorLogger);
+        result &= compareEssenceDescriptors(getResourcesEssenceDescriptorMap(headerPartitionTuples), this.getEssenceDescriptorListMap(), imfErrorLogger);
         return result;
     }
 
@@ -1238,9 +1042,9 @@ public final class Composition
 
 
     private Set<UUID> getResourceEssenceDescriptorIdsSet () throws IOException, SAXException, JAXBException, URISyntaxException{
-        List<Composition.VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
+        List<VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
         LinkedHashSet<UUID> resourceSourceEncodingElementsSet = new LinkedHashSet<>();
-        for(Composition.VirtualTrack virtualTrack : virtualTracks){
+        for(VirtualTrack virtualTrack : virtualTracks){
             List<Composition.ResourceIdTuple> resourceIdTuples = this.getVirtualTrackResourceIDs(virtualTrack);
             for(Composition.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 /*Construct a set of SourceEncodingElements corresponding to every TrackFileResource of this VirtualTrack*/
@@ -1250,7 +1054,7 @@ public final class Composition
         return resourceSourceEncodingElementsSet;
     }
 
-    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
+    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorMap(List<IMPValidator.HeaderPartitionTuple> headerPartitionTuples) throws IOException, SAXException, JAXBException, URISyntaxException{
         Map<UUID, List<DOMNodeObjectModel>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
 
         /*Create a Map of FilePackage UUID which should be equal to the TrackFileId of the resource in the Composition if the asset is referenced and the HeaderPartitionTuple, Map<UUID, HeaderPartitionTuple>*/
@@ -1265,10 +1069,10 @@ public final class Composition
             UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
             resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
         }
-        List<Composition.VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
+        List<VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
 
         /*Go through all the Virtual Tracks in the Composition and construct a map of Resource Source Encoding Element and a list of DOM nodes representing every EssenceDescriptor in the HeaderPartition corresponding to that Resource*/
-        for(Composition.VirtualTrack virtualTrack : virtualTracks){
+        for(VirtualTrack virtualTrack : virtualTracks){
             List<Composition.ResourceIdTuple> resourceIdTuples = this.getVirtualTrackResourceIDs(virtualTrack);/*Retrieve a list of ResourceIDTuples corresponding to this virtual track*/
             for(Composition.ResourceIdTuple resourceIdTuple : resourceIdTuples){
                 IMPValidator.HeaderPartitionTuple headerPartitionTuple = resourceUUIDHeaderPartitionMap.get(resourceIdTuple.getTrackFileId());
@@ -1348,7 +1152,7 @@ public final class Composition
         return byteProvider;
     }
 
-    private boolean conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap, IMFErrorLogger imfErrorLogger){
+    private boolean compareEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap, IMFErrorLogger imfErrorLogger){
 
         /**
          * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
@@ -1375,18 +1179,17 @@ public final class Composition
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
-        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = essenceDescriptorsMap.entrySet().iterator();
-        while(iterator.hasNext()){
-            Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
-            List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
-            DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
-            if(referenceDOMNodeObjectModel == null){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL", entry.getKey().toString()));
+        Iterator<Map.Entry<UUID, DOMNodeObjectModel>> eDLMapIterator = eDLMap.entrySet().iterator();
+        while(eDLMapIterator.hasNext()){
+            Map.Entry<UUID, DOMNodeObjectModel> entry = (Map.Entry<UUID, DOMNodeObjectModel>) eDLMapIterator.next();
+            List<DOMNodeObjectModel> domNodeObjectModels = essenceDescriptorsMap.get(entry.getKey());
+            if(domNodeObjectModels == null){
+                //This implies we did not find a single VirtualTrack that referenced this particular EssenceDescriptor in the EDL
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL is not referenced by a single resource within any of the VirtualTracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", entry.getKey().toString()));
                 return false;
             }
-
+            DOMNodeObjectModel referenceDOMNodeObjectModel = entry.getValue();
             boolean intermediateResult = false;
-
             for(DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels){
                 intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
             }
@@ -1425,7 +1228,7 @@ public final class Composition
             Composition composition = new Composition(inputFile, imfErrorLogger);
             logger.info(composition.toString());
 
-            List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
+            List<? extends VirtualTrack> virtualTracks = composition.getVirtualTracks();
             List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
 
             switch(composition.getCoreConstraintsVersion())
@@ -1448,10 +1251,9 @@ public final class Composition
                     {
                         logger.error("No essence descriptor list was found in CPL");
                     }
-                    for (Composition.VirtualTrack virtualTrack : virtualTracks)
+                    for (VirtualTrack virtualTrack : virtualTracks)
                     {
-                        CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack_st2067_2_2013 = (CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013) virtualTrack;
-                        List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2013.getResourceList();
+                        List<BaseResourceType> resourceList = virtualTrack.getResourceList();
                         if (resourceList.size() == 0)
                         {
                             throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
@@ -1478,10 +1280,9 @@ public final class Composition
                     {
                         logger.error("No essence descriptor list was found in CPL");
                     }
-                    for (Composition.VirtualTrack virtualTrack : virtualTracks)
+                    for (VirtualTrack virtualTrack : virtualTracks)
                     {
-                        CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016 virtualTrack_st2067_2_2016 = (CompositionModel_st2067_2_2016.VirtualTrack_st2067_2_2016) virtualTrack;
-                        List<org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType> resourceList = virtualTrack_st2067_2_2016.getResourceList();
+                        List<BaseResourceType> resourceList = virtualTrack.getResourceList();
                         if (resourceList.size() == 0)
                         {
                             throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
@@ -1506,5 +1307,4 @@ public final class Composition
             }
         }
     }
-
 }
