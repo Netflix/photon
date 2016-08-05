@@ -26,7 +26,7 @@ import java.util.List;
  * A class that models a VirtualTrack's track resource.
  */
 @Immutable
-public abstract class BaseResourceType {
+public class BaseResourceType {
     protected final String id;
     protected final Composition.EditRate editRate;
     protected final BigInteger intrinsicDuration;
