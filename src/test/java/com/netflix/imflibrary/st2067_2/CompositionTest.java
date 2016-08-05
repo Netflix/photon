@@ -25,7 +25,7 @@ public class CompositionTest
 
         UUID uuid = UUID.fromString("586286d2-c45f-4b2f-ad76-58eecd0202b4");
         Assert.assertEquals(composition.getVirtualTrackMap().size(), 2);
-        Composition.VirtualTrack virtualTrack = composition.getVirtualTrackMap().get(uuid);
+        VirtualTrack virtualTrack = composition.getVirtualTrackMap().get(uuid);
         Assert.assertEquals(virtualTrack.getSequenceTypeEnum(), Composition.SequenceTypeEnum.MainImageSequence);
 
         Assert.assertTrue(composition.getAnnotation().length() > 0);

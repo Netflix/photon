@@ -2,10 +2,13 @@ package com.netflix.imflibrary.st2067_2.CompositionModels;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
+<<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
+=======
+>>>>>>> Adding class hierarchy for track resource
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
@@ -34,45 +37,15 @@ public final class CompositionModel_st2067_2_2013 {
      * @param imfErrorLogger - an object for logging errors
      * @return a map containing mappings of a UUID to the corresponding VirtualTrack
      */
-    public static Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> getVirtualTracksMap (@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static Map<UUID, VirtualTrack> getVirtualTracksMap (@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        Map<UUID, CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013> virtualTrackMap = new LinkedHashMap<>();
+        Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
-        Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>>virtualTrackResourceMap =  CompositionModel_st2067_2_2013.getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
+        Map<UUID, List<BaseResourceType>>virtualTrackResourceMap =  CompositionModel_st2067_2_2013.getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
 
         //process first segment to create virtual track map
         org.smpte_ra.schemas.st2067_2_2013.SegmentType segment = compositionPlaylistType.getSegmentList().getSegment().get(0);
         org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
-        sequence = segment.getSequenceList().getMarkerSequence();
-        if (sequence != null)
-        {
-            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-            if (virtualTrackMap.get(uuid) == null)
-            {
-                List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = null;
-                if(virtualTrackResourceMap.get(uuid) == null){
-                    virtualTrackResourceList = new ArrayList<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>();
-                }
-                else{
-                    virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
-                }
-                CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack = new CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013(uuid, Composition.SequenceTypeEnum.MarkerSequence, virtualTrackResourceList);
-                virtualTrackMap.put(uuid, virtualTrack);
-            }
-            else
-            {
-                String message = String.format(
-                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s", uuid);
-                if (imfErrorLogger != null)
-                {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                }
-                else
-                {
-                    throw new IMFException(message);
-                }
-            }
-        }
 
         for (Object object : segment.getSequenceList().getAny())
         {
@@ -88,14 +61,23 @@ public final class CompositionModel_st2067_2_2013 {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 if (virtualTrackMap.get(uuid) == null)
                 {
-                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> virtualTrackResourceList = null;
+                    List<BaseResourceType> virtualTrackResourceList = null;
                     if(virtualTrackResourceMap.get(uuid) == null){
-                        virtualTrackResourceList = new ArrayList<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>();
+                        virtualTrackResourceList = new ArrayList<BaseResourceType>();
                     }
                     else{
                         virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
                     }
-                    CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013 virtualTrack = new CompositionModel_st2067_2_2013.VirtualTrack_st2067_2_2013(uuid, Composition.SequenceTypeEnum.getSequenceTypeEnum(name), virtualTrackResourceList);
+                    VirtualTrack virtualTrack = null;
+                    if(virtualTrackResourceList.size() != 0)
+                    {
+                        if( virtualTrackResourceList.get(0) instanceof TrackFileResourceType)
+                        {
+                            virtualTrack = new FileVirtualTrack(uuid,
+                                    Composition.SequenceTypeEnum.getSequenceTypeEnum(name),
+                                    virtualTrackResourceList);
+                        }
+                    }
                     virtualTrackMap.put(uuid, virtualTrack);
                 }
                 else
@@ -126,9 +108,9 @@ public final class CompositionModel_st2067_2_2013 {
      * @param imfErrorLogger - an object for logging errors
      * @return map of VirtualTrack identifier to the list of all the Track's resources, for every VirtualTrack of the Composition
      */
-    public static Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> getVirtualTrackResourceMap(@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static Map<UUID, List<BaseResourceType>> getVirtualTrackResourceMap(@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        Map<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
+        Map<UUID, List<BaseResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
 
@@ -150,34 +132,35 @@ public final class CompositionModel_st2067_2_2013 {
                      * synchronized wrapping it around a synchronized list collection, although in this case it
                      * is perhaps not required since this method is only invoked from the context of the constructor.
                      */
-                    List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> trackFileResources = Collections.synchronizedList(new LinkedList<>());
+                    List<BaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
                     for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource())
                     {
-                        org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)resource;
-                        trackFileResources.add(trackFileResource);
+                        BaseResourceType baseResource = new TrackFileResource_st2067_2_2013((org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)resource);
+                        baseResources.add(baseResource);
                     }
-                    IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, trackFileResources, imfErrorLogger);
+                    IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, baseResources, imfErrorLogger);
                     if (virtualTrackResourceMap.get(uuid) == null)
                     {
-                        virtualTrackResourceMap.put(uuid, trackFileResources);
+                        virtualTrackResourceMap.put(uuid, baseResources);
                     }
                     else
                     {
-                        virtualTrackResourceMap.get(uuid).addAll(trackFileResources);
+                        virtualTrackResourceMap.get(uuid).addAll(baseResources);
                     }
                 }
             }
         }
 
         //make virtualTrackResourceMap immutable
-        for(Map.Entry<UUID, List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType>> entry : virtualTrackResourceMap.entrySet())
+        for(Map.Entry<UUID, List<BaseResourceType>> entry : virtualTrackResourceMap.entrySet())
         {
-            List<org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType> trackFileResources = entry.getValue();
-            entry.setValue(Collections.unmodifiableList(trackFileResources));
+            List<BaseResourceType> baseResources = entry.getValue();
+            entry.setValue(Collections.unmodifiableList(baseResources));
         }
 
         return virtualTrackResourceMap;
     }
+<<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
 
     /**
      * A class that models a Virtual Track compliant with the 2013 Composition Playlist Schema
@@ -253,4 +236,6 @@ public final class CompositionModel_st2067_2_2013 {
             return  result;
         }
     }
+=======
+>>>>>>> Adding class hierarchy for track resource
 }

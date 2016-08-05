@@ -27,9 +27,13 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.Composition;
+<<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
+=======
+import com.netflix.imflibrary.st2067_2.VirtualTrack;
+>>>>>>> Adding class hierarchy for track resource
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -286,7 +290,7 @@ public class IMPValidatorFunctionalTests {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
-        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
+        List<? extends VirtualTrack> virtualTracks = composition.getVirtualTracks();
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
