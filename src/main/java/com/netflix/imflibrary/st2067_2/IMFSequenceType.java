@@ -26,16 +26,16 @@ import java.util.List;
  * A class that models a Composition's sequence structure.
  */
 @Immutable
-public final class SequenceType {
+public final class IMFSequenceType {
     protected final String id;
     protected final String trackId;
     protected final List<BaseResourceType> resourceList;
     protected final Composition.SequenceTypeEnum type;
 
-    public SequenceType(String id,
-                        String trackId,
-                        Composition.SequenceTypeEnum type,
-                        List<BaseResourceType> resourceList)
+    public IMFSequenceType(String id,
+                           String trackId,
+                           Composition.SequenceTypeEnum type,
+                           List<BaseResourceType> resourceList)
     {
         this.id             = id;
         this.trackId        = trackId;

@@ -9,10 +9,19 @@ import org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType;
 =======
 >>>>>>> Adding class hierarchy for track resource
 
+
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
+<<<<<<< 9aca4e2a05ebbf50e9fccd0eab0930e3432dbd12
 import java.math.BigInteger;
 import java.util.*;
+=======
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+>>>>>>> Core constraint check and EssenceDescriptor unified
 
 /**
  * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2016 CompositionPlaylist specification st2067-3:2016.
@@ -30,12 +39,12 @@ public final class CompositionModel_st2067_2_2016 {
      * @param imfErrorLogger - an object for logging errors
      * @return a map containing mappings of a UUID to the corresponding VirtualTrack
      */
-    public static CompositionPlaylistType getCompositionPlayList (@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        List<SegmentType> segmentList = new ArrayList<SegmentType>();
+        List<IMFSegmentType> segmentList = new ArrayList<IMFSegmentType>();
         for (org.smpte_ra.schemas.st2067_2_2016.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
         {
-            List<SequenceType> sequenceList = new ArrayList<SequenceType>();
+            List<IMFSequenceType> sequenceList = new ArrayList<IMFSequenceType>();
             org.smpte_ra.schemas.st2067_2_2016.SequenceType sequence;
             for (Object object : segment.getSequenceList().getAny())
             {
@@ -65,7 +74,7 @@ public final class CompositionModel_st2067_2_2016 {
                             org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource =
                                     (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType) resource;
 
-                            baseResource = new TrackFileResource_st2067_2_2016(
+                            baseResource = new IMFTrackFileResource_st2067_2_2016(
                                     trackFileResource.getId(),
                                     trackFileResource.getTrackFileId(),
                                     trackFileResource.getEditRate(),
@@ -88,25 +97,39 @@ public final class CompositionModel_st2067_2_2016 {
                         }
                         baseResources.add(baseResource);
                     }
-                    sequenceList.add(new SequenceType(sequence.getId(),
+                    sequenceList.add(new IMFSequenceType(sequence.getId(),
                             sequence.getTrackId(),
                             Composition.SequenceTypeEnum.getSequenceTypeEnum(name),
                             Collections.synchronizedList(baseResources)));
                 }
             }
             sequenceList = Collections.unmodifiableList(sequenceList);
-            segmentList.add(new SegmentType(segment.getId(), Collections.synchronizedList(sequenceList)));
+            segmentList.add(new IMFSegmentType(segment.getId(), Collections.synchronizedList(sequenceList)));
         }
         segmentList = Collections.unmodifiableList(segmentList);
 
-        return new CompositionPlaylistType( compositionPlaylistType.getId(),
+        List<IMFEssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<IMFEssenceDescriptorBaseType>();
+
+        if(compositionPlaylistType.getEssenceDescriptorList() != null &&
+                compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() >= 1)
+        {
+            for (org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType essenceDescriptor : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor()) {
+                essenceDescriptorList.add(new IMFEssenceDescriptorBaseType(essenceDescriptor.getId(),
+                        essenceDescriptor.getAny()));
+            }
+        }
+        essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
+
+
+        return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
                 (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue()),
                 (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue()),
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
-                Collections.synchronizedList(segmentList));
+                Collections.synchronizedList(segmentList),
+                Collections.synchronizedList(essenceDescriptorList));
     }
 <<<<<<< fc9f1eaad7e488b01249e9c4f9e10d08c0da7bf2
 

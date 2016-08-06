@@ -25,12 +25,12 @@ import java.util.List;
  * A class that models a Composition's segment structure.
  */
 @Immutable
-public final class SegmentType {
+public final class IMFSegmentType {
     protected final String id;
-    protected final List<SequenceType> sequenceList;
+    protected final List<IMFSequenceType> sequenceList;
 
-    public SegmentType(String id,
-                       List<SequenceType> sequenceList){
+    public IMFSegmentType(String id,
+                          List<IMFSequenceType> sequenceList){
         this.id = id;
         this.sequenceList = sequenceList;
     }
@@ -47,7 +47,7 @@ public final class SegmentType {
      * Getter for the SequenceList
      * @return a string representing the SequenceList of the segment
      */
-    public List<SequenceType> getSequenceList(){
+    public List<IMFSequenceType> getSequenceList(){
         return this.sequenceList;
     }
 
