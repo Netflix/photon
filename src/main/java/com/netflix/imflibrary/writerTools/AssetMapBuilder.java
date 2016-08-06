@@ -152,7 +152,7 @@ public class AssetMapBuilder {
         }
         assetMapType.setAssetList(assetList);
 
-        File outputFile = new File(this.workingDirectory + "/" + "AssetMap" + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + "AssetMap" + ".xml");
         List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputFile, true);
 
         if(errors.size() > numErrors){

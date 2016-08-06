@@ -390,7 +390,7 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        File outputFile = new File(this.workingDirectory + "/" + "PackingList-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + "PackingList-" + this.uuid.toString() + ".xml");
         boolean formatted = true;
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

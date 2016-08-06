@@ -190,6 +190,7 @@ public final class CompositionModel_st2067_2_2013 {
                 this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getTrackFileId()));
                 this.resources.add(new Composition.TrackResource(resource.getId(),
                         resource.getTrackFileId(),
+                        resource.getSourceEncoding(),
                         resource.getEditRate(),
                         resource.getIntrinsicDuration(),
                         resource.getEntryPoint(),

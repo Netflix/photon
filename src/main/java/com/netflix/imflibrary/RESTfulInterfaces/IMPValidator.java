@@ -447,6 +447,9 @@ public class IMPValidator {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<Long> getEssencePartitionOffsets(PayloadRecord randomIndexPackPayload, Long randomIndexPackSize) throws IOException {
+        if(randomIndexPackPayload.getPayload().length != randomIndexPackSize){
+            throw new IllegalArgumentException(String.format("RandomIndexPackSize passed in is = %d, RandomIndexPack payload size = %d, they should be equal", randomIndexPackSize, randomIndexPackPayload.getPayload().length));
+        }
         RandomIndexPack randomIndexPack = new RandomIndexPack(new ByteArrayDataProvider(randomIndexPackPayload.getPayload()), 0L, randomIndexPackSize);
         return randomIndexPack.getAllPartitionByteOffsets();
     }

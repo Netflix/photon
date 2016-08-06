@@ -796,7 +796,7 @@ public final class Composition
     {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
-        protected final List<UUID> resourceIds = new ArrayList<>();
+        protected final Set<UUID> resourceIds = new HashSet<>();
         protected final List<TrackResource> resources = new ArrayList<>();
 
         /**
@@ -831,8 +831,8 @@ public final class Composition
          * Getter for the UUIDs of the resources that are a part of this virtual track
          * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
          */
-        public List<UUID> getTrackResourceIds(){
-            return Collections.unmodifiableList(this.resourceIds);
+        public Set<UUID> getTrackResourceIds(){
+            return Collections.unmodifiableSet(this.resourceIds);
         }
 
         /**
@@ -858,6 +858,7 @@ public final class Composition
     public static class TrackResource{
         protected final String id;
         protected final String trackFileId;
+        protected final String sourceEncoding;
         protected final EditRate editRate;
         protected final BigInteger intrinsicDuration;
         protected final BigInteger entryPoint;
@@ -866,6 +867,7 @@ public final class Composition
 
         public TrackResource (String id,
                               String trackFileId,
+                              String sourceEncoding,
                               List<Long> editRate,
                               BigInteger intrinsicDuration,
                               BigInteger entryPoint,
@@ -873,6 +875,7 @@ public final class Composition
                               BigInteger repeatCount){
             this.id = id;
             this.trackFileId = trackFileId;
+            this.sourceEncoding = sourceEncoding;
             this.editRate = new EditRate(editRate);
             this.intrinsicDuration = intrinsicDuration;
             this.entryPoint = entryPoint;
@@ -934,6 +937,15 @@ public final class Composition
          */
         public BigInteger getRepeatCount(){
             return this.repeatCount;
+        }
+
+        /**
+         * Getter for the SourceEncoding element of the Track's Resource
+         * @return a String representing the "urn:uuid:" identifying the
+         *          EssenceDescriptor in the EssenceDescriptorList of the CPL
+         */
+        public String getSourceEncoding() {
+            return this.sourceEncoding;
         }
     }
 
