@@ -18,8 +18,6 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.st2067_2.TrackFileResourceType;
-
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
 import java.util.List;
@@ -28,15 +26,15 @@ import java.util.List;
  * A class that models a VirtualTrack's track resource.
  */
 @Immutable
-public final class TrackFileResource_st2067_2_2013 extends TrackFileResourceType {
-    public TrackFileResource_st2067_2_2013(String id,
-                                           String trackFileId,
-                                           List<Long> editRate,
-                                           BigInteger intrinsicDuration,
-                                           BigInteger entryPoint,
-                                           BigInteger sourceDuration,
-                                           BigInteger repeatCount,
-                                           String sourceEncoding ){
+public final class IMFTrackFileResource_st2067_2_2013 extends IMFTrackFileResourceType {
+    public IMFTrackFileResource_st2067_2_2013(String id,
+                                              String trackFileId,
+                                              List<Long> editRate,
+                                              BigInteger intrinsicDuration,
+                                              BigInteger entryPoint,
+                                              BigInteger sourceDuration,
+                                              BigInteger repeatCount,
+                                              String sourceEncoding ){
         super(id, trackFileId, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount, sourceEncoding);
     }
 }

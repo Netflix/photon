@@ -23,12 +23,12 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 import java.util.List;
 import java.util.UUID;
 
-public final class EssenceComponentVirtualTrack extends VirtualTrack {
-    public EssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
-                                        List<BaseResourceType> resourceList){
+public final class IMFEssenceComponentVirtualTrack extends VirtualTrack {
+    public IMFEssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
+                                           List<BaseResourceType> resourceList){
         super(trackID, sequenceTypeEnum);
         for(BaseResourceType resource : resourceList){
-            TrackFileResourceType trackFileResource = TrackFileResourceType.class.cast(resource);
+            IMFTrackFileResourceType trackFileResource = IMFTrackFileResourceType.class.cast(resource);
             this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getTrackFileId()));
             this.resources.add(resource);
         }

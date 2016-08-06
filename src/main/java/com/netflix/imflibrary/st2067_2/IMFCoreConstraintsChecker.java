@@ -1,13 +1,11 @@
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBElement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,15 +16,15 @@ import java.util.UUID;
 /**
  * A class that performs 2013 CoreConstraints st2067-2:2013 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
  */
-public final class IMFCoreConstraintsChecker_st2067_2_2013 {
+public final class IMFCoreConstraintsChecker {
 
 
     //To prevent instantiation
-    private IMFCoreConstraintsChecker_st2067_2_2013(){
+    private IMFCoreConstraintsChecker(){
 
     }
 
-    public static boolean checkVirtualTracks(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
+    public static boolean checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
 
         boolean foundMainImageEssence = false;
         boolean result = true;
@@ -43,7 +41,7 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
 
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
-                Composition.EditRate compositionEditRate = new Composition.EditRate(compositionPlaylistType.getEditRate());
+                Composition.EditRate compositionEditRate = compositionPlaylistType.getEditRate();
                 for (BaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
                     if (trackResourceEditRate != null
@@ -58,21 +56,21 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
 
         if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId()).toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", compositionPlaylistType.getId().toString()));
             result &= false;
         }
         return result;
     }
 
-    public static void checkSegments(CompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
+    public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
-        for (SegmentType segment : compositionPlaylistType.getSegmentList())
+        for (IMFSegmentType segment : compositionPlaylistType.getSegmentList())
         {
             Set<UUID> trackIDs = new HashSet<>();
 
             /* TODO: Add check for Marker sequence */
 
-            for (SequenceType sequence : segment.getSequenceList())
+            for (IMFSequenceType sequence : segment.getSequenceList())
             {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 trackIDs.add(uuid);

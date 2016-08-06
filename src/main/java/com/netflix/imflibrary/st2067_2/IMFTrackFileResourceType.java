@@ -26,18 +26,18 @@ import java.util.List;
  * A class that models a VirtualTrack's track resource.
  */
 @Immutable
-public abstract class TrackFileResourceType extends BaseResourceType {
+public abstract class IMFTrackFileResourceType extends BaseResourceType {
     protected final String trackFileId;
     protected final String sourceEncoding;
 
-    public TrackFileResourceType (String id,
-                                  String trackFileId,
-                                  List<Long> editRate,
-                                  BigInteger intrinsicDuration,
-                                  BigInteger entryPoint,
-                                  BigInteger sourceDuration,
-                                  BigInteger repeatCount,
-                                  String sourceEncoding )
+    public IMFTrackFileResourceType(String id,
+                                    String trackFileId,
+                                    List<Long> editRate,
+                                    BigInteger intrinsicDuration,
+                                    BigInteger entryPoint,
+                                    BigInteger sourceDuration,
+                                    BigInteger repeatCount,
+                                    String sourceEncoding )
     {
         super(id, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount);
         this.trackFileId = trackFileId;
@@ -65,7 +65,7 @@ public abstract class TrackFileResourceType extends BaseResourceType {
      * @param other - the object to compare against
      * @return boolean indicating if the 2 TrackFileResources are equivalent/representing the same timeline
      */
-    public boolean equivalent(TrackFileResourceType other)
+    public boolean equivalent(IMFTrackFileResourceType other)
     {
         if(other == null){
             return false;

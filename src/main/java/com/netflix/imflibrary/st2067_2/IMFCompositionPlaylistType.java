@@ -22,14 +22,13 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * A class that models a Composition's segment structure.
  */
 @Immutable
-public final class CompositionPlaylistType {
+public final class IMFCompositionPlaylistType {
     private final UUID id;
     private final Composition.EditRate editRate;
     private final String annotation;
@@ -37,16 +36,18 @@ public final class CompositionPlaylistType {
     private final String creator;
     private final String contentOriginator;
     private final String contentTitle;
-    protected final List<SegmentType> segmentList;
+    protected final List<IMFSegmentType> segmentList;
+    protected final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
 
-    public CompositionPlaylistType(String id,
+    public IMFCompositionPlaylistType(String id,
                                    List<Long> editRate,
                                    String annotation,
                                    String issuer,
                                    String creator,
                                    String contentOriginator,
                                    String contentTitle,
-                                   List<SegmentType> segmentList)
+                                   List<IMFSegmentType> segmentList,
+                                   List<IMFEssenceDescriptorBaseType> essenceDescriptorList )
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
         this.editRate          = new Composition.EditRate(editRate);
@@ -56,6 +57,7 @@ public final class CompositionPlaylistType {
         this.contentOriginator = contentOriginator;
         this.contentTitle      = contentTitle;
         this.segmentList        = segmentList;
+        this.essenceDescriptorList = essenceDescriptorList;
     }
 
     /**
@@ -118,9 +120,16 @@ public final class CompositionPlaylistType {
      * Getter for the SegmentList
      * @return a string representing the SegmentList of the composition
      */
-    public List<SegmentType> getSegmentList(){
+    public List<IMFSegmentType> getSegmentList(){
         return this.segmentList;
     }
 
+    /**
+     * Getter for the EssenceDescriptorlist
+     * @return a string representing the EssenceDescriptorlist of the composition
+     */
+    public List<IMFEssenceDescriptorBaseType> getEssenceDescriptorList(){
+        return this.essenceDescriptorList;
+    }
 
 }
