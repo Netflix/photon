@@ -30,14 +30,17 @@ public final class SequenceType {
     protected final String id;
     protected final String trackId;
     protected final List<BaseResourceType> resourceList;
+    protected final Composition.SequenceTypeEnum type;
 
     public SequenceType(String id,
                         String trackId,
+                        Composition.SequenceTypeEnum type,
                         List<BaseResourceType> resourceList)
     {
         this.id             = id;
         this.trackId        = trackId;
         this.resourceList   = resourceList;
+        this.type           = type;
     }
 
     /**
@@ -54,6 +57,14 @@ public final class SequenceType {
      */
     public String getTrackId(){
         return this.trackId;
+    }
+
+    /**
+     * Getter for the Sequence type
+     * @return a enum  representing sequence type
+     */
+    public Composition.SequenceTypeEnum getType(){
+        return this.type;
     }
 
     /**

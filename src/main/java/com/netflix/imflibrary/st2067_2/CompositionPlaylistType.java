@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.utils.UUIDHelper;
+
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.UUID;
  */
 @Immutable
 public final class CompositionPlaylistType {
-    private final String id;
+    private final UUID id;
     private final Composition.EditRate editRate;
     private final String annotation;
     private final String issuer;
@@ -46,7 +48,7 @@ public final class CompositionPlaylistType {
                                    String contentTitle,
                                    List<SegmentType> segmentList)
     {
-        this.id                = id;
+        this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
         this.editRate          = new Composition.EditRate(editRate);
         this.annotation        = annotation;
         this.issuer            = issuer;
@@ -60,7 +62,7 @@ public final class CompositionPlaylistType {
      * Getter for the Sequence ID
      * @return a string representing the urn:uuid of the segment
      */
-    public String getId(){
+    public UUID getId(){
         return this.id;
     }
 

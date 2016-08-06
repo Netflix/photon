@@ -16,9 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.st2067_2.TrackFileResourceType;
+import org.smpte_ra.schemas.st2067_2_2016.DigestMethodType;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
@@ -28,15 +28,29 @@ import java.util.List;
  * A class that models a VirtualTrack's track resource.
  */
 @Immutable
-public final class TrackFileResource_st2067_2_2013 extends TrackFileResourceType {
-    public TrackFileResource_st2067_2_2013(String id,
+public final class TrackFileResource_st2067_2_2016 extends TrackFileResourceType {
+    protected final DigestMethodType hashAlgorithm;
+
+    public TrackFileResource_st2067_2_2016(String id,
                                            String trackFileId,
                                            List<Long> editRate,
                                            BigInteger intrinsicDuration,
                                            BigInteger entryPoint,
                                            BigInteger sourceDuration,
                                            BigInteger repeatCount,
-                                           String sourceEncoding ){
+                                           String sourceEncoding,
+                                           DigestMethodType hashAlgorithm )
+    {
         super(id, trackFileId, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount, sourceEncoding);
+        this.hashAlgorithm = hashAlgorithm;
     }
+
+    /**
+     * Getter for the Track Resource's hashAlgorithm
+     * @return a DigestMethodType representing the Track Resource's hashAlgorithm
+     */
+    public DigestMethodType getHashAlgorithm() {
+        return hashAlgorithm;
+    }
+
 }
