@@ -2,9 +2,7 @@ package com.netflix.imflibrary.st2067_2.CompositionModels;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.BaseResourceType;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.VirtualTrack;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.Nonnull;
@@ -66,21 +64,22 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
         return result;
     }
 
-    public static void checkSegments(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
+    public static void checkSegments(CompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
-        for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
+        for (SegmentType segment : compositionPlaylistType.getSegmentList())
         {
             Set<UUID> trackIDs = new HashSet<>();
-            org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
-            sequence = segment.getSequenceList().getMarkerSequence();
-            if (sequence != null)
+
+            /* TODO: Add check for Marker sequence */
+
+            for (SequenceType sequence : segment.getSequenceList())
             {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 trackIDs.add(uuid);
                 if (virtualTrackMap.get(uuid) == null)
                 {
                     String message = String.format(
-                            "A segment in Composition XML file does not contain virtual track UUID %s", uuid.toString());
+                            "A segment in Composition XML file does not contain virtual track UUID %s", uuid);
                     if (imfErrorLogger != null)
                     {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
@@ -88,34 +87,6 @@ public final class IMFCoreConstraintsChecker_st2067_2_2013 {
                     else
                     {
                         throw new IMFException(message);
-                    }
-                }
-            }
-
-            for (Object object : segment.getSequenceList().getAny())
-            {
-                if(!(object instanceof JAXBElement)){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
-                    continue;
-                }
-                JAXBElement jaxbElement = (JAXBElement)(object);
-                sequence = (org.smpte_ra.schemas.st2067_2_2013.SequenceType)(jaxbElement).getValue();
-                if (sequence != null)
-                {
-                    UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                    trackIDs.add(uuid);
-                    if (virtualTrackMap.get(uuid) == null)
-                    {
-                        String message = String.format(
-                                "A segment in Composition XML file does not contain virtual track UUID %s", uuid);
-                        if (imfErrorLogger != null)
-                        {
-                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                        }
-                        else
-                        {
-                            throw new IMFException(message);
-                        }
                     }
                 }
             }

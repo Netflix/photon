@@ -117,14 +117,8 @@ public final class Composition
 
     private final JAXBElement compositionPlaylistTypeJAXBElement;
     private final String coreConstraintsVersion;
-    private final UUID uuid;
-    private final EditRate editRate;
     private final Map<UUID, ? extends VirtualTrack> virtualTrackMap;
-    private final String annotation;
-    private final String issuer;
-    private final String creator;
-    private final String contentOriginator;
-    private final String contentTitle;
+    private final CompositionPlaylistType compositionPlaylist;
 
     /**
      * Constructor for a {@link Composition Composition} object from a XML file
@@ -215,14 +209,8 @@ public final class Composition
                 org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType =
                         (org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
 
-                this.virtualTrackMap = CompositionModel_st2067_2_2013.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
-                this.editRate = new EditRate(compositionPlaylistType.getEditRate());
-                this.annotation = (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue());
-                this.issuer = (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue());
-                this.creator = (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue());
-                this.contentOriginator = (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue());
-                this.contentTitle = (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue());
+                this.compositionPlaylist = CompositionModel_st2067_2_2013.getCompositionPlaylist(compositionPlaylistType, imfErrorLogger);
+                this.virtualTrackMap = getVirtualTracksMap(this.compositionPlaylist, imfErrorLogger);
 
                 IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
 
@@ -238,14 +226,9 @@ public final class Composition
             {
                 org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType = (org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType) this.compositionPlaylistTypeJAXBElement.getValue();
 
-                this.virtualTrackMap = CompositionModel_st2067_2_2016.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-                this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId());
-                this.editRate = new EditRate(compositionPlaylistType.getEditRate());
-                this.annotation = (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue());
-                this.issuer = (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue());
-                this.creator = (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue());
-                this.contentOriginator = (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue());
-                this.contentTitle = (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue());
+                this.compositionPlaylist = CompositionModel_st2067_2_2016.getCompositionPlayList( compositionPlaylistType,  imfErrorLogger);
+                this.virtualTrackMap = getVirtualTracksMap(this.compositionPlaylist, imfErrorLogger);
+
 
                 IMFCoreConstraintsChecker_st2067_2_2016.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
 
@@ -273,6 +256,100 @@ public final class Composition
                 throw new IMFException(String.format("Found %d fatal errors in CompositionPlaylist XML file", numFatalErrors));
             }
         }
+    }
+
+    /**
+     * A stateless method that reads and parses all the virtual tracks of a Composition
+     * @param compositionPlaylistType - a CompositionPlaylist object model
+     * @param imfErrorLogger - an object for logging errors
+     * @return a map containing mappings of a UUID to the corresponding VirtualTrack
+     */
+    public static Map<UUID, VirtualTrack> getVirtualTracksMap (@Nonnull CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
+
+        Map<UUID, List<BaseResourceType>>virtualTrackResourceMap =  getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
+
+        //process first segment to create virtual track map
+        SegmentType segment = compositionPlaylistType.getSegmentList().get(0);
+        for (SequenceType sequence : segment.getSequenceList())
+        {
+            UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
+            if (virtualTrackMap.get(uuid) == null)
+            {
+                List<BaseResourceType> virtualTrackResourceList = null;
+                if(virtualTrackResourceMap.get(uuid) == null){
+                    virtualTrackResourceList = new ArrayList<BaseResourceType>();
+                }
+                else{
+                    virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
+                }
+                VirtualTrack virtualTrack = null;
+                if(virtualTrackResourceList.size() != 0)
+                {
+                    if( virtualTrackResourceList.get(0) instanceof TrackFileResourceType)
+                    {
+                        virtualTrack = new EssenceComponentVirtualTrack(uuid,
+                                sequence.getType(),
+                                virtualTrackResourceList);
+                    }
+                }
+                virtualTrackMap.put(uuid, virtualTrack);
+            }
+            else
+            {
+                String message = String.format(
+                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s", uuid);
+                if (imfErrorLogger != null)
+                {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                }
+                else
+                {
+                    throw new IMFException(message);
+                }
+            }
+        }
+
+        IMFCoreConstraintsChecker_st2067_2_2013.checkSegments(compositionPlaylistType, virtualTrackMap, imfErrorLogger);
+
+        return virtualTrackMap;
+    }
+
+    /**
+     * A stateless method that completely reads and parses the resources of all the VirtualTracks that are a part of the Composition
+     * @param compositionPlaylistType - a CompositionPlaylist object model
+     * @param imfErrorLogger - an object for logging errors
+     * @return map of VirtualTrack identifier to the list of all the Track's resources, for every VirtualTrack of the Composition
+     */
+    public static Map<UUID, List<BaseResourceType>> getVirtualTrackResourceMap(@Nonnull CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        Map<UUID, List<BaseResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
+        for (SegmentType segment : compositionPlaylistType.getSegmentList())
+        {
+            for (SequenceType sequence : segment.getSequenceList())
+            {
+                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
+                IMFCoreConstraintsChecker_st2067_2_2013.checkVirtualTrackResourceList(uuid, sequence.getResourceList(), imfErrorLogger);
+                if (virtualTrackResourceMap.get(uuid) == null)
+                {
+                    virtualTrackResourceMap.put(uuid, sequence.getResourceList());
+                }
+                else
+                {
+                    virtualTrackResourceMap.get(uuid).addAll(sequence.getResourceList());
+                }
+            }
+        }
+
+        //make virtualTrackResourceMap immutable
+        for(Map.Entry<UUID, List<BaseResourceType>> entry : virtualTrackResourceMap.entrySet())
+        {
+            List<BaseResourceType> baseResources = entry.getValue();
+            entry.setValue(Collections.unmodifiableList(baseResources));
+        }
+
+        return virtualTrackResourceMap;
     }
 
     private static final String getIMFCPLSchemaPath(String namespaceVersion){
@@ -400,8 +477,8 @@ public final class Composition
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("======= Composition : %s =======%n", this.uuid));
-        sb.append(this.editRate.toString());
+        sb.append(String.format("======= Composition : %s =======%n", this.compositionPlaylist.getId()));
+        sb.append(this.compositionPlaylist.getEditRate().toString());
         return sb.toString();
     }
 
@@ -444,7 +521,7 @@ public final class Composition
      */
     public EditRate getEditRate()
     {
-        return this.editRate;
+        return this.compositionPlaylist.getEditRate();
     }
 
     /**
@@ -453,7 +530,7 @@ public final class Composition
      */
     public @Nullable String getAnnotation()
     {
-        return this.annotation;
+        return this.compositionPlaylist.getAnnotation();
     }
 
     /**
@@ -462,7 +539,7 @@ public final class Composition
      */
     public @Nullable String getIssuer()
     {
-        return this.issuer;
+        return this.compositionPlaylist.getIssuer();
     }
 
     /**
@@ -471,7 +548,7 @@ public final class Composition
      */
     public @Nullable String getCreator()
     {
-        return this.creator;
+        return this.compositionPlaylist.getCreator();
     }
 
     /**
@@ -480,7 +557,7 @@ public final class Composition
      */
     public @Nullable  String getContentOriginator()
     {
-        return this.contentOriginator;
+        return this.compositionPlaylist.getContentOriginator();
     }
 
     /**
@@ -489,7 +566,7 @@ public final class Composition
      */
     public @Nullable String getContentTitle()
     {
-        return this.contentTitle;
+        return this.compositionPlaylist.getContentTitle();
     }
 
     /**
@@ -507,7 +584,7 @@ public final class Composition
      */
     public UUID getUUID()
     {
-        return this.uuid;
+        return this.compositionPlaylist.getId();
     }
 
     /**
