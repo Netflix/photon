@@ -329,7 +329,7 @@ final class IMFTrackFileCPLBuilder {
         /*Key Id*/
         trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Hash*/
-        trackFileResourceType.setHash(IMFUtils.generateHashAndBase64Encode(this.mxfFile));
+        trackFileResourceType.setHash(IMFUtils.generateSHA1HashAndBase64Encode(this.mxfFile));
 
         /*Add the constructed TrackFileResourceType to the ResourceTypes list*/
         BaseResourceType baseResourceType = (BaseResourceType)trackFileResourceType;

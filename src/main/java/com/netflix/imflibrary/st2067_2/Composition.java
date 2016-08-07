@@ -94,7 +94,8 @@ public final class Composition
 
     private static final String dcmlTypes_schema_path = "org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
-    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}});
+    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");
+                                                                                                                    add("http://www.smpte-ra.org/schemas/2067-3/2016");}});
 
     private static class CoreConstraintsSchemas
     {
@@ -864,6 +865,8 @@ public final class Composition
         protected final BigInteger entryPoint;
         protected final BigInteger sourceDuration;
         protected final BigInteger repeatCount;
+        protected final byte[] hash;
+        protected final String hashAlgorithm;
 
         public TrackResource (String id,
                               String trackFileId,
@@ -872,7 +875,9 @@ public final class Composition
                               BigInteger intrinsicDuration,
                               BigInteger entryPoint,
                               BigInteger sourceDuration,
-                              BigInteger repeatCount){
+                              BigInteger repeatCount,
+                              byte[] hash,
+                              String hashAlgorithm){
             this.id = id;
             this.trackFileId = trackFileId;
             this.sourceEncoding = sourceEncoding;
@@ -881,6 +886,8 @@ public final class Composition
             this.entryPoint = entryPoint;
             this.sourceDuration = sourceDuration;
             this.repeatCount = repeatCount;
+            this.hash = (hash == null) ? null : Arrays.copyOf(hash, hash.length);
+            this.hashAlgorithm = hashAlgorithm;
         }
 
         /**
@@ -946,6 +953,24 @@ public final class Composition
          */
         public String getSourceEncoding() {
             return this.sourceEncoding;
+        }
+
+        /**
+         * Getter for the Hash of this Resource
+         * @return a byte[] copy of the hash
+         */
+        @Nullable
+        public byte[] getHash(){
+            return (this.hash == null) ? null : Arrays.copyOf(this.hash, this.hash.length);
+        }
+
+        /**
+         * Getter for the HashAlgorithm used in creating the hash of this resource
+         * @return a String representing the HashAlgorithm
+         */
+        @Nullable
+        public String getHashAlgorithm(){
+            return this.hashAlgorithm;
         }
     }
 

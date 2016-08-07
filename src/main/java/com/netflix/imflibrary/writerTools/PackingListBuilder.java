@@ -59,6 +59,7 @@ public class PackingListBuilder {
     private final String groupId;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
+    public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
 
     /**
      * A constructor for the PackingListBuilder object
@@ -129,18 +130,38 @@ public class PackingListBuilder {
     }
 
     /**
+     * A method to construct a Default Digest Method Type with a default HashAlgorithm
+     * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
+     */
+    public org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType buildDefaultDigestMethodType(){
+        org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType();
+        digestMethodType.setAlgorithm(PackingListBuilder.defaultHashAlgorithm);
+        return digestMethodType;
+    }
+
+    /**
+     * A method to construct a Digest Method Type with the HashAlgorithm string that was passed in
+     * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
+     */
+    public org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType buildDigestMethodType(String algorithm){
+        org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType();
+        digestMethodType.setAlgorithm(algorithm);
+        return digestMethodType;
+    }
+
+    /**
      * A method to build a PackingList document compliant with the st0429-8:2007 schema
      * @param annotationText a free form human readable text
      * @param issuer a free form human readable text describing the issuer of the PackingList document
      * @param creator a free form human readable text describing the tool used to create the AssetMap document
      * @param assets a list of PackingListBuilder assets roughly modeling the PackingList Asset compliant
      *               with the st0429-8:2007 schema
-     * @return a file containing the PackingList document compliant with the st0429-8:2007 schema
+     * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
      */
-    public File buildPackingList_2007(@Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText,
-                                      @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer,
-                                      @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator,
-                                      @Nonnull List<PackingListBuilderAsset_2007> assets) throws IOException, SAXException, JAXBException {
+    public List<ErrorLogger.ErrorObject> buildPackingList_2007(@Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText,
+                                                               @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer,
+                                                               @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator,
+                                                               @Nonnull List<PackingListBuilderAsset_2007> assets) throws IOException, SAXException, JAXBException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType packingListType = IMFPKLObjectFieldsFactory.constructPackingListType_2007();
@@ -169,7 +190,7 @@ public class PackingListBuilder {
         packingListType.setSignature(null);
 
 
-        File outputFile = new File(this.workingDirectory + "/" + "PackingList-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + "/" + "PKL-" + this.uuid.toString() + ".xml");
         boolean formatted = true;
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -217,7 +238,7 @@ public class PackingListBuilder {
             }
         }
 
-        return outputFile;
+        return this.imfErrorLogger.getErrors();
     }
 
     /**
@@ -355,12 +376,12 @@ public class PackingListBuilder {
      * @param creator a free form human readable text describing the tool used to create the AssetMap document
      * @param assets a list of PackingListBuilder assets roughly modeling the PackingList Asset compliant
      *               with the st0429-8:2007 schema
-     * @return a file containing the PackingList document compliant with the st0429-8:2007 schema
+     * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
      */
-    public File buildPackingList_2016(@Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText,
-                                      @Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText issuer,
-                                      @Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText creator,
-                                      @Nonnull List<PackingListBuilderAsset_2016> assets) throws IOException, SAXException, JAXBException {
+    public List<ErrorLogger.ErrorObject> buildPackingList_2016(@Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText,
+                                                         @Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText issuer,
+                                                         @Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText creator,
+                                                         @Nonnull List<PackingListBuilderAsset_2016> assets) throws IOException, SAXException, JAXBException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         org.smpte_ra.schemas.st2067_2_2016.PKL.PackingListType packingListType = IMFPKLObjectFieldsFactory.constructPackingListType_2016();
@@ -390,7 +411,7 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        File outputFile = new File(this.workingDirectory + File.separator + "PackingList-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + "PKL-" + this.uuid.toString() + ".xml");
         boolean formatted = true;
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -438,7 +459,7 @@ public class PackingListBuilder {
             }
         }
 
-        return outputFile;
+        return imfErrorLogger.getErrors();
     }
 
     /**

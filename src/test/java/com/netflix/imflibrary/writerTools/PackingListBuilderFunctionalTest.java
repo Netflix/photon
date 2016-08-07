@@ -25,10 +25,12 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
+import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -83,11 +85,24 @@ public class PackingListBuilderFunctionalTest {
         org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
         org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
-        File pklOutputFile = new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
+        new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
+
+        if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
+            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
+        }
+
+        File pklOutputFile = null;
+        for(File file : tempDir.listFiles()){
+            if(file.getName().contains("PKL-")){
+                pklOutputFile = file;
+            }
+        }
+        if(pklOutputFile == null){
+            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", tempDir.getAbsolutePath()));
+        }
         Assert.assertTrue(pklOutputFile.length() > 0);
 
         resourceByteRangeProvider = new FileByteRangeProvider(pklOutputFile);
-        imfErrorLogger = new IMFErrorLoggerImpl();
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
         Assert.assertTrue(errors.size() == 0);
 
@@ -136,13 +151,26 @@ public class PackingListBuilderFunctionalTest {
         org.smpte_ra.schemas.st2067_2_2016.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
         org.smpte_ra.schemas.st2067_2_2016.PKL.UserText issuer = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
-        File pklOutputFile = new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2016(annotationText, issuer, creator, packingListBuilderAssets);
+        new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2016(annotationText, issuer, creator, packingListBuilderAssets);
+
+        if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
+            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
+        }
+
+        File pklOutputFile = null;
+        for(File file : tempDir.listFiles()){
+            if(file.getName().contains("PKL-")){
+                pklOutputFile = file;
+            }
+        }
+        if(pklOutputFile == null){
+            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", tempDir.getAbsolutePath()));
+        }
         Assert.assertTrue(pklOutputFile.length() > 0);
 
         resourceByteRangeProvider = new FileByteRangeProvider(pklOutputFile);
-        imfErrorLogger = new IMFErrorLoggerImpl();
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
-        Assert.assertTrue(errors.size() == 0);
+        List<ErrorLogger.ErrorObject> pklValidationErrors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
+        Assert.assertTrue(pklValidationErrors.size() == 0);
 
         //Destroy the temporary working directory
         tempDir.delete();

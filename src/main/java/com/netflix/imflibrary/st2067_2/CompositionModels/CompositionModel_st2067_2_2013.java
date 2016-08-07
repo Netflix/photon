@@ -4,10 +4,12 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -188,14 +190,24 @@ public final class CompositionModel_st2067_2_2013 {
             this.resourceList = Collections.unmodifiableList(resourceList);
             for(org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType resource : this.resourceList){
                 this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(resource.getTrackFileId()));
-                this.resources.add(new Composition.TrackResource(resource.getId(),
+                BigInteger entryPoint = resource.getEntryPoint() == null ? BigInteger.valueOf(0L) : resource.getEntryPoint();
+                BigInteger sourceDuration = resource.getSourceDuration() == null
+                                                        ? BigInteger.valueOf(resource.getIntrinsicDuration().longValue() - entryPoint.longValue())
+                                                        : resource.getSourceDuration();
+                if(sourceDuration.longValue() <= 0
+                        || sourceDuration.longValue() > resource.getIntrinsicDuration().longValue() - entryPoint.longValue() ){
+                    throw new IMFException(String.format("Source duration %d should be in the range (0, IntrinsicDuration(%d) - entryPoint(%d)]", sourceDuration, resource.getIntrinsicDuration(), entryPoint));
+                }
+                        this.resources.add(new Composition.TrackResource(resource.getId(),
                         resource.getTrackFileId(),
                         resource.getSourceEncoding(),
                         resource.getEditRate(),
                         resource.getIntrinsicDuration(),
-                        resource.getEntryPoint(),
-                        resource.getSourceDuration(),
-                        resource.getRepeatCount()));
+                        entryPoint,
+                        sourceDuration,
+                        resource.getRepeatCount() == null ? BigInteger.valueOf(1) : resource.getRepeatCount(),
+                        resource.getHash(),
+                        CompositionPlaylistBuilder_2013.defaultHashAlgorithm));
             }
         }
 

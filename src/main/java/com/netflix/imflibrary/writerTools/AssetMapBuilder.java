@@ -111,12 +111,12 @@ public class AssetMapBuilder {
 
     /**
      * A method to build an AssetMap document
-     * @return a file containing the AssetMap document
+     * @return a list of errors that occurred while generating the AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public File build() throws IOException, SAXException, JAXBException {
+    public List<ErrorLogger.ErrorObject> build() throws IOException, SAXException, JAXBException {
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
 
@@ -152,7 +152,7 @@ public class AssetMapBuilder {
         }
         assetMapType.setAssetList(assetList);
 
-        File outputFile = new File(this.workingDirectory + File.separator + "AssetMap" + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + "AssetMap-" + this.uuid.toString() + ".xml");
         List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputFile, true);
 
         if(errors.size() > numErrors){
@@ -161,7 +161,7 @@ public class AssetMapBuilder {
                 throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building the AssetMap document %s", fatalErrors.toString()));
             }
         }
-        return outputFile;
+        return imfErrorLogger.getErrors();
     }
 
     /**

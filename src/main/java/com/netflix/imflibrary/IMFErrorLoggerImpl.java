@@ -145,6 +145,11 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
             throw new IllegalArgumentException(String.format("rangeStart = %d is < 0", rangeStart));
         }
 
+        if(rangeStart > 0
+                && rangeStart >= this.errorObjects.size()){
+            throw new IllegalArgumentException(String.format("rangeStart = %d is >= number of errors %s", rangeStart, this.getErrors().size()));
+        }
+
         if (rangeStart > rangeEnd)
         {
             throw new IllegalArgumentException(String.format("rangeStart = %d is not <= %d rangeEnd", rangeStart, rangeEnd));

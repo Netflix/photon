@@ -71,6 +71,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,9 +86,13 @@ import java.util.UUID;
 public class CompositionPlaylistBuilder_2013 {
 
     private final UUID uuid;
+    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText;
+    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer;
+    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType creator;
     private final XMLGregorianCalendar issueDate;
-    private final List<Composition.VirtualTrack> virtualTracks;
+    private final List<? extends Composition.VirtualTrack> virtualTracks;
     private final List<Long> compositionEditRate;
+    private final Long totalRunningTime;
     private final Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
@@ -101,23 +106,37 @@ public class CompositionPlaylistBuilder_2013 {
 
     /**
      * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
+     * @param uuid identifying the CompositionPlaylist document
+     * @param annotationText a free form human readable text
+     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
+     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
      * @param virtualTracks a list of VirtualTracks of the Composition
      * @param compositionEditRate the edit rate of the Composition
+     * @param totalRunningTime a long value representing in seconds the total running time of this composition
      * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
      * @param workingDirectory a folder location where the constructed CPL document can be written to
      * @param imfErrorLogger a logger object to record errors that occur during the creation of the CompositionPlaylist document
      */
-    public CompositionPlaylistBuilder_2013(@Nonnull List<Composition.VirtualTrack> virtualTracks,
+    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                            @Nonnull Composition.EditRate compositionEditRate,
+                                           long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                            @Nonnull File workingDirectory,
                                            @Nonnull IMFErrorLogger imfErrorLogger){
-        this.uuid = IMFUUIDGenerator.getInstance().generateUUID();
+        this.uuid = uuid;
+        this.annotationText = annotationText;
+        this.issuer = issuer;
+        this.creator = creator;
         this.issueDate = IMFUtils.createXMLGregorianCalendar();
         this.virtualTracks = Collections.unmodifiableList(virtualTracks);
         List<Long> editRate = new ArrayList<Long>() {{add(compositionEditRate.getNumerator());
             add(compositionEditRate.getDenominator());}};
         this.compositionEditRate = Collections.unmodifiableList(editRate);
+        this.totalRunningTime = totalRunningTime;
         this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = imfErrorLogger;
@@ -130,14 +149,19 @@ public class CompositionPlaylistBuilder_2013 {
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
 
         cplRoot.setId(UUIDHelper.fromUUID(cplUUID));
-        cplRoot.setAnnotation(buildCPLUserTextType_2013("Photon CompositionPlaylistBuilder", "en"));
+        cplRoot.setAnnotation(this.annotationText);
         cplRoot.setIssueDate(IMFUtils.createXMLGregorianCalendar());
-        cplRoot.setIssuer(buildCPLUserTextType_2013("Netflix", "en"));
-        cplRoot.setCreator(buildCPLUserTextType_2013("Photon", "en"));
+        cplRoot.setIssuer(this.issuer);
+        cplRoot.setCreator(this.creator);
         cplRoot.setContentOriginator(null);
-        cplRoot.setContentTitle(null);
+        cplRoot.setContentTitle(buildCPLUserTextType_2013("Not Included", "en"));
         cplRoot.setContentKind(null);
         cplRoot.setContentVersionList(null);
+        cplRoot.setLocaleList(null);
+        cplRoot.setCompositionTimecode(null);
+        cplRoot.setExtensionProperties(null);
+        cplRoot.getEditRate().addAll(this.compositionEditRate);
+        cplRoot.setTotalRunningTime(LocalTime.MIN.plusSeconds(totalRunningTime).toString());
         /**
          * Process each VirtualTrack that is a part of this Composition
          */
@@ -488,7 +512,7 @@ public class CompositionPlaylistBuilder_2013 {
         org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence = new org.smpte_ra.schemas.st2067_2_2013.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
-        sequence.getResourceList().getResource().addAll(resourceList.getResource());
+        sequence.setResourceList(resourceList);
         return new SequenceTypeTuple(sequence, sequenceType);
     }
 
@@ -541,6 +565,7 @@ public class CompositionPlaylistBuilder_2013 {
         org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = new org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType();
         trackFileResource.setId(trackResource.getId());
         trackFileResource.setAnnotation(null);
+        trackFileResource.setTrackFileId(trackResource.getTrackFileId());
         trackFileResource.getEditRate().add(trackResource.getEditRate().getNumerator());
         trackFileResource.getEditRate().add(trackResource.getEditRate().getDenominator());
         trackFileResource.setIntrinsicDuration(trackResource.getIntrinsicDuration());
@@ -548,11 +573,7 @@ public class CompositionPlaylistBuilder_2013 {
         trackFileResource.setSourceDuration(trackResource.getSourceDuration());
         trackFileResource.setRepeatCount(trackResource.getRepeatCount());
         trackFileResource.setSourceEncoding(trackResource.getSourceEncoding());
-        /**
-         * For now we will set the Hash and HashAlgorithm fields to null since they are
-         * optional elements in the 2013 schema
-         */
-        trackFileResource.setHash(null);
+        trackFileResource.setHash(trackResource.getHash());
 
         return trackFileResource;
     }
@@ -564,6 +585,16 @@ public class CompositionPlaylistBuilder_2013 {
     public org.smpte_ra.schemas.st2067_2_2013.DigestMethodType buildDefaultDigestMethodType(){
         org.smpte_ra.schemas.st2067_2_2013.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2013.DigestMethodType();
         digestMethodType.setAlgorithm(CompositionPlaylistBuilder_2013.defaultHashAlgorithm);
+        return digestMethodType;
+    }
+
+    /**
+     * A method to construct a Digest Method Type with the HashAlgorithm string that was passed in
+     * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
+     */
+    public org.smpte_ra.schemas.st2067_2_2013.DigestMethodType buildDigestMethodType(String algorithm){
+        org.smpte_ra.schemas.st2067_2_2013.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2013.DigestMethodType();
+        digestMethodType.setAlgorithm(algorithm);
         return digestMethodType;
     }
 
