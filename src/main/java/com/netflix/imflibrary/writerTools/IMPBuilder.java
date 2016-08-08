@@ -13,6 +13,7 @@ import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,17 +39,16 @@ public class IMPBuilder {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> buildIMP_2013(String annotationText,
-                                                              String issuer,
-                                                              List<? extends Composition.VirtualTrack> virtualTracks,
-                                                              Composition.EditRate compositionEditRate,
-                                                              Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              File workingDirectory)
+    public static List<ErrorLogger.ErrorObject> buildIMP_2013(@Nonnull String annotationText,
+                                                              @Nonnull String issuer,
+                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                              @Nonnull File workingDirectory)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
-        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
@@ -84,19 +84,23 @@ public class IMPBuilder {
                                                                                                                 workingDirectory,
                                                                                                                 imfErrorLogger);
 
-        errors.addAll(compositionPlaylistBuilder_2013.build());
+        compositionPlaylistBuilder_2013.build();
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
         File cplFile = null;
         byte[] cplHash = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("CPL-")){
-                cplFile = file;
-                cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        File[] files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("CPL-")) {
+                    cplFile = file;
+                    cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+                }
             }
         }
+
         if(cplFile == null){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
@@ -137,16 +141,19 @@ public class IMPBuilder {
                                                                         PackingListBuilder.buildPKLUserTextType_2007(entry.getValue().getOriginalFileName(), "en"));
             packingListBuilderAssets.add(asset);
         }
-        errors.addAll(packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets));
+        packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets);
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
         File pklFile = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("PKL-")){
-                pklFile = file;
+        files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("PKL-")) {
+                    pklFile = file;
+                }
             }
         }
         if(pklFile == null){
@@ -160,7 +167,8 @@ public class IMPBuilder {
         List<AssetMapBuilder.Asset> assetMapAssets = new ArrayList<>();
         for(PackingListBuilder.PackingListBuilderAsset_2007 pklAsset : packingListBuilderAssets){
             AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(pklAsset.getOriginalFileName().getValue(), pklAsset.getSize().longValue());
-            List<AssetMapBuilder.Chunk> chunkList = new ArrayList<AssetMapBuilder.Chunk>(){{add(chunk);}};
+            List<AssetMapBuilder.Chunk> chunkList = new ArrayList<>();
+            chunkList.add(chunk);
             AssetMapBuilder.Asset amAsset = new AssetMapBuilder.Asset(UUIDHelper.fromUUIDAsURNStringToUUID(pklAsset.getUUID()),
                                                                         AssetMapBuilder.buildAssetMapUserTextType_2007(pklAsset.getAnnotationText().getValue(), "en"),
                                                                         false,
@@ -168,11 +176,13 @@ public class IMPBuilder {
             assetMapAssets.add(amAsset);
         }
         //Add the PKL as an AssetMap asset
+        List<AssetMapBuilder.Chunk> chunkList = new ArrayList<>();
         AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(pklFile.getName(), pklFile.length());
+        chunkList.add(chunk);
         AssetMapBuilder.Asset amAsset = new AssetMapBuilder.Asset(pklUUID,
                 AssetMapBuilder.buildAssetMapUserTextType_2007(pklAnnotationText.getValue(), "en"),
                 true,
-                new ArrayList<AssetMapBuilder.Chunk>(){{add(chunk);}});
+                chunkList);
         assetMapAssets.add(amAsset);
 
         AssetMapBuilder assetMapBuilder = new AssetMapBuilder(assetMapUUID,
@@ -183,16 +193,19 @@ public class IMPBuilder {
                                                                 assetMapAssets,
                                                                 workingDirectory,
                                                                 imfErrorLogger);
-        errors.addAll(assetMapBuilder.build());
+        assetMapBuilder.build();
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
 
         File assetMapFile = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("AssetMap-")){
-                assetMapFile = file;
+        files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("AssetMap-")) {
+                    assetMapFile = file;
+                }
             }
         }
         if(assetMapFile == null){
@@ -202,16 +215,15 @@ public class IMPBuilder {
         return imfErrorLogger.getErrors();
     }
 
-    public static List<ErrorLogger.ErrorObject> buildIMP_2016(String annotationText,
-                                                              String issuer,
-                                                              List<? extends Composition.VirtualTrack> virtualTracks,
-                                                              Composition.EditRate compositionEditRate,
-                                                              Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              File workingDirectory)
+    public static List<ErrorLogger.ErrorObject> buildIMP_2016(@Nonnull String annotationText,
+                                                              @Nonnull String issuer,
+                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                              @Nonnull File workingDirectory)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
         int numErrors = imfErrorLogger.getNumberOfErrors();
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
 
@@ -248,7 +260,7 @@ public class IMPBuilder {
                 workingDirectory,
                 imfErrorLogger);
 
-        errors.addAll(compositionPlaylistBuilder_2016.build());
+        compositionPlaylistBuilder_2016.build();
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
@@ -256,10 +268,13 @@ public class IMPBuilder {
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
         File cplFile = null;
         byte[] cplHash = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("CPL-")){
-                cplFile = file;
-                cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        File[] files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("CPL-")) {
+                    cplFile = file;
+                    cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+                }
             }
         }
         if(cplFile == null){
@@ -304,16 +319,19 @@ public class IMPBuilder {
                             PackingListBuilder.buildPKLUserTextType_2016(entry.getValue().getOriginalFileName(), "en"));
             packingListBuilderAssets.add(asset);
         }
-        errors.addAll(packingListBuilder.buildPackingList_2016(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets));
+        packingListBuilder.buildPackingList_2016(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets);
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
         File pklFile = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("PKL-")){
-                pklFile = file;
+        files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("PKL-")) {
+                    pklFile = file;
+                }
             }
         }
         if(pklFile == null){
@@ -327,7 +345,8 @@ public class IMPBuilder {
         List<AssetMapBuilder.Asset> assetMapAssets = new ArrayList<>();
         for(PackingListBuilder.PackingListBuilderAsset_2016 pklAsset : packingListBuilderAssets){
             AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(pklAsset.getOriginalFileName().getValue(), pklAsset.getSize().longValue());
-            List<AssetMapBuilder.Chunk> chunkList = new ArrayList<AssetMapBuilder.Chunk>(){{add(chunk);}};
+            List<AssetMapBuilder.Chunk> chunkList = new ArrayList<>();
+            chunkList.add(chunk);
             AssetMapBuilder.Asset amAsset = new AssetMapBuilder.Asset(UUIDHelper.fromUUIDAsURNStringToUUID(pklAsset.getUUID()),
                     AssetMapBuilder.buildAssetMapUserTextType_2007(pklAsset.getAnnotationText().getValue(), "en"),
                     false,
@@ -335,11 +354,13 @@ public class IMPBuilder {
             assetMapAssets.add(amAsset);
         }
         //Add the PKL as an AssetMap asset
+        List<AssetMapBuilder.Chunk> chunkList = new ArrayList<>();
         AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(pklFile.getName(), pklFile.length());
+        chunkList.add(chunk);
         AssetMapBuilder.Asset amAsset = new AssetMapBuilder.Asset(pklUUID,
                 AssetMapBuilder.buildAssetMapUserTextType_2007(pklAnnotationText.getValue(), "en"),
                 true,
-                new ArrayList<AssetMapBuilder.Chunk>(){{add(chunk);}});
+                chunkList);
         assetMapAssets.add(amAsset);
 
         AssetMapBuilder assetMapBuilder = new AssetMapBuilder(assetMapUUID,
@@ -350,16 +371,19 @@ public class IMPBuilder {
                 assetMapAssets,
                 workingDirectory,
                 imfErrorLogger);
-        errors.addAll(assetMapBuilder.build());
+        assetMapBuilder.build();
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
 
         File assetMapFile = null;
-        for(File file : workingDirectory.listFiles()){
-            if(file.getName().contains("AssetMap-")){
-                assetMapFile = file;
+        files = workingDirectory.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.getName().contains("AssetMap-")) {
+                    assetMapFile = file;
+                }
             }
         }
         if(assetMapFile == null){

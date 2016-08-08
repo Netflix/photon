@@ -470,7 +470,7 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     /**
-     * A method to constrct a SegmentList conforming to the 2016 schema
+     * A method to construct a SegmentList conforming to the 2016 schema
      * @param segments a list of Segments conforming to the 2016 schema
      * @return a SegmentList conforming to the 2016 schema
      */

@@ -484,7 +484,7 @@ public class CompositionPlaylistBuilder_2013 {
     }
 
     /**
-     * A method to constrct a SegmentList conforming to the 2013 schema
+     * A method to construct a SegmentList conforming to the 2013 schema
      * @param segments a list of Segments conforming to the 2013 schema
      * @return a SegmentList conforming to the 2013 schema
      */
