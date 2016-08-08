@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ public class DOMNodeObjectModel {
     /*List of child ElementDOMNodes*/
     private final List<DOMNodeObjectModel> childrenDOMNodes = new ArrayList<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
-    private final Map<String, List<String>> fields = new LinkedHashMap<>();
+    private final Map<String, List<String>> fields = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
 
     /**

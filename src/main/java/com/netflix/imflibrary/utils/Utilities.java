@@ -23,7 +23,7 @@ public final class Utilities {
         Iterator iterator = collection.iterator();
         while(iterator.hasNext()){
             stringBuilder.append(iterator.next());
-            stringBuilder.append("%n");
+            stringBuilder.append(String.format("%n"));
         }
         return stringBuilder.toString();
     }
