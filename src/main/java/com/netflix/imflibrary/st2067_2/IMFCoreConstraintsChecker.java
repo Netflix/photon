@@ -24,13 +24,13 @@ public final class IMFCoreConstraintsChecker {
 
     }
 
-    public static boolean checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
+    public static boolean checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
 
         boolean foundMainImageEssence = false;
         boolean result = true;
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
-            VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends VirtualTrack>) iterator.next()).getValue();
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
 
             List<BaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             result &= checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList, imfErrorLogger);
@@ -62,7 +62,7 @@ public final class IMFCoreConstraintsChecker {
         return result;
     }
 
-    public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
+    public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, Composition.VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
         for (IMFSegmentType segment : compositionPlaylistType.getSegmentList())
         {

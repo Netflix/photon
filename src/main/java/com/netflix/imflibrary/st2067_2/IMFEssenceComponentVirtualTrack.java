@@ -23,7 +23,7 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 import java.util.List;
 import java.util.UUID;
 
-public final class IMFEssenceComponentVirtualTrack extends VirtualTrack {
+public final class IMFEssenceComponentVirtualTrack extends Composition.VirtualTrack {
     public IMFEssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
                                            List<BaseResourceType> resourceList){
         super(trackID, sequenceTypeEnum);

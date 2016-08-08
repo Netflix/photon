@@ -853,25 +853,41 @@ public final class Composition
     }
 
     /**
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
 <<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
+=======
+>>>>>>> Making VirtualTrack inner class
      * The class is an immutable implementation of the virtual track concept defined in Section 6.9.3 of st2067-3:2013. A
      * virtual track is characterized by its UUID, the type of sequence and a list of UUIDs of the
      * IMF track files that comprise it.
      */
     @Immutable
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
     public abstract static class VirtualTrack
     {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
         protected final Set<UUID> resourceIds = new HashSet<>();
         protected final List<TrackResource> resources = new ArrayList<>();
+=======
+    static public abstract class VirtualTrack
+    {
+        protected final UUID trackID;
+        protected final Composition.SequenceTypeEnum sequenceTypeEnum;
+        protected final List<UUID> resourceIds = new ArrayList<>();
+        protected final List<BaseResourceType> resources = new ArrayList<>();
+>>>>>>> Making VirtualTrack inner class
 
         /**
          * Constructor for a VirtualTrack object
          * @param trackID the UUID associated with this VirtualTrack object
          * @param sequenceTypeEnum the type of the associated sequence
          */
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
+=======
+        public VirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum)
+>>>>>>> Making VirtualTrack inner class
         {
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
@@ -881,7 +897,11 @@ public final class Composition
          * Getter for the sequence type associated with this VirtualTrack object
          * @return the sequence type associated with this VirtualTrack object as an enum
          */
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public SequenceTypeEnum getSequenceTypeEnum()
+=======
+        public Composition.SequenceTypeEnum getSequenceTypeEnum()
+>>>>>>> Making VirtualTrack inner class
         {
             return this.sequenceTypeEnum;
         }
@@ -898,15 +918,24 @@ public final class Composition
          * Getter for the UUIDs of the resources that are a part of this virtual track
          * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
          */
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public Set<UUID> getTrackResourceIds(){
             return Collections.unmodifiableSet(this.resourceIds);
+=======
+        public List<UUID> getTrackResourceIds(){
+            return Collections.unmodifiableList(this.resourceIds);
+>>>>>>> Making VirtualTrack inner class
         }
 
         /**
          * Getter for the Resources of the Virtual Track
          * @return an unmodifiable list of resources of the Virtual Track
          */
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public List<TrackResource> getTrackResources(){
+=======
+        public List<BaseResourceType> getResourceList(){
+>>>>>>> Making VirtualTrack inner class
             return Collections.unmodifiableList(this.resources);
         }
 
@@ -915,6 +944,7 @@ public final class Composition
          * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
          */
+<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public abstract boolean equivalent(VirtualTrack other);
     }
 
@@ -1045,6 +1075,29 @@ public final class Composition
     /**
 =======
 >>>>>>> Adding class hierarchy for track resource
+=======
+        public boolean equivalent(com.netflix.imflibrary.st2067_2.Composition.VirtualTrack other)
+        {
+            if(other == null){
+                return false;
+            }
+            boolean result = true;
+            List<BaseResourceType> otherResourceList = other.resources;
+            if(otherResourceList.size() != resources.size()){
+                return false;
+            }
+            for(int i=0; i< resources.size(); i++){
+                BaseResourceType thisResource = this.resources.get(i);
+                BaseResourceType otherResource = otherResourceList.get(i);
+
+                result &= thisResource.equivalent(otherResource);
+            }
+            return  result;
+        }
+    }
+
+    /**
+>>>>>>> Making VirtualTrack inner class
      * A utility method to retrieve the VirtualTracks within a Composition.
      * @return A list of VirtualTracks in the Composition.
      * @throws IOException - any I/O related error is exposed through an IOException.
