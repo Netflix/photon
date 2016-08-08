@@ -992,9 +992,6 @@ function visit(node n)
         if(this.hasWaveAudioEssenceDescriptor()){
             essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
         }
-        else{
-            essenceTypes.add(EssenceTypeEnum.UnknownEssence);
-        }
         return essenceTypes;
     }
 
