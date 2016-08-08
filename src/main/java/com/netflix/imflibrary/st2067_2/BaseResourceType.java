@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2016 Netflix, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
- * A class that models a VirtualTrack's track resource.
+ * A class that models an IMF Base Resource.
  */
 @Immutable
 public class BaseResourceType {
@@ -49,48 +49,48 @@ public class BaseResourceType {
     }
 
     /**
-     * Getter for the Track's Resource ID
-     * @return a string representing the urn:uuid of the resource
+     * Getter for the Resource ID
+     * @return a string representing the urn:uuid of the Resource
      */
     public String getId(){
         return this.id;
     }
 
     /**
-     * Getter for the EditRate of the Track's Resource
-     * @return a Composition.EditRate object of the Track's Resource
+     * Getter for the EditRate of the Resource
+     * @return a Composition.EditRate object of the Resource
      */
     public Composition.EditRate getEditRate(){
         return this.editRate;
     }
 
     /**
-     * Getter for the IntrinsicDuration of the Track's Resource
-     * @return a BigInteger representing the Track Resource's IntrinsicDuration
+     * Getter for the IntrinsicDuration of the Resource
+     * @return a BigInteger representing the Resource's IntrinsicDuration
      */
     public BigInteger getIntrinsicDuration(){
         return this.intrinsicDuration;
     }
 
     /**
-     * Getter for the EntryPoint of the Track's Resource
-     * @return a BigInteger representing the Track Resource's EntryPoint
+     * Getter for the EntryPoint of the Resource
+     * @return a BigInteger representing the Resource's EntryPoint
      */
     public BigInteger getEntryPoint(){
         return this.entryPoint;
     }
 
     /**
-     * Getter for the SourceDuration of the Track's Resource
-     * @return a BigInteger representing the Track Resource's SourceDuration
+     * Getter for the SourceDuration of the Resource
+     * @return a BigInteger representing the Resource's SourceDuration
      */
     public BigInteger getSourceDuration(){
         return this.sourceDuration;
     }
 
     /**
-     * Getter for the RepeatCount of the Track's Resource
-     * @return a BigInteger representing the Track Resource's RepeatCount
+     * Getter for the RepeatCount of the Resource
+     * @return a BigInteger representing the Resource's RepeatCount
      */
     public BigInteger getRepeatCount(){
         return this.repeatCount;
@@ -98,9 +98,9 @@ public class BaseResourceType {
 
 
     /**
-     * A method to determine the equivalence of any 2 BaseResource.
+     * A method to determine the equivalence of any two Base Resource.
      * @param other - the object to compare against
-     * @return boolean indicating if the 2 BaseResources are equivalent/representing the same timeline
+     * @return boolean indicating if the two Base Resources are equivalent/representing the same timeline
      */
     public boolean equivalent(BaseResourceType other)
     {

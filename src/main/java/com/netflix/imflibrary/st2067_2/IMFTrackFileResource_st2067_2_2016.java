@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2016 Netflix, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
- * A class that models a VirtualTrack's track resource.
+ * A class that models TrackFile Resource structure of a 2016 IMF Composition Playlist.
  */
 @Immutable
 public final class IMFTrackFileResource_st2067_2_2016 extends IMFTrackFileResourceType {

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2016 Netflix, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,9 +20,14 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.utils.UUIDHelper;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A class that represents Essence Virtual Track. All the resources in this track are of type TrackFileResourceType.
+ */
+@Immutable
 public final class IMFEssenceComponentVirtualTrack extends Composition.VirtualTrack {
     public IMFEssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
                                            List<BaseResourceType> resourceList){
