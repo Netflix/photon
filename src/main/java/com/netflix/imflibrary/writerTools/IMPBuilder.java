@@ -39,6 +39,23 @@ public class IMPBuilder {
 
     }
 
+    /**
+     * A method to generate the AssetMap, PackingList and CompositionPlaylist documents conforming to the
+     * st0429-9:2007, st0429-8:2007 and st2067-2/3:2013 schemas respectively
+     * @param annotationText a human readable text that will be used to annotate the corresponding elements of the XML documents
+     * @param issuer a human readable text indicating the issuer of the XML documents
+     * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
+     * @param compositionEditRate the EditRate of the composition
+     * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
+     * @param workingDirectory a folder location for the generated documents
+     * @return
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws ParserConfigurationException@throws ParserConfigurationException if a DocumentBuilder
+     *   cannot be created which satisfies the configuration requested by the underlying builder implementation
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
     public static List<ErrorLogger.ErrorObject> buildIMP_2013(@Nonnull String annotationText,
                                                               @Nonnull String issuer,
                                                               @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
@@ -215,6 +232,23 @@ public class IMPBuilder {
         return imfErrorLogger.getErrors();
     }
 
+    /**
+     * A method to generate the AssetMap, PackingList and CompositionPlaylist documents conforming to the
+     * st0429-9:2007, st2067-2:2016 and st2067-2/3:2016 schemas respectively
+     * @param annotationText a human readable text that will be used to annotate the corresponding elements of the XML documents
+     * @param issuer a human readable text indicating the issuer of the XML documents
+     * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
+     * @param compositionEditRate the EditRate of the composition
+     * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
+     * @param workingDirectory a folder location for the generated documents
+     * @return
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws ParserConfigurationException@throws ParserConfigurationException if a DocumentBuilder
+     *   cannot be created which satisfies the configuration requested by the underlying builder implementation
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
     public static List<ErrorLogger.ErrorObject> buildIMP_2016(@Nonnull String annotationText,
                                                               @Nonnull String issuer,
                                                               @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,

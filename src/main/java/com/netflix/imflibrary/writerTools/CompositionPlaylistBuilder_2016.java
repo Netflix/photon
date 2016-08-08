@@ -124,6 +124,15 @@ public class CompositionPlaylistBuilder_2016 {
         this.imfErrorLogger = imfErrorLogger;
     }
 
+    /**
+     * A method to build a CompositionPlaylist document conforming to the st2067-2/3:2016 schema
+     * @return a list of errors resulting during the creation of the CPL document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     * @throws ParserConfigurationException if a DocumentBuilder
+     *   cannot be created which satisfies the configuration requested
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     */
     public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException, SAXException, JAXBException {
         org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2016();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -184,6 +193,18 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     private List<EssenceDescriptorBaseType> buildEDLForVirtualTrack (Composition.VirtualTrack virtualTrack) throws IOException, ParserConfigurationException{
+
+        Map<UUID, UUID> trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
+        for(Composition.TrackResource trackResource : virtualTrack.getTrackResources()){
+            UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
+            if(sourceEncoding != null
+                    && !sourceEncoding.equals(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()))){
+                throw new IMFAuthoringException(String.format("Error occurred while trying to build the EssenceDescriptorList for the CPL document. It seems like VirtualTrackId %s, has 2 resources with the same TrackFileId %s but different SourceEncodingElement %s and %s values. This is ambiguous and invalid.", virtualTrack.getTrackID(), trackResource.getTrackFileId(), trackResource.getSourceEncoding(), sourceEncoding));
+            }
+            else{
+                trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
+            }
+        }
         List<org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         Set<UUID> trackResourceIds = virtualTrack.getTrackResourceIds();
         /**
@@ -221,7 +242,7 @@ public class CompositionPlaylistBuilder_2016 {
 
                 DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(regXMLLibHelper, document, essenceDescriptorHeader, subDescriptorHeaders,resourceByteRangeProvider);
                 Node node = documentFragment.getFirstChild();
-                UUID essenceDescriptorId = IMFUUIDGenerator.getInstance().generateUUID();
+                UUID essenceDescriptorId = trackResourceSourceEncodingMap.get(uuid);
                 org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType essenceDescriptorBaseType = buildEssenceDescriptorBaseType(essenceDescriptorId, node);
                 essenceDescriptorList.add(essenceDescriptorBaseType);
             }
