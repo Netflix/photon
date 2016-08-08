@@ -89,7 +89,7 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class SoundFieldGroupLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
     {
-        @MXFProperty(size=0, charset="UTF-16") protected final String group_of_soundfield_groups_linkID = null;
+        //@MXFProperty(size=0, charset="UTF-16") protected final String group_of_soundfield_groups_linkID = null;
         /**
          * Instantiates a new parsed SoundFieldGroupLabelSubDescriptor object by virtue of parsing the MXF file bitstream
          *
