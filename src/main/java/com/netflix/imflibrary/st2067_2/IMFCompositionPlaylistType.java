@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2016 Netflix, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A class that models a Composition's segment structure.
+ * A class that models an IMF Composition Playlist structure.
  */
 @Immutable
 public final class IMFCompositionPlaylistType {
@@ -61,72 +61,72 @@ public final class IMFCompositionPlaylistType {
     }
 
     /**
-     * Getter for the Sequence ID
-     * @return a string representing the urn:uuid of the segment
+     * Getter for the Composition Playlist ID
+     * @return a string representing the urn:uuid of the Composition Playlist
      */
     public UUID getId(){
         return this.id;
     }
 
     /**
-     * Getter for the EditRate of the Composition
-     * @return a Composition.EditRate object of the Composition
+     * Getter for the EditRate of the Composition Playlist
+     * @return a Composition.EditRate object of the Composition Playlist
      */
     public Composition.EditRate getEditRate(){
         return this.editRate;
     }
 
     /**
-     * Getter for the Composition annotation
-     * @return a string representing annotation of the Composition
+     * Getter for the Composition Playlist annotation
+     * @return a string representing annotation of the Composition Playlist
      */
     public String getAnnotation(){
         return this.annotation;
     }
 
     /**
-     * Getter for the Composition issuer
-     * @return a string representing issuer of the Composition
+     * Getter for the Composition Playlist issuer
+     * @return a string representing issuer of the Composition Playlist
      */
     public String getIssuer(){
         return this.issuer;
     }
 
     /**
-     * Getter for the Composition creator
-     * @return a string representing creator of the Composition
+     * Getter for the Composition Playlist creator
+     * @return a string representing creator of the Composition Playlist
      */
     public String getCreator(){
         return this.creator;
     }
 
     /**
-     * Getter for the Composition contentOriginator
-     * @return a string representing contentOriginator of the Composition
+     * Getter for the Composition Playlist contentOriginator
+     * @return a string representing contentOriginator of the Composition Playlist
      */
     public String getContentOriginator(){
         return this.contentOriginator;
     }
 
     /**
-     * Getter for the Composition contentTitle
-     * @return a string representing contentTitle of the Composition
+     * Getter for the Composition Playlist contentTitle
+     * @return a string representing contentTitle of the Composition Playlist
      */
     public String getContentTitle(){
         return this.contentTitle;
     }
 
     /**
-     * Getter for the SegmentList
-     * @return a string representing the SegmentList of the composition
+     * Getter for the SegmentList of the Composition Playlist
+     * @return a string representing the SegmentList of the Composition Playlist
      */
     public List<IMFSegmentType> getSegmentList(){
         return this.segmentList;
     }
 
     /**
-     * Getter for the EssenceDescriptorlist
-     * @return a string representing the EssenceDescriptorlist of the composition
+     * Getter for the EssenceDescriptorlist of the Composition Playlist
+     * @return a string representing the EssenceDescriptorlist of the Composition Playlist
      */
     public List<IMFEssenceDescriptorBaseType> getEssenceDescriptorList(){
         return this.essenceDescriptorList;
