@@ -54,6 +54,7 @@ public final class IMFConstraints
      *
      * @param headerPartitionOP1A the OP1A-conformant header partition
      * @return the same header partition wrapped in a HeaderPartitionIMF object
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
     {

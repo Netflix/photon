@@ -238,6 +238,7 @@ public class AssetMapBuilder {
          * A constructor of the AssetMapBuilder's Chunk class.
          * @param path a URI compliant with the following RegEx : "^[a-zA-Z0-9._-]+"
          * @param length in bytes of the chunk of the asset
+         * @throws URISyntaxException - any errors with the path of the Chunk is exposed through a URISyntaxException
          */
         public Chunk(String path, Long length) throws URISyntaxException {
             if(path.matches("^[a-zA-Z0-9._-]+") == true) {

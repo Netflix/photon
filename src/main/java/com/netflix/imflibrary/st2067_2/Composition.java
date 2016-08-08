@@ -1177,6 +1177,7 @@ public final class Composition
      * resources referenced by the Composition.
      * @param headerPartitionTuples list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
      * @param imfErrorLogger an error logging object
+     * @param conformAllVirtualTracksInCpl a boolean that turns on/off conforming all the VirtualTracks in the Composition
      * @return boolean to indicate of the Composition is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException

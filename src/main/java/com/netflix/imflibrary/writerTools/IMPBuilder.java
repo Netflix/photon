@@ -48,9 +48,9 @@ public class IMPBuilder {
      * @param compositionEditRate the EditRate of the composition
      * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
      * @param workingDirectory a folder location for the generated documents
-     * @return
+     * @return a list of errors that occurred while building an IMP
      * @throws IOException - any I/O related error will be exposed through an IOException
-     * @throws ParserConfigurationException@throws ParserConfigurationException if a DocumentBuilder
+     * @throws ParserConfigurationException if a DocumentBuilder
      *   cannot be created which satisfies the configuration requested by the underlying builder implementation
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
@@ -241,9 +241,9 @@ public class IMPBuilder {
      * @param compositionEditRate the EditRate of the composition
      * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
      * @param workingDirectory a folder location for the generated documents
-     * @return
+     * @return a list of errors that occurred while building an IMP
      * @throws IOException - any I/O related error will be exposed through an IOException
-     * @throws ParserConfigurationException@throws ParserConfigurationException if a DocumentBuilder
+     * @throws ParserConfigurationException if a DocumentBuilder
      *   cannot be created which satisfies the configuration requested by the underlying builder implementation
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException

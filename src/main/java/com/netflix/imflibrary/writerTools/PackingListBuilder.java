@@ -141,6 +141,7 @@ public class PackingListBuilder {
 
     /**
      * A method to construct a Digest Method Type with the HashAlgorithm string that was passed in
+     * @param algorithm a String representing the algorithm used for generating the Hash
      * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
      */
     public org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType buildDigestMethodType(String algorithm){
@@ -157,6 +158,9 @@ public class PackingListBuilder {
      * @param assets a list of PackingListBuilder assets roughly modeling the PackingList Asset compliant
      *               with the st0429-8:2007 schema
      * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> buildPackingList_2007(@Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText,
                                                                @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer,
@@ -377,6 +381,9 @@ public class PackingListBuilder {
      * @param assets a list of PackingListBuilder assets roughly modeling the PackingList Asset compliant
      *               with the st0429-8:2007 schema
      * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> buildPackingList_2016(@Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText,
                                                          @Nonnull org.smpte_ra.schemas.st2067_2_2016.PKL.UserText issuer,
@@ -479,6 +486,7 @@ public class PackingListBuilder {
          * @param uuid that uniquely identifies this asset in the Packing List
          * @param annotationText a free form human readable text
          * @param hash a byte[] containing the Base64 encoded SHA-1 hash of this PackingList Asset
+         * @param hashAlgorithm a String representing the algorithm used to generate the Hash
          * @param size of the asset in bytes
          * @param assetType could be either text/xml or application/mxf as defined in st0429-8:2007
          * @param originalFileName a free form human readable text that contains the name of the file

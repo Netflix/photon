@@ -612,6 +612,7 @@ public class CompositionPlaylistBuilder_2013 {
 
     /**
      * A method to construct a Digest Method Type with the HashAlgorithm string that was passed in
+     * @param algorithm a String representing the alogrithm used for generating the Hash
      * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
      */
     public org.smpte_ra.schemas.st2067_2_2013.DigestMethodType buildDigestMethodType(String algorithm){
