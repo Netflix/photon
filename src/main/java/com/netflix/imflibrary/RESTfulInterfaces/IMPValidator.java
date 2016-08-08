@@ -9,12 +9,12 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -321,7 +321,7 @@ public class IMPValidator {
         return conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads, true);
     }
 
-    private static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord, List<PayloadRecord> essencesHeaderPartitionPayloads, boolean conformAllVirtualTracks) throws IOException {
+    private static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord, List<PayloadRecord> essencesHeaderPartitionPayloads, boolean conformAllVirtualTracksInCpl) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
@@ -345,7 +345,7 @@ public class IMPValidator {
                         imfErrorLogger),
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-            if(!composition.conformVirtualTrackInComposition(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger, conformAllVirtualTracks)){
+            if(!composition.conformVirtualTracksInComposition(Collections.unmodifiableList(headerPartitionTuples), imfErrorLogger, conformAllVirtualTracksInCpl)){
                 return imfErrorLogger.getErrors();
             }
         }
@@ -573,7 +573,7 @@ public class IMPValidator {
             }
         }
         if(unreferencedTrackFileIDsSet.size() > 0){
-            throw new IMFException(String.format("It seems that EssenceHeaderPartition data was passed in for Resource Ids %s which are not part of this virtual track, please verify that only the Header Partition payloads for the Virtual Track were passed in", Utilities.serializeObjectCollectionToString(unreferencedTrackFileIDsSet)));
+            throw new IMFException(String.format("It seems that EssenceHeaderPartition data was passed in for TrackFile Ids %s which are not part of any of the virtual tracks, please verify that only the Header Partition payloads for the Virtual Tracks were passed in", Utilities.serializeObjectCollectionToString(unreferencedTrackFileIDsSet)));
         }
 
     }
