@@ -253,11 +253,11 @@ public final class Composition
      * A stateless method that reads and parses all the virtual tracks of a Composition
      * @param compositionPlaylistType - a CompositionPlaylist object model
      * @param imfErrorLogger - an object for logging errors
-     * @return a map containing mappings of a UUID to the corresponding VirtualTrack
+     * @return a map containing mappings of a UUID to the corresponding Composition.VirtualTrack
      */
-    public static Map<UUID, VirtualTrack> getVirtualTracksMap (@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static Map<UUID, Composition.VirtualTrack> getVirtualTracksMap (@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        Map<UUID, VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
+        Map<UUID, Composition.VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
         Map<UUID, List<BaseResourceType>>virtualTrackResourceMap =  getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
 
@@ -275,7 +275,7 @@ public final class Composition
                 else{
                     virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
                 }
-                VirtualTrack virtualTrack = null;
+                Composition.VirtualTrack virtualTrack = null;
                 if(virtualTrackResourceList.size() != 0)
                 {
                     if( virtualTrackResourceList.get(0) instanceof IMFTrackFileResourceType)
@@ -308,10 +308,10 @@ public final class Composition
     }
 
     /**
-     * A stateless method that completely reads and parses the resources of all the VirtualTracks that are a part of the Composition
+     * A stateless method that completely reads and parses the resources of all the Composition.VirtualTracks that are a part of the Composition
      * @param compositionPlaylistType - a CompositionPlaylist object model
      * @param imfErrorLogger - an object for logging errors
-     * @return map of VirtualTrack identifier to the list of all the Track's resources, for every VirtualTrack of the Composition
+     * @return map of VirtualTrack identifier to the list of all the Track's resources, for every Composition.VirtualTrack of the Composition
      */
     public static Map<UUID, List<BaseResourceType>> getVirtualTrackResourceMap(@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
@@ -562,7 +562,7 @@ public final class Composition
 
     /**
      * Getter for the virtual track map associated with this Composition
-     * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
+     * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link Composition.VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
      */
     public Map<UUID, ? extends VirtualTrack> getVirtualTrackMap()
     {
@@ -579,7 +579,7 @@ public final class Composition
     }
 
     /**
-     * Getter for the IMFCompositionPlaylistType object model of the Composition defined by the st2067-3 schema.
+     * Getter for the CompositionPlaylistType object model of the Composition defined by the st2067-3 schema.
      * @return the composition playlist type object model.
      */
     private IMFCompositionPlaylistType getCompositionPlaylistType(){
@@ -606,7 +606,7 @@ public final class Composition
                 Iterator iterator = this.virtualTrackMap.entrySet().iterator();
                 while (iterator != null
                         && iterator.hasNext()) {
-                    VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends VirtualTrack>) iterator.next()).getValue();
+                    Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
                     if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)) {
                         return virtualTrack;
                     }
@@ -627,7 +627,7 @@ public final class Composition
         Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
         while(iterator != null
                 && iterator.hasNext()) {
-            VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends VirtualTrack>) iterator.next()).getValue();
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
             if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
                 audioVirtualTracks.add(virtualTrack);
             }
@@ -862,6 +862,7 @@ public final class Composition
      * IMF track files that comprise it.
      */
     @Immutable
+<<<<<<< a75a76119633e07fda555c5731440d5488463f84
 <<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
     public abstract static class VirtualTrack
     {
@@ -871,9 +872,12 @@ public final class Composition
         protected final List<TrackResource> resources = new ArrayList<>();
 =======
     static public abstract class VirtualTrack
+=======
+    public abstract static class VirtualTrack
+>>>>>>> Minor code cleanup
     {
         protected final UUID trackID;
-        protected final Composition.SequenceTypeEnum sequenceTypeEnum;
+        protected final SequenceTypeEnum sequenceTypeEnum;
         protected final List<UUID> resourceIds = new ArrayList<>();
         protected final List<BaseResourceType> resources = new ArrayList<>();
 >>>>>>> Making VirtualTrack inner class
@@ -883,11 +887,15 @@ public final class Composition
          * @param trackID the UUID associated with this VirtualTrack object
          * @param sequenceTypeEnum the type of the associated sequence
          */
+<<<<<<< a75a76119633e07fda555c5731440d5488463f84
 <<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
 =======
         public VirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum)
 >>>>>>> Making VirtualTrack inner class
+=======
+        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
+>>>>>>> Minor code cleanup
         {
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
@@ -897,11 +905,15 @@ public final class Composition
          * Getter for the sequence type associated with this VirtualTrack object
          * @return the sequence type associated with this VirtualTrack object as an enum
          */
+<<<<<<< a75a76119633e07fda555c5731440d5488463f84
 <<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public SequenceTypeEnum getSequenceTypeEnum()
 =======
         public Composition.SequenceTypeEnum getSequenceTypeEnum()
 >>>>>>> Making VirtualTrack inner class
+=======
+        public SequenceTypeEnum getSequenceTypeEnum()
+>>>>>>> Minor code cleanup
         {
             return this.sequenceTypeEnum;
         }
@@ -944,6 +956,7 @@ public final class Composition
          * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
          */
+<<<<<<< a75a76119633e07fda555c5731440d5488463f84
 <<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public abstract boolean equivalent(VirtualTrack other);
     }
@@ -1077,6 +1090,9 @@ public final class Composition
 >>>>>>> Adding class hierarchy for track resource
 =======
         public boolean equivalent(com.netflix.imflibrary.st2067_2.Composition.VirtualTrack other)
+=======
+        public boolean equivalent(Composition.VirtualTrack other)
+>>>>>>> Minor code cleanup
         {
             if(other == null){
                 return false;
@@ -1107,14 +1123,14 @@ public final class Composition
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public List<? extends VirtualTrack> getVirtualTracks() throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
-        Map<UUID, ? extends VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
+    public List<? extends Composition.VirtualTrack> getVirtualTracks() throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+        Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
         return new ArrayList<>(virtualTrackMap.values());
     }
 
     /**
      * A utility method to retrieve the UUIDs of the Track files referenced by a Virtual track within a Composition.
-     * @param virtualTrack - object model of an IMF virtual track {@link VirtualTrack}
+     * @param virtualTrack - object model of an IMF virtual track {@link Composition.VirtualTrack}
      * @return A list of TrackFileResourceType objects corresponding to the virtual track in the Composition.
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException
@@ -1123,7 +1139,7 @@ public final class Composition
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     @Nonnull
-    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
+    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull Composition.VirtualTrack virtualTrack) throws IOException, IMFException, SAXException, JAXBException, URISyntaxException {
 
         List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
 
@@ -1172,9 +1188,9 @@ public final class Composition
         return Collections.unmodifiableMap(essenceDescriptorMap);
     }
 
-    public Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> getAudioVirtualTracksMap() {
+    public Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> getAudioVirtualTracksMap() {
 
-        List<? extends VirtualTrack> audioVirtualTracks = this.getAudioVirtualTracks();
+        List<? extends Composition.VirtualTrack> audioVirtualTracks = this.getAudioVirtualTracks();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = this.getEssenceDescriptorListMap();
         Map<Set<DOMNodeObjectModel>, VirtualTrack> audioVirtualTrackMap = new HashMap<>();
         for (VirtualTrack audioVirtualTrack : audioVirtualTracks)
