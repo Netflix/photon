@@ -4,11 +4,9 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.VirtualTrack;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import javafx.scene.paint.ImagePatternBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -240,7 +238,7 @@ public class IMPValidatorFunctionalTests {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
-        List<? extends VirtualTrack> virtualTracks = composition.getVirtualTracks();
+        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
