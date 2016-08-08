@@ -72,7 +72,6 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
 
     /**
      * A method that returns a string representation of a ValidationEventHandlerImpl object
-     *
      * @return string representing the object
      */
     public String toString(){

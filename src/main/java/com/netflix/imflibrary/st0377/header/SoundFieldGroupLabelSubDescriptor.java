@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
@@ -88,6 +89,7 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class SoundFieldGroupLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
     {
+        //@MXFProperty(size=0, charset="UTF-16") protected final String group_of_soundfield_groups_linkID = null;
         /**
          * Instantiates a new parsed SoundFieldGroupLabelSubDescriptor object by virtue of parsing the MXF file bitstream
          *

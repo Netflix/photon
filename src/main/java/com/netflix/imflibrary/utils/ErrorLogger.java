@@ -70,6 +70,19 @@ public interface ErrorLogger
             return this.errorDescription;
         }
 
+        /**
+         * Getter for the ErrorCode of this ErrorObject
+         * @return an errorCode enumeration
+         */
+        public Enum getErrorCode()
+        {
+            return this.errorCode;
+        }
+
+        /**
+         * Getter for the ErrorLevel of this ErrorObject
+         * @return an errorLevel enumeration
+         */
         public Enum getErrorLevel()
         {
             return this.errorLevel;

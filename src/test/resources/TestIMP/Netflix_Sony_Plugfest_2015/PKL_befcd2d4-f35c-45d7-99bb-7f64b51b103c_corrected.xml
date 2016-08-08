@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:befcd2d4-f35c-45d7-99bb-7f64b51b103c</Id>
+  <AnnotationText>Netflix_Plugfest_Oct2015</AnnotationText>
+  <IssueDate>2015-10-10T02:29:55+00:00</IssueDate>
+  <Issuer>Sony Pictures Entertainment</Issuer>
+  <Creator>IMF Creator Release 1.0 (r2082)</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015</AnnotationText>
+      <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
+      <Size>10517511198</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0bcc714a-8c35-47ae-9fb4-b8394e19c980</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_Insert_001</AnnotationText>
+      <Hash>8ySYUrng8pKxsCb+98iDDHJDLIA=</Hash>
+      <Size>129059636</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_Insert_001.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0129c636-54c4-4ee1-97a8-9136330bced8</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_Insert_002</AnnotationText>
+      <Hash>VVVazEGHMg8Gn5YhXizXNaJOKtQ=</Hash>
+      <Size>129198308</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_Insert_002.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:f9c14207-d642-4eec-9fa5-ff667548e02e</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_Insert_003</AnnotationText>
+      <Hash>Cv0k/SHFiy6GTfZFg/pDJwl+tlU=</Hash>
+      <Size>129261140</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_Insert_003.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:ef574631-93e7-49f0-9a7b-f74ecbdf6be0</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_LAS51</AnnotationText>
+      <Hash>gSg5nLmeak5dOQIWfp0qZ5REJkg=</Hash>
+      <Size>283554285</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_LAS51.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:778d40b5-7033-4924-b423-f91ce4208e58</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_LAS20</AnnotationText>
+      <Hash>eh07wSJlQBIhxgt710jjwRWBi1g=</Hash>
+      <Size>94532279</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_LAS20.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:3fd085fc-0c04-41f7-9cd9-ef09e40cc85c</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_Trimmed_Vers_IMSC</AnnotationText>
+      <Hash>XbX3omIGDNNsIZLK/ITspiFr/+A=</Hash>
+      <Size>38502</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_Trimmed_Vers_IMSC.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:c808001c-da54-4295-a721-dcaa00659699</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_ENG51</AnnotationText>
+      <Hash>1BQxIai36yZDj3CuRXEdVxPV7mg=</Hash>
+      <Size>283554285</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_ENG51.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_ENG20</AnnotationText>
+      <Hash>9zit4G2zsmwpLqwXwFEJTu7UG50=</Hash>
+      <Size>94532279</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_ENG20.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:85b67cbd-2c87-4dfc-ab7a-23876e3c28cb</Id>
+      <AnnotationText>Netflix_Plugfest_Oct2015_FULL_Vers_IMSC</AnnotationText>
+      <Hash>4o7a64zx+iixZ0S+9hgaM839OcY=</Hash>
+      <Size>38502</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>Netflix_Plugfest_Oct2015_FULL_Vers_IMSC.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4</Id>
+      <AnnotationText>BLACKL_202_HD_REC709_178_LAS</AnnotationText>
+      <Hash>CIpFGCEfjR1Ac9Yl0Vk8o2M278c=</Hash>
+      <Size>36069</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:fe8cf2f4-1bcd-4145-8f72-6775af4038c4</Id>
+      <AnnotationText>BLACKL_202_HD_REC709_178_ENG</AnnotationText>
+      <Hash>6tgbOP09CynpgHfSSCK7pM3ISD4=</Hash>
+      <Size>22883</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

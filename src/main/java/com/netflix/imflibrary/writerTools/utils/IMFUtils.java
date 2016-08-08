@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.xml.sax.SAXException;
@@ -35,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -86,15 +88,15 @@ public class IMFUtils {
     }
 
     /**
-     * A method that generates a SHA-256 hash of the file and Base64 encode the result.
+     * A method that generates a SHA-1 hash of the file and Base64 encode the result.
      *
-     * @param file - the file whose SHA-256 hash is to be generated
+     * @param file - the file whose SHA-1 hash is to be generated
      * @return a byte[] representing the generated base64 encoded hash of the file
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static byte[] generateHashAndBase64Encode(File file) throws IOException {
+    public static byte[] generateSHA1HashAndBase64Encode(File file) throws IOException {
         try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] bytes = new byte[1024];
             int bytesRead = 0;
@@ -109,6 +111,48 @@ public class IMFUtils {
         catch (NoSuchAlgorithmException | FileNotFoundException e){
             throw new IMFException(e);
         }
+    }
+
+    /**
+     * A method to generate a Base64 encoded representation of a byte[]
+     * @param bytes a byte[] that is to be Base64 encoded
+     * @return a byte[] representing the Base64 encode of the input
+     */
+    public static byte[] generateBase64Encode(byte[] bytes){
+        byte[] hashCopy = Arrays.copyOf(bytes, bytes.length);
+        return Base64.getEncoder().encode(hashCopy);
+    }
+
+    /**
+     * A method to generate a SHA-1 digest of the incoming resource
+     * @param resourceByteRangeProvider representing the resource whose SHA-1 digest is to be generated
+     * @return a byte[] representing the SHA-1 digest of the resource
+     * @throws NoSuchAlgorithmException - if no Provider supports a MessageDigestSpi implementation for the
+     *          specified algorithm.
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public static byte[] generateSHA1Hash(ResourceByteRangeProvider resourceByteRangeProvider) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("SHA1");
+        long rangeStart = 0;
+        long rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize()-1)
+                ? resourceByteRangeProvider.getResourceSize()-1
+                : rangeStart + 1023;
+
+        int nread = 0;
+
+        while (rangeStart < resourceByteRangeProvider.getResourceSize()
+                && rangeEnd < resourceByteRangeProvider.getResourceSize()) {
+            byte[] dataBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+            nread = (int)(rangeEnd - rangeStart + 1);
+            md.update(dataBytes, 0, nread);
+            rangeStart = rangeEnd+1;
+            rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize()-1)
+                    ? resourceByteRangeProvider.getResourceSize()-1
+                    : rangeStart + 1023;
+        };
+
+        byte[] mdbytes = md.digest();
+        return Arrays.copyOf(mdbytes, mdbytes.length);
     }
 
     /**
@@ -154,4 +198,5 @@ public class IMFUtils {
             throw new IMFException(e);
         }
     }
+
 }

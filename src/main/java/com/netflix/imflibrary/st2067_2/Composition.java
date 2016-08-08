@@ -94,7 +94,8 @@ public final class Composition
 
     private static final String dcmlTypes_schema_path = "org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
-    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");}});
+    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>(){{ add("http://www.smpte-ra.org/schemas/2067-3/2013");
+                                                                                                                    add("http://www.smpte-ra.org/schemas/2067-3/2016");}});
 
     private static class CoreConstraintsSchemas
     {
@@ -796,7 +797,7 @@ public final class Composition
     {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
-        protected final List<UUID> resourceIds = new ArrayList<>();
+        protected final Set<UUID> resourceIds = new HashSet<>();
         protected final List<TrackResource> resources = new ArrayList<>();
 
         /**
@@ -831,8 +832,8 @@ public final class Composition
          * Getter for the UUIDs of the resources that are a part of this virtual track
          * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
          */
-        public List<UUID> getTrackResourceIds(){
-            return Collections.unmodifiableList(this.resourceIds);
+        public Set<UUID> getTrackResourceIds(){
+            return Collections.unmodifiableSet(this.resourceIds);
         }
 
         /**
@@ -858,26 +859,35 @@ public final class Composition
     public static class TrackResource{
         protected final String id;
         protected final String trackFileId;
+        protected final String sourceEncoding;
         protected final EditRate editRate;
         protected final BigInteger intrinsicDuration;
         protected final BigInteger entryPoint;
         protected final BigInteger sourceDuration;
         protected final BigInteger repeatCount;
+        protected final byte[] hash;
+        protected final String hashAlgorithm;
 
         public TrackResource (String id,
                               String trackFileId,
+                              String sourceEncoding,
                               List<Long> editRate,
                               BigInteger intrinsicDuration,
                               BigInteger entryPoint,
                               BigInteger sourceDuration,
-                              BigInteger repeatCount){
+                              BigInteger repeatCount,
+                              byte[] hash,
+                              String hashAlgorithm){
             this.id = id;
             this.trackFileId = trackFileId;
+            this.sourceEncoding = sourceEncoding;
             this.editRate = new EditRate(editRate);
             this.intrinsicDuration = intrinsicDuration;
             this.entryPoint = entryPoint;
             this.sourceDuration = sourceDuration;
             this.repeatCount = repeatCount;
+            this.hash = (hash == null) ? null : Arrays.copyOf(hash, hash.length);
+            this.hashAlgorithm = hashAlgorithm;
         }
 
         /**
@@ -934,6 +944,33 @@ public final class Composition
          */
         public BigInteger getRepeatCount(){
             return this.repeatCount;
+        }
+
+        /**
+         * Getter for the SourceEncoding element of the Track's Resource
+         * @return a String representing the "urn:uuid:" identifying the
+         *          EssenceDescriptor in the EssenceDescriptorList of the CPL
+         */
+        public String getSourceEncoding() {
+            return this.sourceEncoding;
+        }
+
+        /**
+         * Getter for the Hash of this Resource
+         * @return a byte[] copy of the hash
+         */
+        @Nullable
+        public byte[] getHash(){
+            return (this.hash == null) ? null : Arrays.copyOf(this.hash, this.hash.length);
+        }
+
+        /**
+         * Getter for the HashAlgorithm used in creating the hash of this resource
+         * @return a String representing the HashAlgorithm
+         */
+        @Nullable
+        public String getHashAlgorithm(){
+            return this.hashAlgorithm;
         }
     }
 
@@ -1140,6 +1177,7 @@ public final class Composition
      * resources referenced by the Composition.
      * @param headerPartitionTuples list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
      * @param imfErrorLogger an error logging object
+     * @param conformAllVirtualTracksInCpl a boolean that turns on/off conforming all the VirtualTracks in the Composition
      * @return boolean to indicate of the Composition is conformant or not
      * @throws IOException - any I/O related error is exposed through an IOException.
      * @throws IMFException - any non compliant CPL documents will be signalled through an IMFException

@@ -60,12 +60,17 @@ public class IMFUUIDGenerator {
      * Note: this method guarantees uniqueness only as long as the class remains loaded
      * @return string representation of the UUID
      */
-    public String getUUID(){
+    public String getUrnUUID(){
         //Create the UUID string
         return "urn" + ":" + "uuid" + ":" + generateUUID();
     }
 
-    private UUID generateUUID(){
+    /**
+     * A method that generates a UUID
+     * Note: This method does not guarantee uniqueness across multiple invocations of the Photon library
+     * @return a UUID
+     */
+    public UUID generateUUID(){
         String uuidString = "";
         UUID uuid = null;
         while(!uuidString.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
