@@ -16,7 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_2.CompositionModels;
+
+import com.netflix.imflibrary.st2067_2.Composition;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
@@ -25,8 +27,7 @@ import java.util.List;
 /**
  * A class that models an IMF Base Resource.
  */
-@Immutable
-public class BaseResourceType {
+public abstract class BaseResourceType {
     protected final String id;
     protected final Composition.EditRate editRate;
     protected final BigInteger intrinsicDuration;

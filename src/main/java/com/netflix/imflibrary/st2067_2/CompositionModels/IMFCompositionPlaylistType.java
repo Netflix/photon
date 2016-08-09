@@ -16,8 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_2.CompositionModels;
 
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;
@@ -36,8 +37,8 @@ public final class IMFCompositionPlaylistType {
     private final String creator;
     private final String contentOriginator;
     private final String contentTitle;
-    protected final List<IMFSegmentType> segmentList;
-    protected final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
+    private final List<IMFSegmentType> segmentList;
+    private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
 
     public IMFCompositionPlaylistType(String id,
                                    List<Long> editRate,

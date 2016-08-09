@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.st2067_2.CompositionModels.BaseResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;

@@ -1,7 +1,8 @@
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st2067_2.*;
+import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 <<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
@@ -67,7 +68,7 @@ public final class CompositionModel_st2067_2_2016 {
                     List<BaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
                     for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : sequence.getResourceList().getResource())
                     {
-                        BaseResourceType baseResource;
+                        BaseResourceType baseResource = null;
                         if(resource instanceof  org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType)
                         {
 
@@ -86,16 +87,11 @@ public final class CompositionModel_st2067_2_2016 {
                                     trackFileResource.getHashAlgorithm()
                             );
                         }
-                        else
+                        //TODO: Add support for creating marker resource
+                        if(baseResource != null)
                         {
-                            baseResource = new BaseResourceType(resource.getId(),
-                                    resource.getEditRate(),
-                                    resource.getIntrinsicDuration(),
-                                    resource.getEntryPoint(),
-                                    resource.getSourceDuration(),
-                                    resource.getRepeatCount());
+                            baseResources.add(baseResource);
                         }
-                        baseResources.add(baseResource);
                     }
                     sequenceList.add(new IMFSequenceType(sequence.getId(),
                             sequence.getTrackId(),

@@ -16,7 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013;
+
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;

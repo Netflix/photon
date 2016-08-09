@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_2.CompositionModels;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
