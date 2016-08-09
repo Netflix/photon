@@ -1,7 +1,8 @@
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st2067_2.*;
+import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 
@@ -57,7 +58,7 @@ public final class CompositionModel_st2067_2_2013 {
                     List<BaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
                     for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource())
                     {
-                        BaseResourceType baseResource;
+                        BaseResourceType baseResource = null;
                         if(resource instanceof  org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)
                         {
 
@@ -75,16 +76,11 @@ public final class CompositionModel_st2067_2_2013 {
                                     trackFileResource.getSourceEncoding()
                             );
                         }
-                        else
+                        //TODO: Add support for creating marker resource
+                        if(baseResource != null)
                         {
-                            baseResource = new BaseResourceType(resource.getId(),
-                                    resource.getEditRate(),
-                                    resource.getIntrinsicDuration(),
-                                    resource.getEntryPoint(),
-                                    resource.getSourceDuration(),
-                                    resource.getRepeatCount());
+                            baseResources.add(baseResource);
                         }
-                        baseResources.add(baseResource);
                     }
                     sequenceList.add(new IMFSequenceType(sequence.getId(),
                             sequence.getTrackId(),

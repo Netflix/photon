@@ -16,8 +16,9 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016;
 
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import org.smpte_ra.schemas.st2067_2_2016.DigestMethodType;
 
 import javax.annotation.concurrent.Immutable;

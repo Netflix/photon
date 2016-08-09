@@ -27,6 +27,8 @@ import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
+import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013.CompositionModel_st2067_2_2013;
+import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016.CompositionModel_st2067_2_2016;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
