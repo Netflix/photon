@@ -25,7 +25,6 @@ import java.util.List;
 /**
  * A class that models TrackFile Resource structure of an IMF Composition Playlist.
  */
-@Immutable
 public abstract class IMFTrackFileResourceType extends BaseResourceType {
     protected final String trackFileId;
     protected final String sourceEncoding;
