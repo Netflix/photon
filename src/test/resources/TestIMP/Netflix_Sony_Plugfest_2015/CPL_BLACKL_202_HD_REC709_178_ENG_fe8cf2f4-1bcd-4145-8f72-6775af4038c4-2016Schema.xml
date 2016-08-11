@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2013" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Id>urn:uuid:fe8cf2f4-1bcd-4145-8f72-6775af4038c4</Id>
   <Annotation>BLACKL_202_HD_REC709_178_ENG</Annotation>
   <IssueDate>2015-10-10T02:29:55+00:00</IssueDate>
@@ -250,7 +250,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www-smpte-ra.org/schemas/2067-3/2013</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2016">http://www-smpte-ra.org/schemas/2067-3/2013</ApplicationIdentification>
   </ExtensionProperties>  
   <SegmentList>
     <Segment>
@@ -417,7 +417,7 @@
         <!--
         <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
         -->
-        <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
+        <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016">
           <Id>urn:uuid:eec38926-fa52-4345-8986-e66ed7c338d5</Id>
           <TrackId>urn:uuid:8546a723-ccb1-4d69-8834-b8ff96222d53</TrackId>
           <ResourceList>
@@ -441,7 +441,7 @@
         <!--
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
         -->
-        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
+        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016">
           <Id>urn:uuid:55d22716-556d-41ff-822e-e0feea75b9e3</Id>
           <TrackId>urn:uuid:55b1a5a6-d62d-4903-aca5-f766f86696fc</TrackId>
           <ResourceList>
@@ -465,7 +465,7 @@
         <!--
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
         -->
-        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
+        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016">
           <Id>urn:uuid:daa41b9f-4214-47d3-9750-2908d35592b9</Id>
           <TrackId>urn:uuid:b8ee769c-b768-451c-bb5f-9c38fd3a5d18</TrackId>
           <ResourceList>
