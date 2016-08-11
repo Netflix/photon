@@ -202,7 +202,8 @@ public final class CompositionModel_st2067_2_2016
                         sourceDuration,
                         resource.getRepeatCount() == null ? BigInteger.valueOf(1) : resource.getRepeatCount(),
                         resource.getHash(),
-                        CompositionPlaylistBuilder_2016.defaultHashAlgorithm));
+                        //CompositionPlaylistBuilder_2016.defaultHashAlgorithm));
+                        resource.getHashAlgorithm().getAlgorithm()));
             }
         }
 

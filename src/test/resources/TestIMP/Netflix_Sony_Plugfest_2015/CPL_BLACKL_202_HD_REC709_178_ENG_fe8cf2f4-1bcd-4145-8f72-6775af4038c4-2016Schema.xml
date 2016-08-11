@@ -432,9 +432,7 @@
               <SourceEncoding>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
-              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-              -->
             </Resource>
           </ResourceList>
         </cc:MainImageSequence>
@@ -456,9 +454,7 @@
               <SourceEncoding>urn:uuid:6086c285-d8b2-4c03-ba5b-b31f3b8cf059</SourceEncoding>
               <TrackFileId>urn:uuid:c808001c-da54-4295-a721-dcaa00659699</TrackFileId>
               <Hash>1BQxIai36yZDj3CuRXEdVxPV7mg=</Hash>
-              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-              -->
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
@@ -480,9 +476,7 @@
               <SourceEncoding>urn:uuid:fe0ca4ce-2877-411b-9fbf-e8c64d561a6d</SourceEncoding>
               <TrackFileId>urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34</TrackFileId>
               <Hash>9zit4G2zsmwpLqwXwFEJTu7UG50=</Hash>
-              <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-              -->
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
