@@ -37,6 +37,55 @@ public final class CompositionModel_st2067_2_2013 {
         {
             List<IMFSequenceType> sequenceList = new ArrayList<IMFSequenceType>();
             org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
+
+            /* Parse Marker sequence */
+            sequence = segment.getSequenceList().getMarkerSequence();
+            if (sequence != null)
+            {
+                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
+                /**
+                 * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
+                 * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
+                 * synchronized wrapping it around a synchronized list collection, although in this case it
+                 * is perhaps not required since this method is only invoked from the context of the constructor.
+                 */
+                List<IMFBaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
+                for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource()) {
+                    IMFBaseResourceType baseResource = null;
+                    if (resource instanceof org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType) {
+                        org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType markerResource =
+                                (org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType) resource;
+
+                        List<IMFMarkerType> markerList = new ArrayList<IMFMarkerType>();
+                        for (org.smpte_ra.schemas.st2067_2_2013.MarkerType marker : markerResource.getMarker()) {
+                            markerList.add(new IMFMarkerType(marker.getAnnotation().getValue(),
+                                    new IMFMarkerType.Label(marker.getLabel().getValue(), marker.getLabel().getScope()),
+                                    marker.getOffset()));
+                        }
+
+                        baseResource = new IMFMarkerResourceType(
+                                markerResource.getId(),
+                                markerResource.getEditRate().size() != 0  ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
+                                markerResource.getIntrinsicDuration(),
+                                markerResource.getEntryPoint(),
+                                markerResource.getSourceDuration(),
+                                markerResource.getRepeatCount(),
+                                markerList);
+                    } else {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type in Marker Sequence");
+                    }
+
+                    if (baseResource != null) {
+                        baseResources.add(baseResource);
+                    }
+                }
+                sequenceList.add(new IMFSequenceType(sequence.getId(),
+                        sequence.getTrackId(),
+                        Composition.SequenceTypeEnum.MarkerSequence,
+                        Collections.synchronizedList(baseResources)));
+            }
+
+            /* Parse rest of the sequences */
             for (Object object : segment.getSequenceList().getAny())
             {
                 if(!(object instanceof JAXBElement)){
@@ -55,10 +104,10 @@ public final class CompositionModel_st2067_2_2013 {
                      * synchronized wrapping it around a synchronized list collection, although in this case it
                      * is perhaps not required since this method is only invoked from the context of the constructor.
                      */
-                    List<BaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
+                    List<IMFBaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
                     for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource())
                     {
-                        BaseResourceType baseResource = null;
+                        IMFBaseResourceType baseResource = null;
                         if(resource instanceof  org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)
                         {
 
@@ -68,7 +117,7 @@ public final class CompositionModel_st2067_2_2013 {
                             baseResource = new IMFTrackFileResource_st2067_2_2013(
                                     trackFileResource.getId(),
                                     trackFileResource.getTrackFileId(),
-                                    trackFileResource.getEditRate(),
+                                    trackFileResource.getEditRate().size() != 0  ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
                                     trackFileResource.getIntrinsicDuration(),
                                     trackFileResource.getEntryPoint(),
                                     trackFileResource.getSourceDuration(),
@@ -76,7 +125,11 @@ public final class CompositionModel_st2067_2_2013 {
                                     trackFileResource.getSourceEncoding()
                             );
                         }
-                        //TODO: Add support for creating marker resource
+                        else
+                        {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type");
+                        }
+
                         if(baseResource != null)
                         {
                             baseResources.add(baseResource);

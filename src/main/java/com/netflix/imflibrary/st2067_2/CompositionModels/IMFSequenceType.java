@@ -30,17 +30,17 @@ import java.util.List;
 public final class IMFSequenceType {
     protected final String id;
     protected final String trackId;
-    protected final List<BaseResourceType> resourceList;
+    protected final List<? extends IMFBaseResourceType> resourceList;
     protected final Composition.SequenceTypeEnum type;
 
     public IMFSequenceType(String id,
                            String trackId,
                            Composition.SequenceTypeEnum type,
-                           List<BaseResourceType> resourceList)
+                           List<? extends IMFBaseResourceType> resourceList)
     {
         this.id             = id;
         this.trackId        = trackId;
-        this.resourceList   = resourceList;
+        this.resourceList   = (List<IMFBaseResourceType>)resourceList;
         this.type           = type;
     }
 
@@ -69,10 +69,10 @@ public final class IMFSequenceType {
     }
 
     /**
-     * Getter for the Resource List
-     * @return a string representing the track ID of the sequence
+     * Getter for the Resource list
+     * @return a list containing all the resources of the Sequence
      */
-    public List<BaseResourceType> getResourceList(){
+    public List<? extends IMFBaseResourceType> getResourceList(){
         return this.resourceList;
     }
 

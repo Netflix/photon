@@ -44,8 +44,8 @@ public final class IMFSegmentType {
     }
 
     /**
-     * Getter for the SequenceList
-     * @return a string representing the SequenceList of the segment
+     * Getter for the Sequence list
+     * @return a list containing all the sequences of the Segment
      */
     public List<IMFSequenceType> getSequenceList(){
         return this.sequenceList;

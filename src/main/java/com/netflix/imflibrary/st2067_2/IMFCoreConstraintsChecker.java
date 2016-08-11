@@ -2,11 +2,9 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.CompositionModels.BaseResourceType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFCompositionPlaylistType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFSegmentType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFSequenceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,7 +34,7 @@ public final class IMFCoreConstraintsChecker {
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
 
-            List<BaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             result &= checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList, imfErrorLogger);
 
             if(!result){
@@ -46,7 +44,7 @@ public final class IMFCoreConstraintsChecker {
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
                 Composition.EditRate compositionEditRate = compositionPlaylistType.getEditRate();
-                for (BaseResourceType baseResourceType : virtualTrackResourceList) {
+                for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
                     if (trackResourceEditRate != null
                             && !trackResourceEditRate.equals(compositionEditRate)) {
@@ -110,7 +108,7 @@ public final class IMFCoreConstraintsChecker {
         }
     }
 
-    public static boolean checkVirtualTrackResourceList(UUID trackID, List<BaseResourceType> virtualBaseResourceList, @Nonnull IMFErrorLogger imfErrorLogger){
+    public static boolean checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType> virtualBaseResourceList, @Nonnull IMFErrorLogger imfErrorLogger){
         boolean result = true;
         if(virtualBaseResourceList == null
                 || virtualBaseResourceList.size() == 0){
@@ -119,23 +117,33 @@ public final class IMFCoreConstraintsChecker {
         }
         Set<Composition.EditRate> editRates = new HashSet<>();
         Composition.EditRate baseResourceEditRate = null;
-        for(BaseResourceType baseFileResource : virtualBaseResourceList){
-            long compositionPlaylistResourceIntrinsicDuration = baseFileResource.getIntrinsicDuration().longValue();
-            long compositionPlaylistResourceEntryPoint = (baseFileResource.getEntryPoint() == null) ? 0L : baseFileResource.getEntryPoint().longValue();
+        for(IMFBaseResourceType baseResource : virtualBaseResourceList){
+            long compositionPlaylistResourceIntrinsicDuration = baseResource.getIntrinsicDuration().longValue();
+            long compositionPlaylistResourceEntryPoint = (baseResource.getEntryPoint() == null) ? 0L : baseResource.getEntryPoint().longValue();
             //Check to see if the Resource's source duration value is in the valid range as specified in st2067-3:2013 section 6.11.6
-            if(baseFileResource.getSourceDuration() != null){
-                if(baseFileResource.getSourceDuration().longValue() < 0
-                        || baseFileResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
+            if(baseResource.getSourceDuration() != null){
+                if(baseResource.getSourceDuration().longValue() < 0
+                        || baseResource.getSourceDuration().longValue() > (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has a resource with ID %s, that has an invalid source duration value %d, should be in the range [0,%d]",
                                     trackID.toString(),
-                                    baseFileResource.getId(),
-                                    baseFileResource.getSourceDuration().longValue(),
+                                    baseResource.getId(),
+                                    baseResource.getSourceDuration().longValue(),
                                     (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
                     result &= false;
                 }
             }
-            baseResourceEditRate = baseFileResource.getEditRate();
+
+            //Check to see if the Marker Resource's intrinsic duration value is in the valid range as specified in st2067-3:2013 section 6.13
+            if(baseResource instanceof IMFMarkerResourceType)
+            {
+                for(IMFMarkerType marker: IMFMarkerResourceType.class.cast(baseResource).getMarkerList())
+                {
+                    result &= (marker.getOffset().longValue() <= compositionPlaylistResourceIntrinsicDuration);
+                }
+            }
+
+            baseResourceEditRate = baseResource.getEditRate();
             if(baseResourceEditRate != null){
                 editRates.add(baseResourceEditRate);
             }

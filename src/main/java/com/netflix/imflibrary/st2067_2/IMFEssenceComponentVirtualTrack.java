@@ -18,11 +18,14 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.st2067_2.CompositionModels.BaseResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFMarkerResourceType;
 import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,14 +34,32 @@ import java.util.UUID;
  */
 @Immutable
 public final class IMFEssenceComponentVirtualTrack extends Composition.VirtualTrack {
+    private final List<UUID> resourceIds = new ArrayList<>();
+
     public IMFEssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
-                                           List<BaseResourceType> resourceList){
-        super(trackID, sequenceTypeEnum);
-        for(BaseResourceType resource : resourceList){
-            IMFTrackFileResourceType trackFileResource = IMFTrackFileResourceType.class.cast(resource);
+                                           List<IMFTrackFileResourceType> resourceList){
+        super(trackID, sequenceTypeEnum, resourceList);
+        for(IMFTrackFileResourceType trackFileResource : resourceList){
             this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getTrackFileId()));
-            this.resources.add(resource);
         }
+    }
+
+    /**
+     * Getter for the UUIDs of the resources that are a part of this virtual track
+     * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
+     */
+    public List<UUID> getTrackResourceIds()
+    {
+        return Collections.unmodifiableList(this.resourceIds);
+    }
+
+    /**
+     * Getter for the resources that are a part of this virtual track
+     * @return an unmodifiable list of resources of type IMFTrackFileResourceType that are a part of this virtual track
+     */
+    public List<IMFTrackFileResourceType> getTrackFileResourceList()
+    {
+        return (List<IMFTrackFileResourceType>)this.getResourceList();
     }
 
 }

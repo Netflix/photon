@@ -18,14 +18,13 @@
 
 package com.netflix.imflibrary.st2067_2.CompositionModels;
 
-import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
 import java.util.List;
 
 /**
  * A class that models TrackFile Resource structure of an IMF Composition Playlist.
  */
-public abstract class IMFTrackFileResourceType extends BaseResourceType {
+public abstract class IMFTrackFileResourceType extends IMFBaseResourceType {
     protected final String trackFileId;
     protected final String sourceEncoding;
 
@@ -64,17 +63,21 @@ public abstract class IMFTrackFileResourceType extends BaseResourceType {
      * @param other - the object to compare against
      * @return boolean indicating if the 2 TrackFileResources are equivalent/representing the same timeline
      */
-    public boolean equivalent(IMFTrackFileResourceType other)
+    @Override
+    public boolean equivalent(IMFBaseResourceType other)
     {
-        if(other == null){
+        if(other == null || !(other instanceof IMFTrackFileResourceType)){
             return false;
         }
+
+        IMFTrackFileResourceType otherTrackFileResource = IMFTrackFileResourceType.class.cast(other);
+
         boolean result = true;
         //Compare the following fields of the track file resources that have to be equal
         //for the 2 resources to be considered equivalent/representing the same timeline.
-        result &= super.equivalent( other );
-        result &= trackFileId.equals(other.getTrackFileId());
-        result &= sourceEncoding.equals(other.getSourceEncoding());
+        result &= super.equivalent( otherTrackFileResource );
+        result &= trackFileId.equals(otherTrackFileResource.getTrackFileId());
+        result &= sourceEncoding.equals(otherTrackFileResource.getSourceEncoding());
 
         return  result;
     }

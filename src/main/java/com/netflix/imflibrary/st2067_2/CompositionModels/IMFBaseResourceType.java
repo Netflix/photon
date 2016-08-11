@@ -20,14 +20,13 @@ package com.netflix.imflibrary.st2067_2.CompositionModels;
 
 import com.netflix.imflibrary.st2067_2.Composition;
 
-import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
 import java.util.List;
 
 /**
  * A class that models an IMF Base Resource.
  */
-public abstract class BaseResourceType {
+public abstract class IMFBaseResourceType {
     protected final String id;
     protected final Composition.EditRate editRate;
     protected final BigInteger intrinsicDuration;
@@ -35,18 +34,18 @@ public abstract class BaseResourceType {
     protected final BigInteger sourceDuration;
     protected final BigInteger repeatCount;
 
-    public BaseResourceType(String id,
-                        List<Long> editRate,
-                        BigInteger intrinsicDuration,
-                        BigInteger entryPoint,
-                        BigInteger sourceDuration,
-                        BigInteger repeatCount){
+    public IMFBaseResourceType(String id,
+                               List<Long> editRate,
+                               BigInteger intrinsicDuration,
+                               BigInteger entryPoint,
+                               BigInteger sourceDuration,
+                               BigInteger repeatCount){
         this.id = id;
         this.editRate = new Composition.EditRate(editRate);
         this.intrinsicDuration = intrinsicDuration;
-        this.entryPoint = entryPoint;
-        this.sourceDuration = sourceDuration;
-        this.repeatCount = repeatCount;
+        this.entryPoint = (entryPoint != null)? entryPoint: BigInteger.ZERO;
+        this.sourceDuration = (sourceDuration != null) ? sourceDuration: this.intrinsicDuration.subtract(this.entryPoint);
+        this.repeatCount = (repeatCount != null)? repeatCount: BigInteger.ONE;
     }
 
     /**
@@ -103,7 +102,7 @@ public abstract class BaseResourceType {
      * @param other - the object to compare against
      * @return boolean indicating if the two Base Resources are equivalent/representing the same timeline
      */
-    public boolean equivalent(BaseResourceType other)
+    public boolean equivalent(IMFBaseResourceType other)
     {
         if(other == null){
             return false;

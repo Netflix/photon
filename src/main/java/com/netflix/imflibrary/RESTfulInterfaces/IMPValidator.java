@@ -9,6 +9,7 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -416,6 +417,24 @@ public class IMPValidator {
             }
         }
 
+        if(imfErrorLogger.getErrors().size() > 0){
+            return imfErrorLogger.getErrors();
+        }
+
+        /**
+         * Perform MarkerTrack mergeability checks
+         */
+        Composition.VirtualTrack referenceMarkerVirtualTrack = compositions.get(0).getMarkerVirtualTrack();
+        if(referenceMarkerVirtualTrack != null)
+        {
+            UUID referenceMarkerCPLUUID = compositions.get(0).getUUID();
+            for (int i = 1; i < compositions.size(); i++) {
+                if (!referenceVideoVirtualTrack.equivalent(compositions.get(i).getMarkerVirtualTrack())) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceMarkerCPLUUID));
+                }
+            }
+        }
+
         return imfErrorLogger.getErrors();
     }
 
@@ -548,7 +567,14 @@ public class IMPValidator {
 
         Set<UUID> virtualTrackResourceIDsSet = new HashSet<>();
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            virtualTrackResourceIDsSet.addAll(virtualTrack.getTrackResourceIds());
+            if(virtualTrack instanceof IMFEssenceComponentVirtualTrack)
+            {
+                virtualTrackResourceIDsSet.addAll(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds());
+            }
+            else
+            {
+                throw new IMFException(String.format("VirtualTrack is not Essence Component Virtual Track"));
+            }
         }
         /**
          * Following check ensures that the Header Partitions corresponding to all the Resources of the VirtualTracks were passed in.
