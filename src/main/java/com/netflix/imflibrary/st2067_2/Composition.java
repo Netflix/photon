@@ -261,7 +261,7 @@ public final class Composition
     {
         Map<UUID, Composition.VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
-        Map<UUID, List<BaseResourceType>>virtualTrackResourceMap =  getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
+        Map<UUID, List<IMFBaseResourceType>>virtualTrackResourceMap =  getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
 
         //process first segment to create virtual track map
         IMFSegmentType segment = compositionPlaylistType.getSegmentList().get(0);
@@ -270,9 +270,9 @@ public final class Composition
             UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
             if (virtualTrackMap.get(uuid) == null)
             {
-                List<BaseResourceType> virtualTrackResourceList = null;
+                List<? extends IMFBaseResourceType> virtualTrackResourceList = null;
                 if(virtualTrackResourceMap.get(uuid) == null){
-                    virtualTrackResourceList = new ArrayList<BaseResourceType>();
+                    virtualTrackResourceList = new ArrayList<IMFBaseResourceType>();
                 }
                 else{
                     virtualTrackResourceList = virtualTrackResourceMap.get(uuid);
@@ -284,7 +284,13 @@ public final class Composition
                     {
                         virtualTrack = new IMFEssenceComponentVirtualTrack(uuid,
                                 sequence.getType(),
-                                virtualTrackResourceList);
+                                (List<IMFTrackFileResourceType>)virtualTrackResourceList);
+                    }
+                    else if( virtualTrackResourceList.get(0) instanceof IMFMarkerResourceType)
+                    {
+                        virtualTrack = new IMFMarkerVirtualTrack(uuid,
+                                sequence.getType(),
+                                (List<IMFMarkerResourceType>)virtualTrackResourceList);
                     }
                 }
                 virtualTrackMap.put(uuid, virtualTrack);
@@ -315,9 +321,9 @@ public final class Composition
      * @param imfErrorLogger - an object for logging errors
      * @return map of VirtualTrack identifier to the list of all the Track's resources, for every Composition.VirtualTrack of the Composition
      */
-    public static Map<UUID, List<BaseResourceType>> getVirtualTrackResourceMap(@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static Map<UUID, List<IMFBaseResourceType>> getVirtualTrackResourceMap(@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        Map<UUID, List<BaseResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
+        Map<UUID, List<IMFBaseResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (IMFSegmentType segment : compositionPlaylistType.getSegmentList())
         {
             for (IMFSequenceType sequence : segment.getSequenceList())
@@ -326,19 +332,19 @@ public final class Composition
                 IMFCoreConstraintsChecker.checkVirtualTrackResourceList(uuid, sequence.getResourceList(), imfErrorLogger);
                 if (virtualTrackResourceMap.get(uuid) == null)
                 {
-                    virtualTrackResourceMap.put(uuid, sequence.getResourceList());
+                    virtualTrackResourceMap.put(uuid, (List<IMFBaseResourceType>)sequence.getResourceList());
                 }
                 else
                 {
-                    virtualTrackResourceMap.get(uuid).addAll(sequence.getResourceList());
+                   virtualTrackResourceMap.get(uuid).addAll(sequence.getResourceList());
                 }
             }
         }
 
         //make virtualTrackResourceMap immutable
-        for(Map.Entry<UUID, List<BaseResourceType>> entry : virtualTrackResourceMap.entrySet())
+        for(Map.Entry<UUID, List<IMFBaseResourceType>> entry : virtualTrackResourceMap.entrySet())
         {
-            List<BaseResourceType> baseResources = entry.getValue();
+            List<? extends IMFBaseResourceType> baseResources = entry.getValue();
             entry.setValue(Collections.unmodifiableList(baseResources));
         }
 
@@ -601,7 +607,7 @@ public final class Composition
      * @return the video virtual track that is a part of this composition or null if there is not video virtual track
      */
     @Nullable
-    public VirtualTrack getVideoVirtualTrack(){
+    public IMFEssenceComponentVirtualTrack getVideoVirtualTrack(){
         switch(coreConstraintsVersion) {
             case "org.smpte_ra.schemas.st2067_2_2013":
             case "org.smpte_ra.schemas.st2067_2_2016":
@@ -610,7 +616,7 @@ public final class Composition
                         && iterator.hasNext()) {
                     Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
                     if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)) {
-                        return virtualTrack;
+                        return IMFEssenceComponentVirtualTrack.class.cast(virtualTrack);
                     }
                 }
                 break;
@@ -624,17 +630,35 @@ public final class Composition
      * Getter for the audio VirtualTracks in this Composition
      * @return a list of audio virtual tracks that are a part of this composition or an empty list if there are none
      */
-    public List<? extends VirtualTrack> getAudioVirtualTracks(){
-        List<VirtualTrack> audioVirtualTracks = new ArrayList<>();
+    public List<IMFEssenceComponentVirtualTrack> getAudioVirtualTracks(){
+        List<IMFEssenceComponentVirtualTrack> audioVirtualTracks = new ArrayList<>();
         Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
         while(iterator != null
                 && iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)) {
-                audioVirtualTracks.add(virtualTrack);
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence))
+            {
+                audioVirtualTracks.add(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack));
             }
         }
         return Collections.unmodifiableList(audioVirtualTracks);
+    }
+
+    /**
+     * Getter for the marker VirtualTrack in this Composition
+     * @return the marker virtual track that is a part of this composition or null if there is no marker virtual track
+     */
+    @Nullable
+    public IMFMarkerVirtualTrack getMarkerVirtualTrack(){
+        Iterator iterator = this.virtualTrackMap.entrySet().iterator();
+        while (iterator != null
+                && iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceTypeEnum().equals(SequenceTypeEnum.MarkerSequence)) {
+                return IMFMarkerVirtualTrack.class.cast(virtualTrack);
+            }
+        }
+        return null;
     }
 
     public static void validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException, SAXException {
@@ -855,67 +879,35 @@ public final class Composition
     }
 
     /**
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-<<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
-=======
->>>>>>> Making VirtualTrack inner class
      * The class is an immutable implementation of the virtual track concept defined in Section 6.9.3 of st2067-3:2013. A
      * virtual track is characterized by its UUID, the type of sequence and a list of UUIDs of the
      * IMF track files that comprise it.
      */
     @Immutable
-<<<<<<< a75a76119633e07fda555c5731440d5488463f84
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
     public abstract static class VirtualTrack
     {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
-        protected final Set<UUID> resourceIds = new HashSet<>();
-        protected final List<TrackResource> resources = new ArrayList<>();
-=======
-    static public abstract class VirtualTrack
-=======
-    public abstract static class VirtualTrack
->>>>>>> Minor code cleanup
-    {
-        protected final UUID trackID;
-        protected final SequenceTypeEnum sequenceTypeEnum;
-        protected final List<UUID> resourceIds = new ArrayList<>();
-        protected final List<BaseResourceType> resources = new ArrayList<>();
->>>>>>> Making VirtualTrack inner class
+        protected final List<? extends IMFBaseResourceType> resources;
 
         /**
          * Constructor for a VirtualTrack object
          * @param trackID the UUID associated with this VirtualTrack object
          * @param sequenceTypeEnum the type of the associated sequence
+         * @param resources the resource list of the Virtual Track
          */
-<<<<<<< a75a76119633e07fda555c5731440d5488463f84
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
-=======
-        public VirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum)
->>>>>>> Making VirtualTrack inner class
-=======
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum)
->>>>>>> Minor code cleanup
+        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum, List<? extends IMFBaseResourceType> resources)
         {
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
+            this.resources = resources;
         }
 
         /**
          * Getter for the sequence type associated with this VirtualTrack object
          * @return the sequence type associated with this VirtualTrack object as an enum
          */
-<<<<<<< a75a76119633e07fda555c5731440d5488463f84
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
         public SequenceTypeEnum getSequenceTypeEnum()
-=======
-        public Composition.SequenceTypeEnum getSequenceTypeEnum()
->>>>>>> Making VirtualTrack inner class
-=======
-        public SequenceTypeEnum getSequenceTypeEnum()
->>>>>>> Minor code cleanup
         {
             return this.sequenceTypeEnum;
         }
@@ -929,27 +921,10 @@ public final class Composition
         }
 
         /**
-         * Getter for the UUIDs of the resources that are a part of this virtual track
-         * @return an unmodifiable list of UUIDs of resources that are a part of this virtual track
-         */
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-        public Set<UUID> getTrackResourceIds(){
-            return Collections.unmodifiableSet(this.resourceIds);
-=======
-        public List<UUID> getTrackResourceIds(){
-            return Collections.unmodifiableList(this.resourceIds);
->>>>>>> Making VirtualTrack inner class
-        }
-
-        /**
          * Getter for the Resources of the Virtual Track
          * @return an unmodifiable list of resources of the Virtual Track
          */
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-        public List<TrackResource> getTrackResources(){
-=======
-        public List<BaseResourceType> getResourceList(){
->>>>>>> Making VirtualTrack inner class
+        public List<? extends IMFBaseResourceType> getResourceList(){
             return Collections.unmodifiableList(this.resources);
         }
 
@@ -958,155 +933,19 @@ public final class Composition
          * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
          */
-<<<<<<< a75a76119633e07fda555c5731440d5488463f84
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-        public abstract boolean equivalent(VirtualTrack other);
-    }
-
-    /**
-     * A class that models a VirtualTrack's track resource.
-     */
-    @Immutable
-    public static class TrackResource{
-        protected final String id;
-        protected final String trackFileId;
-        protected final String sourceEncoding;
-        protected final EditRate editRate;
-        protected final BigInteger intrinsicDuration;
-        protected final BigInteger entryPoint;
-        protected final BigInteger sourceDuration;
-        protected final BigInteger repeatCount;
-        protected final byte[] hash;
-        protected final String hashAlgorithm;
-
-        public TrackResource (String id,
-                              String trackFileId,
-                              String sourceEncoding,
-                              List<Long> editRate,
-                              BigInteger intrinsicDuration,
-                              BigInteger entryPoint,
-                              BigInteger sourceDuration,
-                              BigInteger repeatCount,
-                              byte[] hash,
-                              String hashAlgorithm){
-            this.id = id;
-            this.trackFileId = trackFileId;
-            this.sourceEncoding = sourceEncoding;
-            this.editRate = new EditRate(editRate);
-            this.intrinsicDuration = intrinsicDuration;
-            this.entryPoint = entryPoint;
-            this.sourceDuration = sourceDuration;
-            this.repeatCount = repeatCount;
-            this.hash = (hash == null) ? null : Arrays.copyOf(hash, hash.length);
-            this.hashAlgorithm = hashAlgorithm;
-        }
-
-        /**
-         * Getter for the Track's Resource ID
-         * @return a string representing the urn:uuid of the resource
-         */
-        public String getId(){
-            return this.id;
-        }
-
-        /**
-         * Getter for the Track Resource's track file Id
-         * @return a string representing the urn:uuid of the Track Resource's track file Id
-         */
-        public String getTrackFileId(){
-            return this.trackFileId;
-        }
-
-        /**
-         * Getter for the EditRate of the Track's Resource
-         * @return a Composition.EditRate object of the Track's Resource
-         */
-        public EditRate getEditRate(){
-            return this.editRate;
-        }
-
-        /**
-         * Getter for the IntrinsicDuration of the Track's Resource
-         * @return a BigInteger representing the Track Resource's IntrinsicDuration
-         */
-        public BigInteger getIntrinsicDuration(){
-            return this.intrinsicDuration;
-        }
-
-        /**
-         * Getter for the EntryPoint of the Track's Resource
-         * @return a BigInteger representing the Track Resource's EntryPoint
-         */
-        public BigInteger getEntryPoint(){
-            return this.entryPoint;
-        }
-
-        /**
-         * Getter for the SourceDuration of the Track's Resource
-         * @return a BigInteger representing the Track Resource's SourceDuration
-         */
-        public BigInteger getSourceDuration(){
-            return this.sourceDuration;
-        }
-
-        /**
-         * Getter for the RepeatCount of the Track's Resource
-         * @return a BigInteger representing the Track Resource's RepeatCount
-         */
-        public BigInteger getRepeatCount(){
-            return this.repeatCount;
-        }
-
-        /**
-         * Getter for the SourceEncoding element of the Track's Resource
-         * @return a String representing the "urn:uuid:" identifying the
-         *          EssenceDescriptor in the EssenceDescriptorList of the CPL
-         */
-        public String getSourceEncoding() {
-            return this.sourceEncoding;
-        }
-
-        /**
-         * Getter for the Hash of this Resource
-         * @return a byte[] copy of the hash
-         */
-        @Nullable
-        public byte[] getHash(){
-            return (this.hash == null) ? null : Arrays.copyOf(this.hash, this.hash.length);
-        }
-
-        /**
-         * Getter for the HashAlgorithm used in creating the hash of this resource
-         * @return a String representing the HashAlgorithm
-         */
-        @Nullable
-        public String getHashAlgorithm(){
-            return this.hashAlgorithm;
-        }
-    }
-
-
-
-    /**
-=======
->>>>>>> Adding class hierarchy for track resource
-=======
-        public boolean equivalent(com.netflix.imflibrary.st2067_2.Composition.VirtualTrack other)
-=======
         public boolean equivalent(Composition.VirtualTrack other)
->>>>>>> Minor code cleanup
         {
             if(other == null){
                 return false;
             }
             boolean result = true;
-            List<BaseResourceType> otherResourceList = other.resources;
+            List<? extends IMFBaseResourceType> otherResourceList = other.resources;
             if(otherResourceList.size() != resources.size()){
                 return false;
             }
             for(int i=0; i< resources.size(); i++){
-                BaseResourceType thisResource = this.resources.get(i);
-                BaseResourceType otherResource = otherResourceList.get(i);
+                IMFBaseResourceType thisResource = this.resources.get(i);
+                IMFBaseResourceType otherResource = otherResourceList.get(i);
 
                 result &= thisResource.equivalent(otherResource);
             }
@@ -1117,7 +956,6 @@ public final class Composition
 
 
     /**
->>>>>>> Making VirtualTrack inner class
      * A utility method to retrieve the VirtualTracks within a Composition.
      * @return A list of VirtualTracks in the Composition.
      * @throws IOException - any I/O related error is exposed through an IOException.
@@ -1147,13 +985,13 @@ public final class Composition
 
         List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
 
-        List<BaseResourceType> resourceList = virtualTrack.getResourceList();
+        List<? extends IMFBaseResourceType> resourceList = virtualTrack.getResourceList();
         if (resourceList != null
                 && resourceList.size() > 0 &&
                 virtualTrack.getResourceList().get(0) instanceof IMFTrackFileResourceType)
         {
 
-            for (BaseResourceType baseResource : resourceList)
+            for (IMFBaseResourceType baseResource : resourceList)
             {
                 IMFTrackFileResourceType trackFileResource= IMFTrackFileResourceType.class.cast(baseResource);
 
@@ -1200,8 +1038,8 @@ public final class Composition
         for (VirtualTrack audioVirtualTrack : audioVirtualTracks)
         {
             Set<DOMNodeObjectModel> set = new HashSet<>();
-            List<BaseResourceType> resources = audioVirtualTrack.getResourceList();
-            for (BaseResourceType resource : resources)
+            List<? extends IMFBaseResourceType> resources = audioVirtualTrack.getResourceList();
+            for (IMFBaseResourceType resource : resources)
             {
                 IMFTrackFileResourceType trackFileResource = IMFTrackFileResourceType.class.cast(resource);
                 set.add(essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getSourceEncoding())));//Fetch and add the EssenceDescriptor referenced by the resource via the SourceEncoding element to the ED set.
@@ -1530,7 +1368,7 @@ public final class Composition
             }
             for (VirtualTrack virtualTrack : virtualTracks)
             {
-                List<BaseResourceType> resourceList = virtualTrack.getResourceList();
+                List<? extends IMFBaseResourceType> resourceList = virtualTrack.getResourceList();
                 if (resourceList.size() == 0)
                 {
                     throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));

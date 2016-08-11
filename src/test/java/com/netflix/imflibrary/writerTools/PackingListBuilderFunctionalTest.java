@@ -41,6 +41,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,12 +76,9 @@ public class PackingListBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
         org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
@@ -139,12 +139,8 @@ public class PackingListBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
         org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");

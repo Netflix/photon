@@ -45,6 +45,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
@@ -134,12 +137,8 @@ public class IMPBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
@@ -269,12 +268,8 @@ public class IMPBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",
@@ -383,12 +378,8 @@ public class IMPBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",

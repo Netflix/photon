@@ -18,16 +18,21 @@
 
 package com.netflix.imflibrary.st2067_2.CompositionModels;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * A class that models TrackFile Resource structure of an IMF Composition Playlist.
  */
-public abstract class IMFTrackFileResourceType extends BaseResourceType {
-    protected final String trackFileId;
-    protected final String sourceEncoding;
+@Immutable
+public final class IMFTrackFileResourceType extends IMFBaseResourceType {
+    private final String trackFileId;
+    private final String sourceEncoding;
+    private final byte[] hash;
+    private final String hashAlgorithm;
 
     public IMFTrackFileResourceType(String id,
                                     String trackFileId,
@@ -36,11 +41,15 @@ public abstract class IMFTrackFileResourceType extends BaseResourceType {
                                     BigInteger entryPoint,
                                     BigInteger sourceDuration,
                                     BigInteger repeatCount,
-                                    String sourceEncoding )
+                                    String sourceEncoding,
+                                    byte[] hash,
+                                    String hashAlgorithm )
     {
         super(id, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount);
         this.trackFileId = trackFileId;
         this.sourceEncoding = sourceEncoding;
+        this.hash = (hash == null) ? null : Arrays.copyOf(hash, hash.length);
+        this.hashAlgorithm = hashAlgorithm;
     }
 
     /**
@@ -60,21 +69,44 @@ public abstract class IMFTrackFileResourceType extends BaseResourceType {
     }
 
     /**
+     * Getter for the Hash of this Resource
+     * @return a byte[] copy of the hash
+     */
+    @Nullable
+    public byte[] getHash(){
+        return (this.hash == null) ? null : Arrays.copyOf(this.hash, this.hash.length);
+    }
+
+    /**
+     * Getter for the HashAlgorithm used in creating the hash of this resource
+     * @return a String representing the HashAlgorithm
+     */
+    @Nullable
+    public String getHashAlgorithm(){
+        return this.hashAlgorithm;
+    }
+
+
+    /**
      * A method to determine the equivalence of any 2 TrackFileResource.
      * @param other - the object to compare against
      * @return boolean indicating if the 2 TrackFileResources are equivalent/representing the same timeline
      */
-    public boolean equivalent(IMFTrackFileResourceType other)
+    @Override
+    public boolean equivalent(IMFBaseResourceType other)
     {
-        if(other == null){
+        if(other == null || !(other instanceof IMFTrackFileResourceType)){
             return false;
         }
+
+        IMFTrackFileResourceType otherTrackFileResource = IMFTrackFileResourceType.class.cast(other);
+
         boolean result = true;
         //Compare the following fields of the track file resources that have to be equal
         //for the 2 resources to be considered equivalent/representing the same timeline.
-        result &= super.equivalent( other );
-        result &= trackFileId.equals(other.getTrackFileId());
-        result &= sourceEncoding.equals(other.getSourceEncoding());
+        result &= super.equivalent( otherTrackFileResource );
+        result &= trackFileId.equals(otherTrackFileResource.getTrackFileId());
+        result &= sourceEncoding.equals(otherTrackFileResource.getSourceEncoding());
 
         return  result;
     }

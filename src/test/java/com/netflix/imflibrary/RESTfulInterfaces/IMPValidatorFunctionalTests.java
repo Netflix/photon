@@ -27,26 +27,15 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.Composition;
-<<<<<<< 479ec45bf22cdae7e05b5ae6cceac9adc879e0e0
-<<<<<<< 93ce6a422a2d13d8e8e29d03662d8611741f4a1c
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
-=======
-import com.netflix.imflibrary.st2067_2.VirtualTrack;
->>>>>>> Adding class hierarchy for track resource
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import javafx.scene.paint.ImagePatternBuilder;
-=======
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
->>>>>>> Making VirtualTrack inner class
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -57,6 +46,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -376,12 +368,8 @@ public class IMPValidatorFunctionalTests {
                 bytes.length));
 
         //Create a temporary working directory under home
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if (!(tempDir.exists() || tempDir.mkdirs())) {
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
@@ -477,12 +465,8 @@ public class IMPValidatorFunctionalTests {
                 bytes.length));
 
         //Create a temporary working directory under home
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if (!(tempDir.exists() || tempDir.mkdirs())) {
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",

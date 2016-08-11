@@ -27,6 +27,8 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
+import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -37,7 +39,6 @@ import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
-import org.smpte_ra.schemas.st2067_2_2016.BaseResourceType;
 import org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2016.CompositionTimecodeType;
@@ -212,7 +213,7 @@ public class CompositionPlaylistBuilder_2016 {
     private List<EssenceDescriptorBaseType> buildEDLForVirtualTrack (Composition.VirtualTrack virtualTrack) throws IOException, ParserConfigurationException{
 
         Map<UUID, UUID> trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
-        for(Composition.TrackResource trackResource : virtualTrack.getTrackResources()){
+        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)virtualTrack.getResourceList()){
             UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
             if(sourceEncoding != null
                     && !sourceEncoding.equals(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()))){
@@ -223,7 +224,7 @@ public class CompositionPlaylistBuilder_2016 {
             }
         }
         List<org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
-        Set<UUID> trackResourceIds = virtualTrack.getTrackResourceIds();
+        Set<UUID> trackResourceIds = IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds();
         /**
          * Create the RegXML representation of the EssenceDescriptor metadata for every Resource of every VirtualTrack
          * of the Composition
@@ -290,9 +291,9 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     private List<org.smpte_ra.schemas.st2067_2_2016.BaseResourceType> buildTrackResourceList(Composition.VirtualTrack virtualTrack){
-        List<Composition.TrackResource> trackResources = virtualTrack.getTrackResources();
+        List<IMFTrackFileResourceType> trackResources = (List<IMFTrackFileResourceType>)virtualTrack.getResourceList();
         List<org.smpte_ra.schemas.st2067_2_2016.BaseResourceType> trackResourceList = new ArrayList<>();
-        for(Composition.TrackResource trackResource : trackResources){
+        for(IMFTrackFileResourceType trackResource : trackResources){
             trackResourceList.add(buildTrackFileResource(trackResource));
         }
         return Collections.unmodifiableList(trackResourceList);
@@ -585,7 +586,7 @@ public class CompositionPlaylistBuilder_2016 {
      * @param trackResource an object that roughly models a TrackFileResourceType
      * @return a BaseResourceType conforming to the 2016 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2016.BaseResourceType buildTrackFileResource(Composition.TrackResource trackResource){
+    public org.smpte_ra.schemas.st2067_2_2016.BaseResourceType buildTrackFileResource(IMFTrackFileResourceType trackResource){
         org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource = new org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType();
         trackFileResource.setId(trackResource.getId());
         trackFileResource.setAnnotation(null);

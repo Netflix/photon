@@ -38,6 +38,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,12 +82,8 @@ public class AssetMapBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        String path = System.getProperty("user.home") + File.separator + "IMFDocuments";
-        File tempDir = new File(path);
-
-        if(!(tempDir.exists() || tempDir.mkdirs())){
-            throw new IOException("Could not create temporary directory");
-        }
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
 
         IMFErrorLogger assetMapBuilderErrorLogger = new IMFErrorLoggerImpl();
         List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempDir, assetMapBuilderErrorLogger).build();
