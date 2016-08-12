@@ -125,7 +125,7 @@ public final class CompositionModel_st2067_2_2016 {
                                     trackFileResource.getRepeatCount(),
                                     trackFileResource.getSourceEncoding(),
                                     trackFileResource.getHash(),
-                                    CompositionPlaylistBuilder_2016.defaultHashAlgorithm
+                                    trackFileResource.getHashAlgorithm().getAlgorithm()
                             );
                         }
                         else
