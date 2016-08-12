@@ -5,7 +5,9 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.CompositionModels.CompositionModel_st2067_2_2016;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013.CompositionModel_st2067_2_2013;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
@@ -85,7 +87,7 @@ public class IMPBuilder {
          */
         long totalRunningTime = 0L;
         long totalNumberOfImageEditUnits = 0L;
-        for(Composition.TrackResource trackResource : mainImageVirtualTrack.getTrackResources()){
+        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)mainImageVirtualTrack.getResourceList()){
             totalNumberOfImageEditUnits += trackResource.getSourceDuration().longValue() * trackResource.getRepeatCount().longValue();
         }
         totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
@@ -278,7 +280,7 @@ public class IMPBuilder {
          */
         long totalRunningTime = 0L;
         long totalNumberOfImageEditUnits = 0L;
-        for(Composition.TrackResource trackResource : mainImageVirtualTrack.getTrackResources()){
+        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)mainImageVirtualTrack.getResourceList()){
             totalNumberOfImageEditUnits += trackResource.getSourceDuration().longValue() * trackResource.getRepeatCount().longValue();
         }
         totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
