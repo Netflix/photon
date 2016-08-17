@@ -48,6 +48,7 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -332,12 +333,24 @@ public final class Composition
                 IMFCoreConstraintsChecker.checkVirtualTrackResourceList(uuid, sequence.getResourceList(), imfErrorLogger);
                 if (virtualTrackResourceMap.get(uuid) == null)
                 {
-                    virtualTrackResourceMap.put(uuid, (List<IMFBaseResourceType>)sequence.getResourceList());
+                    virtualTrackResourceMap.put(uuid, new ArrayList<IMFBaseResourceType>());
                 }
-                else
-                {
-                   virtualTrackResourceMap.get(uuid).addAll(sequence.getResourceList());
-                }
+
+               for(IMFBaseResourceType baseResource: sequence.getResourceList())
+               {
+                   /* Ignore track file resource with zero duration */
+                   if(baseResource.getSourceDuration().longValue() == 0)
+                   {
+                       imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                               IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Resource with zero source duration ignored: VirtualTrackID %s ResourceID %s",
+                                       uuid.toString(),
+                                       baseResource.getId()));
+                   }
+                   else
+                   {
+                       virtualTrackResourceMap.get(uuid).add(baseResource);
+                   }
+               }
             }
         }
 
