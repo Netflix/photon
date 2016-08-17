@@ -337,8 +337,8 @@ public final class Composition
 
                for(IMFBaseResourceType baseResource: sequence.getResourceList())
                {
-                   /* Ignore track file resource with zero duration */
-                   if(baseResource.getSourceDuration().longValue() == 0)
+                   /* Ignore track file resource with zero or negative duration */
+                   if(baseResource.getSourceDuration().longValue() <= 0)
                    {
                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Resource with zero source duration ignored: VirtualTrackID %s ResourceID %s",
