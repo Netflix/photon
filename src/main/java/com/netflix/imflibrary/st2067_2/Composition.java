@@ -332,12 +332,24 @@ public final class Composition
                 IMFCoreConstraintsChecker.checkVirtualTrackResourceList(uuid, sequence.getResourceList(), imfErrorLogger);
                 if (virtualTrackResourceMap.get(uuid) == null)
                 {
-                    virtualTrackResourceMap.put(uuid, (List<IMFBaseResourceType>)sequence.getResourceList());
+                    virtualTrackResourceMap.put(uuid, new ArrayList<IMFBaseResourceType>());
                 }
-                else
-                {
-                   virtualTrackResourceMap.get(uuid).addAll(sequence.getResourceList());
-                }
+
+               for(IMFBaseResourceType baseResource: sequence.getResourceList())
+               {
+                   /* Ignore track file resource with zero or negative duration */
+                   if(baseResource.getSourceDuration().longValue() <= 0)
+                   {
+                       imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                               IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Resource with zero source duration ignored: VirtualTrackID %s ResourceID %s",
+                                       uuid.toString(),
+                                       baseResource.getId()));
+                   }
+                   else
+                   {
+                       virtualTrackResourceMap.get(uuid).add(baseResource);
+                   }
+               }
             }
         }
 
