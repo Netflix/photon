@@ -18,29 +18,60 @@
 
 package com.netflix.imflibrary.exceptions;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.IMFErrorLogger.IMFErrors;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Unchecked exception class that is used when a fatal error occurs in processing related to IMF layer
  */
 public class IMFException extends RuntimeException
 {
-
-    public IMFException()
-    {
-        super();
-    }
+    IMFErrorLogger errorLogger;
+    String s;
+    IMFErrors.ErrorCodes errorCode;
 
     public IMFException(String s)
     {
         super(s);
+        this.errorLogger = null;
     }
 
     public IMFException(Throwable t)
     {
         super(t);
+        this.errorLogger = null;
     }
 
     public IMFException(String s, Throwable t)
     {
-        super(s,t);
+        super(s, t);
+        this.errorLogger = null;
+    }
+
+    public IMFException(String s, @Nonnull IMFErrorLogger errorLogger, IMFErrors.ErrorCodes errorCode)
+    {
+        super(s);
+        this.errorLogger = errorLogger;
+        this.s           = s;
+        this.errorCode   = errorCode;
+
+    }
+
+    public List<ErrorLogger.ErrorObject> getErrors()
+    {
+        List errorList = new ArrayList<ErrorLogger.ErrorObject>();
+        if(this.errorLogger != null)
+        {
+            errorList.addAll(this.errorLogger.getErrors());
+            errorList.add(new ErrorLogger.ErrorObject(this.errorCode, IMFErrors.ErrorLevels.FATAL, s));
+        }
+
+        return Collections.unmodifiableList(errorList);
     }
 }

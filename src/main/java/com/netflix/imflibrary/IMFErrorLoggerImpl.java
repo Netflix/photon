@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.Boolean.TRUE;
+
 /**
  * An non-thread-safe implementation of the IMFErrorLogger interface
  */
@@ -160,5 +162,4 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
             throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize -1) = %d", rangeEnd, (this.errorObjects.size()-1)));
         }
     }
-
 }

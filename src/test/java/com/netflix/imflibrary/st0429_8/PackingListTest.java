@@ -15,7 +15,7 @@ public class PackingListTest
     public void testPackingList() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/PKL_51edd4be-4506-494d-a58e-516553055c33.xml");
-        PackingList packingList = new PackingList(inputFile, new IMFErrorLoggerImpl());
+        PackingList packingList = new PackingList(inputFile);
         Assert.assertEquals(packingList.getUUID(), UUID.fromString("51edd4be-4506-494d-a58e-516553055c33"));
         Assert.assertEquals(packingList.getAssets().size(), 3);
         Assert.assertTrue(packingList.toString().length() > 0);
@@ -32,7 +32,7 @@ public class PackingListTest
     public void testPackingList2016() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("PKL_2067_2_2016.xml");
-        PackingList packingList = new PackingList(inputFile, new IMFErrorLoggerImpl());
+        PackingList packingList = new PackingList(inputFile);
         Assert.assertEquals(packingList.getUUID(), UUID.fromString("7281a71b-0dcb-4ed7-93a4-97b7929e2a7c"));
         Assert.assertEquals(packingList.getAssets().size(), 2);
         Assert.assertTrue(packingList.toString().length() > 0);

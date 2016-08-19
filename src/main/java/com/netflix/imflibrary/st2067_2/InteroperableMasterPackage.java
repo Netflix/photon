@@ -53,7 +53,7 @@ public final class InteroperableMasterPackage
         this.packingList = packingList;
         if (!packingListURI.isAbsolute())
         {
-            throw new IMFException(String.format("PackingList URI = %s is not absolute", packingListURI));
+            throw new IMFException(String.format("PackingList URI = %s is not absolute", packingListURI), null);
         }
         this.packingListURI = packingListURI;
         this.referencedAssets = referencedAssets;

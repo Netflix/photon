@@ -17,6 +17,8 @@
  */
 package com.netflix.imflibrary.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +49,14 @@ public class DOMNodeObjectModel {
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
     private final Map<String, List<String>> fields = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
+    private final IMFErrorLogger imfErrorLogger;
 
     /**
      * A constructor for the object model of a DOM Node.
      * @param node the DOM Node whose object model is desired.
      */
     public DOMNodeObjectModel(Node node){
+        imfErrorLogger = new IMFErrorLoggerImpl();
         this.nodeType = node.getNodeType();
         this.localName = node.getLocalName();
         Node child = node.getFirstChild();
@@ -79,7 +83,8 @@ public class DOMNodeObjectModel {
                 //Ignore comment nodes
                 break;
             default:
-                throw new IMFException(String.format("Internal error occurred while constructing a DOM Node object model"));
+                throw new IMFException(String.format("Internal error occurred while constructing a DOM Node object " +
+                        "model"), imfErrorLogger, IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR);
         }
     }
 

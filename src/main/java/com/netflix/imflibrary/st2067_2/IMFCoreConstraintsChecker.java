@@ -79,15 +79,9 @@ public final class IMFCoreConstraintsChecker {
                 if (virtualTrackMap.get(uuid) == null)
                 {
                     String message = String.format(
-                            "A segment in Composition XML file does not contain virtual track UUID %s", uuid);
-                    if (imfErrorLogger != null)
-                    {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                    }
-                    else
-                    {
-                        throw new IMFException(message);
-                    }
+                            "Segment %s in Composition XML file does not contain virtual track UUID %s",
+                            segment.getId(), uuid);
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
             }
 
@@ -95,14 +89,7 @@ public final class IMFCoreConstraintsChecker {
             {
                 String message = String.format(
                         "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), virtualTrackMap.size());
-                if (imfErrorLogger != null)
-                {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                }
-                else
-                {
-                    throw new IMFException(message);
-                }
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
             }
 
         }

@@ -330,6 +330,15 @@ public class PackingListBuilder {
         }
     }
 
+    /**
+     * Getter for the errors in PackingListBuilder
+     *
+     * @return List of errors in PackingListBuilder.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
+    }
+
     public static enum PKLAssetTypeEnum {
         TEXT_XML("text/xml"),
         APP_MXF("application/mxf"),

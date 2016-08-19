@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
@@ -34,7 +36,6 @@ public final class IMPAsset
 {
     private final URI uri;
     private final PackingList.Asset asset;
-
     /**
      * Constructor for an {@link com.netflix.imflibrary.st2067_2.IMPAsset IMPAsset} from a PackingList Asset and its URI. Construction
      * fails if the URI is not absolute

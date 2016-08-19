@@ -115,7 +115,6 @@ public class CompositionPlaylistBuilder_2013 {
      * @param totalRunningTime a long value representing in seconds the total running time of this composition
      * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
      * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfErrorLogger a logger object to record errors that occur during the creation of the CompositionPlaylist document
      */
     public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
                                            @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
@@ -125,8 +124,7 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                           @Nonnull File workingDirectory,
-                                           @Nonnull IMFErrorLogger imfErrorLogger){
+                                           @Nonnull File workingDirectory){
         this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -139,7 +137,7 @@ public class CompositionPlaylistBuilder_2013 {
         this.totalRunningTime = totalRunningTime;
         this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
         this.workingDirectory = workingDirectory;
-        this.imfErrorLogger = imfErrorLogger;
+        this.imfErrorLogger = new IMFErrorLoggerImpl();
     }
 
     /**
@@ -620,6 +618,16 @@ public class CompositionPlaylistBuilder_2013 {
         digestMethodType.setAlgorithm(algorithm);
         return digestMethodType;
     }
+
+    /**
+     * Getter for the errors in CompositionPlaylistBuilder_2013
+     *
+     * @return List of errors in CompositionPlaylistBuilder_2013.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
+    }
+
 
     /**
      * A thin class that maintains a reference to a VirtualTrack Sequence object and the type of the Sequence.

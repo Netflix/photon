@@ -286,8 +286,7 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
         Assert.assertTrue(errors.size() == 0);
 
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
+        Composition composition = new Composition(resourceByteRangeProvider);
         List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
@@ -322,7 +321,7 @@ public class IMPValidatorFunctionalTests {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
+        Composition composition = new Composition(resourceByteRangeProvider);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -394,9 +393,8 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord cplPayloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
         Assert.assertTrue(errors.size() == 0);
-        IMFErrorLogger cplConformanceErrorLogger = new IMFErrorLoggerImpl();
 
-        composition = new Composition(fileByteRangeProvider, cplConformanceErrorLogger);
+        composition = new Composition(fileByteRangeProvider);
         fileByteRangeProvider = new FileByteRangeProvider(headerPartition1);
         byte[] headerPartition1_bytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord headerPartition1PayloadRecord = new PayloadRecord(headerPartition1_bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);

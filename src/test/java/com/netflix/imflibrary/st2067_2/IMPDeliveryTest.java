@@ -16,8 +16,8 @@ public class IMPDeliveryTest
     public void testIMPDelivery() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set");
-        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(inputFile, new IMFErrorLoggerImpl());
-        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet, null);
+        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(inputFile);
+        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfileV2FileSet);
         Assert.assertTrue(impDelivery.toString().length() > 0);
         Assert.assertTrue(impDelivery.isValid());

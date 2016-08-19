@@ -18,6 +18,7 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
@@ -83,7 +84,8 @@ public class IMFUtils {
             return timeCodeStartAddress;
         }
         else{
-            throw new IMFException(String.format("Could not generate a valid TimecodeStartAddress based on input received"));
+            throw new IMFException(String.format("Could not generate a valid TimecodeStartAddress based on input " +
+                    "received"));
         }
     }
 
@@ -171,7 +173,8 @@ public class IMFUtils {
         }
         if(!cls.isAssignableFrom(baseResourceType.getClass()))
         {
-            throw new IMFException(String.format("Unable to cast from Box type %s to %s", baseResourceType.getClass().getName(), cls.getName()));
+            throw new IMFException(String.format("Unable to cast from Box type %s to %s", baseResourceType.getClass()
+                    .getName(), cls.getName()));
         }
 
         return cls.cast(baseResourceType);

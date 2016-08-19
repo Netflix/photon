@@ -231,10 +231,11 @@ public final class IMFConstraints
     public static class HeaderPartitionIMF
     {
         private final MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A;
-
+        private final IMFErrorLogger imfErrorLogger;
         private HeaderPartitionIMF(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A)
         {
             this.headerPartitionOP1A = headerPartitionOP1A;
+            imfErrorLogger = new IMFErrorLoggerImpl();
         }
 
         /**
@@ -365,7 +366,9 @@ public final class IMFConstraints
                 for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
                     stringBuilder.append(String.format("%s, ", essenceTypeEnum.toString()));
                 }
-                throw new IMFException(String.format("IMF constrains MXF essences to mono essences only, however more than one EssenceType was detected %s.", stringBuilder.toString()));
+                throw new IMFException(String.format("IMF constrains MXF essences to mono essences only, however more" +
+                        " than one EssenceType was detected %s.", stringBuilder.toString()),
+                        imfErrorLogger, IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR);
             }
             return essenceTypes.get(0);
         }

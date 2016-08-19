@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * A stateless class that will create the AssetMap, Packing List and CompositionPlaylist that represent a complete IMF Master Package by utilizing the relevant builders
@@ -100,11 +102,13 @@ public class IMPBuilder {
                                                                                                                 compositionEditRate,
                                                                                                                 totalRunningTime,
                                                                                                                 trackFileHeaderPartitionMap,
-                                                                                                                workingDirectory,
-                                                                                                                imfErrorLogger);
+                                                                                                                workingDirectory);
 
         compositionPlaylistBuilder_2013.build();
-        if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
+
+
+        if(compositionPlaylistBuilder_2013.getErrors().stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
+                .IMFErrors.ErrorLevels.FATAL)).count() > 0) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
@@ -161,6 +165,8 @@ public class IMPBuilder {
             packingListBuilderAssets.add(asset);
         }
         packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets);
+
+        imfErrorLogger.addAllErrors(packingListBuilder.getErrors());
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
@@ -293,12 +299,12 @@ public class IMPBuilder {
                 compositionEditRate,
                 totalRunningTime,
                 trackFileHeaderPartitionMap,
-                workingDirectory,
-                imfErrorLogger);
+                workingDirectory);
 
         compositionPlaylistBuilder_2016.build();
 
-        if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
+        if(compositionPlaylistBuilder_2016.getErrors().stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
+                .IMFErrors.ErrorLevels.FATAL)).count() > 0) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;

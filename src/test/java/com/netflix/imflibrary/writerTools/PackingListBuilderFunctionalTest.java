@@ -56,7 +56,7 @@ public class PackingListBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        PackingList packingList = new PackingList(resourceByteRangeProvider, imfErrorLogger);
+        PackingList packingList = new PackingList(resourceByteRangeProvider);
         List<PackingList.Asset> assets = packingList.getAssets();
 
         List<PackingListBuilder.PackingListBuilderAsset_2007> packingListBuilderAssets = new ArrayList<>();
@@ -87,6 +87,7 @@ public class PackingListBuilderFunctionalTest {
         org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
         new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
 
+        imfErrorLogger.addAllErrors(packingList.getErrors());
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
         }
@@ -116,7 +117,9 @@ public class PackingListBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        PackingList packingList = new PackingList(resourceByteRangeProvider, imfErrorLogger);
+        PackingList packingList = new PackingList(resourceByteRangeProvider);
+        imfErrorLogger.addAllErrors(packingList.getErrors());
+
         List<PackingList.Asset> assets = packingList.getAssets();
 
         List<PackingListBuilder.PackingListBuilderAsset_2016> packingListBuilderAssets = new ArrayList<>();

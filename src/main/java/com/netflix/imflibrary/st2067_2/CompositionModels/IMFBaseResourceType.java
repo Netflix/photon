@@ -18,6 +18,9 @@
 
 package com.netflix.imflibrary.st2067_2.CompositionModels;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 
 import java.math.BigInteger;
@@ -39,7 +42,8 @@ public abstract class IMFBaseResourceType {
                                BigInteger intrinsicDuration,
                                BigInteger entryPoint,
                                BigInteger sourceDuration,
-                               BigInteger repeatCount){
+                               BigInteger repeatCount)
+    {
         this.id = id;
         this.editRate = new Composition.EditRate(editRate);
         this.intrinsicDuration = intrinsicDuration;

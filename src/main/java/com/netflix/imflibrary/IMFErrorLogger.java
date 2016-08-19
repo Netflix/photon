@@ -85,6 +85,11 @@ public interface IMFErrorLogger extends ErrorLogger
             MXF_OPERATIONAL_PATTERN_1A_ERROR("MXF OP1A Pattern Error"),
 
             /**
+             * The MXF_HEADER_PARTITION_ERROR.
+             */
+            MXF_HEADER_PARTITION_ERROR ("MXF Header Partition Error"),
+
+            /**
              * The IMF_ESSENCE_COMPONENT_ERROR.
              */
             IMF_ESSENCE_COMPONENT_ERROR("IMF Essence Component Error"),
@@ -117,7 +122,12 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The IMF_MASTER_PACKAGE_ERROR.
              */
-            IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error");
+            IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error"),
+
+            /**
+             * The IMP_VALIDATOR_PAYLOAD_ERROR.
+             */
+            IMP_VALIDATOR_PAYLOAD_ERROR("IMP Validator Payload Error");
 
             private final String error;
 

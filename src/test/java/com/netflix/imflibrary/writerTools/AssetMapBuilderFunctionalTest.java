@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A test for the AssetMapBuilder
@@ -56,8 +57,7 @@ public class AssetMapBuilderFunctionalTest {
 
         File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        AssetMap assetMap = new AssetMap(resourceByteRangeProvider, imfErrorLogger);
+        AssetMap assetMap = new AssetMap(resourceByteRangeProvider);
 
         /**
          * Build the AssetMapBuilder's AssetList
@@ -88,8 +88,11 @@ public class AssetMapBuilderFunctionalTest {
         IMFErrorLogger assetMapBuilderErrorLogger = new IMFErrorLoggerImpl();
         List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempDir, assetMapBuilderErrorLogger).build();
 
-        if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
-            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
+        List errorList = assetMap.getErrors().stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
+                .IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList());
+        if(errorList.size() > 0) {
+            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. " +
+                    "Please see following error messages %s", Utilities.serializeObjectCollectionToString(errorList)));
         }
 
         File assetMapFile = null;
