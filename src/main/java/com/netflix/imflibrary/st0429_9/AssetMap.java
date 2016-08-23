@@ -20,6 +20,8 @@ package com.netflix.imflibrary.st0429_9;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -501,12 +503,41 @@ public final class AssetMap
         }
     }
 
+    private static String usage()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFilePath>%n", AssetMap.class.getName()));
+        return sb.toString();
+    }
+
     public static void main(String args[]) throws IOException, URISyntaxException, SAXException, JAXBException
     {
-        File inputFile = new File(args[0]);
+        if (args.length != 1)
+        {
+            logger.error(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
 
-        AssetMap assetMap = new AssetMap(inputFile, new IMFErrorLoggerImpl());
-        logger.warn(assetMap.toString());
+        File inputFile = new File(args[0]);
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
+        List<ErrorLogger.ErrorObject>errors = IMPValidator.validateAssetMap(payloadRecord);
+
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel()!= IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info("No structural errors were detected in the AssetMap Document");
+        }
 
     }
 }

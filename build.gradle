@@ -79,6 +79,9 @@ test {
     }
 }
 
+/**
+ * This task should include all the dependencies as a part of the build process
+ */
 task getDependencies(type: Copy) {
   from sourceSets.main.runtimeClasspath
   into 'build/libs/'
@@ -92,3 +95,7 @@ task getDependencies(type: Copy) {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.9'
 }
+
+//Following line will enable including compile time dependencies as a part of the
+//compile and build process.
+//assemble.dependsOn getDependencies

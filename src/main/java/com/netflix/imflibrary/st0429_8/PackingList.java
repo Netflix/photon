@@ -20,6 +20,8 @@ package com.netflix.imflibrary.st0429_8;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -473,13 +475,41 @@ public final class PackingList
         }
     }
 
-    public static void main(String args[]) throws IOException, SAXException, ParserConfigurationException, JAXBException
+    private static String usage()
     {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <inputFilePath>%n", PackingList.class.getName()));
+        return sb.toString();
+    }
+
+    public static void main(String args[]) throws IOException, SAXException, JAXBException
+    {
+        if (args.length != 1)
+        {
+            logger.error(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         File inputFile = new File(args[0]);
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
+        List<ErrorLogger.ErrorObject>errors = IMPValidator.validatePKL(payloadRecord);
 
-        PackingList packingList = new PackingList(inputFile, new IMFErrorLoggerImpl());
-        logger.warn(packingList.toString());
-
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel()!= IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info("No errors were detected in the PackingList Document");
+        }
     }
 
 }

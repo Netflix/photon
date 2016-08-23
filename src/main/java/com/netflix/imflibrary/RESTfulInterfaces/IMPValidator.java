@@ -20,12 +20,16 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.Utilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -42,6 +46,8 @@ import java.util.UUID;
  * A RESTful interface for validating an IMF Master Package.
  */
 public class IMPValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(IMPValidator.class);
 
     /**
      * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
@@ -638,5 +644,82 @@ public class IMPValidator {
         public HeaderPartition getHeaderPartition(){
             return this.headerPartition;
         }
+    }
+
+    private static String usage()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Usage:%n"));
+        sb.append(String.format("%s <filePath1><filePath2><filePath3> - List of files corresponding to the AssetMap, PackingList and CompositionPlaylist in no particular order%n", IMPValidator.class.getName()));
+        return sb.toString();
+    }
+
+    public static void main(String args[]) throws IOException, URISyntaxException, SAXException, JAXBException
+    {
+        if (args.length != 3)
+        {
+            logger.error(usage());
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+        List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
+        File assetMapFile=null, packingListFile=null, compositionPlaylistFile=null;
+
+        for(String arg : args) {
+            File inputFile = new File(arg);
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+            byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+            PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
+            PayloadRecord.PayloadAssetType payloadAssetType = IMPValidator.getPayloadType(payloadRecord);
+            payloadRecord = new PayloadRecord(bytes, payloadAssetType, 0L, resourceByteRangeProvider.getResourceSize());
+            switch (payloadAssetType) {
+                case PackingList:
+                    packingListFile = inputFile;
+                    logger.info(String.format("File %s was identified as a PackingList document.", packingListFile.getName()));
+                    errors.addAll(validatePKL(payloadRecord));
+                    break;
+                case AssetMap:
+                    assetMapFile = inputFile;
+                    logger.info(String.format("File %s was identified as a AssetMap document.", assetMapFile.getName()));
+                    errors.addAll(validateAssetMap(payloadRecord));
+                    break;
+                case CompositionPlaylist:
+                    compositionPlaylistFile = inputFile;
+                    logger.info(String.format("File %s was identified as a CompositionPlaylist document.", compositionPlaylistFile.getName()));
+                    errors.addAll(validateCPL(payloadRecord));
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unknown AssetType for file %s", inputFile.getName()));
+            }
+        }
+
+        if(assetMapFile != null
+                && packingListFile != null){
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetMapFile);
+            byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+            PayloadRecord assetMapPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
+
+            resourceByteRangeProvider = new FileByteRangeProvider(packingListFile);
+            bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+            PayloadRecord packingListPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
+            List<PayloadRecord> packingListPayloadRecords = new ArrayList<>();
+            packingListPayloadRecords.add(packingListPayloadRecord);
+
+            errors.addAll(IMPValidator.validatePKLAndAssetMap(assetMapPayloadRecord, packingListPayloadRecords));
+        }
+
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel()!= IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info("No errors were detected in the AssetMap Document");
+        }
+
     }
 }
