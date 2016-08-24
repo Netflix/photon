@@ -66,14 +66,16 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
         File workingDirectory = Files.createTempDirectory(null).toFile();
         IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, new FileByteRangeProvider(inputFile));
-        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = imfTrackFileReader.getEssenceDescriptors();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = imfTrackFileReader.getEssenceDescriptors(imfErrorLogger);
         Assert.assertTrue(essenceDescriptors.size() == 1);
+        List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptors.get(0), imfErrorLogger);
         /* create dom */
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;
         docBuilder = docFactory.newDocumentBuilder();
         Document document = docBuilder.newDocument();
-        Assert.assertTrue(imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfTrackFileReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0))) != null);
+        Assert.assertTrue(imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfTrackFileReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0)), subDescriptorHeaders) != null);
     }
 
     @Test

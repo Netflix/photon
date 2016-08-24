@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.app;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.sandflow.smpte.klv.Triplet;
 import com.netflix.imflibrary.KLVPacket;
@@ -93,7 +95,8 @@ final class IMFTrackFileCPLBuilder {
     public IMFTrackFileCPLBuilder(File workingDirectory, File essenceFile) throws IOException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceFile);
         this.imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-        KLVPacket.Header primerPackHeader = this.imfTrackFileReader.getPrimerPackHeader();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        KLVPacket.Header primerPackHeader = this.imfTrackFileReader.getPrimerPackHeader(imfErrorLogger);
         this.regXMLLibHelper = new RegXMLLibHelper(primerPackHeader, this.imfTrackFileReader.getByteProvider(primerPackHeader));
         this.workingDirectory = workingDirectory;
         /*Peek into the CompositionPlayListType and recursively construct its constituent fields*/
@@ -105,10 +108,11 @@ final class IMFTrackFileCPLBuilder {
     /**
      * A template method to get an IMF CPL representation of the IMF Essence that the IMFTrackFileCPLBuilder was
      * initialized with.
-     *
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getCompositionPlaylist() throws IOException {
+    public File getCompositionPlaylist(IMFErrorLogger imfErrorLogger) throws IOException {
+
         this.cplRoot.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*CPL Annotation*/
         this.cplRoot.getAnnotation().setValue(this.fileName);
@@ -126,7 +130,7 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.getContentTitle().setValue(name);
         this.cplRoot.getContentTitle().setLanguage("en");
         /*Content Kind*/
-        String essenceType = this.imfTrackFileReader.getEssenceType();
+        String essenceType = this.imfTrackFileReader.getEssenceType(imfErrorLogger);
         this.cplRoot.getContentKind().setValue(essenceType);
         this.cplRoot.getContentKind().setScope("General");
         /*Extension Properties*/
@@ -137,16 +141,16 @@ final class IMFTrackFileCPLBuilder {
         buildContentVersionList();
         /*EssenceDescriptorList*/
         List<String> essenceDescriptorIdsList = Collections.synchronizedList(new LinkedList<String>());
-        buildEssenceDescriptorList(essenceDescriptorIdsList);
+        buildEssenceDescriptorList(essenceDescriptorIdsList, imfErrorLogger);
         /*CompositionTimeCode*/
         buildCompositionTimeCode();
         /*Edit Rate*/
-        List<Long> list = this.imfTrackFileReader.getEssenceEditRateAsList();
+        List<Long> list = this.imfTrackFileReader.getEssenceEditRateAsList(imfErrorLogger);
         this.cplRoot.getEditRate().addAll(list);
         /*Locale List*/
         this.buildLocaleList();
         /*Segment List*/
-        this.buildSegmentList(essenceDescriptorIdsList);
+        this.buildSegmentList(essenceDescriptorIdsList, imfErrorLogger);
         /*Signature elements*/
         this.buildSignatureElements();
 
@@ -186,14 +190,14 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.setExtensionProperties(null);
     }
 
-    private void buildEssenceDescriptorList(List<String> uuidList) throws IOException{
+    private void buildEssenceDescriptorList(List<String> uuidList, IMFErrorLogger imfErrorLogger) throws IOException{
 
         try {
             List<EssenceDescriptorBaseType> essenceDescriptorList = this.cplRoot.getEssenceDescriptorList().getEssenceDescriptor();
-            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.imfTrackFileReader.getEssenceDescriptors();
+            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = this.imfTrackFileReader.getEssenceDescriptors(imfErrorLogger);
             for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                List<KLVPacket.Header> subDescriptorHeaders = this.imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor);
+                List<KLVPacket.Header> subDescriptorHeaders = this.imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
                 /*Create a dom*/
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -220,11 +224,11 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.setCompositionTimecode(null);
     }
 
-    private void buildSampleCompositionTimeCode() throws IOException {
+    private void buildSampleCompositionTimeCode(IMFErrorLogger imfErrorLogger) throws IOException {
         /* Following serves as SampleCode to getCompositionPlaylist a CompositionTimecode object*/
         CompositionTimecodeType compositionTimecodeType = this.cplRoot.getCompositionTimecode();
         compositionTimecodeType.setTimecodeDropFrame(false);/*TimecodeDropFrame set to false by default*/
-        compositionTimecodeType.setTimecodeRate(this.imfTrackFileReader.getEssenceEditRate());
+        compositionTimecodeType.setTimecodeRate(this.imfTrackFileReader.getEssenceEditRate(imfErrorLogger));
         compositionTimecodeType.setTimecodeStartAddress(IMFUtils.generateTimecodeStartAddress());
     }
 
@@ -261,25 +265,25 @@ final class IMFTrackFileCPLBuilder {
         list.add(localeType);
     }
 
-    private void buildSegmentList(List<String> uuidList) throws IOException {
+    private void buildSegmentList(List<String> uuidList, IMFErrorLogger imfErrorLogger) throws IOException {
         /*Segment Id*/
         List<SegmentType>segments = this.cplRoot.getSegmentList().getSegment();
         SegmentType segmentType = new SegmentType();
         segmentType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Segment Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
-        String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
+        String language = this.imfTrackFileReader.getAudioEssenceLanguage(imfErrorLogger) != null ? this.imfTrackFileReader.getAudioEssenceLanguage(imfErrorLogger) : "unknown";
         segmentType.setAnnotation(CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(name, language));
         /*Sequence List*/
         SegmentType.SequenceList sequenceList = new SegmentType.SequenceList();
         int index = 0;
-        SequenceType sequenceType = this.buildSequenceType(uuidList, index);
+        SequenceType sequenceType = this.buildSequenceType(uuidList, index, imfErrorLogger);
         ObjectFactory objectFactory = new ObjectFactory();
         JAXBElement<SequenceType> element = null;
-        if(this.imfTrackFileReader.getEssenceType().equals("MainImageSequence")){
+        if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals("MainImageSequence")){
             element = objectFactory.createMainImageSequence(sequenceType);
         }
-        else if(this.imfTrackFileReader.getEssenceType().equals("MainAudioSequence")){
+        else if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals("MainAudioSequence")){
             element = objectFactory.createMainAudioSequence(sequenceType);
         }
         else{
@@ -291,7 +295,7 @@ final class IMFTrackFileCPLBuilder {
         segments.add(segmentType);
     }
 
-    private SequenceType buildSequenceType(List<String> uuidList, int index) throws IOException {
+    private SequenceType buildSequenceType(List<String> uuidList, int index, IMFErrorLogger imfErrorLogger) throws IOException {
         SequenceType sequenceType = new SequenceType();
         /*Id*/
         sequenceType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
@@ -299,23 +303,23 @@ final class IMFTrackFileCPLBuilder {
         String trackId = IMFUUIDGenerator.getInstance().getUrnUUID();
         sequenceType.setTrackId(trackId);
         /*ResourceList*/
-        sequenceType.setResourceList(buildTrackResourceList(uuidList, index));
+        sequenceType.setResourceList(buildTrackResourceList(uuidList, index, imfErrorLogger));
         return sequenceType;
     }
 
-    private SequenceType.ResourceList buildTrackResourceList(List<String> uuidList, int index) throws IOException {
+    private SequenceType.ResourceList buildTrackResourceList(List<String> uuidList, int index, IMFErrorLogger imfErrorLogger) throws IOException {
         SequenceType.ResourceList resourceList = new SequenceType.ResourceList();
         List<BaseResourceType> baseResourceTypes = resourceList.getResource();
         TrackFileResourceType trackFileResourceType = new TrackFileResourceType();
         trackFileResourceType.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Resource Annotation*/
         String name = this.fileName.substring(0, this.fileName.lastIndexOf("."));
-        String language = this.imfTrackFileReader.getAudioEssenceLanguage() != null ? this.imfTrackFileReader.getAudioEssenceLanguage() : "unknown";
+        String language = this.imfTrackFileReader.getAudioEssenceLanguage(imfErrorLogger) != null ? this.imfTrackFileReader.getAudioEssenceLanguage(imfErrorLogger) : "unknown";
         trackFileResourceType.setAnnotation(CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(name, language));
         /*Edit Rate*/
-        trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList());
+        trackFileResourceType.getEditRate().addAll(this.imfTrackFileReader.getEssenceEditRateAsList(imfErrorLogger));
         /*Intrinsic Duration*/
-        trackFileResourceType.setIntrinsicDuration(this.imfTrackFileReader.getEssenceDuration());
+        trackFileResourceType.setIntrinsicDuration(this.imfTrackFileReader.getEssenceDuration(imfErrorLogger));
         /*Entry Point*/
         trackFileResourceType.setEntryPoint(BigInteger.valueOf(0L));
         /*Source Duration*/
@@ -354,14 +358,14 @@ final class IMFTrackFileCPLBuilder {
      * @throws MXFException - any MXF standard related non-compliance will be exposed through a MXF exception
      * @throws TransformerException - any XML transformation critical error will be exposed through a TransformerException
      */
-    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor) throws MXFException, IOException, TransformerException {
+    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException, TransformerException {
 
         File outputFile = new File(this.workingDirectory + "/" + "EssenceDescriptor.xml");
 
         document.setXmlStandalone(true);
 
-        Triplet triplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfTrackFileReader.getByteProvider(essenceDescriptor));
-        DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(triplet, document);
+
+        DocumentFragment documentFragment = getEssenceDescriptorAsDocumentFragment(document, essenceDescriptor, subDescriptors);
         document.appendChild(documentFragment);
 
         /* write DOM to file */
@@ -420,6 +424,7 @@ final class IMFTrackFileCPLBuilder {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         try
         {
@@ -427,7 +432,7 @@ final class IMFTrackFileCPLBuilder {
             sb.append(imfTrackFileReader.getRandomIndexPack());
             logger.info(String.format("%s", sb.toString()));
 
-            imfTrackFileCPLBuilder.getCompositionPlaylist();
+            imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
         }
         catch(IOException e)
         {
