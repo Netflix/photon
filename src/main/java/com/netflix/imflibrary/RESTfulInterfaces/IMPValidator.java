@@ -262,14 +262,21 @@ public class IMPValidator {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) throws IOException{
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         if(cpl.getPayloadAssetType() != PayloadRecord.PayloadAssetType.CompositionPlaylist){
             throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", cpl
                     .getPayloadAssetType(), PayloadRecord.PayloadAssetType.CompositionPlaylist.toString()));
         }
 
-        Composition composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()));
-
-        return composition.getErrors();
+        try {
+            Composition composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()));
+            imfErrorLogger.addAllErrors(composition.getErrors());
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+        return imfErrorLogger.getErrors();
     }
 
     /**

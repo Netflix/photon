@@ -107,6 +107,16 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
+    public void invalidAssetMapTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP_ERROR.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
+        List<ErrorLogger.ErrorObject>errors = IMPValidator.validateAssetMap(payloadRecord);
+        Assert.assertEquals(errors.size(), 5);
+    }
+
+    @Test
     public void validPKLTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/PKL_0429fedd-b55d-442a-aa26-2a81ec71ed05.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -144,6 +154,18 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL))
                 .collect(Collectors.toList());
         Assert.assertTrue(fatalErrors.size() == 0);
+    }
+
+    @Test
+    public void invalidCPLTest_2013Schema() throws IOException {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(payloadRecord);
+        List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL))
+                .collect(Collectors.toList());
+        Assert.assertEquals(fatalErrors.size(), 0);
     }
 
     @Test

@@ -174,6 +174,9 @@ public final class AssetMap
             case "org.smpte_ra.schemas.st0429_9_2007.AM":
                 UUID uuid = null;
                 org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = (org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType) assetMapTypeJAXBElement.getValue();
+
+                imfErrorLogger.addAllErrors(checkConformance(assetMapType));
+
                 uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetMapType.getId());
                 this.uuid = uuid;
                 for (org.smpte_ra.schemas.st0429_9_2007.AM.AssetType assetType : assetMapType.getAssetList().getAsset()) {
