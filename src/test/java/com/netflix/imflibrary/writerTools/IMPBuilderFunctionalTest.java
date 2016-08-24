@@ -68,7 +68,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
+        Composition composition = new Composition(resourceByteRangeProvider);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -199,7 +199,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
+        Composition composition = new Composition(resourceByteRangeProvider);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -329,7 +329,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
+        Composition composition = new Composition(resourceByteRangeProvider);
         List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");

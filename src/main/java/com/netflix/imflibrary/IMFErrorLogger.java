@@ -50,6 +50,10 @@ public interface IMFErrorLogger extends ErrorLogger
 
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException;
 
+    public Boolean hasFatal();
+
+    public Boolean hasFatal(int startIndex, int endIndex);
+
     final class IMFErrors
     {
 
@@ -85,6 +89,11 @@ public interface IMFErrorLogger extends ErrorLogger
             MXF_OPERATIONAL_PATTERN_1A_ERROR("MXF OP1A Pattern Error"),
 
             /**
+             * The MXF_HEADER_PARTITION_ERROR.
+             */
+            MXF_HEADER_PARTITION_ERROR ("MXF Header Partition Error"),
+
+            /**
              * The IMF_ESSENCE_COMPONENT_ERROR.
              */
             IMF_ESSENCE_COMPONENT_ERROR("IMF Essence Component Error"),
@@ -117,7 +126,27 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The IMF_MASTER_PACKAGE_ERROR.
              */
-            IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error");
+            IMF_MASTER_PACKAGE_ERROR("IMF Master Package Error"),
+
+            /**
+             * The IMP_VALIDATOR_PAYLOAD_ERROR.
+             */
+            IMP_VALIDATOR_PAYLOAD_ERROR("IMP Validator Payload Error"),
+
+            /**
+             * The IMF_UUID_ERROR.
+             */
+            IMF_UUID_ERROR("IMF UUID Error"),
+
+            /**
+             * The IMF_URI_ERROR.
+             */
+            IMF_URI_ERROR("IMF URI Error"),
+
+            /**
+             * The IMF_INTERNAL_ERROR.
+             */
+            IMF_INTERNAL_ERROR("IMF Internal Error");
 
             private final String error;
 

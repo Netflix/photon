@@ -4,23 +4,26 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Test(groups = "unit")
 public class AssetMapTest
 {
-    @Test(expectedExceptions = IMFException.class)
+    @Test
     public void testAssetMapTypeConformanceBad1()
     {
         AssetMapType assetMapType = new AssetMapType();
         //volume count is not 1
         assetMapType.setVolumeCount(new BigInteger("2"));
-        AssetMap.checkConformance(assetMapType, null);
+        List errors = AssetMap.checkConformance(assetMapType);
+        Assert.assertEquals(errors.size(), 2);
     }
 
-    @Test(expectedExceptions = IMFException.class)
+    @Test
     public void testAssetMapTypeConformanceBad2()
     {
         ChunkType chunkType = new ChunkType();
@@ -37,10 +40,12 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType, null);
+        List errors = AssetMap.checkConformance(assetMapType);
+        Assert.assertEquals(errors.size(), 1);
+
     }
 
-    @Test(expectedExceptions = IMFException.class)
+    @Test
     public void testAssetMapTypeConformanceBad3()
     {
         ChunkType chunkType = new ChunkType();
@@ -57,10 +62,11 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType, null);
+        List errors = AssetMap.checkConformance(assetMapType);
+        Assert.assertEquals(errors.size(), 1);
     }
 
-    @Test(expectedExceptions = IMFException.class)
+    @Test
     public void testAssetMapTypeConformanceBad4()
     {
         ChunkType chunkType = new ChunkType();
@@ -78,6 +84,7 @@ public class AssetMapTest
         assetMapType.setVolumeCount(new BigInteger("1"));
 
 
-        AssetMap.checkConformance(assetMapType, null);
+        List errors = AssetMap.checkConformance(assetMapType);
+        Assert.assertEquals(errors.size(), 1);
     }
 }

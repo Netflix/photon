@@ -19,7 +19,9 @@
 package com.netflix.imflibrary.writerTools;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -159,15 +161,14 @@ public class PackingListBuilder {
      *               with the st0429-8:2007 schema
      * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
      * @throws IOException - any I/O related error will be exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> buildPackingList_2007(@Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText,
                                                                @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer,
                                                                @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator,
-                                                               @Nonnull List<PackingListBuilderAsset_2007> assets) throws IOException, SAXException, JAXBException {
+                                                               @Nonnull List<PackingListBuilderAsset_2007> assets)
+            throws IOException {
 
-        int numErrors = imfErrorLogger.getNumberOfErrors();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType packingListType = IMFPKLObjectFieldsFactory.constructPackingListType_2007();
         packingListType.setId(UUIDHelper.fromUUID(this.uuid));
         packingListType.setAnnotationText(annotationText);
@@ -204,45 +205,46 @@ public class PackingListBuilder {
                 OutputStream outputStream = new FileOutputStream(outputFile);
         )
         {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
-            StreamSource[] schemaSources = new StreamSource[2];
-            //The order in which these schema sources are initialized is important because some elements in the
-            //PackingList schema depend on types defined in the DSig schema.
-            schemaSources[0] = new StreamSource(dsigSchemaAsAStream);
-            schemaSources[1] = new StreamSource(packingListSchemaAsAStream);
-            Schema schema = schemaFactory.newSchema(schemaSources);
-
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_8_2007.PKL");
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
-            marshaller.setEventHandler(validationEventHandler);
-            marshaller.setSchema(schema);
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
-
-            /*marshaller.marshal(cplType, output);
-            workaround for 'Error: unable to marshal type "AssetMapType" as an element because it is missing an @XmlRootElement annotation'
-            as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
-             */
-            marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/429-8/2007/PKL", "PackingList"), org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType.class, packingListType), outputStream);
-            outputStream.close();
-
-            if(validationEventHandler.hasErrors())
+            try
             {
-                //TODO : Perhaps a candidate for a Lambda
-                for(ValidationEventHandlerImpl.ValidationErrorObject validationErrorObject : validationEventHandler.getErrors()) {
-                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, validationErrorObject.getValidationEventSeverity(), validationErrorObject.getErrorMessage());
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                StreamSource[] schemaSources = new StreamSource[2];
+                //The order in which these schema sources are initialized is important because some elements in the
+                //PackingList schema depend on types defined in the DSig schema.
+                schemaSources[0] = new StreamSource(dsigSchemaAsAStream);
+                schemaSources[1] = new StreamSource(packingListSchemaAsAStream);
+                Schema schema = schemaFactory.newSchema(schemaSources);
+
+                JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_8_2007.PKL");
+                Marshaller marshaller = jaxbContext.createMarshaller();
+                ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
+                marshaller.setEventHandler(validationEventHandler);
+                marshaller.setSchema(schema);
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
+
+                /*marshaller.marshal(cplType, output);
+                workaround for 'Error: unable to marshal type "AssetMapType" as an element because it is missing an @XmlRootElement annotation'
+                as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
+                 */
+                marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/429-8/2007/PKL", "PackingList"), org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType.class, packingListType), outputStream);
+                outputStream.close();
+
+                if (validationEventHandler.hasErrors()) {
+                    //TODO : Perhaps a candidate for a Lambda
+                    for (ValidationEventHandlerImpl.ValidationErrorObject validationErrorObject : validationEventHandler.getErrors()) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, validationErrorObject.getValidationEventSeverity(), validationErrorObject.getErrorMessage());
+                    }
                 }
             }
-        }
-
-        if(this.imfErrorLogger.getNumberOfErrors() > numErrors){
-            List<ErrorLogger.ErrorObject> fatalErrors = imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, this.imfErrorLogger.getNumberOfErrors());
-            if(fatalErrors.size() > 0){
-                throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building the PackingList document %s", fatalErrors.toString()));
+            catch( SAXException | JAXBException e)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                                .ErrorLevels.FATAL,
+                        e.getMessage());
             }
         }
 
-        return this.imfErrorLogger.getErrors();
+        return imfErrorLogger.getErrors();
     }
 
     /**
@@ -328,6 +330,15 @@ public class PackingListBuilder {
         public org.smpte_ra.schemas.st0429_8_2007.PKL.UserText getOriginalFileName(){
             return this.originalFileName;
         }
+    }
+
+    /**
+     * Getter for the errors in PackingListBuilder
+     *
+     * @return List of errors in PackingListBuilder.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
     }
 
     public static enum PKLAssetTypeEnum {

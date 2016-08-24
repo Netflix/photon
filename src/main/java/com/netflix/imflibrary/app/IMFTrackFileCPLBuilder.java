@@ -217,6 +217,8 @@ final class IMFTrackFileCPLBuilder {
             }
         }
         catch(ParserConfigurationException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, e.getMessage());
             throw new IMFException(e);
         }
     }
@@ -288,7 +290,11 @@ final class IMFTrackFileCPLBuilder {
             element = objectFactory.createMainAudioSequence(sequenceType);
         }
         else{
-            throw new IMFException(String.format("Currently only Audio/Image sequence types are supported"));
+            String message = String.format("Currently only Audio/Image sequence types are supported");
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL,
+                    message);
+            throw new IMFException(message, imfErrorLogger);
         }
         sequenceList.getAny().add(element);
         segmentType.setSequenceList(sequenceList);

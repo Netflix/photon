@@ -115,7 +115,6 @@ public class CompositionPlaylistBuilder_2016 {
      * @param totalRunningTime a long value representing in seconds the total running time of this composition
      * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
      * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfErrorLogger a logger object to record errors that occur during the creation of the CompositionPlaylist document
      */
     public CompositionPlaylistBuilder_2016(@Nonnull UUID uuid,
                                            @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType annotationText,
@@ -125,8 +124,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                           @Nonnull File workingDirectory,
-                                           @Nonnull IMFErrorLogger imfErrorLogger){
+                                           @Nonnull File workingDirectory){
         this.uuid = IMFUUIDGenerator.getInstance().generateUUID();
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -139,7 +137,7 @@ public class CompositionPlaylistBuilder_2016 {
         this.totalRunningTime = totalRunningTime;
         this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
         this.workingDirectory = workingDirectory;
-        this.imfErrorLogger = imfErrorLogger;
+        this.imfErrorLogger = new IMFErrorLoggerImpl();
     }
 
     /**
@@ -623,6 +621,15 @@ public class CompositionPlaylistBuilder_2016 {
         org.smpte_ra.schemas.st2067_2_2016.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2016.DigestMethodType();
         digestMethodType.setAlgorithm(algorithm);
         return digestMethodType;
+    }
+
+    /**
+     * Getter for the errors in CompositionPlaylistBuilder_2016
+     *
+     * @return List of errors in CompositionPlaylistBuilder_2016.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
     }
 
     /**

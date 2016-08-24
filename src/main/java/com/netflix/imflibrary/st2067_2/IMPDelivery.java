@@ -53,10 +53,10 @@ public final class IMPDelivery
     /**
      * Constructor for an IMPDelivery object for deliveries that are based on Basic Map Profile v2 (Annex A st0429-9:2014)
      * @param basicMapProfileV2FileSet a single mapped file set that is compliant with Basic Map Profile v2 (Annex A st0429-9:2014)
-     * @throws IOException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet, com.netflix.imflibrary.IMFErrorLogger)  BasicMapProfilev2FileSet} constructor
-     * @throws SAXException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet, com.netflix.imflibrary.IMFErrorLogger) BasicMapProfilev2FileSet}  constructor
-     * @throws JAXBException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet, com.netflix.imflibrary.IMFErrorLogger) BasicMapProfilev2FileSet}  constructor
-     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet, com.netflix.imflibrary.IMFErrorLogger) BasicMapProfilev2FileSet} constructor
+     * @throws IOException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet)  BasicMapProfilev2FileSet} constructor
+     * @throws SAXException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet) BasicMapProfilev2FileSet}  constructor
+     * @throws JAXBException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet) BasicMapProfilev2FileSet}  constructor
+     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2FileSet#BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet) BasicMapProfilev2FileSet} constructor
      */
     public IMPDelivery(BasicMapProfileV2FileSet basicMapProfileV2FileSet) throws IOException, SAXException, JAXBException, URISyntaxException
     {
@@ -66,7 +66,7 @@ public final class IMPDelivery
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
             URI absolutePackingListURI = basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(packingListAsset.getPath());
-            PackingList packingList = new PackingList(new File(absolutePackingListURI), this.imfErrorLogger);
+            PackingList packingList = new PackingList(new File(absolutePackingListURI));
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())
@@ -121,9 +121,8 @@ public final class IMPDelivery
     {
         File rootFile = new File(args[0]);
 
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile, imfErrorLogger);
-        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet, imfErrorLogger);
+        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
+        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfileV2FileSet);
 
         logger.warn(impDelivery.toString());

@@ -67,7 +67,7 @@ import java.util.*;
 public final class PackingList
 {
     private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
-
+    private final IMFErrorLogger imfErrorLogger;
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
     public static final List<String> supportedPKLNamespaces = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");
                                                                                                                         add("http://www.smpte-ra.org/schemas/2067-2/2016/PKL");}});
@@ -101,61 +101,72 @@ public final class PackingList
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
      * @param packingListXMLFile the input XML file
-     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(File packingListXMLFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, SAXException, JAXBException {
-        this(new FileByteRangeProvider(packingListXMLFile), imfErrorLogger);
+    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException {
+        this(new FileByteRangeProvider(packingListXMLFile));
     }
 
     /**
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
      * @param resourceByteRangeProvider corresponding to the PackingList XML file
-     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger)throws IOException, SAXException, JAXBException {
+    public PackingList(ResourceByteRangeProvider resourceByteRangeProvider)throws IOException {
 
         JAXBElement<PackingListType> packingListTypeJAXBElement = null;
+        imfErrorLogger = new IMFErrorLoggerImpl();
+
         String packingListNamespaceURI = getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
         PKLSchema pklSchema = supportedPKLSchemas.get(packingListNamespaceURI);
-
         if(pklSchema == null){
-            throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
+            String message = String.format("Please check the PKL document, currently we only support the " +
+                    "following schema URIs %s", serializePKLSchemasToString());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, message);
+            throw new IMFException(message, imfErrorLogger);
         }
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-             InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(PackingList.xmldsig_core_schema_path);
-             InputStream pkl_is = contextClassLoader.getResourceAsStream(pklSchema.getPKLSchemaPath());
-        )
-        {
-            StreamSource[] streamSources = new StreamSource[2];
-            streamSources[0] = new StreamSource(xmldsig_core_is);
-            streamSources[1] = new StreamSource(pkl_is);
+        try {
+            try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+                 InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(PackingList.xmldsig_core_schema_path);
+                 InputStream pkl_is = contextClassLoader.getResourceAsStream(pklSchema.getPKLSchemaPath());
+            ) {
+                StreamSource[] streamSources = new StreamSource[2];
+                streamSources[0] = new StreamSource(xmldsig_core_is);
+                streamSources[1] = new StreamSource(pkl_is);
 
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(streamSources);
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                Schema schema = schemaFactory.newSchema(streamSources);
 
-            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
-            JAXBContext jaxbContext = JAXBContext.newInstance(pklSchema.getPKLContext());
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            unmarshaller.setEventHandler(validationEventHandlerImpl);
-            unmarshaller.setSchema(schema);
+                ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+                JAXBContext jaxbContext = JAXBContext.newInstance(pklSchema.getPKLContext());
+                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                unmarshaller.setEventHandler(validationEventHandlerImpl);
+                unmarshaller.setSchema(schema);
 
-            packingListTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
+                packingListTypeJAXBElement = (JAXBElement) unmarshaller.unmarshal(inputStream);
 
-            if (validationEventHandlerImpl.hasErrors()) {
-                List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
-                for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                if (validationEventHandlerImpl.hasErrors()) {
+                    List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
+                    for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                    }
+                    throw new IMFException(validationEventHandlerImpl.toString(), imfErrorLogger);
                 }
-                throw new IMFException(validationEventHandlerImpl.toString());
             }
+        }
+        catch(SAXException | JAXBException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    e.getMessage());
+        }
+
+        if(imfErrorLogger.hasFatal())
+        {
+            throw new IMFException("PackingList parsing failed", imfErrorLogger);
         }
 
         this.pklSchema = pklSchema;
@@ -188,7 +199,11 @@ public final class PackingList
                 }
                 break;
             default:
-                throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
+                String message = String.format("Please check the PKL document, currently we only support the " +
+                        "following schema URIs %s", serializePKLSchemasToString());
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors
+                        .ErrorLevels.FATAL, message);
+                throw new IMFException(message, imfErrorLogger);
         }
 
     }
@@ -232,10 +247,18 @@ public final class PackingList
         }
         catch(ParserConfigurationException | SAXException e)
         {
-            throw new IMFException(String.format("Error occurred while trying to determine the PackingList Namespace URI, invalid PKL document Error Message : %s", e.getMessage()));
+            String message = String.format("Error occurred while trying to determine the PackingList Namespace " +
+                            "URI, invalid PKL document Error Message : %s", e.getMessage());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, message);
+            throw new IMFException(message, imfErrorLogger);
         }
         if(packingListSchemaURI.isEmpty()) {
-            throw new IMFException(String.format("Please check the PKL document and namespace URI, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
+            String message = String.format("Please check the PKL document and namespace URI, currently we only " +
+                    "support the following schema URIs %s", serializePKLSchemasToString());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, message);
+            throw new IMFException(message, imfErrorLogger);
         }
         return packingListSchemaURI;
     }
@@ -322,6 +345,15 @@ public final class PackingList
             sb.append(asset.toString());
         }
         return sb.toString();
+    }
+
+    /**
+     * Getter for the errors in PackingList
+     *
+     * @return List of errors in PackingList.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
     }
 
     /**
@@ -436,7 +468,11 @@ public final class PackingList
         String pklNamespaceURI = PackingList.getPackingListSchemaURI(resourceByteRangeProvider, imfErrorLogger);
         PKLSchema pklSchema = supportedPKLSchemas.get(pklNamespaceURI);
         if(pklSchema == null){
-            throw new IMFException(String.format("Please check the PKL document, currently we only support the following schema URIs %s", serializePKLSchemasToString()));
+            String message = String.format("Please check the PKL document, currently we only support the " +
+                    "following schema URIs %s", serializePKLSchemasToString());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, message);
+            throw new IMFException(message, imfErrorLogger);
         }
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

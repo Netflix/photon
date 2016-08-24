@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.writerTools;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -29,11 +30,7 @@ import org.xml.sax.SAXException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.ValidationEventHandler;
+import javax.xml.bind.*;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
@@ -113,13 +110,8 @@ public class AssetMapBuilder {
      * A method to build an AssetMap document
      * @return a list of errors that occurred while generating the AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public List<ErrorLogger.ErrorObject> build() throws IOException, SAXException, JAXBException {
-
-        int numErrors = imfErrorLogger.getNumberOfErrors();
-
+    public List<ErrorLogger.ErrorObject> build() throws IOException {
         org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = IMFAssetMapObjectFieldsFactory.constructAssetMapType_2007();
         assetMapType.setId(UUIDHelper.fromUUID(this.uuid));
         assetMapType.setAnnotationText(this.annotationText);
@@ -154,13 +146,8 @@ public class AssetMapBuilder {
 
         File outputFile = new File(this.workingDirectory + File.separator + "AssetMap-" + this.uuid.toString() + ".xml");
         List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputFile, true);
+        this.imfErrorLogger.addAllErrors(errors);
 
-        if(errors.size() > numErrors){
-            List<ErrorLogger.ErrorObject> fatalErrors = imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, errors.size());
-            if(fatalErrors.size() > 0){
-                throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building the AssetMap document %s", fatalErrors.toString()));
-            }
-        }
         return imfErrorLogger.getErrors();
     }
 
@@ -286,14 +273,13 @@ public class AssetMapBuilder {
         }
     }
 
-    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType, File outputFile, boolean formatted) throws IOException, SAXException, JAXBException {
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try(
+    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType, File outputFile, boolean formatted) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             InputStream assetMapSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd");
             OutputStream outputStream = new FileOutputStream(outputFile);
-        )
-        {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             StreamSource[] schemaSources = new StreamSource[1];
             schemaSources[0] = new StreamSource(assetMapSchemaAsAStream);
             Schema schema = schemaFactory.newSchema(schemaSources);
@@ -305,20 +291,24 @@ public class AssetMapBuilder {
             marshaller.setSchema(schema);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
 
-            /*marshaller.marshal(cplType, output);
-            workaround for 'Error: unable to marshal type "AssetMapType" as an element because it is missing an @XmlRootElement annotation'
-            as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
-             */
+        /*marshaller.marshal(cplType, output);
+        workaround for 'Error: unable to marshal type "AssetMapType" as an element because it is missing an @XmlRootElement annotation'
+        as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
+         */
             marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/429-9/2007/AM", "AssetMap"), org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType.class, assetMapType), outputStream);
             outputStream.close();
 
-            if(validationEventHandler.hasErrors())
-            {
+            if (validationEventHandler.hasErrors()) {
                 //TODO : Perhaps a candidate for a Lambda
-                for(ValidationEventHandlerImpl.ValidationErrorObject validationErrorObject : validationEventHandler.getErrors()) {
-                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, validationErrorObject.getValidationEventSeverity(), validationErrorObject.getErrorMessage());
+                for (ValidationEventHandlerImpl.ValidationErrorObject validationErrorObject : validationEventHandler.getErrors()) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, validationErrorObject.getValidationEventSeverity(), validationErrorObject.getErrorMessage());
                 }
             }
+        }
+        catch( SAXException | JAXBException e)
+        {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, e.getMessage());
         }
         return imfErrorLogger.getErrors();
     }
