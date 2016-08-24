@@ -134,7 +134,7 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
         @Override
         public String toString(){
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(String.format("%s - %s - %s", validationEventSeverity, lineNumber, errorMessage));
+            stringBuilder.append(String.format("%s - %s - %s", getValidationEventSeverity(), getLineNumber(), getErrorMessage()));
             return stringBuilder.toString();
         }
     }
