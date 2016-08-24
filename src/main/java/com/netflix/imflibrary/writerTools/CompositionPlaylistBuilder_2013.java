@@ -143,8 +143,6 @@ public class CompositionPlaylistBuilder_2013 {
      * @throws IOException - any I/O related error is exposed through an IOException
      * @throws ParserConfigurationException if a DocumentBuilder
      *   cannot be created which satisfies the configuration requested
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException {
         org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();

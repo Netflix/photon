@@ -158,14 +158,15 @@ public class IMPValidatorFunctionalTests {
 
     @Test
     public void invalidCPLTest_2013Schema() throws IOException {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100_error.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(payloadRecord);
         List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL))
                 .collect(Collectors.toList());
-        Assert.assertEquals(fatalErrors.size(), 0);
+        Assert.assertEquals(fatalErrors.size(), 6);
     }
 
     @Test

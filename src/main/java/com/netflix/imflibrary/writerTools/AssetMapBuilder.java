@@ -110,8 +110,6 @@ public class AssetMapBuilder {
      * A method to build an AssetMap document
      * @return a list of errors that occurred while generating the AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> build() throws IOException {
         org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = IMFAssetMapObjectFieldsFactory.constructAssetMapType_2007();

@@ -56,8 +56,6 @@ public class IMPBuilder {
      * @throws IOException - any I/O related error will be exposed through an IOException
      * @throws ParserConfigurationException if a DocumentBuilder
      *   cannot be created which satisfies the configuration requested by the underlying builder implementation
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
     public static List<ErrorLogger.ErrorObject> buildIMP_2013(@Nonnull String annotationText,

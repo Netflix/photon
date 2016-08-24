@@ -989,7 +989,6 @@ public final class Composition {
      * A utility method to retrieve the VirtualTracks within a Composition.
      *
      * @return A list of VirtualTracks in the Composition.
-     * @throws IOException        - any I/O related error is exposed through an IOException.
      */
     @Nonnull
     public List<? extends Composition.VirtualTrack> getVirtualTracks() {
@@ -1002,7 +1001,6 @@ public final class Composition {
      *
      * @param virtualTrack - object model of an IMF virtual track {@link Composition.VirtualTrack}
      * @return A list of TrackFileResourceType objects corresponding to the virtual track in the Composition.
-     * @throws IOException        - any I/O related error is exposed through an IOException.
      */
     @Nonnull
     public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull Composition.VirtualTrack virtualTrack) {

@@ -161,8 +161,6 @@ public class PackingListBuilder {
      *               with the st0429-8:2007 schema
      * @return a list of errors that occurred while generating the PackingList document compliant with the st0429-8:2007 schema
      * @throws IOException - any I/O related error will be exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
     public List<ErrorLogger.ErrorObject> buildPackingList_2007(@Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText,
                                                                @Nonnull org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer,
