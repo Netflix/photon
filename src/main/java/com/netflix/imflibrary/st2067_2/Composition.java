@@ -240,7 +240,8 @@ public final class Composition {
         this.virtualTrackMap = getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
 
 
-        IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this.virtualTrackMap, imfErrorLogger);
+        imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
+                .virtualTrackMap));
 
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
@@ -260,7 +261,8 @@ public final class Composition {
      * @param imfErrorLogger          - an object for logging errors
      * @return a map containing mappings of a UUID to the corresponding Composition.VirtualTrack
      */
-    public static Map<UUID, Composition.VirtualTrack> getVirtualTracksMap(@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger) {
+    private static Map<UUID, Composition.VirtualTrack> getVirtualTracksMap(@Nonnull IMFCompositionPlaylistType
+                                                                             compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger) {
         Map<UUID, Composition.VirtualTrack> virtualTrackMap = new LinkedHashMap<>();
 
         Map<UUID, List<IMFBaseResourceType>> virtualTrackResourceMap = getVirtualTrackResourceMap(compositionPlaylistType, imfErrorLogger);
@@ -308,12 +310,12 @@ public final class Composition {
      * @param imfErrorLogger          - an object for logging errors
      * @return map of VirtualTrack identifier to the list of all the Track's resources, for every Composition.VirtualTrack of the Composition
      */
-    public static Map<UUID, List<IMFBaseResourceType>> getVirtualTrackResourceMap(@Nonnull IMFCompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger) {
+    private static Map<UUID, List<IMFBaseResourceType>> getVirtualTrackResourceMap(@Nonnull IMFCompositionPlaylistType
+                                                                                     compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger) {
         Map<UUID, List<IMFBaseResourceType>> virtualTrackResourceMap = new LinkedHashMap<>();
         for (IMFSegmentType segment : compositionPlaylistType.getSegmentList()) {
             for (IMFSequenceType sequence : segment.getSequenceList()) {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                IMFCoreConstraintsChecker.checkVirtualTrackResourceList(uuid, sequence.getResourceList(), imfErrorLogger);
                 if (virtualTrackResourceMap.get(uuid) == null) {
                     virtualTrackResourceMap.put(uuid, new ArrayList<IMFBaseResourceType>());
                 }
