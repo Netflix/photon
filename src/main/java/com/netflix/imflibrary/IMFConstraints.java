@@ -65,7 +65,7 @@ public final class IMFConstraints
         byte[] bytes = preface.getOperationalPattern().getULAsBytes();
         if (OperationalPatternHelper.getPackageComplexity(bytes) != OperationalPatternHelper.PackageComplexity.SinglePackage)
         {
-            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x, should be = 0x%x per the definition of OperationalPattern-1A",
+            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x, should be = 0x01 per the definition of OperationalPattern-1A",
                     bytes[14]));
         }
 

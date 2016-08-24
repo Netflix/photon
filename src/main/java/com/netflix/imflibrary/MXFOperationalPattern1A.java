@@ -28,6 +28,7 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -56,7 +57,7 @@ public final class MXFOperationalPattern1A
      * @return the same header partition wrapped in a HeaderPartitionOP1A object
      */
     @SuppressWarnings({"PMD.NcssMethodCount","PMD.CollapsibleIfStatements"})
-    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(HeaderPartition headerPartition)
+    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition)
     {
 
         Preface preface = headerPartition.getPreface();
@@ -96,15 +97,16 @@ public final class MXFOperationalPattern1A
                         headerPartition.getContentStorageList().size()));
             }
 
-            ContentStorage contentStorage = preface.getContentStorage();
-            if(contentStorage == null){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
-            }
-            //check number of Essence Container Data sets referred by Content Storage
-            else if (contentStorage.getNumberOfEssenceContainerDataSets() != 1)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets referred by Content Storage = %d, is different from 1",
-                        contentStorage.getNumberOfEssenceContainerDataSets()));
+            if(preface != null) {
+                ContentStorage contentStorage = preface.getContentStorage();
+                if (contentStorage == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
+                }
+                //check number of Essence Container Data sets referred by Content Storage
+                else if (contentStorage.getNumberOfEssenceContainerDataSets() != 1) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets referred by Content Storage = %d, is different from 1",
+                            contentStorage.getNumberOfEssenceContainerDataSets()));
+                }
             }
         }
 
@@ -171,30 +173,30 @@ public final class MXFOperationalPattern1A
             if(referencedSourcePackageUMID == null){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Invalid source package UID, perhaps because one or more timelineTrack has no sequence"));
             }
-
-            //check if SourcePackageID referenced from Material Package is present in ContentStorage
-            ContentStorage contentStorage = preface.getContentStorage();
-            if(contentStorage == null){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
-            }
-            else {
-                boolean foundReferenceForReferencedSourcePackageUMIDInContentStorage = false;
-                for (SourcePackage sourcePackage : contentStorage.getSourcePackageList()) {
-                    if (sourcePackage.getPackageUID().equals(referencedSourcePackageUMID)) {
-                        foundReferenceForReferencedSourcePackageUMIDInContentStorage = true;
-                        break;
+            if(preface != null) {
+                //check if SourcePackageID referenced from Material Package is present in ContentStorage
+                ContentStorage contentStorage = preface.getContentStorage();
+                if (contentStorage == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
+                } else {
+                    boolean foundReferenceForReferencedSourcePackageUMIDInContentStorage = false;
+                    for (SourcePackage sourcePackage : contentStorage.getSourcePackageList()) {
+                        if (sourcePackage.getPackageUID().equals(referencedSourcePackageUMID)) {
+                            foundReferenceForReferencedSourcePackageUMIDInContentStorage = true;
+                            break;
+                        }
                     }
-                }
-                if (!foundReferenceForReferencedSourcePackageUMIDInContentStorage) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Content Storage does not refer to Source Package with packageUID = %s", referencedSourcePackageUMID));
-                }
+                    if (!foundReferenceForReferencedSourcePackageUMIDInContentStorage) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Content Storage does not refer to Source Package with packageUID = %s", referencedSourcePackageUMID));
+                    }
 
-                //check if SourcePackageID referenced from Material Package is the same as that referred by EssenceContainer Data set
-                MXFUID linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
-                if (referencedSourcePackageUMID != null
-                        && !linkedPackageUID.equals(referencedSourcePackageUMID)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Package UID = %s referred by EssenceContainerData set is different from %s which is referred by Material Package",
-                            linkedPackageUID, referencedSourcePackageUMID));
+                    //check if SourcePackageID referenced from Material Package is the same as that referred by EssenceContainer Data set
+                    MXFUID linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
+                    if (referencedSourcePackageUMID != null
+                            && !linkedPackageUID.equals(referencedSourcePackageUMID)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Package UID = %s referred by EssenceContainerData set is different from %s which is referred by Material Package",
+                                linkedPackageUID, referencedSourcePackageUMID));
+                    }
                 }
             }
         }
@@ -232,34 +234,32 @@ public final class MXFOperationalPattern1A
                 }
             }
 
-            SourcePackage filePackage  = (SourcePackage)preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            for (TimelineTrack timelineTrack: filePackage.getTimelineTracks())
-            {
+            if(preface != null
+                    && preface.getContentStorage() != null) {
+                SourcePackage filePackage = (SourcePackage) preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                for (TimelineTrack timelineTrack : filePackage.getTimelineTracks()) {
 
-                long thisEditRateNumerator = timelineTrack.getEditRateNumerator();
-                long thisEditRateDenominator = timelineTrack.getEditRateDenominator();
-                if (thisEditRateNumerator == 0)
-                {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
-                            timelineTrack.getInstanceUID(), thisEditRateNumerator, thisEditRateDenominator));
-                }
-
-                Sequence sequence = timelineTrack.getSequence();
-                if (sequence != null
-                        && !sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
-                {
-                    double thisSequenceDuration = ((double)sequence.getDuration()*(double)thisEditRateDenominator)/(double)thisEditRateNumerator;
-                    if (Math.abs(sequenceDuration) < MXFOperationalPattern1A.EPSILON)
-                    {
-                        sequenceDuration = thisSequenceDuration;
+                    long thisEditRateNumerator = timelineTrack.getEditRateNumerator();
+                    long thisEditRateDenominator = timelineTrack.getEditRateDenominator();
+                    if (thisEditRateNumerator == 0) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
+                                timelineTrack.getInstanceUID(), thisEditRateNumerator, thisEditRateDenominator));
                     }
-                    else if (Math.abs(sequenceDuration - thisSequenceDuration) > MXFOperationalPattern1A.TOLERANCE)
-                    {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("File Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
-                                sequence.getInstanceUID(), thisSequenceDuration, sequenceDuration));
+
+                    Sequence sequence = timelineTrack.getSequence();
+                    if (sequence != null
+                            && !sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER)) {
+                        double thisSequenceDuration = ((double) sequence.getDuration() * (double) thisEditRateDenominator) / (double) thisEditRateNumerator;
+                        if (Math.abs(sequenceDuration) < MXFOperationalPattern1A.EPSILON) {
+                            sequenceDuration = thisSequenceDuration;
+                        } else if (Math.abs(sequenceDuration - thisSequenceDuration) > MXFOperationalPattern1A.TOLERANCE) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("File Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
+                                    sequence.getInstanceUID(), thisSequenceDuration, sequenceDuration));
+                        }
                     }
                 }
             }
+
         }
 
         return new HeaderPartitionOP1A(headerPartition);
