@@ -34,7 +34,7 @@ public abstract class GenericSoundEssenceDescriptor extends FileDescriptor{
         @MXFProperty(size=4) protected final Long quantization_bits = null;
         @MXFProperty(size=16) protected final UL sound_essence_coding = null;
         @MXFProperty(size=8) protected final CompoundDataTypes.Rational reference_image_edit_rate = null;
-        @MXFProperty(size=1) protected final Integer reference_audio_alignment_level = null;
+        @MXFProperty(size=1) protected final Short reference_audio_alignment_level = null;
         /**
          * Constructor for a File descriptor ByteObject.
          *

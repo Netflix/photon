@@ -112,15 +112,15 @@ public final class IMFConstraints
                     if (genericDescriptor instanceof WaveAudioEssenceDescriptor)
                     {
                         WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
-                        if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
-                                (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL))))
-                        {
-                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
-                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
-                        }
-                        if(headerPartition.getAudioEssenceSpokenLanguage() == null){
-                            throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
-                        }
+//                        if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
+//                                (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL))))
+//                        {
+//                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
+//                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
+//                        }
+//                        if(headerPartition.getAudioEssenceSpokenLanguage() == null){
+//                            throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
+//                        }
                     }
                     else
                     {
