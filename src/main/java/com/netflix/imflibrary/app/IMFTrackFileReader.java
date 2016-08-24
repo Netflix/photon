@@ -33,6 +33,7 @@ import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.parsers.DocumentBuilder;
@@ -82,7 +84,7 @@ final class IMFTrackFileReader
         this.resourceByteRangeProvider = resourceByteRangeProvider;
     }
 
-    private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(IMFErrorLogger imfErrorLogger) throws IOException
+    private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.headerPartition == null)
         {
@@ -94,13 +96,13 @@ final class IMFTrackFileReader
         return this.headerPartition;
     }
 
-    private HeaderPartition getHeaderPartition(IMFErrorLogger imfErrorLogger) throws IOException
+    private HeaderPartition getHeaderPartition(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
         return headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
     }
 
-    private void setHeaderPartitionIMF(long inclusiveRangeStart, long inclusiveRangeEnd, IMFErrorLogger imfErrorLogger) throws IOException
+    private void setHeaderPartitionIMF(long inclusiveRangeStart, long inclusiveRangeEnd, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
         ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
@@ -198,7 +200,7 @@ final class IMFTrackFileReader
         return indexTableSegments;
     }
 
-    private List<PartitionPack> getReferencedPartitionPacks(IMFErrorLogger imfErrorLogger) throws IOException
+    private List<PartitionPack> getReferencedPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.referencedPartitionPacks == null)
         {
@@ -208,7 +210,7 @@ final class IMFTrackFileReader
         return this.referencedPartitionPacks;
     }
 
-    private void setReferencedPartitionPacks(IMFErrorLogger imfErrorLogger) throws IOException
+    private void setReferencedPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         List<PartitionPack> allPartitionPacks = getPartitionPacks();
         HeaderPartition headerPartition = getHeaderPartition(imfErrorLogger);
@@ -373,12 +375,11 @@ final class IMFTrackFileReader
 
     /**
      * A method that returns a list of EssenceDescriptor objects referenced by the Source Packages in this HeaderPartition
-     *
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return List<InterchangeObjectBO></> corresponding to every EssenceDescriptor in the underlying resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    List<InterchangeObject.InterchangeObjectBO> getEssenceDescriptors() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    List<InterchangeObject.InterchangeObjectBO> getEssenceDescriptors(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors();
     }
 
@@ -393,12 +394,11 @@ final class IMFTrackFileReader
 
     /**
      * A method that returns a list of MXF KLV Header corresponding to the SubDescriptors in the MXF file
-     *
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return List<MXFKLVPacket.Header></> corresponding to every SubDescriptor in the underlying resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    List<KLVPacket.Header> getSubDescriptors() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    List<KLVPacket.Header> getSubDescriptors(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors();
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
@@ -412,12 +412,12 @@ final class IMFTrackFileReader
     /**
      * A method that returns the MXF KLV header corresponding to an EssenceDescriptor in the MXF file
      * @param essenceDescriptor corresponding to the essence in the MXF file
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return List<MXFKLVPacket.Header></> corresponding to every SubDescriptor in the underlying resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
+    List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors(essenceDescriptor);
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
@@ -427,9 +427,14 @@ final class IMFTrackFileReader
         return subDescriptorHeaders;
     }
 
-    String getEssenceType() throws IOException {
+    /**
+     * A method to get the EssenceType
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
+     * @return a String representing the Essence type
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    String getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         String result = "";
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         HeaderPartition headerPartition = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition();
         if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
             result = "MainImageSequence";
@@ -442,12 +447,11 @@ final class IMFTrackFileReader
 
     /**
      * An accessor for the PrimerPack KLV header
-     *
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return a File containing the Primer pack
      * @throws IOException
      */
-    KLVPacket.Header getPrimerPackHeader() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    KLVPacket.Header getPrimerPackHeader(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getPrimerPack().getHeader();
     }
 
@@ -483,24 +487,25 @@ final class IMFTrackFileReader
      * An accessor that returns a list of InterchangeObjectBO by name
      *
      * @param structuralMetadataID of the InterchangeObject requested.
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return a list of interchangeObjectBOs corresponding to the ID. Null if there is no InterchangeObjectBO with the ID
      * with the name passed in.
      */
     @Nullable
-    List<InterchangeObject.InterchangeObjectBO> getStructuralMetadataByName(StructuralMetadataID structuralMetadataID) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    List<InterchangeObject.InterchangeObjectBO> getStructuralMetadataByName(StructuralMetadataID structuralMetadataID, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getStructuralMetadata(structuralMetadataID);
     }
 
     /**
      * Returns the EditRate as a BigInteger
-     * @return
+     *
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
+     * @return a BigInteger representing the EditRate of the essence
      */
-    BigInteger getEssenceEditRate() throws IOException {
+    BigInteger getEssenceEditRate(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         BigInteger result = BigInteger.valueOf(0);
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         if(!(this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().size() > 0)){
-            throw new MXFException(String.format("No EssenceDescriptors were found in the MXF essence"));
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No EssenceDescriptors were found in the MXF essence Header Partition")));
         }
         InterchangeObject.InterchangeObjectBO essenceDescriptor = this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().get(0);
         if(FileDescriptor.FileDescriptorBO.class.isAssignableFrom(essenceDescriptor.getClass())){
@@ -514,10 +519,10 @@ final class IMFTrackFileReader
 
     /**
      * Returns the EditRate as a list containing the numerator and denominator
-     * @return
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
+     * @return editRate of the essence as a List of Long Integers
      */
-    List<Long> getEssenceEditRateAsList() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    List<Long> getEssenceEditRateAsList(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         if(!(this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().size() > 0)){
             throw new MXFException(String.format("No EssenceDescriptors were found in the MXF essence"));
         }
@@ -527,10 +532,10 @@ final class IMFTrackFileReader
 
     /**
      * Return the duration of the Essence including the source duration of all the Structural Components in the MXF Sequence
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return essenceDuration
      */
-    BigInteger getEssenceDuration() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    BigInteger getEssenceDuration(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getEssenceDuration();
     }
 
@@ -548,8 +553,13 @@ final class IMFTrackFileReader
         return packageUUID;
     }
 
-    String getAudioEssenceLanguage() throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    /**
+     * A getter for the AudioEssence Language
+     * @param imfErrorLogger an error logger for recording any errors - cannot be null
+     * @return a string representing the language code in the Audio Essence
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    String getAudioEssenceLanguage(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getAudioEssenceSpokenLanguage();
     }
 
@@ -595,23 +605,37 @@ final class IMFTrackFileReader
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
-
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
-            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors()) {
+            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors(imfErrorLogger)) {
                 /* create dom */
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
                 Document document = docBuilder.newDocument();
                 /*Output file containing the RegXML representation of the EssenceDescriptor*/
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader);
+                List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
+                File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders);
+                logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.getAbsolutePath()));
             }
         }
         catch(ParserConfigurationException | TransformerException e){
             throw new MXFException(e);
         }
-
-
-        logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+        List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+            logger.info("No errors were detected in the IMFTrackFile");
+        }
     }
 }

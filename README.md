@@ -54,5 +54,14 @@ java -cp ./build/libs/*: <fully qualified class name> <zero or more arguments>
 ```
 E.g.,
 ```
-java -cp ./build/libs/*: com.netflix.imflibrary.app.IMFTrackFileReader input_file_path working_directory_path
+java -cp ./build/libs/*: com.netflix.imflibrary.app.IMFTrackFileReader imf_track_file_path working_directory_path
+```
+```
+java -cp ./build/libs/*: com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
+```
+```
+java -cp ./build/libs/*: com.netflix.imflibrary.st0429_8.PackingList packing_list_file_path
+```
+```
+java -cp ./build/libs/*: com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
 ```

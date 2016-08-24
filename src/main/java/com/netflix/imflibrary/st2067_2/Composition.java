@@ -24,6 +24,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
@@ -1336,12 +1337,12 @@ public final class Composition
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFile>%n", Composition.class.getName()));
+        sb.append(String.format("%s <inputFilePath>%n", Composition.class.getName()));
         return sb.toString();
     }
 
-    public static void main(String[] args) throws Exception {
-
+    public static void main(String args[]) throws IOException, SAXException, JAXBException
+    {
         if (args.length != 1)
         {
             logger.error(usage());
@@ -1349,55 +1350,23 @@ public final class Composition
         }
 
         File inputFile = new File(args[0]);
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+        List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);
 
-        logger.info(String.format("File Name is %s", inputFile.getName()));
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        try
-        {
-            Composition composition = new Composition(inputFile, imfErrorLogger);
-            logger.info(composition.toString());
-
-            List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
-            List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
-
-
-            IMFCompositionPlaylistType compositionPlaylistType = composition.getCompositionPlaylistType();
-            if (compositionPlaylistType.getEssenceDescriptorList() != null)
-            {
-                for (IMFEssenceDescriptorBaseType essenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList())
-                {
-                    for (Object object : essenceDescriptorBaseType.getAny())
-                    {
-                        Node node = (Node) object;
-                        domNodeObjectModels.add(new DOMNodeObjectModel(node));
-                    }
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
                 }
-            }
-            else
-            {
-                logger.error("No essence descriptor list was found in CPL");
-            }
-            for (VirtualTrack virtualTrack : virtualTracks)
-            {
-                List<? extends IMFBaseResourceType> resourceList = virtualTrack.getResourceList();
-                if (resourceList.size() == 0)
-                {
-                    throw new Exception(String.format("CPL file has a VirtualTrack with no resources which is invalid"));
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
                 }
-            }
-
-            for(int i=0; i<domNodeObjectModels.size(); i++)
-            {
-                logger.info(String.format("ObjectModel of EssenceDescriptor-%d in the EssenceDescriptorList in the CPL: %n%s", i, domNodeObjectModels.get(i).toString()));
             }
         }
-        finally
-        {
-            for (ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors())
-            {
-                logger.error(errorObject.toString());
-            }
+        else{
+            logger.info("No errors were detected in the CompositionPlaylist Document");
         }
     }
 }
