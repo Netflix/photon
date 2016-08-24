@@ -20,6 +20,7 @@ package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.sandflow.smpte.klv.Triplet;
 import com.netflix.imflibrary.KLVPacket;
@@ -438,8 +439,21 @@ final class IMFTrackFileCPLBuilder {
         {
             throw new IMFException(e);
         }
-
-        logger.info(imfTrackFileReader.toString());
+        List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info(imfTrackFileReader.toString());
+            logger.info("No errors were detected in the IMFTrackFile");
+        }
     }
 
 }

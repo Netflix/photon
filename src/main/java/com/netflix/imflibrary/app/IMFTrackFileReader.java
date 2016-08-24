@@ -622,6 +622,20 @@ final class IMFTrackFileReader
         catch(ParserConfigurationException | TransformerException e){
             throw new MXFException(e);
         }
-        logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+        List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
+        if(errors.size() > 0){
+            for(ErrorLogger.ErrorObject errorObject : errors){
+                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                }
+                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
+                }
+            }
+        }
+        else{
+            logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+            logger.info("No errors were detected in the IMFTrackFile");
+        }
     }
 }
