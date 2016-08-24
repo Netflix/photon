@@ -83,8 +83,11 @@ public class DOMNodeObjectModel {
                 //Ignore comment nodes
                 break;
             default:
-                throw new IMFException(String.format("Internal error occurred while constructing a DOM Node object " +
-                        "model"), imfErrorLogger, IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR);
+                String message = String.format("Unsupported DOM Node type  %d ", child.getNodeType());
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_INTERNAL_ERROR, IMFErrorLogger
+                        .IMFErrors.ErrorLevels.FATAL,
+                        message);
+                throw new IMFException(message, imfErrorLogger);
         }
     }
 

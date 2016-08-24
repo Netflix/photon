@@ -50,6 +50,10 @@ public interface IMFErrorLogger extends ErrorLogger
 
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException;
 
+    public Boolean hasFatal();
+
+    public Boolean hasFatal(int startIndex, int endIndex);
+
     final class IMFErrors
     {
 
@@ -127,7 +131,22 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The IMP_VALIDATOR_PAYLOAD_ERROR.
              */
-            IMP_VALIDATOR_PAYLOAD_ERROR("IMP Validator Payload Error");
+            IMP_VALIDATOR_PAYLOAD_ERROR("IMP Validator Payload Error"),
+
+            /**
+             * The IMF_UUID_ERROR.
+             */
+            IMF_UUID_ERROR("IMF UUID Error"),
+
+            /**
+             * The IMF_URI_ERROR.
+             */
+            IMF_URI_ERROR("IMF URI Error"),
+
+            /**
+             * The IMF_INTERNAL_ERROR.
+             */
+            IMF_INTERNAL_ERROR("IMF Internal Error");
 
             private final String error;
 

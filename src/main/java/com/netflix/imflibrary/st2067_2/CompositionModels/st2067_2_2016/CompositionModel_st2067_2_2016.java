@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -64,14 +65,20 @@ public final class CompositionModel_st2067_2_2016 {
                                     marker.getOffset()));
                         }
 
-                        baseResource = new IMFMarkerResourceType(
-                                markerResource.getId(),
-                                markerResource.getEditRate().size() != 0  ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                markerResource.getIntrinsicDuration(),
-                                markerResource.getEntryPoint(),
-                                markerResource.getSourceDuration(),
-                                markerResource.getRepeatCount(),
-                                markerList);
+                        try {
+                            baseResource = new IMFMarkerResourceType(
+                                    markerResource.getId(),
+                                    markerResource.getEditRate().size() != 0 ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
+                                    markerResource.getIntrinsicDuration(),
+                                    markerResource.getEntryPoint(),
+                                    markerResource.getSourceDuration(),
+                                    markerResource.getRepeatCount(),
+                                    markerList);
+                        }
+                        catch(IMFException e)
+                        {
+                            imfErrorLogger.addAllErrors(e.getErrors());
+                        }
                     } else {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type in Marker Sequence");
                     }
@@ -115,18 +122,24 @@ public final class CompositionModel_st2067_2_2016 {
                             org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource =
                                     (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType) resource;
 
-                            baseResource = new IMFTrackFileResourceType(
-                                    trackFileResource.getId(),
-                                    trackFileResource.getTrackFileId(),
-                                    trackFileResource.getEditRate().size() != 0  ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                    trackFileResource.getIntrinsicDuration(),
-                                    trackFileResource.getEntryPoint(),
-                                    trackFileResource.getSourceDuration(),
-                                    trackFileResource.getRepeatCount(),
-                                    trackFileResource.getSourceEncoding(),
-                                    trackFileResource.getHash(),
-                                    trackFileResource.getHashAlgorithm().getAlgorithm()
-                            );
+                            try {
+                                baseResource = new IMFTrackFileResourceType(
+                                        trackFileResource.getId(),
+                                        trackFileResource.getTrackFileId(),
+                                        trackFileResource.getEditRate().size() != 0 ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
+                                        trackFileResource.getIntrinsicDuration(),
+                                        trackFileResource.getEntryPoint(),
+                                        trackFileResource.getSourceDuration(),
+                                        trackFileResource.getRepeatCount(),
+                                        trackFileResource.getSourceEncoding(),
+                                        trackFileResource.getHash(),
+                                        trackFileResource.getHashAlgorithm().getAlgorithm()
+                                );
+                            }
+                            catch(IMFException e)
+                            {
+                                imfErrorLogger.addAllErrors(e.getErrors());
+                            }
                         }
                         else
                         {

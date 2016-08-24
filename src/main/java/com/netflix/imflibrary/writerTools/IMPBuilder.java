@@ -66,7 +66,7 @@ public class IMPBuilder {
                                                               @Nonnull Composition.EditRate compositionEditRate,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                                               @Nonnull File workingDirectory)
-            throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException
+            throws IOException, ParserConfigurationException, URISyntaxException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
@@ -104,11 +104,10 @@ public class IMPBuilder {
                                                                                                                 trackFileHeaderPartitionMap,
                                                                                                                 workingDirectory);
 
-        compositionPlaylistBuilder_2013.build();
+        imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2013.build());
 
 
-        if(compositionPlaylistBuilder_2013.getErrors().stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
-                .IMFErrors.ErrorLevels.FATAL)).count() > 0) {
+        if(imfErrorLogger.hasFatal()) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
@@ -164,7 +163,8 @@ public class IMPBuilder {
                                                                         PackingListBuilder.buildPKLUserTextType_2007(entry.getValue().getOriginalFileName(), "en"));
             packingListBuilderAssets.add(asset);
         }
-        packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator, packingListBuilderAssets);
+        imfErrorLogger.addAllErrors(packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator,
+                packingListBuilderAssets));
 
         imfErrorLogger.addAllErrors(packingListBuilder.getErrors());
 

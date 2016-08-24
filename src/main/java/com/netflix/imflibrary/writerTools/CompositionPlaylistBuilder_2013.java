@@ -52,10 +52,7 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import javax.xml.bind.*;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -149,7 +146,7 @@ public class CompositionPlaylistBuilder_2013 {
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException, SAXException, JAXBException {
+    public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException {
         org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -200,7 +197,8 @@ public class CompositionPlaylistBuilder_2013 {
         cplRoot.setSigner(null);
         cplRoot.setSignature(null);
         File outputFile = new File(this.workingDirectory + File.separator + "CPL-" + cplUUID.toString() + ".xml");
-        serializeCPLToXML(cplRoot, outputFile);
+        List errors = serializeCPLToXML(cplRoot, outputFile);
+        imfErrorLogger.addAllErrors(errors);
         return imfErrorLogger.getErrors();
     }
 
@@ -294,48 +292,61 @@ public class CompositionPlaylistBuilder_2013 {
         return Collections.unmodifiableList(trackResourceList);
     }
 
-    private void serializeCPLToXML(org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot, File outputFile) throws IOException, JAXBException, SAXException{
-
-        int numErrors = imfErrorLogger.getNumberOfErrors();
+    private List<ErrorLogger.ErrorObject> serializeCPLToXML(org.smpte_ra.schemas
+                                                                    .st2067_2_2013.CompositionPlaylistType cplRoot,
+                                                 File outputFile) throws IOException
+    {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         boolean formatted = true;
+
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try(
-                InputStream cplSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
-                InputStream dcmlSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
-                InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-                InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
-                OutputStream outputStream = new FileOutputStream(outputFile)
-        )
+        InputStream cplSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
+        InputStream dcmlSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
+        try(InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream
+                ("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
+        InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
+        OutputStream outputStream = new FileOutputStream(outputFile);)
         {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
-            StreamSource[] schemaSources = new StreamSource[4];
-            schemaSources[0] = new StreamSource(dsigSchemaAsAStream);
-            schemaSources[1] = new StreamSource(dcmlSchemaAsAStream);
-            schemaSources[2] = new StreamSource(cplSchemaAsAStream);
-            schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
-            Schema schema = schemaFactory.newSchema(schemaSources);
+            try
+            {
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                StreamSource[] schemaSources = new StreamSource[4];
+                schemaSources[0] = new StreamSource(dsigSchemaAsAStream);
+                schemaSources[1] = new StreamSource(dcmlSchemaAsAStream);
+                schemaSources[2] = new StreamSource(cplSchemaAsAStream);
+                schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
+                Schema schema = schemaFactory.newSchema(schemaSources);
 
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
-            marshaller.setEventHandler(validationEventHandler);
-            marshaller.setSchema(schema);
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
+                JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
+                Marshaller marshaller = jaxbContext.createMarshaller();
+                ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
+                marshaller.setEventHandler(validationEventHandler);
+                marshaller.setSchema(schema);
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatted);
 
-            /*marshaller.marshal(cplType, output);
-            workaround for 'Error: unable to marshal type "CompositionPlaylistType" as an element because it is missing an @XmlRootElement annotation'
-            as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
-             */
-            marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/2067-3/2013", "CompositionPlaylist"), CompositionPlaylistType.class, cplRoot), outputStream);
-
-
-            if(this.imfErrorLogger.getNumberOfErrors() > numErrors){
-                List<ErrorLogger.ErrorObject> fatalErrors = imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, this.imfErrorLogger.getNumberOfErrors());
-                if(fatalErrors.size() > 0){
-                    throw new IMFAuthoringException(String.format("Following FATAL errors were detected while building the PackingList document %s", fatalErrors.toString()));
+                /*marshaller.marshal(cplType, output);
+                workaround for 'Error: unable to marshal type "CompositionPlaylistType" as an element because it is missing an @XmlRootElement annotation'
+                as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
+                 */
+                marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/2067-3/2013", "CompositionPlaylist"), CompositionPlaylistType.class, cplRoot), outputStream);
+                if (validationEventHandler.hasErrors()) {
+                    //TODO : Perhaps a candidate for a Lambda
+                    for (ValidationEventHandlerImpl.ValidationErrorObject validationErrorObject : validationEventHandler.getErrors()) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, validationErrorObject
+                                .getValidationEventSeverity(), validationErrorObject.getErrorMessage());
+                    }
                 }
             }
+            catch( SAXException | JAXBException e)
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                                .ErrorLevels.FATAL,
+                        e.getMessage());
+            }
         }
+
+
+        return imfErrorLogger.getErrors();
     }
 
     /**

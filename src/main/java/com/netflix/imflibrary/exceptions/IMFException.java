@@ -33,8 +33,6 @@ import java.util.List;
 public class IMFException extends RuntimeException
 {
     IMFErrorLogger errorLogger;
-    String s;
-    IMFErrors.ErrorCodes errorCode;
 
     public IMFException(String s)
     {
@@ -54,13 +52,10 @@ public class IMFException extends RuntimeException
         this.errorLogger = null;
     }
 
-    public IMFException(String s, @Nonnull IMFErrorLogger errorLogger, IMFErrors.ErrorCodes errorCode)
+    public IMFException(String s, @Nonnull IMFErrorLogger errorLogger)
     {
         super(s);
         this.errorLogger = errorLogger;
-        this.s           = s;
-        this.errorCode   = errorCode;
-
     }
 
     public List<ErrorLogger.ErrorObject> getErrors()
@@ -69,7 +64,6 @@ public class IMFException extends RuntimeException
         if(this.errorLogger != null)
         {
             errorList.addAll(this.errorLogger.getErrors());
-            errorList.add(new ErrorLogger.ErrorObject(this.errorCode, IMFErrors.ErrorLevels.FATAL, s));
         }
 
         return Collections.unmodifiableList(errorList);

@@ -1,5 +1,7 @@
 package com.netflix.imflibrary.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 
 import java.util.UUID;
@@ -21,8 +23,13 @@ public final class UUIDHelper
     {
         if (!UUIDasURN.startsWith(UUIDHelper.UUID_as_a_URN_PREFIX))
         {
+            IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_UUID_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, String.format("Input UUID %s " +
+                    "does not start with %s", UUIDasURN, UUIDHelper
+                    .UUID_as_a_URN_PREFIX));
             throw new IMFException(String.format("Input UUID %s does not start with %s", UUIDasURN, UUIDHelper
-                    .UUID_as_a_URN_PREFIX), null);
+                    .UUID_as_a_URN_PREFIX), imfErrorLogger);
         }
 
         return UUID.fromString(UUIDasURN.split(UUIDHelper.UUID_as_a_URN_PREFIX)[1]);

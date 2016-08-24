@@ -162,4 +162,14 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
             throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize -1) = %d", rangeEnd, (this.errorObjects.size()-1)));
         }
     }
+
+    public Boolean hasFatal()
+    {
+        return (getErrors(IMFErrors.ErrorLevels.FATAL).size() > 0);
+    }
+
+    public Boolean hasFatal(int startIndex, int endIndex) {
+        return (getErrors(IMFErrors.ErrorLevels.FATAL, startIndex, endIndex).size() > 0);
+
+    }
 }

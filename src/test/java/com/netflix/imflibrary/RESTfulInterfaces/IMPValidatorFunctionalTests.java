@@ -91,7 +91,7 @@ public class IMPValidatorFunctionalTests {
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertEquals(errors.size(), 1);
         Assert.assertTrue(errors.get(0).getErrorDescription().contains("we only support the following schema URIs"));
     }
 

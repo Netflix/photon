@@ -56,7 +56,7 @@ public final class IMFConstraints
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
+    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A)
     {
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
@@ -366,9 +366,11 @@ public final class IMFConstraints
                 for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
                     stringBuilder.append(String.format("%s, ", essenceTypeEnum.toString()));
                 }
-                throw new IMFException(String.format("IMF constrains MXF essences to mono essences only, however more" +
-                        " than one EssenceType was detected %s.", stringBuilder.toString()),
-                        imfErrorLogger, IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR);
+                String message = String.format("IMF constrains MXF essences to mono essences only, however more" +
+                        " than one EssenceType was detected %s.", stringBuilder.toString());
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                throw new IMFException(message, imfErrorLogger);
             }
             return essenceTypes.get(0);
         }

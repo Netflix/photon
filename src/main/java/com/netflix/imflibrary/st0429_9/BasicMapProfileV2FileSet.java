@@ -68,10 +68,10 @@ public final class BasicMapProfileV2FileSet
 
         this.basicMapProfileV2MappedFileSet = basicMapProfileV2MappedFileSet;
 
-        if (imfErrorLogger.getNumberOfErrors() > 0)
+        if (imfErrorLogger.hasFatal())
         {
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger
-                    .getNumberOfErrors()), imfErrorLogger, IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR);
+                    .getNumberOfErrors()), imfErrorLogger);
         }
     }
 
@@ -98,7 +98,6 @@ public final class BasicMapProfileV2FileSet
     {
         File rootFile = new File(args[0]);
 
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFile));
         logger.warn(basicMapProfileV2FileSet.getAssetMap().toString());
     }

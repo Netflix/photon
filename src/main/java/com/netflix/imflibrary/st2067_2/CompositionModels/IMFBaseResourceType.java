@@ -36,6 +36,7 @@ public abstract class IMFBaseResourceType {
     protected final BigInteger entryPoint;
     protected final BigInteger sourceDuration;
     protected final BigInteger repeatCount;
+    protected final IMFErrorLoggerImpl imfErrorLogger;
 
     public IMFBaseResourceType(String id,
                                List<Long> editRate,
@@ -44,12 +45,29 @@ public abstract class IMFBaseResourceType {
                                BigInteger sourceDuration,
                                BigInteger repeatCount)
     {
+        imfErrorLogger = new IMFErrorLoggerImpl();
         this.id = id;
-        this.editRate = new Composition.EditRate(editRate);
+        Composition.EditRate rate = null;
+        try
+        {
+            rate = new Composition.EditRate(editRate);
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+
+        this.editRate = rate;
         this.intrinsicDuration = intrinsicDuration;
         this.entryPoint = (entryPoint != null)? entryPoint: BigInteger.ZERO;
         this.sourceDuration = (sourceDuration != null) ? sourceDuration: this.intrinsicDuration.subtract(this.entryPoint);
         this.repeatCount = (repeatCount != null)? repeatCount: BigInteger.ONE;
+
+        if(imfErrorLogger.hasFatal())
+        {
+            throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
+        }
+
     }
 
     /**

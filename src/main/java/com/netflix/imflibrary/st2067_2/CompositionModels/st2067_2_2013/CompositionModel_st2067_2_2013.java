@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -31,18 +32,15 @@ public final class CompositionModel_st2067_2_2013 {
      * @param imfErrorLogger - an object for logging errors
      * @return a map containing mappings of a UUID to the corresponding VirtualTrack
      */
-    public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
-    {
+    public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger) {
         List<IMFSegmentType> segmentList = new ArrayList<IMFSegmentType>();
-        for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
-        {
+        for (org.smpte_ra.schemas.st2067_2_2013.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment()) {
             List<IMFSequenceType> sequenceList = new ArrayList<IMFSequenceType>();
             org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
 
             /* Parse Marker sequence */
             sequence = segment.getSequenceList().getMarkerSequence();
-            if (sequence != null)
-            {
+            if (sequence != null) {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 /**
                  * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
@@ -64,14 +62,19 @@ public final class CompositionModel_st2067_2_2013 {
                                     marker.getOffset()));
                         }
 
-                        baseResource = new IMFMarkerResourceType(
-                                markerResource.getId(),
-                                markerResource.getEditRate().size() != 0  ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                markerResource.getIntrinsicDuration(),
-                                markerResource.getEntryPoint(),
-                                markerResource.getSourceDuration(),
-                                markerResource.getRepeatCount(),
-                                markerList);
+                        try {
+                            baseResource = new IMFMarkerResourceType(
+                                    markerResource.getId(),
+                                    markerResource.getEditRate().size() != 0 ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
+                                    markerResource.getIntrinsicDuration(),
+                                    markerResource.getEntryPoint(),
+                                    markerResource.getSourceDuration(),
+                                    markerResource.getRepeatCount(),
+                                    markerList);
+                        } catch (IMFException e) {
+                            imfErrorLogger.addAllErrors(e.getErrors());
+                        }
+
                     } else {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type in Marker Sequence");
                     }
@@ -87,17 +90,15 @@ public final class CompositionModel_st2067_2_2013 {
             }
 
             /* Parse rest of the sequences */
-            for (Object object : segment.getSequenceList().getAny())
-            {
-                if(!(object instanceof JAXBElement)){
+            for (Object object : segment.getSequenceList().getAny()) {
+                if (!(object instanceof JAXBElement)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
                     continue;
                 }
-                JAXBElement jaxbElement = (JAXBElement)(object);
+                JAXBElement jaxbElement = (JAXBElement) (object);
                 String name = jaxbElement.getName().getLocalPart();
-                sequence = (org.smpte_ra.schemas.st2067_2_2013.SequenceType)(jaxbElement).getValue();
-                if (sequence != null)
-                {
+                sequence = (org.smpte_ra.schemas.st2067_2_2013.SequenceType) (jaxbElement).getValue();
+                if (sequence != null) {
                     UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                     /**
                      * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
@@ -106,35 +107,34 @@ public final class CompositionModel_st2067_2_2013 {
                      * is perhaps not required since this method is only invoked from the context of the constructor.
                      */
                     List<IMFBaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
-                    for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource())
-                    {
+                    for (org.smpte_ra.schemas.st2067_2_2013.BaseResourceType resource : sequence.getResourceList().getResource()) {
                         IMFBaseResourceType baseResource = null;
-                        if(resource instanceof  org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType)
-                        {
+                        if (resource instanceof org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType) {
 
                             org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource =
                                     (org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType) resource;
 
-                            baseResource = new IMFTrackFileResourceType(
-                                    trackFileResource.getId(),
-                                    trackFileResource.getTrackFileId(),
-                                    trackFileResource.getEditRate().size() != 0  ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                    trackFileResource.getIntrinsicDuration(),
-                                    trackFileResource.getEntryPoint(),
-                                    trackFileResource.getSourceDuration(),
-                                    trackFileResource.getRepeatCount(),
-                                    trackFileResource.getSourceEncoding(),
-                                    trackFileResource.getHash(),
-                                    CompositionPlaylistBuilder_2013.defaultHashAlgorithm
-                            );
-                        }
-                        else
-                        {
+                            try {
+                                baseResource = new IMFTrackFileResourceType(
+                                        trackFileResource.getId(),
+                                        trackFileResource.getTrackFileId(),
+                                        trackFileResource.getEditRate().size() != 0 ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
+                                        trackFileResource.getIntrinsicDuration(),
+                                        trackFileResource.getEntryPoint(),
+                                        trackFileResource.getSourceDuration(),
+                                        trackFileResource.getRepeatCount(),
+                                        trackFileResource.getSourceEncoding(),
+                                        trackFileResource.getHash(),
+                                        CompositionPlaylistBuilder_2013.defaultHashAlgorithm
+                                );
+                            } catch (IMFException e) {
+                                imfErrorLogger.addAllErrors(e.getErrors());
+                            }
+                        } else {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type");
                         }
 
-                        if(baseResource != null)
-                        {
+                        if (baseResource != null) {
                             baseResources.add(baseResource);
                         }
                     }
@@ -151,9 +151,8 @@ public final class CompositionModel_st2067_2_2013 {
 
         List<IMFEssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<IMFEssenceDescriptorBaseType>();
 
-        if(compositionPlaylistType.getEssenceDescriptorList() != null &&
-                compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() >= 1)
-        {
+        if (compositionPlaylistType.getEssenceDescriptorList() != null &&
+                compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() >= 1) {
             for (org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptor : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor()) {
                 essenceDescriptorList.add(new IMFEssenceDescriptorBaseType(essenceDescriptor.getId(),
                         essenceDescriptor.getAny()));
@@ -162,7 +161,7 @@ public final class CompositionModel_st2067_2_2013 {
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
 
-        return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
+        return new IMFCompositionPlaylistType(compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
                 (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue()),

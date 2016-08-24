@@ -18,6 +18,9 @@
 
 package com.netflix.imflibrary.st2067_2.CompositionModels;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
@@ -39,7 +42,7 @@ public final class IMFCompositionPlaylistType {
     private final String contentTitle;
     private final List<IMFSegmentType> segmentList;
     private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
-
+    private final IMFErrorLogger imfErrorLogger;
     public IMFCompositionPlaylistType(String id,
                                    List<Long> editRate,
                                    String annotation,
@@ -51,7 +54,18 @@ public final class IMFCompositionPlaylistType {
                                    List<IMFEssenceDescriptorBaseType> essenceDescriptorList )
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
-        this.editRate          = new Composition.EditRate(editRate);
+        Composition.EditRate rate = null;
+        imfErrorLogger = new IMFErrorLoggerImpl();
+        try
+        {
+            rate = new Composition.EditRate(editRate);
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+
+        this.editRate          = rate;
         this.annotation        = annotation;
         this.issuer            = issuer;
         this.creator           = creator;
@@ -59,6 +73,11 @@ public final class IMFCompositionPlaylistType {
         this.contentTitle      = contentTitle;
         this.segmentList        = segmentList;
         this.essenceDescriptorList = essenceDescriptorList;
+
+        if(imfErrorLogger.hasFatal())
+        {
+            throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
+        }
     }
 
     /**
