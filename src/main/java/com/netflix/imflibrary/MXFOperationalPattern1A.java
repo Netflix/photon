@@ -273,6 +273,7 @@ public final class MXFOperationalPattern1A
      */
     public static void checkOperationalPattern1ACompliance(List<PartitionPack> partitionPacks)
     {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(PartitionPack partitionPack : partitionPacks)
         {
             //check 'Operational Pattern' field in PartitionPack
@@ -282,7 +283,7 @@ public final class MXFOperationalPattern1A
                 if( (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY_MASK[i] != 0) &&
                         (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i] != bytes[i]) )
                 {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
                             bytes[i], i, MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i]));
                 }
             }
@@ -290,7 +291,7 @@ public final class MXFOperationalPattern1A
             //check number of essence containers
             if (partitionPack.getNumberOfEssenceContainerULs() < 1)
             {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in partition pack = %d, at least 1 is expected",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in partition pack = %d, at least 1 is expected",
                         partitionPack.getNumberOfEssenceContainerULs()));
             }
 
