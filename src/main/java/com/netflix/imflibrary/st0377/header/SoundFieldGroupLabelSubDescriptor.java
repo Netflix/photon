@@ -130,6 +130,11 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         SoundFieldGroupLabelSubDescriptor.ERROR_DESCRIPTION_PREFIX + "mca_tag_symbol is null");
             }
+            //According to IMF Core Constraints Section 5.3.6.5 if this field being absent implies the SoundFieldGroupLabelSubDescriptor is not associated with a primary spoken language
+            if (this.rfc_5646_spoken_language == null){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        SoundFieldGroupLabelSubDescriptor.ERROR_DESCRIPTION_PREFIX + "rfc_5646_spoken_language is not present, implying this SoundFieldGroupLabelSubDescriptor is not associated with a primary spoken language");
+            }
 
         }
 

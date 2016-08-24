@@ -65,14 +65,14 @@ public final class IMFConstraints
         byte[] bytes = preface.getOperationalPattern().getULAsBytes();
         if (OperationalPatternHelper.getPackageComplexity(bytes) != OperationalPatternHelper.PackageComplexity.SinglePackage)
         {
-            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x",
+            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x, should be = 0x%x per the definition of OperationalPattern-1A",
                     bytes[14]));
         }
 
         //From 2067-5 Section 5.1.1#13, primary package identifier for Preface shall be set to the top-level file package
         if ((preface.getPrimaryPackage() == null) || (!preface.getPrimaryPackage().equals(preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage())))
         {
-            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("primary package identifier for Preface is not set to the top-level file package"));
+            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Primary package identifier for Preface is not set to the top-level file package"));
         }
 
         SourcePackage filePackage;
@@ -112,18 +112,15 @@ public final class IMFConstraints
                     if (genericDescriptor instanceof WaveAudioEssenceDescriptor)
                     {
                         WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
-//                        if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
-//                                (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUid(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL))))
-//                        {
-//                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
-//                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUid(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
-//                        }
-                        //TODO: Enable following check once we have assets that adhere to the specification that the RFC5646 spoken language tag is present in the SoundFieldGroupLabelSubDescriptor and/or AudioChannelLableSubDescriptor
-                        /*
+                        if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
+                                (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL))))
+                        {
+                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
+                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
+                        }
                         if(headerPartition.getAudioEssenceSpokenLanguage() == null){
                             throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
                         }
-                        */
                     }
                     else
                     {

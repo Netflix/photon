@@ -132,7 +132,7 @@ public final class AssetMap
             throw new IMFException(String.format("Please check the AssetMap document, currently we only support the " +
                     "following schema URIs %s", serializeAssetMapSchemasToString()), imfErrorLogger);
         }
-
+        
         try {
             try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
                  InputStream assetMap_schema_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
@@ -151,7 +151,7 @@ public final class AssetMap
                 if (validationEventHandlerImpl.hasErrors()) {
                     List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
                     for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getLineNumber() + " - " + error.getErrorMessage());
                     }
                     throw new IMFException("AssetMap parsing failed with validation errors", imfErrorLogger);
                 }

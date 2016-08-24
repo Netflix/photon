@@ -193,7 +193,7 @@ public final class Composition {
                             .map(e -> new ErrorLogger.ErrorObject(
                                     IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     e.getValidationEventSeverity(),
-                                    e.getErrorMessage())
+                                    e.getLineNumber().toString() + " - " + e.getErrorMessage())
                             )
                             .forEach(imfErrorLogger::addError);
 
