@@ -78,8 +78,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage = (SourcePackage)genericPackage;
@@ -100,8 +100,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage)genericPackage;
@@ -121,8 +121,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage)genericPackage;
@@ -209,8 +209,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage = (SourcePackage)genericPackage;
@@ -231,8 +231,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage)genericPackage;
@@ -252,8 +252,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage)genericPackage;
@@ -330,7 +330,6 @@ public class IMPBuilderFunctionalTest {
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Composition composition = new Composition(resourceByteRangeProvider);
-        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -340,8 +339,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage = (SourcePackage)genericPackage;
@@ -362,8 +361,8 @@ public class IMPBuilderFunctionalTest {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage)genericPackage;

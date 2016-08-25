@@ -12,9 +12,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
-import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
@@ -123,9 +121,22 @@ public class MXFEssenceReader {
             partitionPacks.add(getPartitionPack(offset));
         }
 
-        //validate partition packs
-        MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-        IMFConstraints.checkIMFCompliance(partitionPacks);
+        try {
+            //validate partition packs
+            MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
+            IMFConstraints.checkIMFCompliance(partitionPacks, imfErrorLogger);
+        }
+        catch (IMFException | MXFException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));
+            if(e instanceof IMFException){
+                IMFException imfException = (IMFException)e;
+                imfErrorLogger.addAllErrors(imfException.getErrors());
+            }
+            else if(e instanceof MXFException){
+                MXFException mxfException = (MXFException)e;
+                imfErrorLogger.addAllErrors(mxfException.getErrors());
+            }
+        }
         return partitionPacks;
     }
 

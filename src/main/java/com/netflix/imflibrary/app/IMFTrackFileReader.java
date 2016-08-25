@@ -19,7 +19,6 @@
 package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.*;
-import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -112,8 +111,8 @@ final class IMFTrackFileReader
 
         try {
             //validate header partition
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         }
         catch (MXFException | IMFException e){
             Preface preface = headerPartition.getPreface();
@@ -232,7 +231,7 @@ final class IMFTrackFileReader
 
     private void setReferencedPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        List<PartitionPack> allPartitionPacks = getPartitionPacks();
+        List<PartitionPack> allPartitionPacks = getPartitionPacks(imfErrorLogger);
         HeaderPartition headerPartition = getHeaderPartition(imfErrorLogger);
 
         Set<Long> indexSIDs = new HashSet<>();
@@ -271,21 +270,21 @@ final class IMFTrackFileReader
         this.referencedPartitionPacks = referencedPartitionPacks;
     }
 
-    private List<PartitionPack> getPartitionPacks() throws IOException
+    private List<PartitionPack> getPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.partitionPacks == null)
         {
-            setPartitionPacks();
+            setPartitionPacks(imfErrorLogger);
         }
         return Collections.unmodifiableList(this.partitionPacks);
 
     }
 
-    List<String> getPartitionPacksType() throws IOException
+    List<String> getPartitionPacksType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.partitionPacks == null)
         {
-            setPartitionPacks();
+            setPartitionPacks(imfErrorLogger);
         }
         ArrayList<String> partitionPackTypeString = new ArrayList<String>();
         for(PartitionPack partitionPack : this.partitionPacks){
@@ -295,7 +294,7 @@ final class IMFTrackFileReader
 
     }
 
-    private void setPartitionPacks() throws IOException
+    private void setPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         RandomIndexPack randomIndexPack = getRandomIndexPack();
 
@@ -305,10 +304,22 @@ final class IMFTrackFileReader
         {
             partitionPacks.add(getPartitionPack(offset));
         }
-
-        //validate partition packs
-        MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-        IMFConstraints.checkIMFCompliance(partitionPacks);
+        try {
+            //validate partition packs
+            MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
+            IMFConstraints.checkIMFCompliance(partitionPacks, imfErrorLogger);
+        }
+        catch (IMFException | MXFException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));
+            if(e instanceof IMFException){
+                IMFException imfException = (IMFException)e;
+                imfErrorLogger.addAllErrors(imfException.getErrors());
+            }
+            else if(e instanceof MXFException){
+                MXFException mxfException = (MXFException)e;
+                imfErrorLogger.addAllErrors(mxfException.getErrors());
+            }
+        }
 
         //add reference to list of partition packs
         this.partitionPacks  = Collections.unmodifiableList(partitionPacks);
@@ -590,7 +601,7 @@ final class IMFTrackFileReader
         try
         {
             sb.append(this.getRandomIndexPack());
-            sb.append(this.getPartitionPacks());
+            sb.append(this.getPartitionPacks(imfErrorLogger));
             sb.append(this.getReferencedPartitionPacks(imfErrorLogger));
             sb.append(this.getIndexTableSegments());
             sb.append(this.getHeaderPartitionIMF(imfErrorLogger));

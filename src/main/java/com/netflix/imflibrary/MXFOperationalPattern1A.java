@@ -54,14 +54,14 @@ public final class MXFOperationalPattern1A
      * exception is thrown in case of non-compliance
      *
      * @param headerPartition the MXF header partition
+     * @param imfErrorLogger - an object for logging errors
      * @return the same header partition wrapped in a HeaderPartitionOP1A object
      */
     @SuppressWarnings({"PMD.NcssMethodCount","PMD.CollapsibleIfStatements"})
-    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition)
+    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition, @Nonnull IMFErrorLogger imfErrorLogger)
     {
 
         Preface preface = headerPartition.getPreface();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         if(preface == null){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Preface does not exist in the header partition, which is invalid."));
         }

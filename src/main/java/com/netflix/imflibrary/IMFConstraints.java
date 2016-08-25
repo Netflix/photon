@@ -30,6 +30,7 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
@@ -53,13 +54,13 @@ public final class IMFConstraints
      * exception is thrown in case of non-compliance
      *
      * @param headerPartitionOP1A the OP1A-conformant header partition
+     * @param imfErrorLogger - an object for logging errors
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
+    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         Preface preface = headerPartition.getPreface();
         //check 'Operational Pattern' field in Preface
@@ -143,11 +144,11 @@ public final class IMFConstraints
      * exception is thrown in case of non-compliance
      *
      * @param partitionPacks the list of partition packs for which the compliance check is performed
+     * @param imfErrorLogger - an object for logging errors
      */
     @SuppressWarnings({"PMD.CollapsibleIfStatements"})
-    public static void checkIMFCompliance(List<PartitionPack> partitionPacks)
+    public static void checkIMFCompliance(List<PartitionPack> partitionPacks, IMFErrorLogger imfErrorLogger)
     {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         //From st2067-5-2013 section 5.1.5, a partition shall only have one of header metadata, essence, index table
         for (PartitionPack partitionPack : partitionPacks)
         {
