@@ -55,24 +55,25 @@ public final class IMFConstraints
      * @param headerPartitionOP1A the OP1A-conformant header partition
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A)
+    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException
     {
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         Preface preface = headerPartition.getPreface();
         //check 'Operational Pattern' field in Preface
         byte[] bytes = preface.getOperationalPattern().getULAsBytes();
         if (OperationalPatternHelper.getPackageComplexity(bytes) != OperationalPatternHelper.PackageComplexity.SinglePackage)
         {
-            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x, should be = 0x01 per the definition of OperationalPattern-1A",
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Lower four bits of Operational Pattern qualifier byte = 0x%x, should be = 0x01 per the definition of OperationalPattern-1A",
                     bytes[14]));
         }
 
         //From 2067-5 Section 5.1.1#13, primary package identifier for Preface shall be set to the top-level file package
         if ((preface.getPrimaryPackage() == null) || (!preface.getPrimaryPackage().equals(preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage())))
         {
-            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Primary package identifier for Preface is not set to the top-level file package"));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Primary package identifier for Preface is not set to the top-level file package"));
         }
 
         SourcePackage filePackage;
@@ -94,7 +95,7 @@ public final class IMFConstraints
             }
             if (numEssenceTracks != 1)
             {
-                throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Number of essence tracks in FilePackage %s = %d, which is different from 1",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Number of essence tracks in FilePackage %s = %d, which is different from 1",
                         filePackage.getInstanceUID(), numEssenceTracks));
             }
         }
@@ -105,31 +106,35 @@ public final class IMFConstraints
             for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
             {
                 Sequence sequence = timelineTrack.getSequence();
-                MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
-                if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
-                {
-                    GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
-                    if (genericDescriptor instanceof WaveAudioEssenceDescriptor)
-                    {
-                        WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
-//                        if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
-//                                (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL))))
-//                        {
-//                            throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
-//                                    waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
-//                        }
-//                        if(headerPartition.getAudioEssenceSpokenLanguage() == null){
-//                            throw new MXFException((IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated"));
-//                        }
-                    }
-                    else
-                    {
-                        throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "Header Partition does not have a WaveAudioEssenceDescriptor set");
+                if(sequence == null){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("TimelineTrack with instanceUID = %s has no sequence",
+                            timelineTrack.getInstanceUID()));
+                }
+                else {
+                    MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
+                    if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND)) {
+                        GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
+                        if (genericDescriptor instanceof WaveAudioEssenceDescriptor) {
+                            WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
+                            if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
+                                    (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)))) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s",
+                                        waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)));
+                            }
+                            if (headerPartition.getAudioEssenceSpokenLanguage() == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated");
+                            }
+                        } else {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "Header Partition does not have a WaveAudioEssenceDescriptor set");
+                        }
                     }
                 }
             }
         }
 
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new IMFException(String.format("Found fatal errors in the IMFTrackFile that violate the IMF Core constraints"), imfErrorLogger);
+        }
         return new HeaderPartitionIMF(headerPartitionOP1A);
     }
 
@@ -142,6 +147,7 @@ public final class IMFConstraints
     @SuppressWarnings({"PMD.CollapsibleIfStatements"})
     public static void checkIMFCompliance(List<PartitionPack> partitionPacks)
     {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         //From st2067-5-2013 section 5.1.5, a partition shall only have one of header metadata, essence, index table
         for (PartitionPack partitionPack : partitionPacks)
         {
@@ -149,7 +155,7 @@ public final class IMFConstraints
             {
                 if (partitionPack.hasEssenceContainer() || partitionPack.hasIndexTableSegments())
                 {
-                    throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : header metadata = true, essenceContainerData = %s, indexTableSegment = %s",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : header metadata = true, essenceContainerData = %s, indexTableSegment = %s",
                             partitionPack.getPartitionByteOffset(), partitionPack.hasEssenceContainer(), partitionPack.hasIndexTableSegments()));
                 }
             }
@@ -157,7 +163,7 @@ public final class IMFConstraints
             {
                 if (partitionPack.hasHeaderMetadata() || partitionPack.hasIndexTableSegments())
                 {
-                    throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : essenceContainerData = true, header metadata = %s, indexTableSegment = %s",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : essenceContainerData = true, header metadata = %s, indexTableSegment = %s",
                             partitionPack.getPartitionByteOffset(), partitionPack.hasHeaderMetadata(), partitionPack.hasIndexTableSegments()));
                 }
             }
@@ -165,10 +171,13 @@ public final class IMFConstraints
             {
                 if (partitionPack.hasEssenceContainer() || partitionPack.hasHeaderMetadata())
                 {
-                    throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : indexTableSegment = true, essenceContainerData = %s, header metadata = %s",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PartitionPack at offset %d : indexTableSegment = true, essenceContainerData = %s, header metadata = %s",
                             partitionPack.getPartitionByteOffset(), partitionPack.hasEssenceContainer(), partitionPack.hasHeaderMetadata()));
                 }
             }
+        }
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate the IMF Core constraints"), imfErrorLogger);
         }
     }
 
@@ -184,6 +193,7 @@ public final class IMFConstraints
     {
         Preface preface = headerPartition.getPreface();
         MXFDataDefinition filePackageMxfDataDefinition = null;
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         //get essence type
         {
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -192,7 +202,11 @@ public final class IMFConstraints
             for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
             {
                 Sequence sequence = timelineTrack.getSequence();
-                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
+                if(sequence == null){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("TimelineTrack with instanceUID = %s has no sequence",
+                            timelineTrack.getInstanceUID()));
+                }
+                else if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
                 {
                     filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
                 }
@@ -200,7 +214,8 @@ public final class IMFConstraints
         }
 
         //check if audio essence is clip-wrapped
-        if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
+        if (filePackageMxfDataDefinition != null
+                && filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
         {
             int numPartitionsWithEssence = 0;
             for (PartitionPack partitionPack : partitionPacks)
@@ -212,12 +227,13 @@ public final class IMFConstraints
             }
             if (numPartitionsWithEssence != 1)
             {
-                throw new MXFException(IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Number of partitions with essence = %d in MXF file with data definition = %s, which is different from 1",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Number of partitions with essence = %d in MXF file with data definition = %s, which is different from 1",
                         numPartitionsWithEssence, filePackageMxfDataDefinition));
             }
         }
-
-
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate the IMF Core constraints"), imfErrorLogger);
+        }
     }
 
     /**
@@ -366,7 +382,7 @@ public final class IMFConstraints
                         " than one EssenceType was detected %s.", stringBuilder.toString());
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
-                throw new IMFException(message, imfErrorLogger);
+                throw new MXFException(message, imfErrorLogger);
             }
             return essenceTypes.get(0);
         }

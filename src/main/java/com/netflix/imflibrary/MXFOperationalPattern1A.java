@@ -18,7 +18,6 @@
 
 package com.netflix.imflibrary;
 
-import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
@@ -263,8 +262,8 @@ public final class MXFOperationalPattern1A
 
         }
 
-        if(imfErrorLogger.hasFatal()){
-            throw new IMFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
         }
         return new HeaderPartitionOP1A(headerPartition);
     }
@@ -299,8 +298,8 @@ public final class MXFOperationalPattern1A
                         partitionPack.getNumberOfEssenceContainerULs()));
             }
         }
-        if(imfErrorLogger.hasFatal()){
-            throw new IMFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
         }
     }
 

@@ -74,7 +74,7 @@ public final class IMFCompositionPlaylistType {
         this.segmentList        = segmentList;
         this.essenceDescriptorList = essenceDescriptorList;
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
         }

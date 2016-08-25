@@ -19,6 +19,8 @@
 package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.*;
+import com.netflix.imflibrary.exceptions.IMFAuthoringException;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
@@ -108,9 +110,27 @@ final class IMFTrackFileReader
         ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
         HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
 
-        //validate header partition
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        try {
+            //validate header partition
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
+            this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        }
+        catch (MXFException | IMFException e){
+            Preface preface = headerPartition.getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage) genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+            if(e instanceof IMFException){
+                IMFException imfException = (IMFException)e;
+                imfErrorLogger.addAllErrors(imfException.getErrors());
+            }
+            else if(e instanceof MXFException){
+                MXFException mxfException = (MXFException)e;
+                imfErrorLogger.addAllErrors(mxfException.getErrors());
+            }
+            throw new IMFException(String.format("Fatal errors in the IMFTrackFile's Header Partition"), imfErrorLogger);
+        }
     }
 
     private List<IndexTableSegment> getIndexTableSegments() throws IOException

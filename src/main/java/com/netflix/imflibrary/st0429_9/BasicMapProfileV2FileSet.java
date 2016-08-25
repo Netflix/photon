@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -68,7 +67,7 @@ public final class BasicMapProfileV2FileSet
 
         this.basicMapProfileV2MappedFileSet = basicMapProfileV2MappedFileSet;
 
-        if (imfErrorLogger.hasFatal())
+        if (imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger
                     .getNumberOfErrors()), imfErrorLogger);

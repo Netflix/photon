@@ -163,12 +163,12 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
         }
     }
 
-    public Boolean hasFatal()
+    public Boolean hasFatalErrors()
     {
         return (getErrors(IMFErrors.ErrorLevels.FATAL).size() > 0);
     }
 
-    public Boolean hasFatal(int startIndex, int endIndex) {
+    public Boolean hasFatalErrors(int startIndex, int endIndex) {
         return (getErrors(IMFErrors.ErrorLevels.FATAL, startIndex, endIndex).size() > 0);
 
     }

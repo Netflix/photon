@@ -18,29 +18,59 @@
 
 package com.netflix.imflibrary.exceptions;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.utils.ErrorLogger;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Unchecked exception class that is used when a fatal error occurs in processing of an MXF file
  */
 public class MXFException extends RuntimeException
 {
+    private final IMFErrorLogger imfErrorLogger;
 
     public MXFException()
     {
         super();
+        this.imfErrorLogger = null;
     }
 
     public MXFException(String s)
     {
         super(s);
+        this.imfErrorLogger = null;
     }
 
     public MXFException(Throwable t)
     {
         super(t);
+        this.imfErrorLogger = null;
     }
 
     public MXFException(String s, Throwable t)
     {
         super(s,t);
+        this.imfErrorLogger = null;
+    }
+
+    public MXFException(String s, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        super(s);
+        this.imfErrorLogger = imfErrorLogger;
+    }
+
+    public List<ErrorLogger.ErrorObject> getErrors()
+    {
+        List errorList = new ArrayList<ErrorLogger.ErrorObject>();
+        if(this.imfErrorLogger != null)
+        {
+            errorList.addAll(this.imfErrorLogger.getErrors());
+        }
+
+        return Collections.unmodifiableList(errorList);
     }
 }

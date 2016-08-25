@@ -30,7 +30,6 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType;
 import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -165,7 +164,7 @@ public final class PackingList
                     e.getMessage());
         }
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("PackingList parsing failed", imfErrorLogger);
         }
