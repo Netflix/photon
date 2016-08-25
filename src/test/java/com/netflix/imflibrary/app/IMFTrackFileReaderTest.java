@@ -44,7 +44,7 @@ public class IMFTrackFileReaderTest
         Assert.assertTrue(imfTrackFileReader.toString().length() > 0);
     }
 
-    @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "randomIndexPackSize = .*")
+    @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "RandomIndexPackSize = .*")
     public void badRandomIndexPackLength() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
