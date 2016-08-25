@@ -6,6 +6,7 @@ import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
+import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 
 
 import javax.annotation.Nonnull;
@@ -92,7 +93,15 @@ public final class CompositionModel_st2067_2_2013 {
             /* Parse rest of the sequences */
             for (Object object : segment.getSequenceList().getAny()) {
                 if (!(object instanceof JAXBElement)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported sequence type or schema");
+                    String details = "";
+                    if(object instanceof ElementNSImpl)
+                    {
+                        ElementNSImpl element = ElementNSImpl.class.cast(object);
+                        details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
+                    }
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
+                            .IMFErrors.ErrorLevels.FATAL, String.format("Unsupported sequence type or schema %s",
+                            details));
                     continue;
                 }
                 JAXBElement jaxbElement = (JAXBElement) (object);
