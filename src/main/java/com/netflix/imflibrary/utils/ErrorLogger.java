@@ -102,6 +102,37 @@ public interface ErrorLogger
             return stringBuilder.toString();
         }
 
+        /**
+         * Equals() method to test for equality of Error Objects
+         * @param other the error object to compare against
+         * @return a boolean representing the result of the equality check
+         */
+        @Override
+        public boolean equals(Object other){
+            if(other == null
+                    || !other.getClass().equals(ErrorObject.class)){
+                return false;
+            }
+            ErrorObject otherErrorObject = (ErrorObject) other;
+
+            return (this.errorCode == otherErrorObject.getErrorCode()
+                    && this.errorLevel == otherErrorObject.getErrorLevel()
+                    && this.errorDescription.equals(otherErrorObject.getErrorDescription()));
+        }
+
+        /**
+         * hashCode() method to permit equality checks
+         * @return an integer representing the hashCode of this object
+         */
+        @Override
+        public int hashCode(){
+            int hash = 9;
+            hash = hash*31 + this.errorCode.toString().hashCode();
+            hash = hash*31 + this.errorLevel.toString().hashCode();
+            hash = hash*31 + this.errorCode.toString().hashCode();
+            return hash;
+        }
+
     }
 
 }
