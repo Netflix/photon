@@ -151,7 +151,8 @@ public final class AssetMap
                 if (validationEventHandlerImpl.hasErrors()) {
                     List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
                     for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getLineNumber() + " - " + error.getErrorMessage());
+                        String errorMessage = "Line Number : " + error.getLineNumber().toString() + " - " + error.getErrorMessage();
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), errorMessage);
                     }
                     throw new IMFException("AssetMap parsing failed with validation errors", imfErrorLogger);
                 }

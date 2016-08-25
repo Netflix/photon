@@ -153,7 +153,8 @@ public final class PackingList
                 if (validationEventHandlerImpl.hasErrors()) {
                     List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
                     for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                        String errorMessage = "Line Number : " + error.getLineNumber().toString() + " - " + error.getErrorMessage();
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), errorMessage);
                     }
                     throw new IMFException(validationEventHandlerImpl.toString(), imfErrorLogger);
                 }
