@@ -38,6 +38,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -89,9 +90,14 @@ final class IMFTrackFileReader
     {
         if (this.headerPartition == null)
         {
-            RandomIndexPack randomIndexPack = getRandomIndexPack();
+            RandomIndexPack randomIndexPack = getRandomIndexPack(imfErrorLogger);
             List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
-            setHeaderPartitionIMF(allPartitionByteOffsets.get(0), allPartitionByteOffsets.get(1) - 1, imfErrorLogger);
+            try {
+                setHeaderPartitionIMF(allPartitionByteOffsets.get(0), allPartitionByteOffsets.get(1) - 1, imfErrorLogger);
+            }
+            catch (IMFException e){
+                throw new IMFException(String.format("Could not set Header Partition"), imfErrorLogger);
+            }
         }
 
         return this.headerPartition;
@@ -99,27 +105,37 @@ final class IMFTrackFileReader
 
     private HeaderPartition getHeaderPartition(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
-        return headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        try {
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
+            return headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        }
+        catch (IMFException e){
+            throw new IMFException(String.format("Could not read Header Partition"), imfErrorLogger);
+        }
     }
 
     private void setHeaderPartitionIMF(long inclusiveRangeStart, long inclusiveRangeEnd, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
         ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
-
+        HeaderPartition headerPartition = null;
         try {
+            headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
             this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         }
         catch (MXFException | IMFException e){
-            Preface preface = headerPartition.getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+            if(headerPartition == null){
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors")));
+            }
+            else {
+                Preface preface = headerPartition.getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage) genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+            }
             if(e instanceof IMFException){
                 IMFException imfException = (IMFException)e;
                 imfErrorLogger.addAllErrors(imfException.getErrors());
@@ -132,18 +148,18 @@ final class IMFTrackFileReader
         }
     }
 
-    private List<IndexTableSegment> getIndexTableSegments() throws IOException
+    private List<IndexTableSegment> getIndexTableSegments(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.indexTableSegments == null)
         {
-            setIndexTableSegments();
+            setIndexTableSegments(imfErrorLogger);
         }
         return Collections.unmodifiableList(this.indexTableSegments);
     }
 
-    private void setIndexTableSegments() throws IOException
+    private void setIndexTableSegments(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        RandomIndexPack randomIndexPack = getRandomIndexPack();
+        RandomIndexPack randomIndexPack = getRandomIndexPack(imfErrorLogger);
 
         List<IndexTableSegment> indexTableSegments = new ArrayList<>();
         List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
@@ -296,7 +312,7 @@ final class IMFTrackFileReader
 
     private void setPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        RandomIndexPack randomIndexPack = getRandomIndexPack();
+        RandomIndexPack randomIndexPack = getRandomIndexPack(imfErrorLogger);
 
         List<PartitionPack> partitionPacks = new ArrayList<>();
         List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
@@ -360,18 +376,18 @@ final class IMFTrackFileReader
     /**
      * Returns a model instance corresponding to the RandomIndexPack section of the MXF file
      * @return a {@link com.netflix.imflibrary.st0377.RandomIndexPack} representation of the random index pack section
-     * @throws IOException
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
-    RandomIndexPack getRandomIndexPack() throws IOException
+    RandomIndexPack getRandomIndexPack(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.randomIndexPack == null)
         {
-            setRandomIndexPack();
+            setRandomIndexPack(imfErrorLogger);
         }
         return this.randomIndexPack;
     }
 
-    private void setRandomIndexPack() throws IOException
+    private void setRandomIndexPack(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
 
         long archiveFileSize = this.resourceByteRangeProvider.getResourceSize();
@@ -384,14 +400,19 @@ final class IMFTrackFileReader
             byte[] bytes = Files.readAllBytes(Paths.get(fileWithRandomIndexPackSize.toURI()));
             randomIndexPackSize = (long)(ByteBuffer.wrap(bytes).getInt());
         }
-
+        //RandomIndexPack size min value = 16 + 4 + 36 + 4
+        // 16 bytes for the UL, 4 bytes for the overall length of the pack, 3 * 12 bytes since we expect to see atleast 3 partitions, 4 bytes overall length of the pack including the SetKey, Pack Length and SID/Offset fields
+        if(randomIndexPackSize < 60){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("RandomIndexPackSize = %d is smaller than what is required to reliably contain a minimum number of Partition Byte Offsets.", randomIndexPackSize));
+            throw new MXFException(String.format("RandomIndexPackSize = %d is smaller than what is required to reliably contain a minimum number of Partition Byte Offsets.", randomIndexPackSize), imfErrorLogger);
+        }
         RandomIndexPack randomIndexPack;
         {//logic to provide as an input stream the portion of the archive that contains randomIndexPack
             long rangeEnd = archiveFileSize - 1;
             long rangeStart = archiveFileSize - randomIndexPackSize;
             if (rangeStart < 0)
             {
-                throw new MXFException(String.format("randomIndexPackSize = %d obtained from last 4 bytes of the MXF file is larger than archiveFile size = %d, implying that this file does not contain a RandomIndexPack",
+                throw new MXFException(String.format("RandomIndexPackSize = %d obtained from last 4 bytes of the MXF file is larger than archiveFile size = %d, implying that this file does not contain a RandomIndexPack",
                         randomIndexPackSize, archiveFileSize));
             }
 
@@ -480,7 +501,7 @@ final class IMFTrackFileReader
      * An accessor for the PrimerPack KLV header
      * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return a File containing the Primer pack
-     * @throws IOException
+     * @throws IOException - any I/O related error is exposed through an IOException
      */
     KLVPacket.Header getPrimerPackHeader(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getPrimerPack().getHeader();
@@ -600,15 +621,26 @@ final class IMFTrackFileReader
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try
         {
-            sb.append(this.getRandomIndexPack());
+            sb.append(this.getRandomIndexPack(imfErrorLogger));
             sb.append(this.getPartitionPacks(imfErrorLogger));
             sb.append(this.getReferencedPartitionPacks(imfErrorLogger));
-            sb.append(this.getIndexTableSegments());
+            sb.append(this.getIndexTableSegments(imfErrorLogger));
             sb.append(this.getHeaderPartitionIMF(imfErrorLogger));
         }
         catch(IOException e)
         {
-            throw new MXFException(e);
+            throw new IMFException(e.getMessage(), imfErrorLogger);
+        }
+        catch (IMFException | MXFException e){
+            if(e instanceof IMFException){
+                IMFException imfException = (IMFException)e;
+                imfErrorLogger.addAllErrors(imfException.getErrors());
+            }
+            else if(e instanceof MXFException){
+                MXFException mxfException = (MXFException)e;
+                imfErrorLogger.addAllErrors(mxfException.getErrors());
+            }
+            logger.error(Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors()));
         }
         return sb.toString();
     }
@@ -634,24 +666,41 @@ final class IMFTrackFileReader
         File workingDirectory = new File(args[1]);
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
+        IMFTrackFileReader imfTrackFileReader = null;
+        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = null;
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
-            for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors(imfErrorLogger)) {
-                /* create dom */
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                Document document = docBuilder.newDocument();
-                /*Output file containing the RegXML representation of the EssenceDescriptor*/
-                KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
-                File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders);
-                logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.getAbsolutePath()));
-            }
+            imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
+            imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
         }
-        catch(ParserConfigurationException | TransformerException e){
-            throw new MXFException(e);
+        catch (IMFException | MXFException e){
+            if(e instanceof IMFException){
+                IMFException imfException = (IMFException)e;
+                imfErrorLogger.addAllErrors(imfException.getErrors());
+            }
+            else if(e instanceof MXFException){
+                MXFException mxfException = (MXFException)e;
+                imfErrorLogger.addAllErrors(mxfException.getErrors());
+            }
+            imfErrorLogger.addAllErrors(imfErrorLogger.getErrors());
+        }
+        if(imfTrackFileReader != null
+                && imfTrackFileCPLBuilder != null) {
+            try {
+                for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors(imfErrorLogger)) {
+                /* create dom */
+                    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                    Document document = docBuilder.newDocument();
+                /*Output file containing the RegXML representation of the EssenceDescriptor*/
+                    KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
+                    List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
+                    File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders);
+                    logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.getAbsolutePath()));
+                }
+            } catch (ParserConfigurationException | TransformerException e) {
+                throw new MXFException(e);
+            }
         }
         List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
         if(errors.size() > 0){
@@ -665,7 +714,10 @@ final class IMFTrackFileReader
             }
         }
         else{
-            logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+            if(imfTrackFileReader != null
+                    && imfTrackFileCPLBuilder != null) {
+                logger.info(String.format("%n %s", imfTrackFileReader.toString()));
+            }
             logger.info("No errors were detected in the IMFTrackFile");
         }
     }

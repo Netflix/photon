@@ -53,6 +53,7 @@ public class IMFTrackFileReaderTest
         when(resourceByteRangeProvider.getResourceSize()).thenReturn(16L);
         when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(File.class))).thenReturn(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-        imfTrackFileReader.getRandomIndexPack();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        imfTrackFileReader.getRandomIndexPack(imfErrorLogger);
     }
 }
