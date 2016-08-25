@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -26,20 +27,17 @@ public final class IMFCoreConstraintsChecker {
 
     }
 
-    public static boolean checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap, IMFErrorLogger imfErrorLogger){
+    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends
+            Composition.VirtualTrack> virtualTrackMap){
 
         boolean foundMainImageEssence = false;
-        boolean result = true;
+        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
 
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
-            result &= checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList, imfErrorLogger);
-
-            if(!result){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with id %s is invalid, please see errors reported earlier.", virtualTrack.getTrackID().toString()));
-            }
+            imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
@@ -49,7 +47,6 @@ public final class IMFCoreConstraintsChecker {
                     if (trackResourceEditRate != null
                             && !trackResourceEditRate.equals(compositionEditRate)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
-                        result &= false;
                     }
                 }
             }
@@ -59,9 +56,8 @@ public final class IMFCoreConstraintsChecker {
 
         if(!foundMainImageEssence){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", compositionPlaylistType.getId().toString()));
-            result &= false;
         }
-        return result;
+        return imfErrorLogger.getErrors();
     }
 
     public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, Composition.VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
@@ -95,12 +91,13 @@ public final class IMFCoreConstraintsChecker {
         }
     }
 
-    public static boolean checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType> virtualBaseResourceList, @Nonnull IMFErrorLogger imfErrorLogger){
-        boolean result = true;
+    public static List checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType>
+            virtualBaseResourceList){
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         if(virtualBaseResourceList == null
                 || virtualBaseResourceList.size() == 0){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s does not have any associated resources this is invalid", trackID.toString()));
-            return false;
+            return imfErrorLogger.getErrors();
         }
         Set<Composition.EditRate> editRates = new HashSet<>();
         Composition.EditRate baseResourceEditRate = null;
@@ -117,16 +114,23 @@ public final class IMFCoreConstraintsChecker {
                                     baseResource.getId(),
                                     baseResource.getSourceDuration().longValue(),
                                     (compositionPlaylistResourceIntrinsicDuration - compositionPlaylistResourceEntryPoint)));
-                    result &= false;
                 }
             }
 
             //Check to see if the Marker Resource's intrinsic duration value is in the valid range as specified in st2067-3:2013 section 6.13
-            if(baseResource instanceof IMFMarkerResourceType)
-            {
-                for(IMFMarkerType marker: IMFMarkerResourceType.class.cast(baseResource).getMarkerList())
-                {
-                    result &= (marker.getOffset().longValue() <= compositionPlaylistResourceIntrinsicDuration);
+            if (baseResource instanceof IMFMarkerResourceType) {
+                IMFMarkerResourceType markerResource = IMFMarkerResourceType.class.cast(baseResource);
+                List<IMFMarkerType> markerList = markerResource.getMarkerList();
+                for (IMFMarkerType marker : markerList) {
+                    if (marker.getOffset().longValue() >= markerResource.getIntrinsicDuration().longValue()) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
+                                .IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s  has a  " +
+                                        "resource with ID %s, that has a marker %s, that has an invalid offset " +
+                                        "value %d, should be in the range [0,%d] ",
+                                trackID.toString(),
+                                markerResource.getId(), marker.getLabel().getValue(), marker
+                                        .getOffset().longValue(), markerResource.getIntrinsicDuration().longValue()-1));
+                    }
                 }
             }
 
@@ -145,6 +149,6 @@ public final class IMFCoreConstraintsChecker {
             }
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s", trackID.toString(), editRatesString.toString()));
         }
-        return result;
+        return imfErrorLogger.getErrors();
     }
 }
