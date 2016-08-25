@@ -574,7 +574,7 @@ public final class AssetMap
             }
         }
         else{
-            logger.info("No structural errors were detected in the AssetMap Document");
+            logger.info("No errors were detected in the AssetMap Document");
         }
 
     }
