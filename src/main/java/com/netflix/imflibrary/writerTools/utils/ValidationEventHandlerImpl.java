@@ -49,7 +49,6 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
      * @return boolean to indicate whether to abort/proceed when an error is encountered
      */
     public boolean handleEvent( ValidationEvent event ){
-        System.out.println(String.format("%s", event.getMessage()));
         this.errors.add(new ValidationErrorObject(event.getSeverity(), event.getMessage()));
         return this.continueOnError;
     }
