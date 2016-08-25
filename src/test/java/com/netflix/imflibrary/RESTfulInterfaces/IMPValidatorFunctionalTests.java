@@ -258,7 +258,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 4);
+        Assert.assertTrue(errors.size() == 2);
     }
 
     @Test
