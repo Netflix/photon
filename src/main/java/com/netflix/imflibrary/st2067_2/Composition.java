@@ -1452,6 +1452,10 @@ public final class Composition {
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);
 
         if(errors.size() > 0){
+            long warningCount = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
+                    .WARNING)).count();
+            logger.info(String.format("CompositionPlaylist Document has %d errors and %d warnings",
+                    errors.size() - warningCount, warningCount));
             for(ErrorLogger.ErrorObject errorObject : errors){
                 if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
                     logger.error(errorObject.toString());
