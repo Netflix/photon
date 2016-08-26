@@ -21,7 +21,6 @@ import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
-import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
@@ -259,7 +258,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertTrue(errors.size() == 2);
     }
 
     @Test
@@ -292,7 +291,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.size() == 3);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().equals("IMF CPL Error-FATAL-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1"));
     }
@@ -319,7 +318,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(2), payloadRecords);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.size() == 2);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -327,7 +326,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.size() == 2);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -355,8 +354,8 @@ public class IMPValidatorFunctionalTests {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage = (SourcePackage) genericPackage;
@@ -377,8 +376,8 @@ public class IMPValidatorFunctionalTests {
                 0L,
                 bytes.length,
                 imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage) genericPackage;

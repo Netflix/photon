@@ -28,6 +28,7 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -53,14 +54,19 @@ public final class MXFOperationalPattern1A
      * exception is thrown in case of non-compliance
      *
      * @param headerPartition the MXF header partition
+     * @param imfErrorLogger - an object for logging errors
      * @return the same header partition wrapped in a HeaderPartitionOP1A object
      */
     @SuppressWarnings({"PMD.NcssMethodCount","PMD.CollapsibleIfStatements"})
-    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(HeaderPartition headerPartition)
+    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition, @Nonnull IMFErrorLogger imfErrorLogger)
     {
 
         Preface preface = headerPartition.getPreface();
+        if(preface == null){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Preface does not exist in the header partition, which is invalid."));
+        }
         //Preface
+        else
         {
             //check 'Operational Pattern' field in Preface
             byte[] bytes = preface.getOperationalPattern().getULAsBytes();
@@ -69,7 +75,7 @@ public final class MXFOperationalPattern1A
                 if( (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY_MASK[i] != 0) &&
                         (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i] != bytes[i]) )
                 {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
                             bytes[i], i, MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i]));
                 }
             }
@@ -77,7 +83,7 @@ public final class MXFOperationalPattern1A
             //check number of essence containers ULs
             if (preface.getNumberOfEssenceContainerULs() < 1)
             {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in preface = %d, at least 1 is expected",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in preface = %d, at least 1 is expected",
                         preface.getNumberOfEssenceContainerULs()));
             }
         }
@@ -87,17 +93,20 @@ public final class MXFOperationalPattern1A
             //check number of Content Storage sets
             if (headerPartition.getContentStorageList().size() != 1)
             {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of Content Storage sets in header partition = %d, is different from 1",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of Content Storage sets in header partition = %d, is different from 1",
                         headerPartition.getContentStorageList().size()));
             }
 
-            ContentStorage contentStorage = preface.getContentStorage();
-
-            //check number of Essence Container Data sets referred by Content Storage
-            if (contentStorage.getNumberOfEssenceContainerDataSets() != 1)
-            {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets referred by Content Storage = %d, is different from 1",
-                        contentStorage.getNumberOfEssenceContainerDataSets()));
+            if(preface != null) {
+                ContentStorage contentStorage = preface.getContentStorage();
+                if (contentStorage == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
+                }
+                //check number of Essence Container Data sets referred by Content Storage
+                else if (contentStorage.getNumberOfEssenceContainerDataSets() != 1) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets referred by Content Storage = %d, is different from 1",
+                            contentStorage.getNumberOfEssenceContainerDataSets()));
+                }
             }
         }
 
@@ -105,7 +114,7 @@ public final class MXFOperationalPattern1A
         {
             if (headerPartition.getEssenceContainerDataList().size() != 1)
             {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets = %d, is different from 1",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainerData sets = %d, is different from 1",
                         headerPartition.getEssenceContainerDataList().size()));
             }
         }
@@ -113,7 +122,7 @@ public final class MXFOperationalPattern1A
         //check number of Material Packages
         if (headerPartition.getMaterialPackages().size() != 1)
         {
-            throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of Material Packages in header partition = %d, is different from 1",
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of Material Packages in header partition = %d, is different from 1",
                     headerPartition.getMaterialPackages().size()));
         }
 
@@ -127,15 +136,14 @@ public final class MXFOperationalPattern1A
                 Sequence sequence = timelineTrack.getSequence();
                 if (sequence == null)
                 {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("TimelineTrack with instanceUID = %s has no sequence",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("TimelineTrack with instanceUID = %s has no sequence",
                             timelineTrack.getInstanceUID()));
                 }
-
-                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
+                else if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
                 {
                     if (sequence.getSourceClips().size() != 1)
                     {
-                        throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Material Package Sequence with UID = %s has %d source clips, exactly one is allowed",
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Material Package Sequence with UID = %s has %d source clips, exactly one is allowed",
                                 sequence.getInstanceUID(), sequence.getSourceClips().size()));
                     }
                 }
@@ -146,7 +154,8 @@ public final class MXFOperationalPattern1A
             for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
             {
                 Sequence sequence = timelineTrack.getSequence();
-                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
+                if (sequence != null
+                        && !sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
                 {
                     MXFUID thisSourcePackageUMID = sequence.getSourceClips().get(0).getSourcePackageID();
                     if (referencedSourcePackageUMID == null)
@@ -155,36 +164,41 @@ public final class MXFOperationalPattern1A
                     }
                     else if (!referencedSourcePackageUMID.equals(thisSourcePackageUMID))
                     {
-                        throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("SourceClipUID = %s refers to source package UID = %s different from other source clips that refer to source package UID = %s",
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("SourceClipUID = %s refers to source package UID = %s different from other source clips that refer to source package UID = %s",
                                 sequence.getInstanceUID(), thisSourcePackageUMID, referencedSourcePackageUMID));
                     }
                 }
             }
 
-            //check if SourcePackageID referenced from Material Package is present in ContentStorage
-            ContentStorage contentStorage = preface.getContentStorage();
-            boolean foundReferenceForReferencedSourcePackageUMIDInContentStorage = false;
-            for (SourcePackage sourcePackage : contentStorage.getSourcePackageList())
-            {
-                if (sourcePackage.getPackageUID().equals(referencedSourcePackageUMID))
-                {
-                    foundReferenceForReferencedSourcePackageUMIDInContentStorage = true;
-                    break;
+            if(referencedSourcePackageUMID == null){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Invalid source package UID, perhaps because one or more timelineTrack has no sequence"));
+            }
+            if(preface != null) {
+                //check if SourcePackageID referenced from Material Package is present in ContentStorage
+                ContentStorage contentStorage = preface.getContentStorage();
+                if (contentStorage == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("No Content Storage set was found in header partition"));
+                } else {
+                    boolean foundReferenceForReferencedSourcePackageUMIDInContentStorage = false;
+                    for (SourcePackage sourcePackage : contentStorage.getSourcePackageList()) {
+                        if (sourcePackage.getPackageUID().equals(referencedSourcePackageUMID)) {
+                            foundReferenceForReferencedSourcePackageUMIDInContentStorage = true;
+                            break;
+                        }
+                    }
+                    if (!foundReferenceForReferencedSourcePackageUMIDInContentStorage) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Content Storage does not refer to Source Package with packageUID = %s", referencedSourcePackageUMID));
+                    }
+
+                    //check if SourcePackageID referenced from Material Package is the same as that referred by EssenceContainer Data set
+                    MXFUID linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
+                    if (referencedSourcePackageUMID != null
+                            && !linkedPackageUID.equals(referencedSourcePackageUMID)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Package UID = %s referred by EssenceContainerData set is different from %s which is referred by Material Package",
+                                linkedPackageUID, referencedSourcePackageUMID));
+                    }
                 }
             }
-            if (!foundReferenceForReferencedSourcePackageUMIDInContentStorage)
-            {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Content Storage does not refer to Source Package with packageUID = %s", referencedSourcePackageUMID));
-            }
-
-            //check if SourcePackageID referenced from Material Package is the same as that referred by EssenceContainer Data set
-            MXFUID linkedPackageUID = contentStorage.getEssenceContainerDataList().get(0).getLinkedPackageUID();
-            if (!linkedPackageUID.equals(referencedSourcePackageUMID))
-            {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Package UID = %s referred by EssenceContainerData set is different from %s which is referred by Material Package",
-                        linkedPackageUID, referencedSourcePackageUMID));
-            }
-
         }
 
         //check if all tracks across the Material Package and the top-level File Package have the same duration
@@ -198,13 +212,14 @@ public final class MXFOperationalPattern1A
                 long thisEditRateDenominator = timelineTrack.getEditRateDenominator();
                 if (thisEditRateNumerator == 0)
                 {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
                             timelineTrack.getInstanceUID(), thisEditRateNumerator, thisEditRateDenominator));
                 }
 
                 Sequence sequence = timelineTrack.getSequence();
 
-                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
+                if (sequence != null
+                        && !sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
                 {
                     double thisSequenceDuration = ((double)sequence.getDuration()*(double)thisEditRateDenominator)/(double)thisEditRateNumerator;
                     if (Math.abs(sequenceDuration) < MXFOperationalPattern1A.EPSILON)
@@ -213,41 +228,43 @@ public final class MXFOperationalPattern1A
                     }
                     else if (Math.abs(sequenceDuration - thisSequenceDuration) > MXFOperationalPattern1A.TOLERANCE)
                     {
-                        throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Material Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Material Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
                                 sequence.getInstanceUID(), thisSequenceDuration, sequenceDuration));
                     }
                 }
             }
 
-            SourcePackage filePackage  = (SourcePackage)preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            for (TimelineTrack timelineTrack: filePackage.getTimelineTracks())
-            {
+            if(preface != null
+                    && preface.getContentStorage() != null) {
+                SourcePackage filePackage = (SourcePackage) preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                for (TimelineTrack timelineTrack : filePackage.getTimelineTracks()) {
 
-                long thisEditRateNumerator = timelineTrack.getEditRateNumerator();
-                long thisEditRateDenominator = timelineTrack.getEditRateDenominator();
-                if (thisEditRateNumerator == 0)
-                {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
-                            timelineTrack.getInstanceUID(), thisEditRateNumerator, thisEditRateDenominator));
-                }
-
-                Sequence sequence = timelineTrack.getSequence();
-                if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
-                {
-                    double thisSequenceDuration = ((double)sequence.getDuration()*(double)thisEditRateDenominator)/(double)thisEditRateNumerator;
-                    if (Math.abs(sequenceDuration) < MXFOperationalPattern1A.EPSILON)
-                    {
-                        sequenceDuration = thisSequenceDuration;
+                    long thisEditRateNumerator = timelineTrack.getEditRateNumerator();
+                    long thisEditRateDenominator = timelineTrack.getEditRateDenominator();
+                    if (thisEditRateNumerator == 0) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Timeline Track %s has invalid edit rate : numerator = %d, denominator = %d",
+                                timelineTrack.getInstanceUID(), thisEditRateNumerator, thisEditRateDenominator));
                     }
-                    else if (Math.abs(sequenceDuration - thisSequenceDuration) > MXFOperationalPattern1A.TOLERANCE)
-                    {
-                        throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("File Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
-                                sequence.getInstanceUID(), thisSequenceDuration, sequenceDuration));
+
+                    Sequence sequence = timelineTrack.getSequence();
+                    if (sequence != null
+                            && !sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER)) {
+                        double thisSequenceDuration = ((double) sequence.getDuration() * (double) thisEditRateDenominator) / (double) thisEditRateNumerator;
+                        if (Math.abs(sequenceDuration) < MXFOperationalPattern1A.EPSILON) {
+                            sequenceDuration = thisSequenceDuration;
+                        } else if (Math.abs(sequenceDuration - thisSequenceDuration) > MXFOperationalPattern1A.TOLERANCE) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("File Package SequenceUID = %s is associated with duration = %f, which is different from expected value %f",
+                                    sequence.getInstanceUID(), thisSequenceDuration, sequenceDuration));
+                        }
                     }
                 }
             }
+
         }
 
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
+        }
         return new HeaderPartitionOP1A(headerPartition);
     }
 
@@ -259,6 +276,7 @@ public final class MXFOperationalPattern1A
      */
     public static void checkOperationalPattern1ACompliance(List<PartitionPack> partitionPacks)
     {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         for(PartitionPack partitionPack : partitionPacks)
         {
             //check 'Operational Pattern' field in PartitionPack
@@ -268,7 +286,7 @@ public final class MXFOperationalPattern1A
                 if( (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY_MASK[i] != 0) &&
                         (MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i] != bytes[i]) )
                 {
-                    throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Operational Pattern field in preface = 0x%x at position (zero-indexed) = %d, is different from expected value = 0x%x",
                             bytes[i], i, MXFOperationalPattern1A.OPERATIONAL_PATTERN1A_KEY[i]));
                 }
             }
@@ -276,10 +294,12 @@ public final class MXFOperationalPattern1A
             //check number of essence containers
             if (partitionPack.getNumberOfEssenceContainerULs() < 1)
             {
-                throw new MXFException(MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in partition pack = %d, at least 1 is expected",
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + String.format("Number of EssenceContainer ULs in partition pack = %d, at least 1 is expected",
                         partitionPack.getNumberOfEssenceContainerULs()));
             }
-
+        }
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
         }
     }
 

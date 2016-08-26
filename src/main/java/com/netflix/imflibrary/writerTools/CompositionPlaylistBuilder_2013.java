@@ -28,7 +28,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
@@ -230,8 +229,8 @@ public class CompositionPlaylistBuilder_2013 {
             //Create the HeaderPartition
             HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long)imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger);
 
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
             List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartition.getEssenceDescriptors();
             for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();

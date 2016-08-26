@@ -2,12 +2,9 @@ package com.netflix.imflibrary.writerTools;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013.CompositionModel_st2067_2_2013;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
@@ -17,7 +14,6 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBException;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * A stateless class that will create the AssetMap, Packing List and CompositionPlaylist that represent a complete IMF Master Package by utilizing the relevant builders
@@ -105,7 +99,7 @@ public class IMPBuilder {
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2013.build());
 
 
-        if(imfErrorLogger.hasFatal()) {
+        if(imfErrorLogger.hasFatalErrors()) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;

@@ -20,10 +20,13 @@ package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.utils.ErrorLogger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -34,24 +37,24 @@ import static java.lang.Boolean.TRUE;
 @NotThreadSafe
 public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really a logging aggregator
 {
-    private final List<ErrorLogger.ErrorObject> errorObjects;
+    private final Set<ErrorLogger.ErrorObject> errorObjects;
 
     /**
      * Instantiates a new IMF error logger impl object
      */
     public IMFErrorLoggerImpl()
     {
-        this.errorObjects = Collections.synchronizedList(new ArrayList<>());
+        this.errorObjects = Collections.synchronizedSet(new HashSet<ErrorLogger.ErrorObject>());
     }
 
     /**
      * A method to add error objects to a persistent list
      *
-     * @param errorCode - error code corresponding to the error
-     * @param errorLevel - error level of the error
-     * @param errorDescription - the error description
+     * @param errorCode - error code corresponding to the - error cannot be null
+     * @param errorLevel - error level of the error - cannot be null
+     * @param errorDescription - the error description - cannot be null
      */
-    public void addError(IMFErrors.ErrorCodes errorCode, IMFErrors.ErrorLevels errorLevel, String errorDescription)
+    public void addError(@Nonnull IMFErrors.ErrorCodes errorCode, @Nonnull IMFErrors.ErrorLevels errorLevel, @Nonnull String errorDescription)
     {
         this.errorObjects.add(new ErrorLogger.ErrorObject(errorCode, errorLevel, errorDescription));
     }
@@ -59,9 +62,9 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     /**
      * A method to add an error object to a persistent list
      *
-     * @param errorObject - error object to be added to a persistent list
+     * @param errorObject - error object to be added to a persistent list - cannot be null
      */
-    public void addError(ErrorObject errorObject)
+    public void addError(@Nonnull ErrorObject errorObject)
     {
         this.errorObjects.add(errorObject);
     }
@@ -69,9 +72,9 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     /**
      * A method to add an error object to a persistent list
      *
-     * @param errorObjects - a list of error objects to be added to a persistent list
+     * @param errorObjects - a list of error objects to be added to a persistent list - cannot be null
      */
-    public void addAllErrors(List<ErrorObject> errorObjects)
+    public void addAllErrors(@Nonnull List<ErrorObject> errorObjects)
     {
         this.errorObjects.addAll(errorObjects);
     }
@@ -91,7 +94,8 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
      */
     public List<ErrorLogger.ErrorObject> getErrors()
     {
-        return Collections.unmodifiableList(this.errorObjects);
+        List<ErrorObject> errors = new ArrayList<>(this.errorObjects);
+        return Collections.unmodifiableList(errors);
     }
 
     /**
@@ -114,7 +118,8 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel, int startIndex, int endIndex) throws IllegalArgumentException
     {
         validateRangeRequest(startIndex, endIndex);
-        return Collections.unmodifiableList(this.errorObjects.subList(startIndex, endIndex).stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+        List<ErrorObject> errors = new ArrayList<>(this.errorObjects);
+        return Collections.unmodifiableList(errors.subList(startIndex, endIndex).stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
     }
 
     /**
@@ -137,7 +142,8 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException
     {
         validateRangeRequest(startIndex, endIndex);
-        return Collections.unmodifiableList(this.errorObjects.subList(startIndex, endIndex).stream().filter(e -> e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+        List<ErrorObject> errors = new ArrayList<>(this.errorObjects);
+        return Collections.unmodifiableList(errors.subList(startIndex, endIndex).stream().filter(e -> e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
     }
 
     private void validateRangeRequest(int rangeStart, int rangeEnd) throws IllegalArgumentException {
@@ -163,12 +169,12 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
         }
     }
 
-    public Boolean hasFatal()
+    public Boolean hasFatalErrors()
     {
         return (getErrors(IMFErrors.ErrorLevels.FATAL).size() > 0);
     }
 
-    public Boolean hasFatal(int startIndex, int endIndex) {
+    public Boolean hasFatalErrors(int startIndex, int endIndex) {
         return (getErrors(IMFErrors.ErrorLevels.FATAL, startIndex, endIndex).size() > 0);
 
     }

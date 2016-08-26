@@ -50,9 +50,9 @@ public interface IMFErrorLogger extends ErrorLogger
 
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorCodes errorCode, int startIndex, int endIndex) throws IllegalArgumentException;
 
-    public Boolean hasFatal();
+    public Boolean hasFatalErrors();
 
-    public Boolean hasFatal(int startIndex, int endIndex);
+    public Boolean hasFatalErrors(int startIndex, int endIndex);
 
     final class IMFErrors
     {

@@ -237,8 +237,8 @@ public class CompositionPlaylistBuilder_2016 {
             //Create the HeaderPartition
             HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long)imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger);
 
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
             List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartition.getEssenceDescriptors();
             for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                 KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();

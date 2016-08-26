@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class IMFException extends RuntimeException
 {
-    IMFErrorLogger errorLogger;
+    private final IMFErrorLogger errorLogger;
 
     public IMFException(String s)
     {

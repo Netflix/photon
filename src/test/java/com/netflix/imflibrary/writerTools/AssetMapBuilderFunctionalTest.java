@@ -68,7 +68,7 @@ public class AssetMapBuilderFunctionalTest {
             String annotationText = (asset.isPackingList() ? "PKL" : "Netflix Asset");
             String language = "en";
 
-            AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(asset.getPath().toString(), Long.valueOf(10L)); //All assets will have a length of 10 bytes perhaps okay for a functional test.
+            AssetMapBuilder.Chunk chunk = new AssetMapBuilder.Chunk(asset.getPath().toString(), 10L); //All assets will have a length of 10 bytes perhaps okay for a functional test.
             List<AssetMapBuilder.Chunk> chunks = new ArrayList<AssetMapBuilder.Chunk>() {{ add(chunk);}};
             AssetMapBuilder.Asset assetMapBuilderAsset = new AssetMapBuilder.Asset(asset.getUUID(), AssetMapBuilder.buildAssetMapUserTextType_2007(annotationText, language), asset.isPackingList(), chunks);
             assetMapBuilderAssets.add(assetMapBuilderAsset);
@@ -88,7 +88,7 @@ public class AssetMapBuilderFunctionalTest {
         IMFErrorLogger assetMapBuilderErrorLogger = new IMFErrorLoggerImpl();
         List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempDir, assetMapBuilderErrorLogger).build();
 
-        List errorList = assetMap.getErrors().stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
+        List errorList = errors.stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
                 .IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList());
         if(errorList.size() > 0) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. " +

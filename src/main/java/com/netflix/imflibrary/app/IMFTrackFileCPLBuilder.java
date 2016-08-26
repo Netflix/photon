@@ -436,7 +436,7 @@ final class IMFTrackFileCPLBuilder {
         try
         {
             IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
-            sb.append(imfTrackFileReader.getRandomIndexPack());
+            sb.append(imfTrackFileReader.getRandomIndexPack(imfErrorLogger));
             logger.info(String.format("%s", sb.toString()));
 
             imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);

@@ -30,7 +30,6 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType;
 import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -153,7 +152,8 @@ public final class PackingList
                 if (validationEventHandlerImpl.hasErrors()) {
                     List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
                     for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                        String errorMessage = "Line Number : " + error.getLineNumber().toString() + " - " + error.getErrorMessage();
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, error.getValidationEventSeverity(), errorMessage);
                     }
                     throw new IMFException(validationEventHandlerImpl.toString(), imfErrorLogger);
                 }
@@ -164,7 +164,7 @@ public final class PackingList
                     e.getMessage());
         }
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("PackingList parsing failed", imfErrorLogger);
         }

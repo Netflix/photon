@@ -18,7 +18,6 @@
 
 package com.netflix.imflibrary.st2067_2.CompositionModels;
 
-import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.Composition;
@@ -63,7 +62,7 @@ public abstract class IMFBaseResourceType {
         this.sourceDuration = (sourceDuration != null) ? sourceDuration: this.intrinsicDuration.subtract(this.entryPoint);
         this.repeatCount = (repeatCount != null)? repeatCount: BigInteger.ONE;
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
         }

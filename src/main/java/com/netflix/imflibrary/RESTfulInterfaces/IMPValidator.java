@@ -168,7 +168,7 @@ public class IMPValidator {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingLists.size()));
         }
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             return imfErrorLogger.getErrors();
         }
@@ -291,7 +291,7 @@ public class IMPValidator {
 
         imfErrorLogger.addAllErrors(errorList);
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("Virtual track failed validation", imfErrorLogger);
         }
@@ -319,6 +319,9 @@ public class IMPValidator {
         virtualTracks.add(virtualTrack);
         imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartitionPayloads));
+        if(imfErrorLogger.hasFatalErrors()){
+            return imfErrorLogger.getErrors();
+        }
         imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads,
                 false));
 
@@ -346,6 +349,9 @@ public class IMPValidator {
         List<VirtualTrack> virtualTracks = new ArrayList<>(composition.getVirtualTracks());
         imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartitionPayloads));
+        if(imfErrorLogger.hasFatalErrors()){
+            return imfErrorLogger.getErrors();
+        }
         imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads,
                 true));
 
@@ -361,7 +367,7 @@ public class IMPValidator {
 
         try {
             imfErrorLogger.addAllErrors(validateCPL(cplPayloadRecord));
-            if (imfErrorLogger.hasFatal())
+            if (imfErrorLogger.hasFatalErrors())
                 return Collections.unmodifiableList(imfErrorLogger.getErrors());
 
             Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()));
@@ -386,7 +392,7 @@ public class IMPValidator {
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
 
-            if (imfErrorLogger.hasFatal()) {
+            if (imfErrorLogger.hasFatalErrors()) {
                 return imfErrorLogger.getErrors();
             }
 
@@ -440,7 +446,7 @@ public class IMPValidator {
             }
         }
 
-        if(imfErrorLogger.hasFatal()) {
+        if(imfErrorLogger.hasFatalErrors()) {
             return imfErrorLogger.getErrors();
         }
 
@@ -556,8 +562,25 @@ public class IMPValidator {
                     0L,
                     (long)payloadRecord.getPayload().length,
                     imfErrorLogger);
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
+            try {
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            }
+            catch (IMFException | MXFException e){
+                Preface preface = headerPartition.getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage)genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                if(e instanceof IMFException){
+                    IMFException imfException = (IMFException)e;
+                    imfErrorLogger.addAllErrors(imfException.getErrors());
+                }
+                else if(e instanceof MXFException){
+                    MXFException mxfException = (MXFException)e;
+                    imfErrorLogger.addAllErrors(mxfException.getErrors());
+                }
+            }
         }
         return imfErrorLogger.getErrors();
     }
@@ -581,7 +604,9 @@ public class IMPValidator {
         virtualTracks.add(audioVirtualTrack);
         imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartition));
-
+        if(imfErrorLogger.hasFatalErrors()){
+            throw new IMFException(String.format("Fatal Errors were detected when trying to verify the Virtual Track and Essence Header Partition payloads %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors())));
+        }
         Set<String> audioLanguageSet = new HashSet<>();
         for (PayloadRecord payloadRecord : essencesHeaderPartition){
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
@@ -634,17 +659,34 @@ public class IMPValidator {
                     0L,
                     (long) payloadRecord.getPayload().length,
                     imfErrorLogger);
-            /**
-             * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-             * are in fact from the constituent resources of the VirtualTack
-             */
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage)genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-            trackFileIDsSet.add(packageUUID);
+            try {
+                /**
+                 * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
+                 * are in fact from the constituent resources of the VirtualTack
+                 */
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+                Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage)genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                trackFileIDsSet.add(packageUUID);
+            }
+            catch (IMFException | MXFException e){
+                Preface preface = headerPartition.getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage)genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                if(e instanceof IMFException){
+                    IMFException imfException = (IMFException)e;
+                    imfErrorLogger.addAllErrors(imfException.getErrors());
+                }
+                else if(e instanceof MXFException){
+                    MXFException mxfException = (MXFException)e;
+                    imfErrorLogger.addAllErrors(mxfException.getErrors());
+                }
+            }
         }
 
         Set<UUID> virtualTrackResourceIDsSet = new HashSet<>();
@@ -655,8 +697,7 @@ public class IMPValidator {
             }
             else
             {
-                throw new IMFException(String.format("VirtualTrack is not Essence Component Virtual Track"),
-                        imfErrorLogger);
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with TrackId %s is not an Essence Component Virtual Track", virtualTrack.getTrackID().toString()));
             }
         }
         /**
@@ -669,10 +710,10 @@ public class IMPValidator {
             }
         }
         if(unreferencedResourceIDsSet.size() > 0){
-            throw new IMFException(String.format("It seems that no EssenceHeaderPartition data was passed in for " +
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("It seems that no EssenceHeaderPartition data was passed in for " +
                     "VirtualTrack Resource Ids %s, please verify that the correct Header Partition payloads for the " +
                     "Virtual Track were passed in", Utilities.serializeObjectCollectionToString
-                    (unreferencedResourceIDsSet)), imfErrorLogger);
+                    (unreferencedResourceIDsSet))));
         }
 
         /**
@@ -685,10 +726,10 @@ public class IMPValidator {
             }
         }
         if(unreferencedTrackFileIDsSet.size() > 0){
-            throw new IMFException(String.format("It seems that EssenceHeaderPartition data was passed in for " +
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("It seems that EssenceHeaderPartition data was passed in for " +
                     "Resource Ids %s which are not part of this virtual track, please verify that only the Header " +
                     "Partition payloads for the Virtual Track were passed in", Utilities
-                    .serializeObjectCollectionToString(unreferencedTrackFileIDsSet)), imfErrorLogger);
+                    .serializeObjectCollectionToString(unreferencedTrackFileIDsSet))));
         }
 
         return imfErrorLogger.getErrors();

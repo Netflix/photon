@@ -28,27 +28,22 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
-import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
-import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.UserText;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -132,7 +127,7 @@ public final class AssetMap
             throw new IMFException(String.format("Please check the AssetMap document, currently we only support the " +
                     "following schema URIs %s", serializeAssetMapSchemasToString()), imfErrorLogger);
         }
-
+        
         try {
             try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
                  InputStream assetMap_schema_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
@@ -151,7 +146,8 @@ public final class AssetMap
                 if (validationEventHandlerImpl.hasErrors()) {
                     List<ValidationEventHandlerImpl.ValidationErrorObject> errors = validationEventHandlerImpl.getErrors();
                     for (ValidationEventHandlerImpl.ValidationErrorObject error : errors) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), error.getErrorMessage());
+                        String errorMessage = "Line Number : " + error.getLineNumber().toString() + " - " + error.getErrorMessage();
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, error.getValidationEventSeverity(), errorMessage);
                     }
                     throw new IMFException("AssetMap parsing failed with validation errors", imfErrorLogger);
                 }
@@ -162,7 +158,7 @@ public final class AssetMap
                     e.getMessage());
         }
 
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("AssetMap parsing failed", imfErrorLogger);
         }
@@ -204,7 +200,7 @@ public final class AssetMap
                         "the following schema URIs %s", serializeAssetMapSchemasToString()), imfErrorLogger);
         }
 
-        if (imfErrorLogger.hasFatal())
+        if (imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException(String.format("Found %d errors in AssetMap XML file", imfErrorLogger
                     .getNumberOfErrors()), imfErrorLogger);
@@ -578,7 +574,7 @@ public final class AssetMap
             }
         }
         else{
-            logger.info("No structural errors were detected in the AssetMap Document");
+            logger.info("No errors were detected in the AssetMap Document");
         }
 
     }

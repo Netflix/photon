@@ -49,7 +49,7 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
      * @return boolean to indicate whether to abort/proceed when an error is encountered
      */
     public boolean handleEvent( ValidationEvent event ){
-        this.errors.add(new ValidationErrorObject(event.getSeverity(), event.getMessage()));
+        this.errors.add(new ValidationErrorObject(event.getSeverity(), event.getLocator().getLineNumber(), event.getMessage()));
         return this.continueOnError;
     }
 
@@ -76,7 +76,7 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
         for(ValidationErrorObject error : errors){
-            stringBuilder.append(error.getErrorMessage());
+            stringBuilder.append(error.toString());
         }
         return stringBuilder.toString();
     }
@@ -86,11 +86,13 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
      */
     public static class ValidationErrorObject{
         private final int validationEventSeverity;
+        private final int lineNumber;
         private final String errorMessage;
 
-        private ValidationErrorObject(int validationEventSeverity, String errorMessage){
+        private ValidationErrorObject(int validationEventSeverity, int lineNumber, String errorMessage){
             this.validationEventSeverity = validationEventSeverity;
             this.errorMessage = errorMessage;
+            this.lineNumber = lineNumber;
         }
 
         /**
@@ -116,6 +118,23 @@ public class ValidationEventHandlerImpl implements ValidationEventHandler {
          */
         public String getErrorMessage(){
             return this.errorMessage;
+        }
+
+        /**
+         * A getter for the ValidationError line number
+         * @return an integer corresponding to the line number where the error occurs
+         */
+        public Integer getLineNumber() { return this.lineNumber;}
+
+        /**
+         * A toString() method to return the String representation of the ValidationErrorObject
+         * @return a string corresponding to the error message with details on error level, code and line number
+         */
+        @Override
+        public String toString(){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(String.format("%s - %s - %s", getValidationEventSeverity(), getLineNumber(), getErrorMessage()));
+            return stringBuilder.toString();
         }
     }
 }

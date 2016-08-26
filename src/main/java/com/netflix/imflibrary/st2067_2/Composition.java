@@ -75,10 +75,8 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -193,7 +191,7 @@ public final class Composition {
                             .map(e -> new ErrorLogger.ErrorObject(
                                     IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     e.getValidationEventSeverity(),
-                                    e.getErrorMessage())
+                                    "Line Number : " + e.getLineNumber().toString() + " - " + e.getErrorMessage())
                             )
                             .forEach(imfErrorLogger::addError);
 
@@ -249,7 +247,7 @@ public final class Composition {
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty");
         }
 
-        if (imfErrorLogger.hasFatal()) {
+        if (imfErrorLogger.hasFatalErrors()) {
             throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file"), imfErrorLogger);
         }
     }
@@ -775,7 +773,7 @@ public final class Composition {
                 denominator = numbers.get(1);
             }
 
-            if(imfErrorLogger.hasFatal())
+            if(imfErrorLogger.hasFatalErrors())
             {
                 throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
             }
@@ -1053,7 +1051,7 @@ public final class Composition {
                 }
             }
         }
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("Creating essenceDescriptorMap failed", imfErrorLogger);
         }
@@ -1080,7 +1078,7 @@ public final class Composition {
             }
             audioVirtualTrackMap.put(set, audioVirtualTrack);
         }
-        if(imfErrorLogger.hasFatal())
+        if(imfErrorLogger.hasFatalErrors())
         {
             throw new IMFException("Creating Audio Virtual track map failed", imfErrorLogger);
         }
@@ -1165,7 +1163,7 @@ public final class Composition {
             }
         }
 
-        if (imfErrorLogger.hasFatal()) {
+        if (imfErrorLogger.hasFatalErrors()) {
             return imfErrorLogger.getErrors();
         }
 
@@ -1188,7 +1186,7 @@ public final class Composition {
             this.imfErrorLogger.addAllErrors(e.getErrors());
         }
 
-        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatal())
+        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors())
         {
             return imfErrorLogger.getErrors();
         }
@@ -1233,13 +1231,33 @@ public final class Composition {
         Map<UUID, IMPValidator.HeaderPartitionTuple> resourceUUIDHeaderPartitionMap = new HashMap<>();
         for (IMPValidator.HeaderPartitionTuple headerPartitionTuple : headerPartitionTuples) {
             //validate header partition
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartitionTuple.getHeaderPartition());
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-            resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
+            try {
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartitionTuple.getHeaderPartition(), imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+                Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage) genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
+            }
+            catch (IMFException | MXFException e){
+                Preface preface = headerPartitionTuple.getHeaderPartition().getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage) genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                if(e instanceof IMFException){
+                    IMFException imfException = (IMFException)e;
+                    imfErrorLogger.addAllErrors(imfException.getErrors());
+                }
+                else if(e instanceof MXFException){
+                    MXFException mxfException = (MXFException)e;
+                    imfErrorLogger.addAllErrors(mxfException.getErrors());
+                }
+            }
+        }
+        if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
+            throw new IMFException(String.format("Fatal errors were detected in the IMFTrackFiles"), imfErrorLogger);
         }
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
 
@@ -1276,7 +1294,7 @@ public final class Composition {
             }
         }
 
-        if( imfErrorLogger.hasFatal(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors()))
+        if( imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors()))
         {
             throw new IMFException("Failed to get Essence Descriptor for a resource", this.imfErrorLogger);
         }
@@ -1315,7 +1333,7 @@ public final class Composition {
                             .ErrorLevels.FATAL, e.getMessage());
                 }
             }
-            if(imfErrorLogger.hasFatal()) {
+            if(imfErrorLogger.hasFatalErrors()) {
                 throw new IMFException("Failed to get Essence Descriptor for a resource", imfErrorLogger);
             }
             return essenceDescriptorNodes;

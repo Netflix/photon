@@ -148,7 +148,7 @@ public final class HeaderPartition
         while (numBytesRead < maxPartitionSize)
         {
             KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
-            logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUID(header.getKey()), header.getLSize(), header.getVSize()));
+            //logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUID(header.getKey()), header.getLSize(), header.getVSize()));
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
@@ -156,7 +156,7 @@ public final class HeaderPartition
             {
                 Class clazz = StructuralMetadata.getStructuralMetadataSetClass(key);
                 if(!clazz.getSimpleName().equals(Object.class.getSimpleName())){
-                    logger.info(String.format("KLV item with key = %s corresponds to class %s", new MXFUID(header.getKey()), clazz.getSimpleName()));
+                    //logger.info(String.format("KLV item with key = %s corresponds to class %s", new MXFUID(header.getKey()), clazz.getSimpleName()));
                     InterchangeObject.InterchangeObjectBO interchangeObjectBO = this.constructInterchangeObjectBO(clazz, header, byteProvider, this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), imfErrorLogger);
                     List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(interchangeObjectBO.getClass().getSimpleName());
                     if(list == null){
