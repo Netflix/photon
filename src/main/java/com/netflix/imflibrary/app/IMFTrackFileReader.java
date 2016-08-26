@@ -714,10 +714,10 @@ final class IMFTrackFileReader
             }
         }
         else{
-            if(imfTrackFileReader != null
+            /*if(imfTrackFileReader != null
                     && imfTrackFileCPLBuilder != null) {
                 logger.info(String.format("%n %s", imfTrackFileReader.toString()));
-            }
+            }*/
             logger.info("No errors were detected in the IMFTrackFile");
         }
     }
