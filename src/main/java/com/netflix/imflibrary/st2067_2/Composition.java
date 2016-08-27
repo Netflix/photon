@@ -49,6 +49,7 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -75,6 +76,7 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 
@@ -960,30 +962,152 @@ public final class Composition {
         }
 
         /**
+         * A method to return the duration of this VirtualTrack
+         * @return a long integer representing the duration of this VirtualTrack
+         */
+        public long getDuration(){
+            long duration = 0L;
+            if(this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)
+                    || this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)){
+
+                for(IMFBaseResourceType imfBaseResourceType : this.resources){
+                    IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
+                    duration += imfTrackFileResourceType.getSourceDuration().longValue() * imfTrackFileResourceType.getRepeatCount().longValue();
+                }
+            }
+            return duration;
+        }
+
+        /**
          * A method to determine the equivalence of any 2 virtual tracks.
          *
          * @param other - the object to compare against
          * @return boolean indicating if the 2 virtual tracks are equivalent or represent the same timeline
          */
         public boolean equivalent(Composition.VirtualTrack other) {
-            if (other == null) {
+            if (other == null
+                    || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))) {
                 return false;
             }
             boolean result = true;
             List<? extends IMFBaseResourceType> otherResourceList = other.resources;
-            if (otherResourceList.size() != resources.size()) {
-                return false;
-            }
-            for (int i = 0; i < resources.size(); i++) {
-                IMFBaseResourceType thisResource = this.resources.get(i);
-                IMFBaseResourceType otherResource = otherResourceList.get(i);
 
-                result &= thisResource.equivalent(otherResource);
+            if(this instanceof IMFEssenceComponentVirtualTrack){
+                if(this.getDuration() != other.getDuration()){
+                    return false;
+                }
+                IMFEssenceComponentVirtualTrack thisVirtualTrack = IMFEssenceComponentVirtualTrack.class.cast(this);
+                IMFEssenceComponentVirtualTrack otherVirtualTrack = IMFEssenceComponentVirtualTrack.class.cast(other);
+                List<IMFTrackFileResourceType> normalizedResourceList = this.normalizeResourceList(thisVirtualTrack.getTrackFileResourceList());
+                List<IMFTrackFileResourceType> normalizedOtherResourceList = this.normalizeResourceList(otherVirtualTrack.getTrackFileResourceList());
+                if(normalizedResourceList.size() != normalizedOtherResourceList.size()){
+                    return false;
+                }
+                for (int i = 0; i < normalizedResourceList.size(); i++) {
+                    IMFBaseResourceType thisResource = normalizedResourceList.get(i);
+                    IMFBaseResourceType otherResource = normalizedOtherResourceList.get(i);
+
+                    result &= thisResource.equivalent(otherResource);
+                }
             }
+            else{
+                for (int i = 0; i < this.resources.size(); i++) {
+                    IMFBaseResourceType thisResource = this.resources.get(i);
+                    IMFBaseResourceType otherResource = otherResourceList.get(i);
+
+                    result &= thisResource.equivalent(otherResource);
+                }
+            }
+
             return result;
         }
-    }
 
+        private List<IMFTrackFileResourceType> normalizeResourceList(List<IMFTrackFileResourceType> resourceList){
+            List<IMFTrackFileResourceType> normalizedResourceList = new ArrayList<>();
+            IMFTrackFileResourceType prev = resourceList.get(0);
+            for(int i=1; i< resourceList.size(); i++){
+                IMFTrackFileResourceType curr = IMFTrackFileResourceType.class.cast(resourceList.get(i));
+                if(curr.getTrackFileId().equals(prev.getTrackFileId())
+                        && curr.getEditRate().equals(prev.getEditRate())){
+                    if(curr.getEntryPoint().longValue() == (prev.getEntryPoint().longValue() + prev.getSourceDuration().longValue())){
+                        //Candidate for normalization - We could create one resource representing the timelines of prev and curr
+                        List<Long> editRate = new ArrayList<>();
+                        editRate.add(prev.getEditRate().getNumerator());
+                        editRate.add(prev.getEditRate().getDenominator());
+
+                        if(prev.getRepeatCount().longValue() > 1) {
+                            BigInteger newRepeatCount = new BigInteger(String.format("%d", prev.getRepeatCount().longValue() - 1L));
+                            IMFTrackFileResourceType modifiedPrevTrackFileResourceType =
+                                    new IMFTrackFileResourceType(prev.getId(),
+                                            prev.getTrackFileId(),
+                                            editRate,
+                                            prev.getIntrinsicDuration(),
+                                            prev.getEntryPoint(),
+                                            prev.getSourceDuration(),
+                                            newRepeatCount,
+                                            prev.getSourceEncoding(),
+                                            prev.getHash(),
+                                            prev.getHashAlgorithm());
+                            normalizedResourceList.add(modifiedPrevTrackFileResourceType);
+                        }
+
+                        BigInteger newSourceDuration = new BigInteger(String.format("%d", curr.getSourceDuration().longValue() + prev.getSourceDuration().longValue()));
+                        IMFTrackFileResourceType mergedTrackFileResourceType = new IMFTrackFileResourceType(prev.getId(),
+                                prev.getTrackFileId(),
+                                editRate,
+                                prev.getIntrinsicDuration(),
+                                prev.getEntryPoint(),
+                                newSourceDuration,
+                                new BigInteger("1"),
+                                prev.getSourceEncoding(),
+                                prev.getHash(),
+                                prev.getHashAlgorithm());
+                        prev = mergedTrackFileResourceType;
+
+                        if(curr.getRepeatCount().longValue() > 1) {
+                            BigInteger newRepeatCount = new BigInteger(String.format("%d", curr.getRepeatCount().longValue() - 1L));
+                            editRate = new ArrayList<>();
+                            editRate.add(curr.getEditRate().getNumerator());
+                            editRate.add(curr.getEditRate().getDenominator());
+                            IMFTrackFileResourceType modifiedCurrTrackFileResourceType =
+                                    new IMFTrackFileResourceType(curr.getId(),
+                                            curr.getTrackFileId(),
+                                            editRate,
+                                            curr.getIntrinsicDuration(),
+                                            curr.getEntryPoint(),
+                                            curr.getSourceDuration(),
+                                            newRepeatCount,
+                                            curr.getSourceEncoding(),
+                                            curr.getHash(),
+                                            curr.getHashAlgorithm());
+                            //We are replacing prev here so add the mergedTrackFileResourceType, modifiedCurrTrackFileResourceType will be added when we process the last resource in the list
+                            normalizedResourceList.add(mergedTrackFileResourceType);
+                            prev = modifiedCurrTrackFileResourceType;
+                            if(i == resourceList.size() -1){
+                                normalizedResourceList.add(prev);
+                            }
+                        }
+                    }
+                    else{
+                        normalizedResourceList.add(prev);
+                        prev = curr;
+                        if(i == resourceList.size() -1){
+                            normalizedResourceList.add(curr);
+                        }
+                    }
+                }
+                else{
+                    normalizedResourceList.add(prev);
+                    prev = curr;
+                    if(i == resourceList.size() -1){
+                        normalizedResourceList.add(curr);
+                    }
+                }
+            }
+
+            return Collections.unmodifiableList(normalizedResourceList);
+        }
+    }
 
     /**
      * A utility method to retrieve the VirtualTracks within a Composition.

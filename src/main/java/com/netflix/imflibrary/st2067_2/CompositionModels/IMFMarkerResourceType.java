@@ -20,6 +20,7 @@ package com.netflix.imflibrary.st2067_2.CompositionModels;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,6 +39,13 @@ public final class IMFMarkerResourceType extends IMFBaseResourceType {
                                  List<IMFMarkerType> markerList )
     {
         super(id, editRate, intrinsicDuration, entryPoint, sourceDuration, repeatCount);
+        markerList.sort(new Comparator<IMFMarkerType>() {
+            @Override
+            public int compare(IMFMarkerType o1, IMFMarkerType o2) {
+                return o1.getOffset().compareTo(o2.getOffset());
+            }
+        });
+
         this.markerList = markerList;
     }
 
