@@ -639,10 +639,6 @@ public class IMPValidator {
             if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.
                 result &= refVirtualTrack.equivalent(otherVirtualTrack);
             }
-            else if(refVirtualTrack.getDuration() != otherVirtualTrack.getDuration()){//Track is not present in the Reference CPL lets compare its duration with the reference virtual track to see if they are in the same ballpark.
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "VirtualTrack with Id %s is of a different duration than other tracks hence CPLs are not mergeable");
-                result &= false;
-            }
         }
         return result;
     }
