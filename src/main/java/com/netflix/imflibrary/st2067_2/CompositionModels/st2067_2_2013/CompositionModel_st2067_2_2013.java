@@ -6,7 +6,7 @@ import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
+import org.w3c.dom.Element;
 
 
 import javax.annotation.Nonnull;
@@ -94,9 +94,9 @@ public final class CompositionModel_st2067_2_2013 {
             for (Object object : segment.getSequenceList().getAny()) {
                 if (!(object instanceof JAXBElement)) {
                     String details = "";
-                    if(object instanceof ElementNSImpl)
+                    if(object instanceof Element)
                     {
-                        ElementNSImpl element = ElementNSImpl.class.cast(object);
+                        Element element = Element.class.cast(object);
                         details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
                     }
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
