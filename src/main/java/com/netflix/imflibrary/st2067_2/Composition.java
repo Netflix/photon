@@ -989,9 +989,9 @@ public final class Composition {
                     || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))) {
                 return false;
             }
-            boolean result = true;
-            List<? extends IMFBaseResourceType> otherResourceList = other.resources;
 
+            List<? extends IMFBaseResourceType> otherResourceList = other.resources;
+            boolean result = false;
             if(this instanceof IMFEssenceComponentVirtualTrack){
                 if(this.getDuration() != other.getDuration()){
                     return false;
@@ -1003,7 +1003,8 @@ public final class Composition {
                 if(normalizedResourceList.size() != normalizedOtherResourceList.size()){
                     return false;
                 }
-                for (int i = 0; i < normalizedResourceList.size(); i++) {
+                result = normalizedResourceList.get(0).equivalent(normalizedOtherResourceList.get(0));
+                for (int i = 1; i < normalizedResourceList.size(); i++) {
                     IMFBaseResourceType thisResource = normalizedResourceList.get(i);
                     IMFBaseResourceType otherResource = normalizedOtherResourceList.get(i);
 
@@ -1011,7 +1012,8 @@ public final class Composition {
                 }
             }
             else{
-                for (int i = 0; i < this.resources.size(); i++) {
+                result = this.resources.get(0).equivalent(otherResourceList.get(0));
+                for (int i = 1; i < this.resources.size(); i++) {
                     IMFBaseResourceType thisResource = this.resources.get(i);
                     IMFBaseResourceType otherResource = otherResourceList.get(i);
 

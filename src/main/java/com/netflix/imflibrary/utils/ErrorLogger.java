@@ -96,8 +96,6 @@ public interface ErrorLogger
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(this.errorCode.toString());
             stringBuilder.append("-");
-            stringBuilder.append(this.errorLevel.toString());
-            stringBuilder.append("-");
             stringBuilder.append(this.errorDescription);
             return stringBuilder.toString();
         }
