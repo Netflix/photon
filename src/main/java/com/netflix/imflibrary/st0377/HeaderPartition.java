@@ -992,7 +992,7 @@ function visit(node n)
         if(this.hasWaveAudioEssenceDescriptor()){
             essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
         }
-        else{
+        if (essenceTypes.size() == 0){
             essenceTypes.add(EssenceTypeEnum.UnknownEssence);
         }
         return essenceTypes;
