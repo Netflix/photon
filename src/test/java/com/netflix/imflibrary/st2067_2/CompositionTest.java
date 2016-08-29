@@ -167,6 +167,42 @@ public class CompositionTest
                         hash,
                         hashAlgorithm);
 
+        IMFTrackFileResourceType imfTrackFileResourceType11 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("25"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        IMFTrackFileResourceType imfTrackFileResourceType12 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("25"),
+                        new BigInteger("25"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        IMFTrackFileResourceType imfTrackFileResourceType13 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("50"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
         List<IMFTrackFileResourceType> resourceList1 = new ArrayList<>();
         resourceList1.add(imfTrackFileResourceType1);
         resourceList1.add(imfTrackFileResourceType2);
@@ -196,6 +232,25 @@ public class CompositionTest
         resourceList6.add(imfTrackFileResourceType1);
         resourceList6.add(imfTrackFileResourceType2);
 
+        List<IMFTrackFileResourceType> resourceList7 = new ArrayList<>();
+        resourceList7.add(imfTrackFileResourceType11);
+        resourceList7.add(imfTrackFileResourceType12);
+        resourceList7.add(imfTrackFileResourceType13);
+
+        List<IMFTrackFileResourceType> resourceList8 = new ArrayList<>();
+        resourceList8.add(imfTrackFileResourceType6);
+
+        List<IMFTrackFileResourceType> resourceList9 = new ArrayList<>();
+        resourceList9.add(imfTrackFileResourceType11);
+        resourceList9.add(imfTrackFileResourceType12);
+        resourceList9.add(imfTrackFileResourceType13);
+        resourceList9.add(imfTrackFileResourceType3);
+
+
+        List<IMFTrackFileResourceType> resourceList10 = new ArrayList<>();
+        resourceList10.add(imfTrackFileResourceType6);
+        resourceList10.add(imfTrackFileResourceType3);
+
 
         Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList1);
         Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList2);
@@ -203,10 +258,16 @@ public class CompositionTest
         Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList4);
         Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList5);
         Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList6);
+        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList7);
+        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList8);
+        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList9);
+        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList10);
 
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack2) == false);
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack3) == true);
         Assert.assertTrue(virtualTrack4.equivalent(virtualTrack5) == true);
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack6) == false);
+        Assert.assertTrue(virtualTrack7.equivalent(virtualTrack8) == true);
+        Assert.assertTrue(virtualTrack9.equivalent(virtualTrack10) == true);
     }
 }

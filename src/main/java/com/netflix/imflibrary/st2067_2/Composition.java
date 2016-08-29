@@ -1024,6 +1024,10 @@ public final class Composition {
 
         private List<IMFTrackFileResourceType> normalizeResourceList(List<IMFTrackFileResourceType> resourceList){
             List<IMFTrackFileResourceType> normalizedResourceList = new ArrayList<>();
+            if(resourceList.size() == 1){
+                normalizedResourceList.addAll(resourceList);
+                return Collections.unmodifiableList(normalizedResourceList);
+            }
             IMFTrackFileResourceType prev = resourceList.get(0);
             for(int i=1; i< resourceList.size(); i++){
                 IMFTrackFileResourceType curr = IMFTrackFileResourceType.class.cast(resourceList.get(i));
@@ -1083,6 +1087,11 @@ public final class Composition {
                             //We are replacing prev here so add the mergedTrackFileResourceType, modifiedCurrTrackFileResourceType will be added when we process the last resource in the list
                             normalizedResourceList.add(mergedTrackFileResourceType);
                             prev = modifiedCurrTrackFileResourceType;
+                            if(i == resourceList.size() -1){
+                                normalizedResourceList.add(prev);
+                            }
+                        }
+                        else{
                             if(i == resourceList.size() -1){
                                 normalizedResourceList.add(prev);
                             }
