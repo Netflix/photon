@@ -986,7 +986,8 @@ public final class Composition {
          */
         public boolean equivalent(Composition.VirtualTrack other) {
             if (other == null
-                    || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))) {
+                    || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))
+                    || (this.resources.size() == 0 || other.resources.size() == 0)) {
                 return false;
             }
 
@@ -1026,95 +1027,73 @@ public final class Composition {
 
         private List<IMFTrackFileResourceType> normalizeResourceList(List<IMFTrackFileResourceType> resourceList){
             List<IMFTrackFileResourceType> normalizedResourceList = new ArrayList<>();
-            if(resourceList.size() == 1){
-                normalizedResourceList.addAll(resourceList);
-                return Collections.unmodifiableList(normalizedResourceList);
-            }
             IMFTrackFileResourceType prev = resourceList.get(0);
             for(int i=1; i< resourceList.size(); i++){
                 IMFTrackFileResourceType curr = IMFTrackFileResourceType.class.cast(resourceList.get(i));
                 if(curr.getTrackFileId().equals(prev.getTrackFileId())
-                        && curr.getEditRate().equals(prev.getEditRate())){
-                    if(curr.getEntryPoint().longValue() == (prev.getEntryPoint().longValue() + prev.getSourceDuration().longValue())){
-                        //Candidate for normalization - We could create one resource representing the timelines of prev and curr
-                        List<Long> editRate = new ArrayList<>();
-                        editRate.add(prev.getEditRate().getNumerator());
-                        editRate.add(prev.getEditRate().getDenominator());
+                        && curr.getEditRate().equals(prev.getEditRate())
+                        && curr.getEntryPoint().longValue() == (prev.getEntryPoint().longValue() + prev.getSourceDuration().longValue())){
+                    //Candidate for normalization - We could create one resource representing the timelines of prev and curr
+                    List<Long> editRate = new ArrayList<>();
+                    editRate.add(prev.getEditRate().getNumerator());
+                    editRate.add(prev.getEditRate().getDenominator());
 
-                        if(prev.getRepeatCount().longValue() > 1) {
-                            BigInteger newRepeatCount = new BigInteger(String.format("%d", prev.getRepeatCount().longValue() - 1L));
-                            IMFTrackFileResourceType modifiedPrevTrackFileResourceType =
-                                    new IMFTrackFileResourceType(prev.getId(),
-                                            prev.getTrackFileId(),
-                                            editRate,
-                                            prev.getIntrinsicDuration(),
-                                            prev.getEntryPoint(),
-                                            prev.getSourceDuration(),
-                                            newRepeatCount,
-                                            prev.getSourceEncoding(),
-                                            prev.getHash(),
-                                            prev.getHashAlgorithm());
-                            normalizedResourceList.add(modifiedPrevTrackFileResourceType);
-                        }
-
-                        BigInteger newSourceDuration = new BigInteger(String.format("%d", curr.getSourceDuration().longValue() + prev.getSourceDuration().longValue()));
-                        IMFTrackFileResourceType mergedTrackFileResourceType = new IMFTrackFileResourceType(prev.getId(),
-                                prev.getTrackFileId(),
-                                editRate,
-                                prev.getIntrinsicDuration(),
-                                prev.getEntryPoint(),
-                                newSourceDuration,
-                                new BigInteger("1"),
-                                prev.getSourceEncoding(),
-                                prev.getHash(),
-                                prev.getHashAlgorithm());
-                        prev = mergedTrackFileResourceType;
-
-                        if(curr.getRepeatCount().longValue() > 1) {
-                            BigInteger newRepeatCount = new BigInteger(String.format("%d", curr.getRepeatCount().longValue() - 1L));
-                            editRate = new ArrayList<>();
-                            editRate.add(curr.getEditRate().getNumerator());
-                            editRate.add(curr.getEditRate().getDenominator());
-                            IMFTrackFileResourceType modifiedCurrTrackFileResourceType =
-                                    new IMFTrackFileResourceType(curr.getId(),
-                                            curr.getTrackFileId(),
-                                            editRate,
-                                            curr.getIntrinsicDuration(),
-                                            curr.getEntryPoint(),
-                                            curr.getSourceDuration(),
-                                            newRepeatCount,
-                                            curr.getSourceEncoding(),
-                                            curr.getHash(),
-                                            curr.getHashAlgorithm());
-                            //We are replacing prev here so add the mergedTrackFileResourceType, modifiedCurrTrackFileResourceType will be added when we process the last resource in the list
-                            normalizedResourceList.add(mergedTrackFileResourceType);
-                            prev = modifiedCurrTrackFileResourceType;
-                            if(i == resourceList.size() -1){
-                                normalizedResourceList.add(prev);
-                            }
-                        }
-                        else{
-                            if(i == resourceList.size() -1){
-                                normalizedResourceList.add(prev);
-                            }
-                        }
+                    if(prev.getRepeatCount().longValue() > 1) {
+                        BigInteger newRepeatCount = new BigInteger(String.format("%d", prev.getRepeatCount().longValue() - 1L));
+                        IMFTrackFileResourceType modifiedPrevTrackFileResourceType =
+                                new IMFTrackFileResourceType(prev.getId(),
+                                        prev.getTrackFileId(),
+                                        editRate,
+                                        prev.getIntrinsicDuration(),
+                                        prev.getEntryPoint(),
+                                        prev.getSourceDuration(),
+                                        newRepeatCount,
+                                        prev.getSourceEncoding(),
+                                        prev.getHash(),
+                                        prev.getHashAlgorithm());
+                        normalizedResourceList.add(modifiedPrevTrackFileResourceType);
                     }
-                    else{
+
+                    BigInteger newSourceDuration = new BigInteger(String.format("%d", curr.getSourceDuration().longValue() + prev.getSourceDuration().longValue()));
+                    IMFTrackFileResourceType mergedTrackFileResourceType = new IMFTrackFileResourceType(prev.getId(),
+                            prev.getTrackFileId(),
+                            editRate,
+                            prev.getIntrinsicDuration(),
+                            prev.getEntryPoint(),
+                            newSourceDuration,
+                            new BigInteger("1"),
+                            prev.getSourceEncoding(),
+                            prev.getHash(),
+                            prev.getHashAlgorithm());
+                    prev = mergedTrackFileResourceType;
+
+                    if(curr.getRepeatCount().longValue() > 1) {
+                        BigInteger newRepeatCount = new BigInteger(String.format("%d", curr.getRepeatCount().longValue() - 1L));
+                        editRate = new ArrayList<>();
+                        editRate.add(curr.getEditRate().getNumerator());
+                        editRate.add(curr.getEditRate().getDenominator());
+                        IMFTrackFileResourceType modifiedCurrTrackFileResourceType =
+                                new IMFTrackFileResourceType(curr.getId(),
+                                        curr.getTrackFileId(),
+                                        editRate,
+                                        curr.getIntrinsicDuration(),
+                                        curr.getEntryPoint(),
+                                        curr.getSourceDuration(),
+                                        newRepeatCount,
+                                        curr.getSourceEncoding(),
+                                        curr.getHash(),
+                                        curr.getHashAlgorithm());
+                        //We are replacing prev here so add the mergedTrackFileResourceType, modifiedCurrTrackFileResourceType will be added when we process the last resource in the list
                         normalizedResourceList.add(prev);
-                        prev = curr;
-                        if(i == resourceList.size() -1){
-                            normalizedResourceList.add(curr);
-                        }
+                        prev = modifiedCurrTrackFileResourceType;
                     }
                 }
-                else{
+                else{//prev and curr cannot be merged as they either point to different resources or do not represent continuous timeline
                     normalizedResourceList.add(prev);
                     prev = curr;
-                    if(i == resourceList.size() -1){
-                        normalizedResourceList.add(curr);
-                    }
                 }
             }
+            normalizedResourceList.add(prev);//Add the track file resource pointed to by prev
 
             return Collections.unmodifiableList(normalizedResourceList);
         }
