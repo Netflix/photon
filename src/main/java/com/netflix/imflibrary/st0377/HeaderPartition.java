@@ -984,18 +984,28 @@ function visit(node n)
      * A method that retrieves all the EssenceTypes present in the MXF file
      * @return a list of all essence types present in the MXF file
      */
-    public List<EssenceTypeEnum> getEssenceTypes(){
+    public List<EssenceTypeEnum> getEssenceTypes() {
         List<EssenceTypeEnum> essenceTypes = new ArrayList<>();
-        if(this.hasCDCIPictureEssenceDescriptor() || this.hasRGBAPictureEssenceDescriptor()){
-            essenceTypes.add(EssenceTypeEnum.MainImageEssence);
+        for(InterchangeObject.InterchangeObjectBO interchangeObjectBO : this.getEssenceDescriptors()){
+            if(interchangeObjectBO.getClass().getEnclosingClass().equals(WaveAudioEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
+            }
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(CDCIPictureEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.MainImageEssence);
+            }
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(RGBAPictureEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.MainImageEssence);
+            }
         }
-        if(this.hasWaveAudioEssenceDescriptor()){
-            essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
-        }
+
         if (essenceTypes.size() == 0){
-            essenceTypes.add(EssenceTypeEnum.UnknownEssence);
+            List<EssenceTypeEnum> essenceTypeList = new ArrayList<>();
+            essenceTypeList.add(EssenceTypeEnum.UnknownEssence);
+            return Collections.unmodifiableList(essenceTypeList);
         }
-        return essenceTypes;
+        else{
+            return Collections.unmodifiableList(essenceTypes);
+        }
     }
 
     /**
