@@ -480,6 +480,15 @@ public final class StructuralMetadata
         return Arrays.equals(key, StructuralMetadata.PHDR_METADATA_TRACK_SUBDESCRIPTOR);
     }
 
+    public static boolean isAudioWaveClipWrapped(int contentKind){
+        if(contentKind == 0x02){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     /**
      * Gets structural metadata set class object.
      * Note: For all structural metadata set items that we do not read we will return an Object.class

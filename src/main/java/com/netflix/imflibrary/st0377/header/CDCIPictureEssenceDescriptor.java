@@ -47,6 +47,14 @@ public final class CDCIPictureEssenceDescriptor extends GenericPictureEssenceDes
     }
 
     /**
+     * Getter for the Essence Container UL of this FileDescriptor
+     * @return a UL representing the Essence Container
+     */
+    public UL getEssenceContainerUL(){
+        return this.cdciPictureEssenceDescriptorBO.getEssenceContainerUL();
+    }
+
+    /**
      * A method that returns a string representation of a CDCIPictureEssenceDescriptor object
      *
      * @return string representing the object

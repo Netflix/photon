@@ -139,6 +139,14 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
     }
 
     /**
+     * Getter for the Essence Container UL of this FileDescriptor
+     * @return a UL representing the Essence Container
+     */
+    public UL getEssenceContainerUL(){
+        return this.waveAudioEssenceDescriptorBO.getEssenceContainerUL();
+    }
+
+    /**
      * A method that compares this WaveAudioEssenceDescriptor with the object that was passed in and returns true/false depending on whether the objects
      * match field for field.
      * Note: If the object passed in is not an instance of a WaveAudioEssenceDescriptor this method would return

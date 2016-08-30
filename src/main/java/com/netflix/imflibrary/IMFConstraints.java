@@ -24,9 +24,13 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.MCALabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.Sequence;
+import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 
@@ -34,6 +38,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class consists exclusively of static methods that help verify the compliance of OP1A-conformant
@@ -125,6 +130,45 @@ public final class IMFConstraints
                             if (headerPartition.getAudioEssenceSpokenLanguage() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated");
                             }
+                            if(!StructuralMetadata.isAudioWaveClipWrapped(waveAudioEssenceDescriptor.getEssenceContainerUL().getULAsBytes()[14])){
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor indicates that the Audio Essence within an Audio Track File is not Wave Clip-Wrapped");
+                            }
+                            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
+                            if(subDescriptors.size() == 0){
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                        String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d MCALabelSubDescriptors, every audio channel should refer to exactly one MCAAudioLabelSubDescriptor and vice versa", waveAudioEssenceDescriptor.getChannelCount(), subDescriptors.size()));
+                            }
+                            else {
+                                List<InterchangeObject.InterchangeObjectBO> audioChannelLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(MCALabelSubDescriptor.class)).collect(Collectors.toList());
+                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d MCALabelSubDescriptors, every audio channel should refer to exactly one MCAAudioLabelSubDescriptor and vice versa", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptors.size()));
+                                }
+                                for (InterchangeObject.InterchangeObjectBO interchangeObjectBO : audioChannelLabelSubDescriptors) {
+                                    MCALabelSubDescriptor.MCALabelSubDescriptorBO mcaLabelSubDescriptorBO = MCALabelSubDescriptor.MCALabelSubDescriptorBO.class.cast(interchangeObjectBO);
+                                    if (mcaLabelSubDescriptorBO.getMCAChannelID() == null) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                String.format("WaveAudioEssenceDescriptor refers to a MCALabelSubDescriptors that does not have its Channel-ID property set %s", mcaLabelSubDescriptorBO.toString()));
+                                    }
+                                }
+                                List<InterchangeObject.InterchangeObjectBO> soundFieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(SoundFieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
+                                SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO soundFieldGroupLabelSubDescriptorBO = SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO.class.cast(soundFieldGroupLabelSubDescriptors.get(0));
+                                if (soundFieldGroupLabelSubDescriptors.size() > 1) {
+                                    if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                String.format("WaveAudioEssenceDescriptor refers to %d SoundFieldGroupLabelSubDescriptors whereas either 0 or 1 are allowed", soundFieldGroupLabelSubDescriptors.size()));
+                                    }
+                                }
+
+                                if ((soundFieldGroupLabelSubDescriptorBO.getMCATitle() == null || soundFieldGroupLabelSubDescriptorBO.getMCATitle().isEmpty())
+                                        || (soundFieldGroupLabelSubDescriptorBO.getMCATitleVersion() == null || soundFieldGroupLabelSubDescriptorBO.getMCATitleVersion().isEmpty())
+                                        || (soundFieldGroupLabelSubDescriptorBO.getMCAAudioContentKind() == null || soundFieldGroupLabelSubDescriptorBO.getMCAAudioContentKind().isEmpty())
+                                        || (soundFieldGroupLabelSubDescriptorBO.getMCAAudioElementKind() == null || soundFieldGroupLabelSubDescriptorBO.getMCAAudioElementKind().isEmpty())) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                            String.format("WaveAudioEssenceDescriptor refers to a SoundFieldGroupLabelSubDescriptor that is missing one/all of MCATitle, MCATitleVersion, MCAAudioContentKind, MCAAudioElementKind - %s", soundFieldGroupLabelSubDescriptorBO.toString()));
+                                }
+                            }
+
                         } else {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "Header Partition does not have a WaveAudioEssenceDescriptor set");
                         }
