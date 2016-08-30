@@ -552,9 +552,11 @@ public final class HeaderPartition
             SourcePackage.SourcePackageBO sourcePackageBO = (SourcePackage.SourcePackageBO) sourcePackageBOs.get(i);
             GenericDescriptor.GenericDescriptorBO genericDescriptorBO = (GenericDescriptor.GenericDescriptorBO)uidToBOs.get(sourcePackageBO.getDescriptorUID());
             CompoundDataTypes.MXFCollections.MXFCollection<InterchangeObject.InterchangeObjectBO.StrongRef> strongRefsCollection = genericDescriptorBO.getSubdescriptors();
-            List<InterchangeObject.InterchangeObjectBO.StrongRef>strongRefs = strongRefsCollection.getEntries();
-            for(InterchangeObject.InterchangeObjectBO.StrongRef strongRef : strongRefs) {
-                subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+            if(strongRefsCollection != null) {
+                List<InterchangeObject.InterchangeObjectBO.StrongRef> strongRefs = strongRefsCollection.getEntries();
+                for (InterchangeObject.InterchangeObjectBO.StrongRef strongRef : strongRefs) {
+                    subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+                }
             }
         }
         return subDescriptors;
