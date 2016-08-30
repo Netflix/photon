@@ -687,7 +687,6 @@
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
-        <!--
         <cc:MainSubtitleSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
           <Id>urn:uuid:34e96ad8-26ee-4022-b6f0-2e747536ed11</Id>
           <TrackId>urn:uuid:d3127ee4-7436-4767-a6b6-74eac0069153</TrackId>
@@ -707,7 +706,6 @@
             </Resource>
           </ResourceList>
         </cc:MainSubtitleSequence>
-        -->
       </SequenceList>
     </Segment>
   </SegmentList>
