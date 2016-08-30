@@ -480,7 +480,7 @@ public class IMPValidator {
         if(!bAudioVirtualTrackMapFail) {
             Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
             for (int i = 1; i < audioVirtualTracksMapList.size(); i++) {
-                if (!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)))) {
+                if (!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)), imfErrorLogger)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
                 }
             }
@@ -629,7 +629,7 @@ public class IMPValidator {
         return audioLanguageSet.iterator().next();
     }
 
-    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map2){
+    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map2, IMFErrorLogger imfErrorLogger){
         boolean result = true;
         Iterator refIterator = map1.entrySet().iterator();
         while(refIterator.hasNext()){

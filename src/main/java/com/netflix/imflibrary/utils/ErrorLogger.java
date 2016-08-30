@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+
 import java.util.List;
 
 public interface ErrorLogger
@@ -95,8 +97,13 @@ public interface ErrorLogger
         public String toString(){
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(this.errorCode.toString());
-            stringBuilder.append("-");
-            stringBuilder.append(this.errorLevel.toString());
+            if(this.errorLevel == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING){
+                stringBuilder.append("-");
+                stringBuilder.append(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING.toString());
+            }
+            else{
+                stringBuilder.append("-ERROR");
+            }
             stringBuilder.append("-");
             stringBuilder.append(this.errorDescription);
             return stringBuilder.toString();

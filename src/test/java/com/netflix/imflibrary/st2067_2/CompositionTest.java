@@ -1,12 +1,21 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
+import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
+import com.netflix.imflibrary.writerTools.IMPBuilder;
+import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
+import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Test(groups = "unit")
@@ -33,5 +42,232 @@ public class CompositionTest
         Assert.assertTrue(composition.getCreator().length() > 0);
         Assert.assertTrue(composition.getContentOriginator().length() > 0);
         Assert.assertTrue(composition.getContentTitle().length() > 0);
+    }
+
+    @Test
+    public void virtualTracksEquivalenceTest(){
+        String trackFileId1 = IMFUUIDGenerator.getInstance().getUrnUUID();
+        String trackFileId2 = IMFUUIDGenerator.getInstance().getUrnUUID();
+        String sourceEncoding = IMFUUIDGenerator.getInstance().generateUUID().toString();
+        byte[] hash = new byte[16];
+        String hashAlgorithm = CompositionPlaylistBuilder_2013.defaultHashAlgorithm;
+        List<Long> editRate = new ArrayList<>();
+        editRate.add(24000L);
+        editRate.add(1001L);
+        BigInteger intrinsicDuration = new BigInteger("100");
+
+        IMFTrackFileResourceType imfTrackFileResourceType1 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("50"),
+                        new BigInteger("2"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType2 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("50"),
+                        new BigInteger("50"),
+                        new BigInteger("2"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType3 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId2,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("50"),
+                        new BigInteger("2"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType4 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("100"),
+                        new BigInteger("2"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType5 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType6 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("100"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType7 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("50"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType8 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId2,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType9 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId2,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("50"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+        IMFTrackFileResourceType imfTrackFileResourceType10 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId2,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("100"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        IMFTrackFileResourceType imfTrackFileResourceType11 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("0"),
+                        new BigInteger("25"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        IMFTrackFileResourceType imfTrackFileResourceType12 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("25"),
+                        new BigInteger("25"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        IMFTrackFileResourceType imfTrackFileResourceType13 =
+                new IMFTrackFileResourceType(IMFUUIDGenerator.getInstance().generateUUID().toString(),
+                        trackFileId1,
+                        editRate,
+                        intrinsicDuration,
+                        new BigInteger("50"),
+                        new BigInteger("50"),
+                        new BigInteger("1"),
+                        sourceEncoding,
+                        hash,
+                        hashAlgorithm);
+
+        List<IMFTrackFileResourceType> resourceList1 = new ArrayList<>();
+        resourceList1.add(imfTrackFileResourceType1);
+        resourceList1.add(imfTrackFileResourceType2);
+        resourceList1.add(imfTrackFileResourceType3);
+
+        List<IMFTrackFileResourceType> resourceList2 = new ArrayList<>();
+        resourceList2.add(imfTrackFileResourceType4);
+        resourceList2.add(imfTrackFileResourceType3);
+
+        List<IMFTrackFileResourceType> resourceList3 = new ArrayList<>();
+        resourceList3.add(imfTrackFileResourceType5);
+        resourceList3.add(imfTrackFileResourceType6);
+        resourceList3.add(imfTrackFileResourceType7);
+        resourceList3.add(imfTrackFileResourceType3);
+
+        List<IMFTrackFileResourceType> resourceList4 = new ArrayList<>();
+        resourceList4.add(imfTrackFileResourceType8);
+        resourceList4.add(imfTrackFileResourceType9);
+        resourceList4.add(imfTrackFileResourceType3);
+
+        List<IMFTrackFileResourceType> resourceList5 = new ArrayList<>();
+        resourceList5.add(imfTrackFileResourceType10);
+        resourceList5.add(imfTrackFileResourceType3);
+
+        List<IMFTrackFileResourceType> resourceList6 = new ArrayList<>();
+        resourceList6.add(imfTrackFileResourceType3);
+        resourceList6.add(imfTrackFileResourceType1);
+        resourceList6.add(imfTrackFileResourceType2);
+
+        List<IMFTrackFileResourceType> resourceList7 = new ArrayList<>();
+        resourceList7.add(imfTrackFileResourceType11);
+        resourceList7.add(imfTrackFileResourceType12);
+        resourceList7.add(imfTrackFileResourceType13);
+
+        List<IMFTrackFileResourceType> resourceList8 = new ArrayList<>();
+        resourceList8.add(imfTrackFileResourceType6);
+
+        List<IMFTrackFileResourceType> resourceList9 = new ArrayList<>();
+        resourceList9.add(imfTrackFileResourceType11);
+        resourceList9.add(imfTrackFileResourceType12);
+        resourceList9.add(imfTrackFileResourceType13);
+        resourceList9.add(imfTrackFileResourceType3);
+
+
+        List<IMFTrackFileResourceType> resourceList10 = new ArrayList<>();
+        resourceList10.add(imfTrackFileResourceType6);
+        resourceList10.add(imfTrackFileResourceType3);
+
+
+        Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList1);
+        Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList2);
+        Composition.VirtualTrack virtualTrack3 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList3);
+        Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList4);
+        Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList5);
+        Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList6);
+        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList7);
+        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList8);
+        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList9);
+        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList10);
+
+        Assert.assertTrue(virtualTrack1.equivalent(virtualTrack2) == false);
+        Assert.assertTrue(virtualTrack1.equivalent(virtualTrack3) == true);
+        Assert.assertTrue(virtualTrack4.equivalent(virtualTrack5) == true);
+        Assert.assertTrue(virtualTrack1.equivalent(virtualTrack6) == false);
+        Assert.assertTrue(virtualTrack7.equivalent(virtualTrack8) == true);
+        Assert.assertTrue(virtualTrack9.equivalent(virtualTrack10) == true);
     }
 }
