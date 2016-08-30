@@ -117,6 +117,8 @@ public class HeaderPartitionTest
 
         Assert.assertTrue(headerPartition.hasWaveAudioEssenceDescriptor());
         Assert.assertEquals(headerPartition.getWaveAudioEssenceDescriptors().size(), 1);
+        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor)headerPartition.getWaveAudioEssenceDescriptors().get(0);
         Assert.assertTrue(waveAudioEssenceDescriptor.toString().length() > 0);
         Assert.assertTrue(waveAudioEssenceDescriptor.equals(waveAudioEssenceDescriptor));
@@ -173,6 +175,8 @@ public class HeaderPartitionTest
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
         Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
     }
 
     @Test

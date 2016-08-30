@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class MXFEssenceReaderTest
 {
     @Test
-    public void MXFEssenceReaderTest() throws IOException
+    public void MXFAudioEssenceReaderTest() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
         File workingDirectory = Files.createTempDirectory(null).toFile();
