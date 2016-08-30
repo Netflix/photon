@@ -33,10 +33,12 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.utils.Utilities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,6 +89,17 @@ public final class IMFConstraints
         {
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
             filePackage = (SourcePackage)genericPackage;
+            MXFUID packageUID = filePackage.getPackageUID();
+            byte[] packageUID_first16Bytes_Constrained = {0x06, 0x0a, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x01, 0x0f, 0x20, 0x13, 0x00, 0x00, 0x00};
+            byte[] packageUID_first16Bytes = Arrays.copyOfRange(packageUID.getUID(), 0, packageUID_first16Bytes_Constrained.length+1);
+            boolean result = packageUID_first16Bytes[0] == packageUID_first16Bytes_Constrained[0];
+            for(int i=1; i < packageUID_first16Bytes_Constrained.length ; i++){
+                result &= packageUID_first16Bytes[i] == packageUID_first16Bytes_Constrained[i];
+            }
+            if(!result){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PackageUID in FilePackage = %s, which does not obey the constraint that the first 16 bytes = %s",
+                        packageUID.toString(), Utilities.serializeBytesToHexString(packageUID_first16Bytes_Constrained)));
+            }
 
             int numEssenceTracks = 0;
             MXFDataDefinition filePackageMxfDataDefinition = null;
@@ -153,10 +166,10 @@ public final class IMFConstraints
                                 }
                                 List<InterchangeObject.InterchangeObjectBO> soundFieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(SoundFieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
                                 SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO soundFieldGroupLabelSubDescriptorBO = SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO.class.cast(soundFieldGroupLabelSubDescriptors.get(0));
-                                if (soundFieldGroupLabelSubDescriptors.size() > 1) {
+                                if (soundFieldGroupLabelSubDescriptors.size() != 1) {
                                     if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                                String.format("WaveAudioEssenceDescriptor refers to %d SoundFieldGroupLabelSubDescriptors whereas either 0 or 1 are allowed", soundFieldGroupLabelSubDescriptors.size()));
+                                                String.format("WaveAudioEssenceDescriptor refers to %d SoundFieldGroupLabelSubDescriptors whereas exactly 1 is allowed", soundFieldGroupLabelSubDescriptors.size()));
                                     }
                                 }
 
