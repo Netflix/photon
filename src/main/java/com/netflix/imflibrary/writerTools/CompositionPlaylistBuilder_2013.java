@@ -387,7 +387,6 @@ public class CompositionPlaylistBuilder_2013 {
      * @param id urn uuid corresponding to the content version type
      * @param value a UserTextType representing the value attribute of the ContentVersion
      * @return a content version object conforming to the 2013 schema
-     * @throws URISyntaxException any syntax errors with the id attribute is exposed through a URISyntaxException
      */
     public org.smpte_ra.schemas.st2067_2_2013.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas.st2067_2_2013.UserTextType value) {
         ContentVersionType contentVersionType = new ContentVersionType();

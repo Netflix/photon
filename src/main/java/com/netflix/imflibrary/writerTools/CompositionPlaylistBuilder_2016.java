@@ -149,7 +149,7 @@ public class CompositionPlaylistBuilder_2016 {
      * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+    public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException, SAXException, JAXBException {
         org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2016();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -382,7 +382,6 @@ public class CompositionPlaylistBuilder_2016 {
      * @param id urn uuid corresponding to the content version type
      * @param value a UserTextType representing the value attribute of the ContentVersion
      * @return a content version object conforming to the 2016 schema
-     * @throws URISyntaxException any syntax errors with the id attribute is exposed through a URISyntaxException
      */
     public org.smpte_ra.schemas.st2067_2_2016.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas.st2067_2_2016.UserTextType value) {
         ContentVersionType contentVersionType = new ContentVersionType();
