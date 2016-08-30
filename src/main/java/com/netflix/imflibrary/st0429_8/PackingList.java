@@ -206,6 +206,16 @@ public final class PackingList
                 throw new IMFException(message, imfErrorLogger);
         }
 
+        Set<UUID> assetUUIDs = new HashSet<>();
+        for(Asset asset : this.assetList){
+            if(assetUUIDs.contains(asset.getUUID())){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("More than one PackingList Asset seems to use AssetUUID %s this is invalid.", asset.getUUID().toString()));
+            }
+            else{
+                assetUUIDs.add(asset.getUUID());
+            }
+        }
     }
 
     private static String getPackingListSchemaURI(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
@@ -528,6 +538,10 @@ public final class PackingList
         }
 
         File inputFile = new File(args[0]);
+        if(!inputFile.exists()){
+            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+            System.exit(-1);
+        }
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());

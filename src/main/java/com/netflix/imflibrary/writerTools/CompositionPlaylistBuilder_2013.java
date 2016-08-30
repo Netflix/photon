@@ -157,7 +157,10 @@ public class CompositionPlaylistBuilder_2013 {
         cplRoot.setContentOriginator(null);
         cplRoot.setContentTitle(buildCPLUserTextType_2013("Not Included", "en"));
         cplRoot.setContentKind(null);
-        cplRoot.setContentVersionList(null);
+        org.smpte_ra.schemas.st2067_2_2013.ContentVersionType contentVersionType = buildContentVersionType(IMFUUIDGenerator.getInstance().getUrnUUID(), buildCPLUserTextType_2013("Photon CompositionPlaylistBuilder", "en"));
+        List<org.smpte_ra.schemas.st2067_2_2013.ContentVersionType> contentVersionTypeList = new ArrayList<>();
+        contentVersionTypeList.add(contentVersionType);
+        cplRoot.setContentVersionList(buildContentVersionList(contentVersionTypeList));
         cplRoot.setLocaleList(null);
         cplRoot.setCompositionTimecode(null);
         cplRoot.setExtensionProperties(null);
@@ -381,17 +384,13 @@ public class CompositionPlaylistBuilder_2013 {
 
     /**
      * A method to construct a ContentVersionType object conforming to the 2013 schema
-     * @param id URI corresponding to the content version type
+     * @param id urn uuid corresponding to the content version type
      * @param value a UserTextType representing the value attribute of the ContentVersion
      * @return a content version object conforming to the 2013 schema
      * @throws URISyntaxException any syntax errors with the id attribute is exposed through a URISyntaxException
      */
-    public org.smpte_ra.schemas.st2067_2_2013.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas.st2067_2_2013.UserTextType value) throws URISyntaxException {
+    public org.smpte_ra.schemas.st2067_2_2013.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas.st2067_2_2013.UserTextType value) {
         ContentVersionType contentVersionType = new ContentVersionType();
-        if(!id.matches("^[a-zA-Z0-9._-]+") == true) {
-            //this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", id)));
-            throw new URISyntaxException("Invalid URI", "The ContentVersion Id %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)");
-        }
         contentVersionType.setId(id);
         contentVersionType.setLabelText(value);
         return contentVersionType;

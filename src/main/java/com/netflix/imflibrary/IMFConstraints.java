@@ -111,6 +111,10 @@ public final class IMFConstraints
                 {
                     numEssenceTracks++;
                 }
+
+                if(timelineTrack.getOrigin() != 0){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("The origin property of a timeline track in the IMFTrackFile is non-zero, only 0 is allowed"));
+                }
             }
             if (numEssenceTracks != 1)
             {
@@ -180,6 +184,19 @@ public final class IMFConstraints
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                             String.format("WaveAudioEssenceDescriptor refers to a SoundFieldGroupLabelSubDescriptor that is missing one/all of MCATitle, MCATitleVersion, MCAAudioContentKind, MCAAudioElementKind - %s", soundFieldGroupLabelSubDescriptorBO.toString()));
                                 }
+                            }
+
+                            int audioSampleRate = waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()/waveAudioEssenceDescriptor.getAudioSamplingRateDenominator();
+                            if(audioSampleRate != 48000
+                                    && audioSampleRate != 96000){
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ESSENCE_EXCEPTION_PREFIX +
+                                            String.format("WaveAudioEssenceDescriptor seems to indicate an Audio Sample Rate = %f, only 48000 and 96000 are allowed", (double)waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()/waveAudioEssenceDescriptor.getAudioSamplingRateDenominator()));
+                            }
+
+                            int bitDepth = waveAudioEssenceDescriptor.getQuantizationBits();
+                            if(bitDepth != 24){
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ESSENCE_EXCEPTION_PREFIX +
+                                        String.format("WaveAudioEssenceDescriptor seems to indicate an Audio Bit Depth = %d, only 24 is allowed", waveAudioEssenceDescriptor.getQuantizationBits()));
                             }
 
                         } else {

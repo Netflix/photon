@@ -31,6 +31,9 @@ public final class IMFCoreConstraintsChecker {
             Composition.VirtualTrack> virtualTrackMap){
 
         boolean foundMainImageEssence = false;
+        int numberOfMainImageEssences = 0;
+        boolean foundMainAudioEssence = false;
+        int numberOfMarkerSequences = 0;
         IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
@@ -41,6 +44,7 @@ public final class IMFCoreConstraintsChecker {
 
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
+                numberOfMainImageEssences++;
                 Composition.EditRate compositionEditRate = compositionPlaylistType.getEditRate();
                 for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
@@ -50,13 +54,33 @@ public final class IMFCoreConstraintsChecker {
                     }
                 }
             }
+            else if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
+                foundMainAudioEssence = true;
+            }
+            else if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)){
+                numberOfMarkerSequences++;
+            }
         }
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
 
         if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence exactly one is required", compositionPlaylistType.getId().toString()));
         }
+        else{
+            if(numberOfMainImageEssences > 1){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s seems to contain %d image essences, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
+            }
+        }
+
+        if(!foundMainAudioEssence){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single audio essence one or more is required", compositionPlaylistType.getId().toString()));
+        }
+
+        if(numberOfMarkerSequences > 1){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s seems to contain %d marker sequences, 0 or one is allowed", compositionPlaylistType.getId().toString(), numberOfMarkerSequences));
+        }
+
         return imfErrorLogger.getErrors();
     }
 
