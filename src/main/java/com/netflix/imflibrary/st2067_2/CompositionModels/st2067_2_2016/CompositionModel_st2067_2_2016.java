@@ -5,7 +5,6 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
-import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import org.w3c.dom.Element;
 
