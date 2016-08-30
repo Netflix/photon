@@ -460,7 +460,6 @@
 			  <Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>
 			  <IntrinsicDuration>5971</IntrinsicDuration>
               <Marker>
-                <Annotation/>
                 <Label>FFCL</Label>
                 <Offset>24</Offset>
               </Marker>
@@ -470,8 +469,7 @@
                 <Offset>24</Offset>
               </Marker>
               <Marker>
-                <Annotation/>
-                <Label>LFCL</Label>
+               <Label>LFCL</Label>
                 <Offset>119</Offset>
               </Marker>
               <Marker>
@@ -581,15 +579,9 @@
             </Resource>
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:3830e31b-4aae-48ff-a21f-228f969285e5</Id>
-              <Annotation>Netflix_Plugfest_Oct2015_Insert_001</Annotation>
-              <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>48</IntrinsicDuration>
-              <EntryPoint>0</EntryPoint>
-              <SourceDuration>48</SourceDuration>
-              <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:8d291ca9-90a3-4d5e-b476-4c461f17f070</SourceEncoding>
               <TrackFileId>urn:uuid:0bcc714a-8c35-47ae-9fb4-b8394e19c980</TrackFileId>
-              <Hash>8ySYUrng8pKxsCb+98iDDHJDLIA=</Hash>
               <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
               -->

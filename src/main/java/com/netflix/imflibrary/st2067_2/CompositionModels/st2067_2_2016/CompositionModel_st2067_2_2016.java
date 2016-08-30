@@ -61,7 +61,8 @@ public final class CompositionModel_st2067_2_2016 {
 
                         List<IMFMarkerType> markerList = new ArrayList<IMFMarkerType>();
                         for (org.smpte_ra.schemas.st2067_2_2016.MarkerType marker : markerResource.getMarker()) {
-                            markerList.add(new IMFMarkerType(marker.getAnnotation().getValue(),
+                            markerList.add(new IMFMarkerType(marker.getAnnotation() == null ? null : marker
+                                    .getAnnotation().getValue(),
                                     new IMFMarkerType.Label(marker.getLabel().getValue(), marker.getLabel().getScope()),
                                     marker.getOffset()));
                         }
@@ -105,7 +106,7 @@ public final class CompositionModel_st2067_2_2016 {
                         details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
                     }
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
-                            .IMFErrors.ErrorLevels.FATAL, String.format("Unsupported sequence type or schema %s",
+                            .IMFErrors.ErrorLevels.WARNING, String.format("Unsupported sequence type or schema %s",
                             details));
                     continue;
                 }
@@ -142,7 +143,9 @@ public final class CompositionModel_st2067_2_2016 {
                                         trackFileResource.getRepeatCount(),
                                         trackFileResource.getSourceEncoding(),
                                         trackFileResource.getHash(),
-                                        trackFileResource.getHashAlgorithm().getAlgorithm()
+                                        trackFileResource.getHashAlgorithm() == null?
+                                                CompositionPlaylistBuilder_2016.defaultHashAlgorithm : trackFileResource
+                                                .getHashAlgorithm().getAlgorithm()
                                 );
                             }
                             catch(IMFException e)
