@@ -134,19 +134,14 @@ public interface IMFErrorLogger extends ErrorLogger
             IMP_VALIDATOR_PAYLOAD_ERROR("IMP Validator Payload Error"),
 
             /**
-             * The IMF_UUID_ERROR.
+             * The UUID_ERROR.
              */
-            IMF_UUID_ERROR("IMF UUID Error"),
+            UUID_ERROR("UUID Syntax Error"),
 
             /**
-             * The IMF_URI_ERROR.
+             * The URI_ERROR.
              */
-            IMF_URI_ERROR("IMF URI Error"),
-
-            /**
-             * The IMF_INTERNAL_ERROR.
-             */
-            IMF_INTERNAL_ERROR("IMF Internal Error");
+            URI_ERROR("URI Syntax Error");
 
             private final String error;
 

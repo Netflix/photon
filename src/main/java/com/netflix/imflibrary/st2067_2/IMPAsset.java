@@ -48,7 +48,7 @@ public final class IMPAsset
         {
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
             String message = String.format("uri = %s is not absolute", uri);
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_URI_ERROR, IMFErrorLogger.IMFErrors
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.URI_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL, message);
             throw new IMFException(message, imfErrorLogger);
         }

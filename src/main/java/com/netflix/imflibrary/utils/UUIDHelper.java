@@ -24,7 +24,7 @@ public final class UUIDHelper
         if (!UUIDasURN.startsWith(UUIDHelper.UUID_as_a_URN_PREFIX))
         {
             IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_UUID_ERROR, IMFErrorLogger.IMFErrors
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.UUID_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL, String.format("Input UUID %s " +
                     "does not start with %s", UUIDasURN, UUIDHelper
                     .UUID_as_a_URN_PREFIX));

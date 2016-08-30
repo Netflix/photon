@@ -96,13 +96,11 @@ public interface ErrorLogger
          */
         public String toString(){
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(this.errorCode.toString());
             if(this.errorLevel == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING){
-                stringBuilder.append("-");
                 stringBuilder.append(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING.toString());
             }
             else{
-                stringBuilder.append("-ERROR");
+                stringBuilder.append("ERROR");
             }
             stringBuilder.append("-");
             stringBuilder.append(this.errorDescription);

@@ -84,7 +84,7 @@ public class DOMNodeObjectModel {
                 break;
             default:
                 String message = String.format("Unsupported DOM Node type  %d ", child.getNodeType());
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_INTERNAL_ERROR, IMFErrorLogger
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
                         .IMFErrors.ErrorLevels.FATAL,
                         message);
                 throw new IMFException(message, imfErrorLogger);
