@@ -292,8 +292,9 @@ public final class Composition {
                 }
                 virtualTrackMap.put(uuid, virtualTrack);
             } else {
+                //Section 6.9.3 st2067-3:2016
                 String message = String.format(
-                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s", uuid);
+                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s this is invalid", uuid);
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
             }
         }

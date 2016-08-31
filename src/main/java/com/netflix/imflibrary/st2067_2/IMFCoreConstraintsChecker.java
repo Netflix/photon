@@ -60,18 +60,19 @@ public final class IMFCoreConstraintsChecker {
         }
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
-
+        //Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single image essence exactly one is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", compositionPlaylistType.getId().toString()));
         }
         else{
             if(numberOfMainImageEssences > 1){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s seems to contain %d image essences, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
             }
         }
 
+        //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         if(!foundMainAudioEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("CPL Id %s does not reference a single audio essence one or more is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", compositionPlaylistType.getId().toString()));
         }
 
         return imfErrorLogger.getErrors();
@@ -91,8 +92,9 @@ public final class IMFCoreConstraintsChecker {
                 trackIDs.add(uuid);
                 if (virtualTrackMap.get(uuid) == null)
                 {
+                    //Section 6.9.3 st2067-3:2016
                     String message = String.format(
-                            "Segment %s in Composition XML file does not contain virtual track UUID %s",
+                            "Segment %s in Composition XML file contains virtual track UUID %s, which does not appear in all the segments of the Composition, this is invalid",
                             segment.getId(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
