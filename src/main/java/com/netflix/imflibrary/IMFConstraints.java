@@ -120,7 +120,7 @@ public final class IMFConstraints
                 {
                     numEssenceTracks++;
                 }
-
+                //Section 5.1.7 st2067-2:2016
                 if(timelineTrack.getOrigin() != 0){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("The origin property of a timeline track in the IMFTrackFile is non-zero, only 0 is allowed"));
                 }
