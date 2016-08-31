@@ -558,6 +558,10 @@ public final class AssetMap
         }
 
         File inputFile = new File(args[0]);
+        if(!inputFile.exists()){
+            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+            System.exit(-1);
+        }
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());

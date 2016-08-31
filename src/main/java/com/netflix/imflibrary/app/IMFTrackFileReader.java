@@ -663,6 +663,10 @@ final class IMFTrackFileReader
         }
 
         File inputFile = new File(args[0]);
+        if(!inputFile.exists()){
+            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+            System.exit(-1);
+        }
         File workingDirectory = new File(args[1]);
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);

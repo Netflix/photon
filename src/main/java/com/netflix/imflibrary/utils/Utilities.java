@@ -27,4 +27,18 @@ public final class Utilities {
         }
         return stringBuilder.toString();
     }
+
+    /**
+     * A method for serializing a byte[] to a HexString
+     * @param bytes - collection of bytes
+     * @return a String representing the Hexadecimal representation of the bytes in the byte[]
+     */
+    public static String serializeBytesToHexString(byte[] bytes){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("0x");
+        for(int i=0; i < bytes.length; i++){
+            stringBuilder.append(String.format("%02x", bytes[i]));
+        }
+        return stringBuilder.toString();
+    }
 }

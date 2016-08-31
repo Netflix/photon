@@ -58,5 +58,13 @@ public abstract class FileDescriptor extends GenericDescriptor {
             list.add(denominator);
             return list;
         }
+
+        /**
+         * Accessor for the Essence Container UL of this FileDescriptor
+         * @return a UL representing the Essence Container
+         */
+        public UL getEssenceContainerUL(){
+            return this.essence_container;
+        }
     }
 }

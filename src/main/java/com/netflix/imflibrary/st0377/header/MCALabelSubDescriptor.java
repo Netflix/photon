@@ -52,6 +52,46 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         }
 
         /**
+         * Accessor for the ChannelID of this MCA Label Subdescriptor
+         * @return a long integer representing the channel Id for the MCALabelSubDescriptor
+         */
+        public Long getMCAChannelID(){
+            return this.mca_channel_id;
+        }
+
+        /**
+         * Accessor for the MCA Title of this MCA Label Subdescriptor
+         * @return a String representing the MCA Title
+         */
+        public String getMCATitle(){
+            return this.mca_title;
+        }
+
+        /**
+         * Accessor for the MCA Title Version of this MCA Label Subdescriptor
+         * @return a String representing the MCA Title Version
+         */
+        public String getMCATitleVersion(){
+            return this.mca_title_version;
+        }
+
+        /**
+         * Accessor for the MCA Audio Content Kind of this MCA Label Subdescriptor
+         * @return a String representing the MCA Audio Content Kind
+         */
+        public String getMCAAudioContentKind(){
+            return this.mca_audio_content_kind;
+        }
+
+        /**
+         * Accessor for the MCA Audio Element Kind of this MCA Label Subdescriptor
+         * @return a String representing the MCA Audio Element Kind
+         */
+        public String getMCAAudioElementKind(){
+            return this.mca_audio_element_kind;
+        }
+
+        /**
          * A method that returns a string representation of a SoundFieldGroupLabelSubDescriptorBO object
          *
          * @return string representing the object

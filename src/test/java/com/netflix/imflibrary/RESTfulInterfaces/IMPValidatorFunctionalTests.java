@@ -258,7 +258,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 2);
+        Assert.assertTrue(errors.size() == 4);
     }
 
     @Test
@@ -291,7 +291,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 3);
+        Assert.assertTrue(errors.size() == 5);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().equals("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1"));
     }
@@ -318,7 +318,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(2), payloadRecords);
-        Assert.assertTrue(errors.size() == 2);
+        Assert.assertTrue(errors.size() == 3);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -326,7 +326,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 2);
+        Assert.assertTrue(errors.size() == 3);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);

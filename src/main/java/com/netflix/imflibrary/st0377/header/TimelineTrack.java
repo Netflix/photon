@@ -97,6 +97,14 @@ public final class TimelineTrack extends GenericTrack
     }
 
     /**
+     * Getter for the Origin property of this TimelineTrack
+     * @return a long integer representing the origin property of this timeline track
+     */
+    public long getOrigin(){
+        return this.timelineTrackBO.origin;
+    }
+
+    /**
      * A method that returns a string representation of a Timeline Track object
      *
      * @return string representing the object
