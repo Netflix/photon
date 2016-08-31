@@ -105,6 +105,7 @@ public final class IMFConstraints
             for(int i=1; i < packageUID_first16Bytes_Constrained.length ; i++){
                 result &= packageUID_first16Bytes[i] == packageUID_first16Bytes_Constrained[i];
             }
+            //Section 5.1.5 st2067-2:2016
             if(!result){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("PackageUID in FilePackage = %s, which does not obey the constraint that the first 16 bytes = %s",
                         packageUID.toString(), Utilities.serializeBytesToHexString(packageUID_first16Bytes_Constrained)));
