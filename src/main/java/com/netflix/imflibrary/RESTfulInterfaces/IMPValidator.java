@@ -66,7 +66,7 @@ public class IMPValidator {
         else if(PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.PackingList;
         }
-        else if(Composition.isFileOfSupportedSchema(resourceByteRangeProvider)){
+        else if(Composition.isCompositionPlaylist(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
         }
         return PayloadRecord.PayloadAssetType.Unknown;

@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
  * A class that models Segment structure of an IMF Composition Playlist.
  */
 @Immutable
-public final class IMFSegmentType {
+final class IMFSegmentType {
     protected final String id;
     protected final List<IMFSequenceType> sequenceList;
 

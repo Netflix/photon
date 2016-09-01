@@ -1,13 +1,9 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
-import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
-import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;

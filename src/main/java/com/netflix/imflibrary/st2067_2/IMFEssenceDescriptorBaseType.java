@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.utils.UUIDHelper;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
  * A class that models a Composition's Essence Descriptor.
  */
 @Immutable
-public final class IMFEssenceDescriptorBaseType {
+final class IMFEssenceDescriptorBaseType {
     protected final UUID id;
     protected final List<Object> any;
 

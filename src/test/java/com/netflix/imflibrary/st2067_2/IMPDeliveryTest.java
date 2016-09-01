@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.IMPDelivery;
+import com.netflix.imflibrary.InteroperableMasterPackage;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import org.testng.Assert;

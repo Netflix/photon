@@ -16,12 +16,11 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;
@@ -32,7 +31,7 @@ import java.util.UUID;
  * A class that models an IMF Composition Playlist structure.
  */
 @Immutable
-public final class IMFCompositionPlaylistType {
+final class IMFCompositionPlaylistType {
     private final UUID id;
     private final Composition.EditRate editRate;
     private final String annotation;

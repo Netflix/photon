@@ -16,10 +16,8 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary;
 
-import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
@@ -82,7 +80,7 @@ public final class IMPDelivery
 
     /**
      * Getter for a list of IMPs contained in this delivery
-     * @return a list of type {@link com.netflix.imflibrary.st2067_2.InteroperableMasterPackage} corresponding to IMPs
+     * @return a list of type {@link InteroperableMasterPackage} corresponding to IMPs
      * contained in this delivery
      */
     public List<InteroperableMasterPackage> getInteroperableMasterPackages()
