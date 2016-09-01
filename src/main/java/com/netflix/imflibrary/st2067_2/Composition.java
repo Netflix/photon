@@ -1378,10 +1378,6 @@ public final class Composition {
                         }
                         resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), domNodeObjectModels);
                     }
-                    else{
-                        imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                String.format("VirtualTrack represented by ID %s refers to IMFTrackFile represented by ID %s, but its HeaderPartition payload is missing", virtualTrack.getTrackID().toString(), resourceIdTuple.getTrackFileId().toString())));
-                    }
                 }
                 catch( IMFException e)
                 {

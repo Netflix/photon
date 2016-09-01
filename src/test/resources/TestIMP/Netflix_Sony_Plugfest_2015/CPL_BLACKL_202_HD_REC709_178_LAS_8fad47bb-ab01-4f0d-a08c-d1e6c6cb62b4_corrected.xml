@@ -458,9 +458,8 @@
           <ResourceList>
             <Resource xsi:type="MarkerResourceType">
 			  <Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>
-			  <IntrinsicDuration>5</IntrinsicDuration>
+			  <IntrinsicDuration>5971</IntrinsicDuration>
               <Marker>
-                <Annotation/>
                 <Label>FFCL</Label>
                 <Offset>24</Offset>
               </Marker>
@@ -470,8 +469,7 @@
                 <Offset>24</Offset>
               </Marker>
               <Marker>
-                <Annotation/>
-                <Label>LFCL</Label>
+               <Label>LFCL</Label>
                 <Offset>119</Offset>
               </Marker>
               <Marker>
@@ -570,7 +568,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>696</EntryPoint>
-              <SourceDuration>90000</SourceDuration>
+              <SourceDuration>900</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -581,15 +579,9 @@
             </Resource>
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:3830e31b-4aae-48ff-a21f-228f969285e5</Id>
-              <Annotation>Netflix_Plugfest_Oct2015_Insert_001</Annotation>
-              <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>48</IntrinsicDuration>
-              <EntryPoint>0</EntryPoint>
-              <SourceDuration>4800</SourceDuration>
-              <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:0bcc714a-8c35-47ae-9fb4-b8394e19c980</TrackFileId>
-              <Hash>8ySYUrng8pKxsCb+98iDDHJDLIA=</Hash>
               <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
               -->
@@ -600,7 +592,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>1644</EntryPoint>
-              <SourceDuration>191500</SourceDuration>
+              <SourceDuration>1915</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -615,7 +607,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>48</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>4800</SourceDuration>
+              <SourceDuration>48</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:0129c636-54c4-4ee1-97a8-9136330bced8</TrackFileId>
@@ -630,7 +622,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>3607</EntryPoint>
-              <SourceDuration>262400</SourceDuration>
+              <SourceDuration>2624</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -645,7 +637,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>48</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>4800</SourceDuration>
+              <SourceDuration>48</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:f9c14207-d642-4eec-9fa5-ff667548e02e</TrackFileId>
@@ -660,7 +652,7 @@
               <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>6279</EntryPoint>
-              <SourceDuration>38800</SourceDuration>
+              <SourceDuration>388</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -684,7 +676,7 @@
               <EditRate>48000 1</EditRate>
               <IntrinsicDuration>15750288</IntrinsicDuration>
               <EntryPoint>2834832</EntryPoint>
-              <SourceDuration>1195394200</SourceDuration>
+              <SourceDuration>11953942</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:215b7a9a-212f-4b47-9d9c-44e759764930</SourceEncoding>
               <TrackFileId>urn:uuid:ef574631-93e7-49f0-9a7b-f74ecbdf6be0</TrackFileId>
@@ -706,7 +698,7 @@
               <Id>urn:uuid:ddc5e809-21f9-4db8-a17e-08489120064c</Id>
               <Annotation>Netflix_Plugfest_Oct2015_LAS20</Annotation>
               <EditRate>48000 1</EditRate>
-              <IntrinsicDuration>1575028800</IntrinsicDuration>
+              <IntrinsicDuration>15750288</IntrinsicDuration>
               <EntryPoint>2834832</EntryPoint>
               <SourceDuration>11953942</SourceDuration>
               <RepeatCount>1</RepeatCount>
