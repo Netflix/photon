@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by schakrovorthy on 9/1/16.
+ * A set of tests for DOMNodeObjectModel
  */
 @Test(groups = "unit")
 public class DOMNodeObjectModelTest {

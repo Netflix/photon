@@ -1356,7 +1356,6 @@ public final class Composition {
         /*Go through all the Virtual Tracks in the Composition and construct a map of Resource Source Encoding Element and a list of DOM nodes representing every EssenceDescriptor in the HeaderPartition corresponding to that Resource*/
         for (Composition.VirtualTrack virtualTrack : virtualTracks) {
             List<Composition.ResourceIdTuple> resourceIdTuples = this.getVirtualTrackResourceIDs(virtualTrack);/*Retrieve a list of ResourceIDTuples corresponding to this virtual track*/
-            List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
             for (Composition.ResourceIdTuple resourceIdTuple : resourceIdTuples)
             {
                 try
@@ -1378,23 +1377,15 @@ public final class Composition {
 
                         }
                         resourcesEssenceDescriptorMap.put(resourceIdTuple.getSourceEncoding(), domNodeObjectModels);
-                        virtualTrackEssenceDescriptors.addAll(domNodeObjectModels);
+                    }
+                    else{
+                        imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                String.format("VirtualTrack represented by ID %s refers to IMFTrackFile represented by ID %s, but its HeaderPartition payload is missing", virtualTrack.getTrackID().toString(), resourceIdTuple.getTrackFileId().toString())));
                     }
                 }
                 catch( IMFException e)
                 {
                     imfErrorLogger.addAllErrors(e.getErrors());
-                }
-            }
-            if(virtualTrackEssenceDescriptors.size() > 0) {
-                boolean areEssenceDescriptorsEquivalent = true;
-                DOMNodeObjectModel refDomNodeObjectModel = virtualTrackEssenceDescriptors.get(0);
-                for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
-                    areEssenceDescriptorsEquivalent &= refDomNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i));
-                    refDomNodeObjectModel = virtualTrackEssenceDescriptors.get(i);
-                }
-                if (!areEssenceDescriptorsEquivalent) {
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack represented by ID %s seems to contain resources with differing characteristics/Essence Descriptors, this is invalid as a Virtual Track should be homogeneous", virtualTrack.getTrackID().toString())));
                 }
             }
         }

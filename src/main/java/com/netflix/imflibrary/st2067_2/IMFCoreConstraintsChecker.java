@@ -2,9 +2,14 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.sun.java.browser.plugin2.DOM;
+import org.w3c.dom.Node;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +57,41 @@ final class IMFCoreConstraintsChecker {
             }
             else if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
                 foundMainAudioEssence = true;
+            }
+
+            if((virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence))
+                    && compositionPlaylistType.getEssenceDescriptorList() != null
+                    && compositionPlaylistType.getEssenceDescriptorList().size() < 1)
+            {
+                //Construct a DOMNodeObjectModel object for every EssenceDescriptor that is a part of the EssenceDescriptorList
+                Map<UUID, List<DOMNodeObjectModel>> domNodeObjectModelMap = new HashMap<>();
+                List<IMFEssenceDescriptorBaseType> essenceDescriptors = compositionPlaylistType.getEssenceDescriptorList();
+                for(IMFEssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
+                    List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
+                    for (Object object : essenceDescriptorBaseType.getAny()) {
+                        domNodeObjectModels.add(new DOMNodeObjectModel((Node) object));
+                    }
+                    domNodeObjectModelMap.put(essenceDescriptorBaseType.getId(), domNodeObjectModels);
+                }
+
+                List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
+                for(IMFBaseResourceType imfBaseResourceType : virtualTrackResourceList){
+                    IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
+                    List<DOMNodeObjectModel> domNodeObjectModels = domNodeObjectModelMap.get(imfTrackFileResourceType.getSourceEncoding());
+                    virtualTrackEssenceDescriptors.addAll(domNodeObjectModels);
+                }
+
+                if(!(virtualTrackEssenceDescriptors.size() > 0)){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s doesn't seem to refer to a single EssenceDescriptor in the CPL's EssenceDescriptorList", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                }
+                boolean isVirtualTrackHomogeneous = true;
+                DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0);
+                for(int i=1; i<virtualTrackEssenceDescriptors.size(); i++){
+                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i));
+                    refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(i);
+                }
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s doesn't seem to be homogeneous", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
             }
         }
 
