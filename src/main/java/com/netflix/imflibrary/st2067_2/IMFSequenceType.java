@@ -16,9 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
-
-import com.netflix.imflibrary.st2067_2.Composition;
+package com.netflix.imflibrary.st2067_2;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
@@ -27,7 +25,7 @@ import java.util.List;
  * A class that models Sequence structure of an IMF Composition Playlist.
  */
 @Immutable
-public final class IMFSequenceType {
+final class IMFSequenceType {
     protected final String id;
     protected final String trackId;
     protected final List<? extends IMFBaseResourceType> resourceList;

@@ -145,12 +145,7 @@ public class DOMNodeObjectModel {
             otherFieldsSet.add(entry);
         }
 
-        boolean result = fieldsSet.retainAll(otherFieldsSet);//If there is a change in FieldsSet then we want to see if there was atleast an 80% match of the fields
-        if(result){
-            /*long confidenceScore = Math.round(100 * (double)fieldsSet.size()/(thisFieldsSetSize > otherFieldsSetSize ? thisFieldsSetSize : otherFieldsSetSize));
-            if(confidenceScore < 80){
-                return false;
-            }*/
+        if(!fieldsSet.equals(otherFieldsSet)){
             return false;
         }
 

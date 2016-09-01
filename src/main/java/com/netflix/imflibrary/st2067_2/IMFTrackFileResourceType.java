@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2.CompositionModels;
+package com.netflix.imflibrary.st2067_2;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

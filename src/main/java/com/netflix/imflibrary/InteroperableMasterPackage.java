@@ -16,9 +16,8 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary;
 
-import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
@@ -41,12 +40,12 @@ public final class InteroperableMasterPackage
 
     /**
      * Constructor for an InterOperableMasterPackage object from a {@link com.netflix.imflibrary.st0429_8.PackingList} object,
-     * the URI corresponding to the PackingList document, and a list of type {@link com.netflix.imflibrary.st2067_2.IMPAsset} that
+     * the URI corresponding to the PackingList document, and a list of type {@link IMPAsset} that
      * corresponds to assets referenced by this InteroperableMasterPackage object
      * @param packingList the corresponding packingList object
      * @param packingListURI an absolute URI for the PackingList document corresponding to the supplied PackingList object, construction
      *                       fails if the URI is not absolute
-     * @param referencedAssets the list of type {@link com.netflix.imflibrary.st2067_2.IMPAsset} corresponding to assets
+     * @param referencedAssets the list of type {@link IMPAsset} corresponding to assets
      *                         referenced by this InteroperableMasterPackage object
      */
     public InteroperableMasterPackage(PackingList packingList, URI packingListURI, List<IMPAsset> referencedAssets)

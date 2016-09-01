@@ -18,12 +18,7 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFMarkerResourceType;
-import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
-
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,8 +1,6 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFBaseResourceType;
-import com.netflix.imflibrary.st2067_2.CompositionModels.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import org.testng.Assert;
 import org.testng.annotations.Test;

@@ -1,9 +1,8 @@
-package com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016;
+package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st2067_2.*;
-import com.netflix.imflibrary.st2067_2.CompositionModels.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import org.w3c.dom.Element;
@@ -20,7 +19,7 @@ import java.util.UUID;
 /**
  * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2016 CompositionPlaylist specification st2067-3:2016.
  */
-public final class CompositionModel_st2067_2_2016 {
+final class CompositionModel_st2067_2_2016 {
 
     //To prevent instantiation
     private CompositionModel_st2067_2_2016(){

@@ -27,9 +27,6 @@ import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st2067_2.CompositionModels.*;
-import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2013.CompositionModel_st2067_2_2013;
-import com.netflix.imflibrary.st2067_2.CompositionModels.st2067_2_2016.CompositionModel_st2067_2_2016;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
@@ -49,7 +46,6 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -435,37 +431,6 @@ public final class Composition {
     }
 
     /**
-     * A stateless method that verifies if the raw data represented by the ResourceByteRangeProvider corresponds to a valid
-     * IMF Composition Playlist document
-     *
-     * @param resourceByteRangeProvider - a byte range provider for the document that needs to be verified
-     * @return - a boolean indicating if the document represented is an IMF Composition or not
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);) {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(inputStream);
-            NodeList nodeList = null;
-            for (String supportedSchemaURI : supportedCPLSchemaURIs) {
-                //obtain root node
-                nodeList = document.getElementsByTagNameNS(supportedSchemaURI, "CompositionPlaylist");
-                if (nodeList != null
-                        && nodeList.getLength() == 1) {
-                    return true;
-                }
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            return false;
-        }
-
-        return false;
-    }
-
-    /**
      * A method that returns a string representation of a Composition object
      *
      * @return string representing the object
@@ -576,7 +541,7 @@ public final class Composition {
      *
      * @return {@link java.util.Map Map}&lt;{@link java.util.UUID UUID},{@link Composition.VirtualTrack VirtualTrack}&gt;. The UUID key corresponds to VirtualTrackID
      */
-    public Map<UUID, ? extends VirtualTrack> getVirtualTrackMap() {
+    Map<UUID, ? extends VirtualTrack> getVirtualTrackMap() {
         return Collections.unmodifiableMap(this.virtualTrackMap);
     }
 
@@ -1112,13 +1077,24 @@ public final class Composition {
     }
 
     /**
+     * A utility method to retrieve the EssenceDescriptors within a Composition.
+     *
+     * @return A list of EssenceDescriptors in the Composition.
+     */
+    @Nonnull
+    public List<DOMNodeObjectModel> getEssenceDescriptors() {
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = this.getEssenceDescriptorListMap();
+        return new ArrayList<>(essenceDescriptorMap.values());
+    }
+
+    /**
      * A utility method to retrieve the UUIDs of the Track files referenced by a Virtual track within a Composition.
      *
      * @param virtualTrack - object model of an IMF virtual track {@link Composition.VirtualTrack}
      * @return A list of TrackFileResourceType objects corresponding to the virtual track in the Composition.
      */
     @Nonnull
-    public List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull Composition.VirtualTrack virtualTrack) {
+    public static List<ResourceIdTuple> getVirtualTrackResourceIDs(@Nonnull Composition.VirtualTrack virtualTrack) {
 
         List<ResourceIdTuple> virtualTrackResourceIDs = new ArrayList<>();
 
@@ -1138,13 +1114,14 @@ public final class Composition {
         return Collections.unmodifiableList(virtualTrackResourceIDs);
     }
 
+
     /**
      * A utility method that will analyze the EssenceDescriptorList in a Composition and construct a HashMap mapping
      * a UUID to a EssenceDescriptor.
      *
      * @return a HashMap mapping the UUID to its corresponding EssenceDescriptor in the Composition
      */
-    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
+    Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
         if (compositionPlaylistType.getEssenceDescriptorList() != null) {
