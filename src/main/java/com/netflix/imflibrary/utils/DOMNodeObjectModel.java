@@ -25,14 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,9 +42,9 @@ public class DOMNodeObjectModel {
     @Nonnull
     private final String localName;
     /*List of child ElementDOMNodes*/
-    private final List<DOMNodeObjectModel> childrenDOMNodes = new ArrayList<>();
+    private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
-    private final Map<String, List<String>> fields = new HashMap<>();
+    private final Map<String, Map<String, Integer>> fields = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
     private final IMFErrorLogger imfErrorLogger;
 
@@ -68,14 +63,24 @@ public class DOMNodeObjectModel {
                     Node grandChild = child.getFirstChild();
                     if (grandChild != null){
                         if(grandChild.getNodeType() == Node.TEXT_NODE) {
-                            List<String> values = fields.get(child.getLocalName());
+                            Map<String, Integer> values = fields.get(child.getLocalName());
                             if (values == null) {
-                                values = new ArrayList<>();
+                                values = new HashMap<String, Integer>();
                                 fields.put(child.getLocalName(), values);
                             }
-                            values.add(child.getFirstChild().getNodeValue());
+                            Integer count = 0;
+                            if(values.containsKey(child.getFirstChild().getNodeValue())) {
+                                count = values.get(child.getFirstChild().getNodeValue());
+                            }
+                            values.put(child.getFirstChild().getNodeValue(), count+1);
                         } else {
-                            childrenDOMNodes.add(new DOMNodeObjectModel(child));
+                            Integer count = 0;
+                            DOMNodeObjectModel domNode = new DOMNodeObjectModel(child);
+                            if(childrenDOMNodes.containsKey(domNode))
+                            {
+                                count = childrenDOMNodes.get(domNode);
+                            }
+                            childrenDOMNodes.put(domNode, count+1);
                         }
                     }
                     child = child.getNextSibling();
@@ -113,7 +118,7 @@ public class DOMNodeObjectModel {
      * A getter for the Fields represented in the DOMNodeObjectModel
      * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
      */
-    public Map<String, List<String>> getFields(){
+    public Map<String, Map<String, Integer>> getFields(){
         return Collections.unmodifiableMap(this.fields);
     }
 
@@ -133,41 +138,14 @@ public class DOMNodeObjectModel {
 
         DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
 
-        /**
-         * The following loops construct a Set that supports the retainAll operation. This is required since
-         * the getFields() method returns an unmodifiable map, whereas retainAll() is a modifying call on a Map's entry set.
-         */
-        Set<Map.Entry<String, List<String>>> fieldsSet = new HashSet<>();
-        for(Map.Entry<String, List<String>> entry : this.getFields().entrySet()){
-            fieldsSet.add(entry);
+        if(this.localName.equals(otherDOMNodeObjectModel.localName) &&
+            this.nodeType.equals(otherDOMNodeObjectModel.nodeType) &&
+            this.fields.equals(otherDOMNodeObjectModel.fields) &&
+            this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
+            return true;
         }
 
-        Set<Map.Entry<String, List<String>>> otherFieldsSet = new HashSet<>();
-        for(Map.Entry<String, List<String>> entry : otherDOMNodeObjectModel.getFields().entrySet()){
-            otherFieldsSet.add(entry);
-        }
-
-        if(!fieldsSet.equals(otherFieldsSet)){
-            return false;
-        }
-
-        if(this.childrenDOMNodes.size() != otherDOMNodeObjectModel.childrenDOMNodes.size()){
-            return false;
-        }
-
-        for(DOMNodeObjectModel child : this.childrenDOMNodes){
-            boolean intermediateResult = false;
-            for(DOMNodeObjectModel otherChild : otherDOMNodeObjectModel.childrenDOMNodes){
-                if(otherChild.getNodeType() == child.getNodeType()
-                        && otherChild.getLocalName().equals(child.getLocalName())){
-                    intermediateResult |= child.equals(otherChild);
-                }
-            }
-            if(!intermediateResult){
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
 
     /**
@@ -177,9 +155,10 @@ public class DOMNodeObjectModel {
     @Override
     public int hashCode(){
         int hash = 1;
-        hash = hash * 31 + this.localName.hashCode(); /*LocalName can be used since it is non-null*/
-        hash = hash * 31
-                + this.nodeType.hashCode();/*Another field that is indicated to be non-null*/
+        hash = hash * 31 + localName.hashCode();
+        hash = hash * 31 + this.nodeType.hashCode();
+        hash = hash * 31 + this.fields.hashCode();
+        hash = hash * 31 + this.childrenDOMNodes.hashCode();
         return hash;
     }
 
@@ -190,35 +169,19 @@ public class DOMNodeObjectModel {
      */
     public boolean equivalent(DOMNodeObjectModel other){
         boolean result = true;
-        Set<Map.Entry<String, List<String>>> fieldsEntries = this.fields.entrySet();
-        Iterator<Map.Entry<String, List<String>>> iterator = fieldsEntries.iterator();
+        Set<Map.Entry<String, Map<String, Integer>>> fieldsEntries = this.fields.entrySet();
+        Iterator<Map.Entry<String, Map<String, Integer>>> iterator = fieldsEntries.iterator();
         while(iterator.hasNext()){
-            Map.Entry<String, List<String>> entry = iterator.next();
+            Map.Entry<String, Map<String, Integer>> entry = iterator.next();
             String field = entry.getKey();
             if(!field.equals("InstanceUID")) {
                 //The following logic is required to normalize the 2 list of values since we cannot
                 //assume any ordering of values for a particular key.
-                List<String> thisFieldValues = entry.getValue();
-                List<String> otherFieldValues = other.fields.get(entry.getKey());
+                Map<String, Integer> thisFieldValues = entry.getValue();
+                Map<String, Integer> otherFieldValues = other.fields.get(entry.getKey());
                 if(otherFieldValues == null){
                     return false;
                 }
-                if(thisFieldValues.size() != otherFieldValues.size()){
-                    return false;
-                }
-
-                thisFieldValues.sort(new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return o1.compareTo(o2);
-                    }
-                });
-                otherFieldValues.sort(new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return o1.compareTo(o2);
-                    }
-                });
                 result &= thisFieldValues.equals(otherFieldValues);
             }
         }
@@ -228,10 +191,12 @@ public class DOMNodeObjectModel {
         }
 
         boolean intermediateResult = true;
-        for(DOMNodeObjectModel child : this.childrenDOMNodes){
+        for(Map.Entry<DOMNodeObjectModel, Integer> childEntry : this.childrenDOMNodes.entrySet()){
             boolean areChildNodesEquivalent = false;
-            for(DOMNodeObjectModel otherChild : other.childrenDOMNodes){
-                areChildNodesEquivalent |= child.equivalent(otherChild);
+            for(Map.Entry<DOMNodeObjectModel, Integer> otherChildEntry : other.childrenDOMNodes.entrySet()){
+                areChildNodesEquivalent |= (
+                        childEntry.getKey().equivalent(otherChildEntry.getKey()) &&
+                                (childEntry.getValue().equals(otherChildEntry.getValue())));
             }
             intermediateResult &= areChildNodesEquivalent;
         }
@@ -251,8 +216,10 @@ public class DOMNodeObjectModel {
         sb.append(String.format("====== DOM Node Object Model ======%n"));
         sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
         sb.append(String.format("Node Local Name : %s%n", this.localName));
-        for(DOMNodeObjectModel domNodeObjectModel : this.childrenDOMNodes) {
-            sb.append(domNodeObjectModel.toString());
+        for(Map.Entry<DOMNodeObjectModel, Integer> domEntry : this.childrenDOMNodes.entrySet()) {
+            for(Integer i = 0; i < domEntry.getValue(); i++) {
+                sb.append(domEntry.getKey().toString());
+            }
         }
         for(Map.Entry entry : fields.entrySet()){
             sb.append(String.format("%s%n", entry.toString()));
