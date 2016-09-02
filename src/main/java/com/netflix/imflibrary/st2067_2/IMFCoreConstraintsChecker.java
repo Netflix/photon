@@ -27,8 +27,9 @@ final class IMFCoreConstraintsChecker {
 
     }
 
-    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, ? extends
-            Composition.VirtualTrack> virtualTrackMap){
+    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
+                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap){
 
         boolean foundMainImageEssence = false;
         int numberOfMainImageEssences = 0;
@@ -63,22 +64,11 @@ final class IMFCoreConstraintsChecker {
                     && compositionPlaylistType.getEssenceDescriptorList() != null
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
             {
-                //Construct a DOMNodeObjectModel object for every EssenceDescriptor that is a part of the EssenceDescriptorList
-                Map<UUID, List<DOMNodeObjectModel>> domNodeObjectModelMap = new HashMap<>();
-                List<IMFEssenceDescriptorBaseType> essenceDescriptors = compositionPlaylistType.getEssenceDescriptorList();
-                for(IMFEssenceDescriptorBaseType essenceDescriptorBaseType : essenceDescriptors){
-                    List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
-                    for (Object object : essenceDescriptorBaseType.getAny()) {
-                        domNodeObjectModels.add(new DOMNodeObjectModel((Node) object));
-                    }
-                    domNodeObjectModelMap.put(essenceDescriptorBaseType.getId(), domNodeObjectModels);
-                }
-
                 List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
                 for(IMFBaseResourceType imfBaseResourceType : virtualTrackResourceList){
                     IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
-                    List<DOMNodeObjectModel> domNodeObjectModels = domNodeObjectModelMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
-                    virtualTrackEssenceDescriptors.addAll(domNodeObjectModels);
+                    DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
+                    virtualTrackEssenceDescriptors.add(domNodeObjectModel);
                 }
 
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
@@ -88,7 +78,6 @@ final class IMFCoreConstraintsChecker {
                 DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0);
                 for(int i=1; i<virtualTrackEssenceDescriptors.size(); i++){
                     isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i));
-                    refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(i);
                 }
                 if(!isVirtualTrackHomogeneous) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,

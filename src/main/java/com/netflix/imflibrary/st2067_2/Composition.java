@@ -119,6 +119,7 @@ public final class Composition {
 
     private final String coreConstraintsVersion;
     private final Map<UUID, ? extends VirtualTrack> virtualTrackMap;
+    private final Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
     private final IMFErrorLogger imfErrorLogger;
 
@@ -233,11 +234,11 @@ public final class Composition {
 
         }
 
-        this.virtualTrackMap = getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-
+        this.virtualTrackMap = this.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
+        this.essenceDescriptorListMap = this.getEssenceDescriptorListMap();
 
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
-                .virtualTrackMap));
+                .virtualTrackMap, essenceDescriptorListMap));
 
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
