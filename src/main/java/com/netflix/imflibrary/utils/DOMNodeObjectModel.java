@@ -27,8 +27,10 @@ import org.w3c.dom.Node;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,6 +181,63 @@ public class DOMNodeObjectModel {
         hash = hash * 31
                 + this.nodeType.hashCode();/*Another field that is indicated to be non-null*/
         return hash;
+    }
+
+
+    /**
+     * A method that will determine if 2 DOMNodeObjectModel objects are equivalent, i.e. the fields are same and have the same value
+     * @return a boolean representing the equivalence check
+     */
+    public boolean equivalent(DOMNodeObjectModel other){
+        boolean result = true;
+        Set<Map.Entry<String, List<String>>> fieldsEntries = this.fields.entrySet();
+        Iterator<Map.Entry<String, List<String>>> iterator = fieldsEntries.iterator();
+        while(iterator.hasNext()){
+            Map.Entry<String, List<String>> entry = iterator.next();
+            String field = entry.getKey();
+            if(!field.equals("InstanceUID")) {
+                //The following logic is required to normalize the 2 list of values since we cannot
+                //assume any ordering of values for a particular key.
+                List<String> thisFieldValues = entry.getValue();
+                List<String> otherFieldValues = other.fields.get(entry.getKey());
+                if(otherFieldValues == null){
+                    return false;
+                }
+                if(thisFieldValues.size() != otherFieldValues.size()){
+                    return false;
+                }
+
+                thisFieldValues.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
+                otherFieldValues.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
+                result &= thisFieldValues.equals(otherFieldValues);
+            }
+        }
+
+        if(this.childrenDOMNodes.size() != other.childrenDOMNodes.size()){
+            return false;
+        }
+
+        boolean intermediateResult = true;
+        for(DOMNodeObjectModel child : this.childrenDOMNodes){
+            boolean areChildNodesEquivalent = false;
+            for(DOMNodeObjectModel otherChild : other.childrenDOMNodes){
+                areChildNodesEquivalent |= child.equivalent(otherChild);
+            }
+            intermediateResult &= areChildNodesEquivalent;
+        }
+        result &= intermediateResult;
+
+        return result;
     }
 
     /**

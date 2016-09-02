@@ -20,7 +20,7 @@
   </ContentVersionList>
   <EssenceDescriptorList xmlns:m="http://www.smpte-ra.org/reg/395/2013">
     <EssenceDescriptor>
-      <Id>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</Id>
+      <Id>urn:uuid:0d191725-eab0-453e-b13e-fb6c52f196e3</Id>
       <m:CDCIDescriptor>
         <m:InstanceUID>b3fb64fd-3f32-41d8-852a-4f30c83fa554</m:InstanceUID>
         <m:SampleRate>24000 1001</m:SampleRate>
@@ -460,6 +460,7 @@
 			  <Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>
 			  <IntrinsicDuration>5971</IntrinsicDuration>
               <Marker>
+                <Annotation/>
                 <Label>FFCL</Label>
                 <Offset>24</Offset>
               </Marker>
@@ -469,7 +470,8 @@
                 <Offset>24</Offset>
               </Marker>
               <Marker>
-               <Label>LFCL</Label>
+                <Annotation/>
+                <Label>LFCL</Label>
                 <Offset>119</Offset>
               </Marker>
               <Marker>
@@ -555,9 +557,6 @@
             </Resource>
           </ResourceList>
         </cc:MarkerSequence>
-        <!--
-        <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
-        -->
         <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:79c477f4-6e31-4a7e-9bf8-eef60cb73c1b</Id>
           <TrackId>urn:uuid:e043acb0-2835-4c3c-acc0-9997ef09ea94</TrackId>
@@ -570,7 +569,7 @@
               <EntryPoint>696</EntryPoint>
               <SourceDuration>900</SourceDuration>
               <RepeatCount>1</RepeatCount>
-              <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
+              <SourceEncoding>urn:uuid:0d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
               <!--
@@ -579,9 +578,15 @@
             </Resource>
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:3830e31b-4aae-48ff-a21f-228f969285e5</Id>
+              <Annotation>Netflix_Plugfest_Oct2015_Insert_001</Annotation>
+              <EditRate>24000 1001</EditRate>
               <IntrinsicDuration>48</IntrinsicDuration>
+              <EntryPoint>0</EntryPoint>
+              <SourceDuration>48</SourceDuration>
+              <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:8d291ca9-90a3-4d5e-b476-4c461f17f070</SourceEncoding>
               <TrackFileId>urn:uuid:0bcc714a-8c35-47ae-9fb4-b8394e19c980</TrackFileId>
+              <Hash>8ySYUrng8pKxsCb+98iDDHJDLIA=</Hash>
               <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
               -->
@@ -594,7 +599,7 @@
               <EntryPoint>1644</EntryPoint>
               <SourceDuration>1915</SourceDuration>
               <RepeatCount>1</RepeatCount>
-              <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
+              <SourceEncoding>urn:uuid:0d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
               <!--
@@ -624,7 +629,7 @@
               <EntryPoint>3607</EntryPoint>
               <SourceDuration>2624</SourceDuration>
               <RepeatCount>1</RepeatCount>
-              <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
+              <SourceEncoding>urn:uuid:0d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
               <!--
@@ -654,7 +659,7 @@
               <EntryPoint>6279</EntryPoint>
               <SourceDuration>388</SourceDuration>
               <RepeatCount>1</RepeatCount>
-              <SourceEncoding>urn:uuid:1d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
+              <SourceEncoding>urn:uuid:0d191725-eab0-453e-b13e-fb6c52f196e3</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
               <Hash>yCsxE1M6xmEGkVoXAWWjvfq2VHM=</Hash>
               <!--
@@ -663,9 +668,6 @@
             </Resource>
           </ResourceList>
         </cc:MainImageSequence>
-        <!--
-        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
-        -->
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:285bf63c-1745-472d-9e76-73822ec26788</Id>
           <TrackId>urn:uuid:90d3ee6e-68ed-42be-a643-fcde041998b7</TrackId>
@@ -687,9 +689,6 @@
             </Resource>
           </ResourceList>
         </cc:MainAudioSequence>
-        <!--
-        <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
-        -->
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
           <Id>urn:uuid:f2f128d9-1f28-49e8-b060-74db33252c48</Id>
           <TrackId>urn:uuid:74a7e6d1-9ebf-4f6e-a996-6a8b520890f2</TrackId>

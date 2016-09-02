@@ -1,6 +1,9 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -9,6 +12,7 @@ import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +42,22 @@ public class CompositionTest
         Assert.assertTrue(composition.getCreator().length() > 0);
         Assert.assertTrue(composition.getContentOriginator().length() > 0);
         Assert.assertTrue(composition.getContentTitle().length() > 0);
+    }
+
+    @Test
+    public void compositionNegativeTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            Composition composition = new Composition(inputFile, imfErrorLogger);
+        }
+        catch (IMFException e){
+            List<ErrorLogger.ErrorObject> errors = e.getErrors();
+            Assert.assertTrue(errors .size() == 1);
+            Assert.assertTrue(errors.get(0).toString().contains("is not homogeneous"));
+        }
+
     }
 
     @Test
