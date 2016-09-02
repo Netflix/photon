@@ -76,8 +76,10 @@ final class IMFCoreConstraintsChecker {
                 }
                 boolean isVirtualTrackHomogeneous = true;
                 DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0);
+                Set<String> ignoreSet = new HashSet<>();
+                ignoreSet.add("InstanceUID");
                 for(int i=1; i<virtualTrackEssenceDescriptors.size(); i++){
-                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i));
+                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i), ignoreSet);
                 }
                 if(!isVirtualTrackHomogeneous) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
