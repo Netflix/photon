@@ -44,7 +44,7 @@ public class DOMNodeObjectModel {
     /*List of child ElementDOMNodes*/
     private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
-    private final Map<String, Map<String, Integer>> fields = new HashMap<>();
+    private final Map<DOMNodeElementTuple, Map<String, Integer>> fields = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
     private final IMFErrorLogger imfErrorLogger;
 
@@ -63,10 +63,13 @@ public class DOMNodeObjectModel {
                     Node grandChild = child.getFirstChild();
                     if (grandChild != null){
                         if(grandChild.getNodeType() == Node.TEXT_NODE) {
-                            Map<String, Integer> values = fields.get(child.getLocalName());
+                            Map<String, Integer> values = fields.get(new DOMNodeElementTuple(child.getPrefix(), child.getLocalName()));
                             if (values == null) {
                                 values = new HashMap<String, Integer>();
-                                fields.put(child.getLocalName(), values);
+                                String prefix = child.getPrefix();
+                                String localName = child.getLocalName();
+                                DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(prefix, localName);
+                                fields.put(domNodeElementTuple, values);
                             }
                             Integer count = 0;
                             if(values.containsKey(child.getFirstChild().getNodeValue())) {
@@ -118,7 +121,7 @@ public class DOMNodeObjectModel {
      * A getter for the Fields represented in the DOMNodeObjectModel
      * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
      */
-    public Map<String, Map<String, Integer>> getFields(){
+    public Map<DOMNodeElementTuple, Map<String, Integer>> getFields(){
         return Collections.unmodifiableMap(this.fields);
     }
 
@@ -162,47 +165,49 @@ public class DOMNodeObjectModel {
         return hash;
     }
 
-
     /**
-     * A method that will determine if 2 DOMNodeObjectModel objects are equivalent, i.e. the fields are same and have the same value
-     * @return a boolean representing the equivalence check
+     * A thin class modeling a DOM Node Element Key
      */
-    public boolean equivalent(DOMNodeObjectModel other){
-        boolean result = true;
-        Set<Map.Entry<String, Map<String, Integer>>> fieldsEntries = this.fields.entrySet();
-        Iterator<Map.Entry<String, Map<String, Integer>>> iterator = fieldsEntries.iterator();
-        while(iterator.hasNext()){
-            Map.Entry<String, Map<String, Integer>> entry = iterator.next();
-            String field = entry.getKey();
-            if(!field.equals("InstanceUID")) {
-                //The following logic is required to normalize the 2 list of values since we cannot
-                //assume any ordering of values for a particular key.
-                Map<String, Integer> thisFieldValues = entry.getValue();
-                Map<String, Integer> otherFieldValues = other.fields.get(entry.getKey());
-                if(otherFieldValues == null){
-                    return false;
-                }
-                result &= thisFieldValues.equals(otherFieldValues);
+    public static class DOMNodeElementTuple {
+        private final String localName;
+        private final String prefix;
+
+        private DOMNodeElementTuple(String prefix, String localName){
+            this.prefix = prefix;
+            this.localName = localName;
+        }
+
+        /**
+         * A getter for the local name property of the fully qualified DOMNode element
+         * @return string representing the local name property of a DOMNode element
+         */
+        public String getLocalName(){
+            return this.localName;
+        }
+
+        /**
+         * A getter for the prefix property of the fully qualified DOMNode element
+         * @return string representing the prefix property of a DOMNode element
+         */
+        public String getPrefix(){
+            return this.prefix;
+        }
+
+        /**
+         * Overriding the equals method of Object to provide a specific implementation for this class
+         * @param other the object to compared with
+         * @return a boolean result of the comparison, false if the passed in object is null or not
+         * of DOMNodeElementTuple type, or if the local name and prefix are not equal to this object.
+         */
+        @Override
+        public boolean equals(Object other){
+            if(other == null
+                    || !(this.getClass().isAssignableFrom(other.getClass()))){
+                return false;
             }
+            return this.localName.equals(DOMNodeElementTuple.class.cast(other).getLocalName())
+                    && this.prefix.equals((DOMNodeElementTuple.class.cast(other).getPrefix());
         }
-
-        if(this.childrenDOMNodes.size() != other.childrenDOMNodes.size()){
-            return false;
-        }
-
-        boolean intermediateResult = true;
-        for(Map.Entry<DOMNodeObjectModel, Integer> childEntry : this.childrenDOMNodes.entrySet()){
-            boolean areChildNodesEquivalent = false;
-            for(Map.Entry<DOMNodeObjectModel, Integer> otherChildEntry : other.childrenDOMNodes.entrySet()){
-                areChildNodesEquivalent |= (
-                        childEntry.getKey().equivalent(otherChildEntry.getKey()) &&
-                                (childEntry.getValue().equals(otherChildEntry.getValue())));
-            }
-            intermediateResult &= areChildNodesEquivalent;
-        }
-        result &= intermediateResult;
-
-        return result;
     }
 
     /**
