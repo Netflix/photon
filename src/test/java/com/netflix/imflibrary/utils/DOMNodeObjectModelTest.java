@@ -21,7 +21,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A set of tests for DOMNodeObjectModel
@@ -97,10 +99,12 @@ public class DOMNodeObjectModelTest {
         domNodeObjectModels.addAll(setUp(inputFile1));
         domNodeObjectModels.addAll(setUp(inputFile2));
 
-        DOMNodeObjectModel curr = domNodeObjectModels.get(0);
+        Set<String> ignoreSet = new HashSet<>();
+        ignoreSet.add("InstanceUID");
+        DOMNodeObjectModel curr = domNodeObjectModels.get(0).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(0), ignoreSet);
         boolean result = true;
         for(int i=1; i<domNodeObjectModels.size(); i++){
-            result &= curr.equivalent(domNodeObjectModels.get(i));
+            result &= curr.equals(domNodeObjectModels.get(i).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(i), ignoreSet));
         }
         Assert.assertTrue(result == false);
     }
@@ -113,10 +117,12 @@ public class DOMNodeObjectModelTest {
         domNodeObjectModels.addAll(setUp(inputFile1));
         domNodeObjectModels.addAll(setUp(inputFile1));
 
-        DOMNodeObjectModel curr = domNodeObjectModels.get(0);
+        Set<String> ignoreSet = new HashSet<>();
+        ignoreSet.add("InstanceUID");
+        DOMNodeObjectModel curr = domNodeObjectModels.get(0).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(0), ignoreSet);
         boolean result = true;
         for(int i=1; i<domNodeObjectModels.size(); i++){
-            result &= curr.equivalent(domNodeObjectModels.get(i));
+            result &= curr.equals(domNodeObjectModels.get(i).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(i), ignoreSet));
         }
         Assert.assertTrue(result == true);
     }

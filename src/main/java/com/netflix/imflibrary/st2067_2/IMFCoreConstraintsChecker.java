@@ -74,12 +74,16 @@ final class IMFCoreConstraintsChecker {
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s doesn't seem to refer to a single EssenceDescriptor in the CPL's EssenceDescriptorList", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
+                Set<String> ignoreSet = new HashSet<>();
+                ignoreSet.add("InstanceUID");
+                ignoreSet.add("EssenceLength");
                 boolean isVirtualTrackHomogeneous = true;
-                DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0);
+                DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
                 for(int i=1; i<virtualTrackEssenceDescriptors.size(); i++){
-                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equivalent(virtualTrackEssenceDescriptors.get(i));
+                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet));
                 }
                 if(!isVirtualTrackHomogeneous) {
+                    imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }

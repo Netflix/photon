@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,18 +45,22 @@ public class DOMNodeObjectModel {
     /*List of child ElementDOMNodes*/
     private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
-    private final Map<String, Map<String, Integer>> fields = new HashMap<>();
+    private final Map<DOMNodeElementTuple, Map<String, Integer>> fields = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
-    private final IMFErrorLogger imfErrorLogger;
-
+    private final IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
     /**
      * A constructor for the object model of a DOM Node.
      * @param node the DOM Node whose object model is desired.
      */
-    public DOMNodeObjectModel(Node node){
-        imfErrorLogger = new IMFErrorLoggerImpl();
+    public DOMNodeObjectModel(@Nonnull Node node){
         this.nodeType = node.getNodeType();
         this.localName = node.getLocalName();
+        if(this.localName == null){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
+                            .IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("DOM Node Local Name is not set for a node of type %d", node.getNodeType()));
+            return;
+        }
         Node child = node.getFirstChild();
         switch(child.getNodeType()){
             case Node.ELEMENT_NODE:
@@ -63,10 +68,11 @@ public class DOMNodeObjectModel {
                     Node grandChild = child.getFirstChild();
                     if (grandChild != null){
                         if(grandChild.getNodeType() == Node.TEXT_NODE) {
-                            Map<String, Integer> values = fields.get(child.getLocalName());
+                            DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(child.getNamespaceURI(), child.getLocalName());
+                            Map<String, Integer> values = fields.get(domNodeElementTuple);
                             if (values == null) {
                                 values = new HashMap<String, Integer>();
-                                fields.put(child.getLocalName(), values);
+                                fields.put(domNodeElementTuple, values);
                             }
                             Integer count = 0;
                             if(values.containsKey(child.getFirstChild().getNodeValue())) {
@@ -81,6 +87,7 @@ public class DOMNodeObjectModel {
                                 count = childrenDOMNodes.get(domNode);
                             }
                             childrenDOMNodes.put(domNode, count+1);
+                            imfErrorLogger.addAllErrors(domNode.getErrors());
                         }
                     }
                     child = child.getNextSibling();
@@ -96,6 +103,44 @@ public class DOMNodeObjectModel {
                         message);
                 throw new IMFException(message, imfErrorLogger);
         }
+    }
+
+    private DOMNodeObjectModel(String localName, short nodeType, Map<DOMNodeObjectModel, Integer> childrenDOMNodes, Map<DOMNodeElementTuple, Map<String, Integer>> fields){
+        this.localName = localName;
+        this.nodeType = nodeType;
+        this.childrenDOMNodes.putAll(childrenDOMNodes);
+        this.fields.putAll(fields);
+    }
+
+    /**
+     * A static factory method that will create a DOMNodeObjectModel without the fields that were set to be ignored
+     * @param domNodeObjectModel a DOMNodeObjectModel object to derive the statically constructed model from
+     * @param ignoreSet a non-null, empty or non-empty set of strings representing the local names of the DOM Node elements
+     *                  that should be excluded in from the newly minted DOMNodeObjectModel
+     * @return a DOMNodeObjectModel that excludes the elements indicated in the ignore set.
+     */
+    public static DOMNodeObjectModel createDOMNodeObjectModelIgnoreSet(DOMNodeObjectModel domNodeObjectModel, @Nonnull Set<String> ignoreSet){
+
+        Set<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> entries = domNodeObjectModel.getFields().entrySet();
+        Iterator<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> iterator = entries.iterator();
+        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
+
+        while(iterator.hasNext()){
+            Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry = iterator.next();
+            if(!ignoreSet.contains(entry.getKey().getLocalName())){
+                thisFields.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
+        Set<Map.Entry<DOMNodeObjectModel, Integer>> childEntries = childrenDOMNodes.entrySet();
+        Iterator<Map.Entry<DOMNodeObjectModel, Integer>> childEntriesIterator = childEntries.iterator();
+        while(iterator.hasNext()){
+            Map.Entry<DOMNodeObjectModel, Integer> entry = childEntriesIterator.next();
+            DOMNodeObjectModel child = entry.getKey().createDOMNodeObjectModelIgnoreSet(entry.getKey(), ignoreSet);
+            childrenDOMNodes.put(child, entry.getValue());
+        }
+        return new DOMNodeObjectModel(domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields));
     }
 
     /**
@@ -118,8 +163,25 @@ public class DOMNodeObjectModel {
      * A getter for the Fields represented in the DOMNodeObjectModel
      * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
      */
-    public Map<String, Map<String, Integer>> getFields(){
+    public Map<DOMNodeElementTuple, Map<String, Integer>> getFields(){
         return Collections.unmodifiableMap(this.fields);
+    }
+
+    /**
+     * A getter for the Fields represented in the DOMNodeObjectModel
+     * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
+     */
+    public Map<DOMNodeObjectModel, Integer> getChildrenDOMNodes(){
+        return Collections.unmodifiableMap(this.childrenDOMNodes);
+    }
+
+
+    /**
+     * A getter for the list of errors that occurred while constructing this DOMNodeObjectModel
+     * @return an unmodifiable list of Errors
+     */
+    public List<ErrorLogger.ErrorObject> getErrors(){
+        return imfErrorLogger.getErrors();
     }
 
     /**
@@ -144,7 +206,7 @@ public class DOMNodeObjectModel {
             this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
             return true;
         }
-
+        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Node %s is not equal to Node %s", this.toString(), otherDOMNodeObjectModel.toString()));
         return false;
     }
 
@@ -162,47 +224,65 @@ public class DOMNodeObjectModel {
         return hash;
     }
 
-
     /**
-     * A method that will determine if 2 DOMNodeObjectModel objects are equivalent, i.e. the fields are same and have the same value
-     * @return a boolean representing the equivalence check
+     * A thin class modeling a DOM Node Element Key
      */
-    public boolean equivalent(DOMNodeObjectModel other){
-        boolean result = true;
-        Set<Map.Entry<String, Map<String, Integer>>> fieldsEntries = this.fields.entrySet();
-        Iterator<Map.Entry<String, Map<String, Integer>>> iterator = fieldsEntries.iterator();
-        while(iterator.hasNext()){
-            Map.Entry<String, Map<String, Integer>> entry = iterator.next();
-            String field = entry.getKey();
-            if(!field.equals("InstanceUID")) {
-                //The following logic is required to normalize the 2 list of values since we cannot
-                //assume any ordering of values for a particular key.
-                Map<String, Integer> thisFieldValues = entry.getValue();
-                Map<String, Integer> otherFieldValues = other.fields.get(entry.getKey());
-                if(otherFieldValues == null){
-                    return false;
-                }
-                result &= thisFieldValues.equals(otherFieldValues);
+    public static class DOMNodeElementTuple {
+        private final String localName;
+        private final String namespaceURI;
+
+        private DOMNodeElementTuple(@Nonnull String namespaceURI, @Nonnull String localName){
+            this.namespaceURI = namespaceURI;
+            this.localName = localName;
+        }
+
+        /**
+         * A getter for the local name property of the fully qualified DOMNode element
+         * @return string representing the local name property of a DOMNode element
+         */
+        public String getLocalName(){
+            return this.localName;
+        }
+
+        /**
+         * A getter for the namespaceURI property of the fully qualified DOMNode element
+         * @return string representing the namespaceURI property of a DOMNode element
+         */
+        public String getNamespaceURI(){
+            return this.namespaceURI;
+        }
+
+        /**
+         * Overriding the equals method of Object to provide a specific implementation for this class
+         * @param other the object to compared with
+         * @return a boolean result of the comparison, false if the passed in object is null or not
+         * of DOMNodeElementTuple type, or if the local name and namespaceURI are not equal to this object.
+         */
+        @Override
+        public boolean equals(Object other){
+            if(other == null
+                || other.getClass() != this.getClass()){
+                return false;
             }
+            DOMNodeElementTuple otherDOMNodeElementTuple = DOMNodeElementTuple.class.cast(other);
+            boolean result = true;
+            result &= this.localName.equals(otherDOMNodeElementTuple.getLocalName());
+            result &= this.namespaceURI.equals(otherDOMNodeElementTuple.getNamespaceURI());
+            return result;
         }
 
-        if(this.childrenDOMNodes.size() != other.childrenDOMNodes.size()){
-            return false;
+        /**
+         * A Java compliant implementation of the hashCode() method
+         * @return integer containing the hash code corresponding to this object
+         */
+        @Override
+        public int hashCode(){
+            int hash = 1;
+            hash = hash * 31 + this.localName.hashCode(); /*LocalName can be used since it is non-null*/
+            hash = hash * 31
+                    + this.namespaceURI.hashCode();/*Another field that is indicated to be non-null*/
+            return hash;
         }
-
-        boolean intermediateResult = true;
-        for(Map.Entry<DOMNodeObjectModel, Integer> childEntry : this.childrenDOMNodes.entrySet()){
-            boolean areChildNodesEquivalent = false;
-            for(Map.Entry<DOMNodeObjectModel, Integer> otherChildEntry : other.childrenDOMNodes.entrySet()){
-                areChildNodesEquivalent |= (
-                        childEntry.getKey().equivalent(otherChildEntry.getKey()) &&
-                                (childEntry.getValue().equals(otherChildEntry.getValue())));
-            }
-            intermediateResult &= areChildNodesEquivalent;
-        }
-        result &= intermediateResult;
-
-        return result;
     }
 
     /**
