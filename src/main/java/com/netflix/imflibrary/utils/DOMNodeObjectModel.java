@@ -68,12 +68,10 @@ public class DOMNodeObjectModel {
                     Node grandChild = child.getFirstChild();
                     if (grandChild != null){
                         if(grandChild.getNodeType() == Node.TEXT_NODE) {
-                            Map<String, Integer> values = fields.get(new DOMNodeElementTuple(child.getPrefix(), child.getLocalName()));
+                            DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(child.getPrefix(), child.getLocalName());
+                            Map<String, Integer> values = fields.get(domNodeElementTuple);
                             if (values == null) {
                                 values = new HashMap<String, Integer>();
-                                String prefix = child.getPrefix();
-                                String localName = child.getLocalName();
-                                DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(prefix, localName);
                                 fields.put(domNodeElementTuple, values);
                             }
                             Integer count = 0;

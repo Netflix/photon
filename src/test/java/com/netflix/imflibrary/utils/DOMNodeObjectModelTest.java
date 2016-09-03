@@ -99,12 +99,12 @@ public class DOMNodeObjectModelTest {
         domNodeObjectModels.addAll(setUp(inputFile1));
         domNodeObjectModels.addAll(setUp(inputFile2));
 
-        DOMNodeObjectModel curr = domNodeObjectModels.get(0);
-        boolean result = true;
         Set<String> ignoreSet = new HashSet<>();
         ignoreSet.add("InstanceUID");
+        DOMNodeObjectModel curr = domNodeObjectModels.get(0).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(0), ignoreSet);
+        boolean result = true;
         for(int i=1; i<domNodeObjectModels.size(); i++){
-            result &= curr.equivalent(domNodeObjectModels.get(i), ignoreSet);
+            result &= curr.equals(domNodeObjectModels.get(i).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(i), ignoreSet));
         }
         Assert.assertTrue(result == false);
     }
@@ -117,12 +117,12 @@ public class DOMNodeObjectModelTest {
         domNodeObjectModels.addAll(setUp(inputFile1));
         domNodeObjectModels.addAll(setUp(inputFile1));
 
-        DOMNodeObjectModel curr = domNodeObjectModels.get(0);
-        boolean result = true;
         Set<String> ignoreSet = new HashSet<>();
         ignoreSet.add("InstanceUID");
+        DOMNodeObjectModel curr = domNodeObjectModels.get(0).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(0), ignoreSet);
+        boolean result = true;
         for(int i=1; i<domNodeObjectModels.size(); i++){
-            result &= curr.equivalent(domNodeObjectModels.get(i), ignoreSet);
+            result &= curr.equals(domNodeObjectModels.get(i).createDOMNodeObjectModelIgnoreSet(domNodeObjectModels.get(i), ignoreSet));
         }
         Assert.assertTrue(result == true);
     }
