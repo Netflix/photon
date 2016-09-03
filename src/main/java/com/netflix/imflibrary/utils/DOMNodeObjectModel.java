@@ -206,7 +206,7 @@ public class DOMNodeObjectModel {
             this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
             return true;
         }
-
+        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Node %s is not equal to Node %s", this.toString(), otherDOMNodeObjectModel.toString()));
         return false;
     }
 
