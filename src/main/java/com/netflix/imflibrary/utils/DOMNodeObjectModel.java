@@ -68,7 +68,7 @@ public class DOMNodeObjectModel {
                     Node grandChild = child.getFirstChild();
                     if (grandChild != null){
                         if(grandChild.getNodeType() == Node.TEXT_NODE) {
-                            DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(child.getPrefix(), child.getLocalName());
+                            DOMNodeElementTuple domNodeElementTuple = new DOMNodeElementTuple(child.getNamespaceURI(), child.getLocalName());
                             Map<String, Integer> values = fields.get(domNodeElementTuple);
                             if (values == null) {
                                 values = new HashMap<String, Integer>();
@@ -229,10 +229,10 @@ public class DOMNodeObjectModel {
      */
     public static class DOMNodeElementTuple {
         private final String localName;
-        private final String prefix;
+        private final String namespaceURI;
 
-        private DOMNodeElementTuple(@Nonnull String prefix, @Nonnull String localName){
-            this.prefix = prefix;
+        private DOMNodeElementTuple(@Nonnull String namespaceURI, @Nonnull String localName){
+            this.namespaceURI = namespaceURI;
             this.localName = localName;
         }
 
@@ -245,18 +245,18 @@ public class DOMNodeObjectModel {
         }
 
         /**
-         * A getter for the prefix property of the fully qualified DOMNode element
-         * @return string representing the prefix property of a DOMNode element
+         * A getter for the namespaceURI property of the fully qualified DOMNode element
+         * @return string representing the namespaceURI property of a DOMNode element
          */
-        public String getPrefix(){
-            return this.prefix;
+        public String getNamespaceURI(){
+            return this.namespaceURI;
         }
 
         /**
          * Overriding the equals method of Object to provide a specific implementation for this class
          * @param other the object to compared with
          * @return a boolean result of the comparison, false if the passed in object is null or not
-         * of DOMNodeElementTuple type, or if the local name and prefix are not equal to this object.
+         * of DOMNodeElementTuple type, or if the local name and namespaceURI are not equal to this object.
          */
         @Override
         public boolean equals(Object other){
@@ -267,7 +267,7 @@ public class DOMNodeObjectModel {
             DOMNodeElementTuple otherDOMNodeElementTuple = DOMNodeElementTuple.class.cast(other);
             boolean result = true;
             result &= this.localName.equals(otherDOMNodeElementTuple.getLocalName());
-            result &= this.prefix.equals(otherDOMNodeElementTuple.getPrefix());
+            result &= this.namespaceURI.equals(otherDOMNodeElementTuple.getNamespaceURI());
             return result;
         }
 
@@ -280,7 +280,7 @@ public class DOMNodeObjectModel {
             int hash = 1;
             hash = hash * 31 + this.localName.hashCode(); /*LocalName can be used since it is non-null*/
             hash = hash * 31
-                    + this.prefix.hashCode();/*Another field that is indicated to be non-null*/
+                    + this.namespaceURI.hashCode();/*Another field that is indicated to be non-null*/
             return hash;
         }
     }
