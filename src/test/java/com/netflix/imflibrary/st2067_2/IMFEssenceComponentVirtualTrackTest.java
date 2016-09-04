@@ -16,7 +16,7 @@ public class IMFEssenceComponentVirtualTrackTest
     public void testEssenceComponentVirtualTrack_2013() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
-        Composition composition = new Composition(inputFile, new IMFErrorLoggerImpl());
+        Composition composition = new Composition(inputFile);
         Assert.assertTrue(Composition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(composition.toString().length() > 0);
         Assert.assertEquals(composition.getEditRate().getNumerator().longValue(), 24000);
@@ -34,8 +34,8 @@ public class IMFEssenceComponentVirtualTrackTest
     public void testEssenceComponentVirtualTrackEquivalent_2013() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
-        Composition composition1 = new Composition(inputFile, new IMFErrorLoggerImpl());
-        Composition composition2 = new Composition(inputFile, new IMFErrorLoggerImpl());
+        Composition composition1 = new Composition(inputFile);
+        Composition composition2 = new Composition(inputFile);
 
 
         IMFEssenceComponentVirtualTrack virtualTrack1 = composition1.getVideoVirtualTrack();
@@ -48,7 +48,7 @@ public class IMFEssenceComponentVirtualTrackTest
     public void testEssenceComponentVirtualTrack_2016() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
-        Composition composition = new Composition(inputFile, new IMFErrorLoggerImpl());
+        Composition composition = new Composition(inputFile);
         Assert.assertTrue(Composition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(composition.toString().length() > 0);
         Assert.assertEquals(composition.getEditRate().getNumerator().longValue(), 24000);
@@ -76,8 +76,8 @@ public class IMFEssenceComponentVirtualTrackTest
     public void testEssenceComponentVirtualTrackEquivalent_2016() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
-        Composition composition1 = new Composition(inputFile, new IMFErrorLoggerImpl());
-        Composition composition2 = new Composition(inputFile, new IMFErrorLoggerImpl());
+        Composition composition1 = new Composition(inputFile);
+        Composition composition2 = new Composition(inputFile);
 
 
         IMFEssenceComponentVirtualTrack virtualTrack1 = composition1.getVideoVirtualTrack();
@@ -92,7 +92,7 @@ public class IMFEssenceComponentVirtualTrackTest
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_zero_resource_duration_track_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         IMFErrorLoggerImpl errorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(inputFile, errorLogger);
+        Composition composition = new Composition(inputFile);
         Assert.assertTrue(Composition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(composition.toString().length() > 0);
         Assert.assertEquals(composition.getEditRate().getNumerator().longValue(), 24000);

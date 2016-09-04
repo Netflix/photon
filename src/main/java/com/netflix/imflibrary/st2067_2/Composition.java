@@ -127,11 +127,9 @@ public final class Composition {
      * Constructor for a {@link Composition Composition} object from a XML file
      *
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
-     * @param imfErrorLogger             A non-nullable error logger for recording all errors. Construction is failed by throwing a {@link RuntimeException RuntimeException}
-     *                                   if any {@link com.netflix.imflibrary.IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
      * @throws IOException        any I/O related error is exposed through an IOException
      */
-    public Composition(File compositionPlaylistXMLFile, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public Composition(File compositionPlaylistXMLFile) throws IOException {
         this(new FileByteRangeProvider(compositionPlaylistXMLFile));
     }
 
@@ -1512,6 +1510,7 @@ public final class Composition {
 
                 for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
                     intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
+                    imfErrorLogger.addAllErrors(referenceDOMNodeObjectModel.getErrors());
                 }
                 if (!intermediateResult) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL doesn't match any EssenceDescriptors within the IMFTrackFile that references it", entry.getKey().toString()));
