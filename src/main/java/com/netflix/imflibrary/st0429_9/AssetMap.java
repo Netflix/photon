@@ -438,12 +438,18 @@ public final class AssetMap
         {
             this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(uuid);
             this.isPackingList = isPackingList;
-            if(path.matches("^[a-zA-Z0-9._-]+") == true) {
-                this.path = new URI(path);
+            String[] pathSegments = path.split("/");
+            List<String> invalidPathSegments = new ArrayList<>();
+            for(String pathSegment : pathSegments) {
+                if (pathSegment.matches("^[a-zA-Z0-9._-]+") == false) {
+                    invalidPathSegments.add(pathSegment);
+                }
             }
-            else{
-                throw new URISyntaxException(path, String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -)", path));
+            if(invalidPathSegments.size() > 0){
+                throw new URISyntaxException(path,
+                        String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -) for a path segment, the following path segments do not comply %s", path, Utilities.serializeObjectCollectionToString(invalidPathSegments)));
             }
+            this.path = new URI(path);
         }
 
         /**

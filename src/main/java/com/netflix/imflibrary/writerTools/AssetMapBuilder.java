@@ -23,6 +23,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.xml.sax.SAXException;
@@ -228,12 +229,18 @@ public class AssetMapBuilder {
          * @throws URISyntaxException - any errors with the path of the Chunk is exposed through a URISyntaxException
          */
         public Chunk(String path, Long length) throws URISyntaxException {
-            if(path.matches("^[a-zA-Z0-9._-]+") == true) {
-                this.path = path;
+            String[] pathSegments = path.split("/");
+            List<String> invalidPathSegments = new ArrayList<>();
+            for(String pathSegment : pathSegments) {
+                if (pathSegment.matches("^[a-zA-Z0-9._-]+") == false) {
+                    invalidPathSegments.add(pathSegment);
+                }
             }
-            else{
-                throw new URISyntaxException(path, String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -)", path));
+            if(invalidPathSegments.size() > 0){
+                throw new URISyntaxException(path,
+                        String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -) for a path segment, the following path segments do not comply %s", path, Utilities.serializeObjectCollectionToString(invalidPathSegments)));
             }
+            this.path = path;
             this.length = BigInteger.valueOf(length);
         }
 
