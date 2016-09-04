@@ -225,7 +225,7 @@ public class DOMNodeObjectModel {
     public boolean equals(Object other){
 
         if(other == null
-                || !other.getClass().isAssignableFrom(this.getClass())){
+                || this.getClass() != other.getClass()){
             return false;
         }
 
@@ -266,13 +266,12 @@ public class DOMNodeObjectModel {
             }
         }
 
-        if(this.localName.equals(otherDOMNodeObjectModel.localName) &&
-            this.nodeType.equals(otherDOMNodeObjectModel.nodeType) &&
+        if(this.nodeType.equals(otherDOMNodeObjectModel.nodeType) &&
             this.fields.equals(otherDOMNodeObjectModel.fields) &&
             this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
             return true;
         }
-        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Node %s is not equal to Node %s", this.toString(), otherDOMNodeObjectModel.toString()));
+        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Node represented by Local Name %s is not equal to Node represented by Local Name %s", this.getLocalName(), otherDOMNodeObjectModel.getLocalName()));
         return false;
     }
 

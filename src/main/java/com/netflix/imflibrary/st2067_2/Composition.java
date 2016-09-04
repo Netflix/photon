@@ -1510,7 +1510,6 @@ public final class Composition {
 
                 for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
                     intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
-                    imfErrorLogger.addAllErrors(referenceDOMNodeObjectModel.getErrors());
                 }
                 if (!intermediateResult) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EDL doesn't match any EssenceDescriptors within the IMFTrackFile that references it", entry.getKey().toString()));

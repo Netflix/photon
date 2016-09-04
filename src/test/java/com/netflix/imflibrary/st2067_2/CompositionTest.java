@@ -49,14 +49,7 @@ public class CompositionTest
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        try {
-            Composition composition = new Composition(inputFile);
-        }
-        catch (IMFException e){
-            List<ErrorLogger.ErrorObject> errors = e.getErrors();
-            Assert.assertTrue(errors .size() == 1);
-            Assert.assertTrue(errors.get(0).toString().contains("is not homogeneous"));
-        }
+        Composition composition = new Composition(inputFile);
         Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
     }
 
@@ -65,16 +58,9 @@ public class CompositionTest
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_InconsistentNamespaceURI.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        try {
-            Composition composition = new Composition(inputFile);
-            imfErrorLogger.addAllErrors(composition.getErrors());
-        }
-        catch (IMFException e){
-            List<ErrorLogger.ErrorObject> errors = e.getErrors();
-            Assert.assertTrue(errors .size() == 1);
-            Assert.assertTrue(errors.get(0).toString().contains("is not homogeneous"));
-        }
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
+        Composition composition = new Composition(inputFile);
+        imfErrorLogger.addAllErrors(composition.getErrors());
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 9);
     }
 
     @Test
