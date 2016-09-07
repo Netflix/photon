@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nullable;
@@ -184,7 +185,8 @@ final class IMFCoreConstraintsChecker {
             Set<UUID> trackIDs = new HashSet<>();
 
             /* TODO: Add check for Marker sequence */
-
+            Set<Long> sequencesDurationSet = new HashSet<>();
+            double compositionEditRate = (double)compositionPlaylistType.getEditRate().getNumerator()/compositionPlaylistType.getEditRate().getDenominator();
             for (IMFSequenceType sequence : segment.getSequenceList())
             {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
@@ -197,13 +199,28 @@ final class IMFCoreConstraintsChecker {
                             segment.getId(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
+                List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
+                Long sequenceDurationInCompositionEditUnits = 0L;
+                Double sequenceDuration = 0.0;
+                for(IMFBaseResourceType imfBaseResourceType : resources){
+                    double resourceEditRate = (double)imfBaseResourceType.getEditRate().getNumerator()/imfBaseResourceType.getEditRate().getDenominator();
+                    sequenceDuration += (double)(imfBaseResourceType.getDuration() * compositionEditRate)/resourceEditRate;
+                }
+                sequenceDurationInCompositionEditUnits = Math.round(sequenceDuration);
+                sequencesDurationSet.add(sequenceDurationInCompositionEditUnits);
+
+            }
+            //Section 7.3 st2067-3:2016
+            if(sequencesDurationSet.size() > 1){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment %s", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
             }
 
             if (trackIDs.size() != virtualTrackMap.size())
             {
                 String message = String.format(
                         "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), virtualTrackMap.size());
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, message);
             }
 
         }
