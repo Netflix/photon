@@ -65,27 +65,95 @@ final class IMFCoreConstraintsChecker {
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
             {
                 List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
+                String refSourceEncodingElement = "";
+                String essenceDescriptorField = "";
+                String otherEssenceDescriptorField = "";
+                Composition.EditRate essenceEditRate = null;
                 for(IMFBaseResourceType imfBaseResourceType : virtualTrackResourceList){
+
                     IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
                     DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
-                    virtualTrackEssenceDescriptors.add(domNodeObjectModel);
+                    if(domNodeObjectModel == null){
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList that should be represented by the ID %s" +
+                                                ", however the EssenceDescriptorList does not contain any Essence Descriptors with this ID"
+                                        , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding()));
+                    }
+                    else {
+
+                        if (!refSourceEncodingElement.equals(imfTrackFileResourceType.getSourceEncoding())) {
+                            refSourceEncodingElement = imfTrackFileResourceType.getSourceEncoding();
+                            //Section 6.3.1 st2067-2:2016 Edit Rate check
+                            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                                essenceDescriptorField = "SampleRate";
+                            } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)) {
+                                essenceDescriptorField = "SampleRate";
+                                otherEssenceDescriptorField = "AudioSampleRate";
+                            }
+                            Map<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>> fields = domNodeObjectModel.getFields();
+                            Iterator<Map.Entry<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>>> entryIterator = fields.entrySet().iterator();
+                            while (entryIterator.hasNext()) {
+                                Map.Entry<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>> entry = entryIterator.next();
+                                if (entry.getKey().getLocalName().equals(essenceDescriptorField)
+                                        || entry.getKey().getLocalName().equals(otherEssenceDescriptorField)) {
+                                    if (entry.getValue().size() > 1) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s" +
+                                                                " with more than 1 value for the %s field"
+                                                        , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField));
+                                    } else {
+                                        String sampleRate = entry.getValue().keySet().iterator().next();
+                                        Long numerator = 0L;
+                                        Long denominator = 0L;
+                                        String[] sampleRateElements = (sampleRate.contains(" ")) ? sampleRate.split(" ") : sampleRate.contains("/") ? sampleRate.split("/") : new String[2];
+                                        if (sampleRateElements.length == 2) {
+                                            numerator = Long.valueOf(sampleRateElements[0]);
+                                            denominator = Long.valueOf(sampleRateElements[1]);
+                                        } else if (sampleRateElements.length == 1) {
+                                            numerator = Long.valueOf(sampleRateElements[0]);
+                                            denominator = 1L;
+                                        }
+                                        List<Long> editRate = new ArrayList<>();
+                                        editRate.add(numerator);
+                                        editRate.add(denominator);
+                                        essenceEditRate = new Composition.EditRate(editRate);
+                                    }
+                                }
+                            }
+                        }
+                        if (essenceEditRate == null) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that seems to refer to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
+                                                    "which does not have a value set for the field %s, however the Resource Edit Rate is %s"
+                                            , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
+                        } else if (!essenceEditRate.equals(imfBaseResourceType.getEditRate())) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
+                                                    "whose indicated %s value is %s, however the Resource Edit Rate is %s"
+                                            , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
+                        }
+                        virtualTrackEssenceDescriptors.add(domNodeObjectModel);
+                    }
                 }
 
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s doesn't seem to refer to a single EssenceDescriptor in the CPL's EssenceDescriptorList", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
-                }
-                Set<String> ignoreSet = new HashSet<>();
-                ignoreSet.add("InstanceUID");
-                ignoreSet.add("EssenceLength");
-                boolean isVirtualTrackHomogeneous = true;
-                DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
-                for(int i=1; i<virtualTrackEssenceDescriptors.size(); i++){
-                    isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet));
-                }
-                if(!isVirtualTrackHomogeneous) {
-                    imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                            String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                }
+                else {
+                    Set<String> ignoreSet = new HashSet<>();
+                    ignoreSet.add("InstanceUID");
+                    ignoreSet.add("EssenceLength");
+                    boolean isVirtualTrackHomogeneous = true;
+                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
+                    for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
+                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet));
+                    }
+                    if (!isVirtualTrackHomogeneous) {
+                        imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                    }
                 }
             }
         }
