@@ -867,6 +867,7 @@ public final class Composition {
                     return KaraokeSequence;
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
+                case "UnsupportedSequence":
                 default:
                     return UnsupportedSequence;
             }

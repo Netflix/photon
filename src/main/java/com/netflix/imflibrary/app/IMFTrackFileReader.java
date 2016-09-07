@@ -486,31 +486,16 @@ final class IMFTrackFileReader
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     HeaderPartition.EssenceTypeEnum getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
-        String result = "";
-        HeaderPartition.EssenceTypeEnum essenceType = HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
         Set<HeaderPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
-        if(essenceTypes.size() > 1){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("IMFTrack file seems to have multiple essences %s only 1 is allowed per IMF Core Constraints", Utilities.serializeObjectCollectionToString(essenceTypes)));
-        }
-
 
         if(essenceTypes.size() == 0){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("IMFTrackFileReader did not detect any essence type in the track file"));
-            return HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
-        }
-        else if(essenceTypes.size() == 1){
-            if(!supportedEssenceComponentTypes.contains(essenceTypes.get(0))) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("The track file seems to contain an essence of type %s, IMFTrackFileReader supports essences of type %n%s ",
-                                Utilities.serializeObjectCollectionToString(essenceTypes), Utilities.serializeObjectCollectionToString(supportedEssenceComponentTypes)));
-            }
         }
         else{
             for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
@@ -521,12 +506,19 @@ final class IMFTrackFileReader
 
         }
 
-        if(supportedEssenceTypesFound.size() > 1){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("IMFTrack file seems to have multiple supported essence component types %s only 1 is allowed per IMF Core Constraints, returning the first supported EssenceType", Utilities.serializeObjectCollectionToString(supportedEssenceTypesFound)));
+        if(supportedEssenceTypesFound.size() > 0) {
+            if (supportedEssenceTypesFound.size() > 1) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("IMFTrack file seems to have multiple supported essence component types %s only 1 is allowed per IMF Core Constraints, returning the first supported EssenceType", Utilities.serializeObjectCollectionToString(supportedEssenceTypesFound)));
+            }
             return supportedEssenceTypesFound.get(0);
         }
-        return essenceType;
+        else {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("IMFTrack file does not seem to have a supported essence component types, essence types supported %s, essence types found %s"
+                            , Utilities.serializeObjectCollectionToString(supportedEssenceComponentTypes), Utilities.serializeObjectCollectionToString(essenceTypes)));
+            return HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
+        }
     }
 
     /**
