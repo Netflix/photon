@@ -65,7 +65,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
  */

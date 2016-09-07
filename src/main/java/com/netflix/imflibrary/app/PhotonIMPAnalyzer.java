@@ -32,14 +32,16 @@ import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
 /**
  * Created by svenkatrav on 9/2/16.
  */
-public class PhotonAnalyzer {
+public class PhotonIMPAnalyzer {
 
-    private static final Logger logger = LoggerFactory.getLogger(PhotonAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhotonIMPAnalyzer.class);
 
-    private static Set<UUID> getTrackFileIds(List<PayloadRecord> headerPartitionPayloadRecords) throws IOException {
+    private static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
+                                                                                headerPartitionPayloadRecords) throws
+            IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Set<UUID> trackFileIDsSet = new HashSet<>();
+        Map<UUID, PayloadRecord> trackFileIDMap = new HashMap<>();
 
         for (PayloadRecord payloadRecord : headerPartitionPayloadRecords) {
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
@@ -66,8 +68,7 @@ public class PhotonAnalyzer {
                 GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                 SourcePackage filePackage = (SourcePackage) genericPackage;
                 UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                trackFileIDsSet.add(packageUUID);
-                trackFileIDsSet.add(packageUUID);
+                trackFileIDMap.put(packageUUID, payloadRecord);
             } catch (IMFException e) {
                 imfErrorLogger.addAllErrors(e.getErrors());
             } catch (MXFException e) {
@@ -76,10 +77,10 @@ public class PhotonAnalyzer {
         }
 
         if (imfErrorLogger.hasFatalErrors()) {
-            return new HashSet<>();
+            return new HashMap<>();
         }
 
-        return Collections.unmodifiableSet(trackFileIDsSet);
+        return Collections.unmodifiableMap(trackFileIDMap);
 
     }
 
@@ -185,25 +186,27 @@ public class PhotonAnalyzer {
 
                             if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
+                                UUID trackFileID = null;
 
-                                PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
-                                if(headerPartitionPayload == null) {
+                                PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
+                                if(headerPartitionPayloadRecord == null) {
                                     trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                                             String.format("Failed to get header partition for %s", assetFile.getPath()));
                                 }
                                 else {
                                     List<PayloadRecord> payloadRecords = new ArrayList<>();
-                                    payloadRecords.add(headerPartitionPayload);
+                                    payloadRecords.add(headerPartitionPayloadRecord);
                                     trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
                                 }
                                 errorMap.put(assetFile.getName(), trackFileErrorLogger.getErrors());
                                 if (!trackFileErrorLogger.hasFatalErrors()) {
-                                    headerPartitionPayloadRecords.add(headerPartitionPayload);
+                                    headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
                                 }
                             }
                         }
 
-                        Set<UUID> trackFileIDsSet = getTrackFileIds(headerPartitionPayloadRecords);
+                        Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap =
+                                getTrackFileIdToHeaderPartitionPayLoadMap(headerPartitionPayloadRecords);
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
                             File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
@@ -218,12 +221,26 @@ public class PhotonAnalyzer {
                                 try {
                                     Composition composition = new Composition(resourceByteRangeProvider);
                                     compositionErrorLogger.addAllErrors(composition.getErrors());
-
+                                    Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
+                                            .keySet();
                                     if (!isCompositionComplete(composition, trackFileIDsSet)) {
-                                        compositionErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, headerPartitionPayloadRecords, false));
+                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
+                                                .IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "CPL " +
+                                                "does not have all the resources in the package");
                                         for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+                                            Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
+                                            List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
+                                            for(UUID trackFileId: trackFileIds) {
+                                                if(trackFileIDToHeaderPartitionPayLoadMap.containsKey(trackFileId))
+                                                trackHeaderPartitionPayloads.add
+                                                        (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
+                                            }
+
                                             if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
-                                                compositionErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, headerPartitionPayloadRecords));
+                                                compositionErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
+                                            }
+                                            else if(trackHeaderPartitionPayloads.size() != 0) {
+                                                compositionErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
                                             }
                                         }
                                     } else {
@@ -317,7 +334,11 @@ public class PhotonAnalyzer {
     private static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <inputFilePath>%n", PhotonAnalyzer.class.getName()));
+        sb.append(String.format("%s <package_directory>%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <cpl_file>%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <asset_map_file>%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <pkl_file>%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <mxf_file>%n", PhotonIMPAnalyzer.class.getName()));
         return sb.toString();
     }
 
@@ -353,7 +374,7 @@ public class PhotonAnalyzer {
         if (args.length != 1)
         {
             logger.error(usage());
-            throw new IllegalArgumentException("Invalid parameters");
+            System.exit(-1);
         }
 
         String inputFileName = args[0];
