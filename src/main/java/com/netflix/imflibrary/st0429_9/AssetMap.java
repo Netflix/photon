@@ -102,7 +102,7 @@ public final class AssetMap
      * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
      */
-    public AssetMap(File assetMapXmlFile) throws IOException, SAXException, JAXBException, URISyntaxException
+    public AssetMap(File assetMapXmlFile) throws IOException
     {
         this(getFileAsResourceByteRangeProvider(assetMapXmlFile));
     }

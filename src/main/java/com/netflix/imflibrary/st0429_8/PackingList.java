@@ -101,10 +101,8 @@ public final class PackingList
      * Constructor for a {@link com.netflix.imflibrary.st0429_8.PackingList PackingList} object that corresponds to a PackingList XML document
      * @param packingListXMLFile the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
-     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
-     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
      */
-    public PackingList(File packingListXMLFile) throws IOException, SAXException, JAXBException {
+    public PackingList(File packingListXMLFile) throws IOException {
         this(new FileByteRangeProvider(packingListXMLFile));
     }
 
@@ -372,6 +370,8 @@ public final class PackingList
      */
     public static final class Asset
     {
+        public static final String APPLICATION_MXF_TYPE = "application/mxf";
+        public static final String TEXT_XML_TYPE = "text/xml";
         private static final String DEFAULT_HASH_ALGORITHM = "http://www.w3.org/2000/09/xmldig#sha1";
 
         private final UUID uuid;
