@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * This class is an immutable implementation of the Mapped File Set concept defined in Section A.1 in Annex A of st0429-9:2014.
@@ -41,23 +43,26 @@ import java.net.URISyntaxException;
 public final class BasicMapProfileV2MappedFileSet
 {
 
-    private static final String ASSETMAP_FILE_NAME = "ASSETMAP.xml";
+    public static final String ASSETMAP_FILE_NAME = "ASSETMAP.xml";
     private final AssetMap assetMap;
     private final URI absoluteAssetMapURI;
+    private final IMFErrorLogger imfErrorLogger;
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @throws SAXException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
      * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
-     * @throws JAXBException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
-     * @throws URISyntaxException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
      */
-    public BasicMapProfileV2MappedFileSet(File rootFile) throws IOException, SAXException, JAXBException, URISyntaxException
+    public BasicMapProfileV2MappedFileSet(File rootFile) throws IOException
     {
+        imfErrorLogger = new IMFErrorLoggerImpl();
         if (!rootFile.isDirectory())
         {
-            throw new IMFException(String.format("Root file %s corresponding to the mapped file set is not a " +
-                    "directory", rootFile.getAbsolutePath()));
+            String message = String.format("Root file %s corresponding to the mapped file set is not a " +
+                    "directory", rootFile.getAbsolutePath());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL,
+                    message);
+            throw new IMFException(message, imfErrorLogger);
         }
 
         FilenameFilter filenameFilter = new FilenameFilter()
@@ -72,9 +77,13 @@ public final class BasicMapProfileV2MappedFileSet
         File[] files = rootFile.listFiles(filenameFilter);
         if ((files == null) || (files.length != 1))
         {
-            throw new IMFException(String.format("Found %d files with name %s in mapped file set rooted at %s, " +
+            String message = String.format("Found %d files with name %s in mapped file set rooted at %s, " +
                     "exactly 1 is allowed", (files == null) ? 0 : files.length, BasicMapProfileV2MappedFileSet
-                    .ASSETMAP_FILE_NAME, rootFile.getAbsolutePath()));
+                    .ASSETMAP_FILE_NAME, rootFile.getAbsolutePath());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
+                            .ErrorLevels.FATAL,
+                    message);
+            throw new IMFException(message, imfErrorLogger);
         }
 
         this.assetMap = new AssetMap(files[0]);
@@ -99,5 +108,14 @@ public final class BasicMapProfileV2MappedFileSet
     public URI getAbsoluteAssetMapURI()
     {
         return this.absoluteAssetMapURI;
+    }
+
+    /**
+     * Getter for the errors in Composition
+     *
+     * @return List of errors in Composition.
+     */
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
     }
 }

@@ -572,6 +572,26 @@ public final class Composition {
     }
 
     /**
+     * Getter for the essence VirtualTracks in this Composition
+     *
+     * @return a list of essence virtual tracks that are a part of this composition or an empty list if there are none
+     * track
+     */
+    @Nullable
+    public List<IMFEssenceComponentVirtualTrack> getEssenceVirtualTracks() {
+        List<IMFEssenceComponentVirtualTrack> essenceVirtualTracks = new ArrayList<>();
+        Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
+        while (iterator != null
+                && iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getResourceList().size() != 0 && virtualTrack.getResourceList().get(0) instanceof IMFTrackFileResourceType) {
+                essenceVirtualTracks.add(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack));
+            }
+        }
+        return Collections.unmodifiableList(essenceVirtualTracks);
+    }
+
+    /**
      * Getter for the video VirtualTrack in this Composition
      *
      * @return the video virtual track that is a part of this composition or null if there is not video virtual track
