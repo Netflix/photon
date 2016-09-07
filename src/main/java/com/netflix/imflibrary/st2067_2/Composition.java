@@ -833,7 +833,7 @@ public final class Composition {
         CommentarySequence("CommentarySequence"),
         KaraokeSequence("KaraokeSequence"),
         AncillaryDataSequence("AncillaryDataSequence"),
-        Unknown("Unknown");
+        UnsupportedSequence("UnsupportedSequence");
 
         private final String name;
 
@@ -868,7 +868,7 @@ public final class Composition {
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
                 default:
-                    return Unknown;
+                    return UnsupportedSequence;
             }
         }
 

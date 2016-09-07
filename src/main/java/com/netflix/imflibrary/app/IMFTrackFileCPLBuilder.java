@@ -20,6 +20,7 @@ package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.sandflow.smpte.klv.Triplet;
@@ -131,7 +132,7 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.getContentTitle().setValue(name);
         this.cplRoot.getContentTitle().setLanguage("en");
         /*Content Kind*/
-        String essenceType = this.imfTrackFileReader.getEssenceType(imfErrorLogger);
+        String essenceType = this.imfTrackFileReader.getEssenceType(imfErrorLogger).toString();
         this.cplRoot.getContentKind().setValue(essenceType);
         this.cplRoot.getContentKind().setScope("General");
         /*Extension Properties*/
@@ -283,10 +284,10 @@ final class IMFTrackFileCPLBuilder {
         SequenceType sequenceType = this.buildSequenceType(uuidList, index, imfErrorLogger);
         ObjectFactory objectFactory = new ObjectFactory();
         JAXBElement<SequenceType> element = null;
-        if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals("MainImageSequence")){
+        if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals(HeaderPartition.EssenceTypeEnum.MainImageEssence)){
             element = objectFactory.createMainImageSequence(sequenceType);
         }
-        else if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals("MainAudioSequence")){
+        else if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence)){
             element = objectFactory.createMainAudioSequence(sequenceType);
         }
         else{

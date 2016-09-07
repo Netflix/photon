@@ -535,7 +535,9 @@ public final class HeaderPartition
         List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = new ArrayList<>();
         for(int i=0; i<sourcePackageBOs.size(); i++){
             SourcePackage.SourcePackageBO sourcePackageBO = (SourcePackage.SourcePackageBO) sourcePackageBOs.get(i);
-            essenceDescriptors.add(uidToBOs.get(sourcePackageBO.getDescriptorUID()));
+            if(uidToBOs.get(sourcePackageBO.getDescriptorUID()) != null) {
+                essenceDescriptors.add(uidToBOs.get(sourcePackageBO.getDescriptorUID()));
+            }
         }
         return essenceDescriptors;
     }
@@ -1002,7 +1004,7 @@ function visit(node n)
 
         if (essenceTypes.size() == 0){
             List<EssenceTypeEnum> essenceTypeList = new ArrayList<>();
-            essenceTypeList.add(EssenceTypeEnum.UnknownEssence);
+            essenceTypeList.add(EssenceTypeEnum.UnsupportedEssence);
             return Collections.unmodifiableList(essenceTypeList);
         }
         else{
@@ -1023,7 +1025,7 @@ function visit(node n)
         CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
         KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
-        UnknownEssence(Composition.SequenceTypeEnum.Unknown);
+        UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
 
         private final Composition.SequenceTypeEnum sequenceType;
         private final String name;
@@ -1056,8 +1058,9 @@ function visit(node n)
                     return KaraokeEssence;
                 case "AncillaryDataEssence":
                     return AncillaryDataEssence;
+                case "UnsupportedEssence":
                 default:
-                    return UnknownEssence;
+                    return UnsupportedEssence;
             }
         }
 
@@ -1083,8 +1086,9 @@ function visit(node n)
                     return "KaraokeEssence";
                 case AncillaryDataSequence:
                     return "AncillaryDataEssence";
+                case UnsupportedSequence:
                 default:
-                    return "UnknownEssence";
+                    return "UnsupportedEssence";
             }
         }
 

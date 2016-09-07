@@ -213,7 +213,7 @@ final class IMFCoreConstraintsChecker {
             //Section 7.3 st2067-3:2016
             if(sequencesDurationSet.size() > 1){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment %s", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
+                        String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
             }
 
             if (trackIDs.size() != virtualTrackMap.size())
