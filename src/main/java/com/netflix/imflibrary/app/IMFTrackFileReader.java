@@ -493,17 +493,10 @@ final class IMFTrackFileReader
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 
-        if(essenceTypes.size() == 0){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("IMFTrackFileReader did not detect any essence type in the track file"));
-        }
-        else{
-            for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
-                if(supportedEssenceComponentTypes.contains(essenceTypeEnum)){
-                    supportedEssenceTypesFound.add(essenceTypeEnum);
-                }
+        for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
+            if(supportedEssenceComponentTypes.contains(essenceTypeEnum)){
+                supportedEssenceTypesFound.add(essenceTypeEnum);
             }
-
         }
 
         if(supportedEssenceTypesFound.size() > 0) {
@@ -515,7 +508,7 @@ final class IMFTrackFileReader
         }
         else {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("IMFTrack file does not seem to have a supported essence component types, essence types supported %s, essence types found %s"
+                    String.format("IMFTrack file does not seem to have a supported essence component type, essence types supported %n%s, essence types found %n%s"
                             , Utilities.serializeObjectCollectionToString(supportedEssenceComponentTypes), Utilities.serializeObjectCollectionToString(essenceTypes)));
             return HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
         }
