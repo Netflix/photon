@@ -358,7 +358,7 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    private static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord,
+    public static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord,
         List<PayloadRecord> essencesHeaderPartitionPayloads,boolean conformAllVirtualTracks) throws IOException
     {
 
