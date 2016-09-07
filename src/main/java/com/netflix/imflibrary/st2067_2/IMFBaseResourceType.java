@@ -116,6 +116,15 @@ public abstract class IMFBaseResourceType {
         return this.repeatCount;
     }
 
+    /**
+     * Getter for the Resource Duration
+     * @return a Long integer representing this Resource's duration on the timeline
+     *          in units of the Resource Edit Rate
+     */
+    public long getDuration(){
+        return this.getSourceDuration().longValue() * this.getRepeatCount().longValue();
+    }
+
 
     /**
      * A method to determine the equivalence of any two Base Resource.

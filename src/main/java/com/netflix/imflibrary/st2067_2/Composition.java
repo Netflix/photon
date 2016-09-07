@@ -722,7 +722,7 @@ public final class Composition {
             imfErrorLogger = new IMFErrorLoggerImpl();
             if (numbers.size() != 2) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
-                        .ErrorLevels.FATAL, String.format(
+                        .ErrorLevels.NON_FATAL, String.format(
                         "Input list is expected to contain 2 numbers representing numerator and denominator " +
                                 "respectively, found %d numbers in list %s",
                         numbers.size(), Arrays.toString(numbers.toArray())));
@@ -730,7 +730,7 @@ public final class Composition {
             } else if (numbers.get(0) == 0
                     || numbers.get(1) == 0) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
-                        .ErrorLevels.FATAL, String.format(
+                        .ErrorLevels.NON_FATAL, String.format(
                         "Input list is expected to contain 2 non-zero numbers representing numerator and denominator " +
                                 "of the EditRate respectively, found Numerator %d, Denominator %d",
                         numbers.get(0), numbers.get(1)));
@@ -747,6 +747,15 @@ public final class Composition {
 
             this.numerator = numerator;
             this.denominator = denominator;
+        }
+
+        /**
+         * Constructor for the rational frame rate number
+         * @param numerator a long integer representing the numerator component of the EditRate
+         * @param denominator a long integer representing the denominator component of the EditRate
+         */
+        public EditRate(Long numerator, Long denominator){
+            this(new ArrayList<Long>(){{add(numerator); add(denominator);}});
         }
 
         /**
@@ -824,7 +833,7 @@ public final class Composition {
         CommentarySequence("CommentarySequence"),
         KaraokeSequence("KaraokeSequence"),
         AncillaryDataSequence("AncillaryDataSequence"),
-        Unknown("Unknown");
+        UnsupportedSequence("UnsupportedSequence");
 
         private final String name;
 
@@ -858,8 +867,9 @@ public final class Composition {
                     return KaraokeSequence;
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
+                case "UnsupportedSequence":
                 default:
-                    return Unknown;
+                    return UnsupportedSequence;
             }
         }
 

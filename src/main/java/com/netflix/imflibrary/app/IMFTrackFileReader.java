@@ -485,16 +485,33 @@ final class IMFTrackFileReader
      * @return a String representing the Essence type
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    String getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
-        String result = "";
-        HeaderPartition headerPartition = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition();
-        if(headerPartition.hasCDCIPictureEssenceDescriptor() || headerPartition.hasRGBAPictureEssenceDescriptor()){
-            result = "MainImageSequence";
+    HeaderPartition.EssenceTypeEnum getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+        Set<HeaderPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
+        List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
+        List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
+
+        for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
+            if(supportedEssenceComponentTypes.contains(essenceTypeEnum)){
+                supportedEssenceTypesFound.add(essenceTypeEnum);
+            }
         }
-        else if(headerPartition.hasWaveAudioEssenceDescriptor()){
-            result = "MainAudioSequence";
+
+        if(supportedEssenceTypesFound.size() > 0) {
+            if (supportedEssenceTypesFound.size() > 1) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("IMFTrack file seems to have multiple supported essence component types %s only 1 is allowed per IMF Core Constraints, returning the first supported EssenceType", Utilities.serializeObjectCollectionToString(supportedEssenceTypesFound)));
+            }
+            return supportedEssenceTypesFound.get(0);
         }
-        return result;
+        else {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("IMFTrack file does not seem to have a supported essence component type, essence types supported %n%s, essence types found %n%s"
+                            , Utilities.serializeObjectCollectionToString(supportedEssenceComponentTypes), Utilities.serializeObjectCollectionToString(essenceTypes)));
+            return HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
+        }
     }
 
     /**
@@ -688,8 +705,13 @@ final class IMFTrackFileReader
             }
             imfErrorLogger.addAllErrors(imfErrorLogger.getErrors());
         }
+        Set<HeaderPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
         if(imfTrackFileReader != null
-                && imfTrackFileCPLBuilder != null) {
+                && imfTrackFileCPLBuilder != null
+                && supportedEssenceComponentTypes.contains(imfTrackFileReader.getEssenceType(imfErrorLogger))) {
             try {
                 for (InterchangeObject.InterchangeObjectBO essenceDescriptor : imfTrackFileReader.getEssenceDescriptors(imfErrorLogger)) {
                 /* create dom */

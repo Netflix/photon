@@ -808,7 +808,7 @@ public class IMPValidator {
                     errors.addAll(validateCPL(payloadRecord));
                     break;
                 default:
-                    throw new IllegalArgumentException(String.format("Unknown AssetType for file %s", inputFile.getName()));
+                    throw new IllegalArgumentException(String.format("UnsupportedSequence AssetType for file %s", inputFile.getName()));
             }
         }
 
