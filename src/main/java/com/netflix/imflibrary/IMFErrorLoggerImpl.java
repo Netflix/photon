@@ -117,9 +117,13 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
      */
     public List<ErrorLogger.ErrorObject> getErrors(IMFErrors.ErrorLevels errorLevel, int startIndex, int endIndex) throws IllegalArgumentException
     {
-        validateRangeRequest(startIndex, endIndex);
         List<ErrorObject> errors = new ArrayList<>(this.errorObjects);
-        return Collections.unmodifiableList(errors.subList(startIndex, endIndex).stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList()));
+        try {
+            validateRangeRequest(startIndex, endIndex);
+            errors.subList(startIndex, endIndex).stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList());
+
+        }
+        finally { return Collections.unmodifiableList(errors); }
     }
 
     /**

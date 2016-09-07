@@ -1261,15 +1261,9 @@ public final class Composition {
         /*The following check simultaneously verifies 1) and 2) from above.*/
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Set<UUID> resourceEssenceDescriptorIDsSet = getResourceEssenceDescriptorIdsSet();
-        Iterator resourceEssenceDescriptorIDs = resourceEssenceDescriptorIDsSet.iterator();
         Set<UUID> cplEssenceDescriptorIDsSet = getEssenceDescriptorIdsSet();
         Iterator cplEssenceDescriptorIDs = cplEssenceDescriptorIDsSet.iterator();
-        while (resourceEssenceDescriptorIDs.hasNext()) {
-            UUID resourceEssenceDescriptorUUID = (UUID) resourceEssenceDescriptorIDs.next();
-            if (!cplEssenceDescriptorIDsSet.contains(resourceEssenceDescriptorUUID)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor ID %s referenced by a VirtualTrack Resource does not have a corresponding EssenceDescriptor in the EssenceDescriptorList in the CPL", resourceEssenceDescriptorUUID.toString()));
-            }
-        }
+
 
         /**
          * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
