@@ -68,7 +68,9 @@ final class IMFCoreConstraintsChecker {
                 for(IMFBaseResourceType imfBaseResourceType : virtualTrackResourceList){
                     IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
                     DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
-                    virtualTrackEssenceDescriptors.add(domNodeObjectModel);
+                    if(domNodeObjectModel != null) {
+                        virtualTrackEssenceDescriptors.add(domNodeObjectModel);
+                    }
                 }
 
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
