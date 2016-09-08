@@ -34,6 +34,7 @@ import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
  */
 public class PhotonIMPAnalyzer {
 
+    private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
     private static final Logger logger = LoggerFactory.getLogger(PhotonIMPAnalyzer.class);
 
     private static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
@@ -97,17 +98,20 @@ public class PhotonIMPAnalyzer {
 
     }
 
-    private static Boolean isCompositionComplete(Composition composition, Set<UUID> trackFileIDsSet) throws IOException {
-
+    private static Boolean isCompositionComplete(Composition composition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
+        Boolean bComplete = true;
         for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
             for (UUID uuid : virtualTrack.getTrackResourceIds()) {
                 if (!trackFileIDsSet.contains(uuid)) {
-                    return false;
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
+                            .IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            String.format("CPL resource %s is not present in the package", uuid.toString()));
+                    bComplete &= false;
                 }
             }
         }
 
-        return true;
+        return bComplete;
 
     }
 
@@ -214,6 +218,8 @@ public class PhotonIMPAnalyzer {
                             if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) &&
                                     Composition.isCompositionPlaylist(resourceByteRangeProvider)) {
                                 IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
+                                IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
+
 
                                 PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
                                         PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
@@ -223,28 +229,33 @@ public class PhotonIMPAnalyzer {
                                     compositionErrorLogger.addAllErrors(composition.getErrors());
                                     Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                             .keySet();
-                                    if (!isCompositionComplete(composition, trackFileIDsSet)) {
-                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
-                                                .IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "CPL " +
-                                                "does not have all the resources in the package");
-                                        for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
-                                            Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
-                                            List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
-                                            for(UUID trackFileId: trackFileIds) {
-                                                if(trackFileIDToHeaderPartitionPayLoadMap.containsKey(trackFileId))
-                                                trackHeaderPartitionPayloads.add
-                                                        (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
-                                            }
 
-                                            if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
-                                                compositionErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
+                                    try {
+                                        if (!isCompositionComplete(composition, trackFileIDsSet, compositionConformanceErrorLogger)) {
+                                            for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+                                                Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
+                                                List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
+                                                for (UUID trackFileId : trackFileIds) {
+                                                    if (trackFileIDToHeaderPartitionPayLoadMap.containsKey(trackFileId))
+                                                        trackHeaderPartitionPayloads.add
+                                                                (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
+                                                }
+
+                                                if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
+                                                    compositionConformanceErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
+                                                } else if (trackHeaderPartitionPayloads.size() != 0) {
+                                                    compositionConformanceErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
+                                                }
                                             }
-                                            else if(trackHeaderPartitionPayloads.size() != 0) {
-                                                compositionErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
-                                            }
+                                        } else {
+                                            compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, headerPartitionPayloadRecords));
                                         }
-                                    } else {
-                                        compositionErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, headerPartitionPayloadRecords));
+                                    }
+                                    catch(IMFException e) {
+                                        compositionConformanceErrorLogger.addAllErrors(e.getErrors());
+                                    }
+                                    finally {
+                                        errorMap.put(assetFile.getName() + " "+  CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
                                     }
                                 } catch (IMFException e) {
                                     compositionErrorLogger.addAllErrors(e.getErrors());
@@ -384,15 +395,34 @@ public class PhotonIMPAnalyzer {
         }
 
         if(inputFile.isDirectory()) {
+            logger.info("==========================================================================" );
             logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
+            logger.info("==========================================================================");
+
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
-                logErrros(entry.getKey(), entry.getValue());
+                if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
+                    logErrros(entry.getKey(), entry.getValue());
+                }
+            }
+
+            logger.info("\n\n\n");
+            logger.info("==========================================================================" );
+            logger.info("Virtual Track Conformance" );
+            logger.info("==========================================================================");
+
+
+            for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
+                if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
+                    logErrros(entry.getKey(), entry.getValue());
+                }
             }
         }
         else
         {
+            logger.info("==========================================================================\n" );
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
+            logger.info("==========================================================================\n");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
             logErrros(inputFile.getName(), errors);
         }
