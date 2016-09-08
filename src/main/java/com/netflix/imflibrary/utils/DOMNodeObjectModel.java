@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -167,6 +169,105 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A static factory method that will create a DOMNodeObjectModel without the fields that were set to be ignored
+     * @param domNodeObjectModel a DOMNodeObjectModel object to derive the statically constructed model from
+     * @return a DOMNodeObjectModel that excludes the elements indicated in the ignore set.
+     */
+    private static DOMNodeObjectModel createDOMNodeObjectModelWOFullyQualifiedFields(DOMNodeObjectModel domNodeObjectModel){
+
+        Set<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> entries = domNodeObjectModel.getFields().entrySet();
+        Iterator<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> iterator = entries.iterator();
+        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
+
+        while(iterator.hasNext()){
+            Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry = iterator.next();
+            DOMNodeElementTuple newKey = new DOMNodeElementTuple(entry.getKey().getLocalName(), "");
+            thisFields.put(newKey, entry.getValue());
+        }
+
+        Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
+        Iterator<Map.Entry<DOMNodeObjectModel, Integer>> childEntriesIterator = domNodeObjectModel.getChildrenDOMNodes().entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<DOMNodeObjectModel, Integer> entry = childEntriesIterator.next();
+            DOMNodeObjectModel child = DOMNodeObjectModel.createDOMNodeObjectModelWOFullyQualifiedFields(entry.getKey());
+            childrenDOMNodes.put(child, entry.getValue());
+        }
+        return new DOMNodeObjectModel(domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(domNodeObjectModel.getFieldsLocalNameMap()));
+    }
+
+    /**
+     * A stateless method that can find a matching DOMNodeObjectModel given a Reference DOMNodeObjectModel and a list
+     * of DOMNodeObjectModel objects
+     * @param reference a DOMNodeObjectModel whose matching object needs to be found in the list
+     * @param models a list of DOMNodeObjectModel objects exactly one of which should match the reference
+     * @return a DOMNodeObjectModel corresponding to the DOMNodeObjectModel in the list that matches the reference
+     */
+    @Nullable
+    public static DOMNodeObjectModel getMatchingDOMNodeObjectModel(DOMNodeObjectModel reference, Collection<DOMNodeObjectModel> models){
+
+        DOMNodeObjectModel refDOMNodelObjectModelWONamespaceURI = DOMNodeObjectModel.createDOMNodeObjectModelWOFullyQualifiedFields(reference);
+        for(DOMNodeObjectModel model : models){
+            DOMNodeObjectModel modelWONamespaceURI = DOMNodeObjectModel.createDOMNodeObjectModelWOFullyQualifiedFields(model);
+            if(refDOMNodelObjectModelWONamespaceURI.equals(modelWONamespaceURI)){
+                return modelWONamespaceURI;
+            }
+        }
+        return null;
+    }
+
+    public static List<ErrorLogger.ErrorObject> getNamespaceURIMismatchErrors(DOMNodeObjectModel reference, DOMNodeObjectModel other){
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        if(reference == null
+                || other == null){
+            return imfErrorLogger.getErrors();
+        }
+        Iterator<Map.Entry<String, Map<String, Integer>>> fieldsLocalNamesIterator = reference.getFieldsLocalNameMap().entrySet().iterator();
+        while(fieldsLocalNamesIterator.hasNext()){
+            Map.Entry<String, Map<String, Integer>> entry = fieldsLocalNamesIterator.next();
+            Map<String, Integer> thisFieldsLocalNameValues = entry.getValue();
+            Map<String, Integer> otherFieldsLocalNameValues = other.getFieldsLocalNameMap().get(entry.getKey());
+            if(!thisFieldsLocalNameValues.equals(otherFieldsLocalNameValues)){
+                if(otherFieldsLocalNameValues != null) {
+                    Iterator<Map.Entry<String, Integer>> iterator = thisFieldsLocalNameValues.entrySet().iterator();
+                    StringBuilder stringBuilder1 = new StringBuilder();
+                    while(iterator.hasNext()){
+                        Map.Entry<String, Integer> thisEntry = iterator.next();
+                        stringBuilder1.append(String.format("NameSpaceURI %s, %d times", thisEntry.getKey(), thisEntry.getValue()));
+                    }
+
+                    Iterator<Map.Entry<String, Integer>> iterator2 = otherFieldsLocalNameValues.entrySet().iterator();
+                    StringBuilder stringBuilder2 = new StringBuilder();
+                    while(iterator2.hasNext()){
+                        Map.Entry<String, Integer> thisEntry = iterator2.next();
+                        stringBuilder2.append(String.format("NameSpaceURI %s, %d times", thisEntry.getKey(), thisEntry.getValue()));
+                    }
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("The DOMNodeElement represented by the local name %s, has namespace URI inconsistencies " +
+                                            "in one DOM it appears with the %s " +
+                                            ", in the other DOM Node it appears with the %s"
+                                    , entry.getKey()
+                                    , stringBuilder1.toString()
+                                    , stringBuilder2.toString()));
+                }
+                else{
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("The DOMNodeElement represented by the local name %s, is absent in the other DOMNodeObjectModel", entry.getKey()));
+                }
+            }
+        }
+        Iterator<Map.Entry<DOMNodeObjectModel, Integer>>iterator = reference.getChildrenDOMNodes().entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<DOMNodeObjectModel, Integer>entry = iterator.next();
+            Set<DOMNodeObjectModel>otherModels = other.getChildrenDOMNodes().keySet();
+            DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(entry.getKey(), otherModels);
+            imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(entry.getKey(), matchingDOMNodeObjectModel));
+
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
      * A getter for the DOM node type represented by this object model.
      * @return a short representing the DOM Node type as defined in org.w3c.dom.Node
      */
@@ -231,41 +332,6 @@ public class DOMNodeObjectModel {
 
         DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
 
-        Iterator<Map.Entry<String, Map<String, Integer>>> fieldsLocalNamesIterator = this.fieldsLocalNameMap.entrySet().iterator();
-        while(fieldsLocalNamesIterator.hasNext()){
-            Map.Entry<String, Map<String, Integer>> entry = fieldsLocalNamesIterator.next();
-            Map<String, Integer> thisFieldsLocalNameValues = entry.getValue();
-            Map<String, Integer> otherFieldsLocalNameValues = otherDOMNodeObjectModel.getFieldsLocalNameMap().get(entry.getKey());
-            if(!thisFieldsLocalNameValues.equals(otherFieldsLocalNameValues)){
-                if(otherFieldsLocalNameValues != null) {
-                    Iterator<Map.Entry<String, Integer>> iterator = thisFieldsLocalNameValues.entrySet().iterator();
-                    StringBuilder stringBuilder1 = new StringBuilder();
-                    while(iterator.hasNext()){
-                        Map.Entry<String, Integer> thisEntry = iterator.next();
-                        stringBuilder1.append(String.format("NameSpaceURI %s, %d times", thisEntry.getKey(), thisEntry.getValue()));
-                    }
-
-                    Iterator<Map.Entry<String, Integer>> iterator2 = otherFieldsLocalNameValues.entrySet().iterator();
-                    StringBuilder stringBuilder2 = new StringBuilder();
-                    while(iterator2.hasNext()){
-                        Map.Entry<String, Integer> thisEntry = iterator2.next();
-                        stringBuilder2.append(String.format("NameSpaceURI %s, %d times", thisEntry.getKey(), thisEntry.getValue()));
-                    }
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("The DOMNodeElement represented by the local name %s, has namespace URI inconsistencies " +
-                                            "in one DOM it appears with the %s " +
-                                            ", in the other DOM Node it appears with the %s"
-                                    , entry.getKey()
-                                    , stringBuilder1.toString()
-                                    , stringBuilder2.toString()));
-                }
-                else{
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("The DOMNodeElement represented by the local name %s, is absent in the other DOMNodeObjectModel", entry.getKey()));
-                }
-            }
-        }
-
         if(this.nodeType.equals(otherDOMNodeObjectModel.nodeType) &&
             this.fields.equals(otherDOMNodeObjectModel.fields) &&
             this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
@@ -287,6 +353,28 @@ public class DOMNodeObjectModel {
         hash = hash * 31 + this.fields.hashCode();
         hash = hash * 31 + this.childrenDOMNodes.hashCode();
         return hash;
+    }
+
+    /**
+     * A method that returns a string representation of a DOMNodeObjectModel object
+     *
+     * @return string representing the object
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("====== DOM Node Object Model ======%n"));
+        sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
+        sb.append(String.format("Node Local Name : %s%n", this.localName));
+        for(Map.Entry<DOMNodeObjectModel, Integer> domEntry : this.childrenDOMNodes.entrySet()) {
+            for(Integer i = 0; i < domEntry.getValue(); i++) {
+                sb.append(domEntry.getKey().toString());
+            }
+        }
+        for(Map.Entry entry : fields.entrySet()){
+            sb.append(String.format("%s%n", entry.toString()));
+        }
+        return sb.toString();
     }
 
     /**
@@ -326,7 +414,7 @@ public class DOMNodeObjectModel {
         @Override
         public boolean equals(Object other){
             if(other == null
-                || other.getClass() != this.getClass()){
+                    || other.getClass() != this.getClass()){
                 return false;
             }
             DOMNodeElementTuple otherDOMNodeElementTuple = DOMNodeElementTuple.class.cast(other);
@@ -351,24 +439,64 @@ public class DOMNodeObjectModel {
     }
 
     /**
-     * A method that returns a string representation of a DOMNodeObjectModel object
-     *
-     * @return string representing the object
+     * A thin class modeling a Tuple of DOM Node Object Model Elements - one containing namespace URI qualified fields
+     * and another without the namespaceURI qualified fields
      */
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("====== DOM Node Object Model ======%n"));
-        sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
-        sb.append(String.format("Node Local Name : %s%n", this.localName));
-        for(Map.Entry<DOMNodeObjectModel, Integer> domEntry : this.childrenDOMNodes.entrySet()) {
-            for(Integer i = 0; i < domEntry.getValue(); i++) {
-                sb.append(domEntry.getKey().toString());
+    private static class DOMNodeObjectModelTuple {
+        private final DOMNodeObjectModel domNodeObjectModel;
+        private final DOMNodeObjectModel domNodeObjectModelWONamespaceURI;
+
+        private DOMNodeObjectModelTuple(@Nonnull DOMNodeObjectModel domNodeObjectModel, @Nonnull DOMNodeObjectModel domNodeObjectModelWONamespaceURI){
+            this.domNodeObjectModel = domNodeObjectModel;
+            this.domNodeObjectModelWONamespaceURI = domNodeObjectModelWONamespaceURI;
+        }
+
+        /**
+         * A getter for the DOMNodeObjectModel containing fully qualified fields
+         * @return DOMNodeObjectModel containing fully qualified fields
+         */
+        public DOMNodeObjectModel getDOMNodeObjectModel(){
+            return this.domNodeObjectModel;
+        }
+
+        /**
+         * A getter for the DOMNodeObjectModel containing non-namespace qualified fields
+         * @return DOMNodeObjectModel containing non-namespace qualified fields
+         */
+        public DOMNodeObjectModel getDOMNodeObjectModelWONamespaceURI(){
+            return this.domNodeObjectModelWONamespaceURI;
+        }
+
+        /**
+         * Overriding the equals method of Object to provide a specific implementation for this class
+         * @param other the object to compared with
+         * @return a boolean result of the comparison, false if the passed in object is null or not
+         * of DOMNodeElementTuple type, or if the local name and namespaceURI are not equal to this object.
+         */
+        @Override
+        public boolean equals(Object other){
+            if(other == null
+                    || other.getClass() != this.getClass()){
+                return false;
             }
+            DOMNodeObjectModelTuple otherDOMNodeObjectModelTuple = DOMNodeObjectModelTuple.class.cast(other);
+            boolean result = true;
+            result &= this.domNodeObjectModel.equals(otherDOMNodeObjectModelTuple.getDOMNodeObjectModel());
+            result &= this.domNodeObjectModelWONamespaceURI.equals(otherDOMNodeObjectModelTuple.getDOMNodeObjectModelWONamespaceURI());
+            return result;
         }
-        for(Map.Entry entry : fields.entrySet()){
-            sb.append(String.format("%s%n", entry.toString()));
+
+        /**
+         * A Java compliant implementation of the hashCode() method
+         * @return integer containing the hash code corresponding to this object
+         */
+        @Override
+        public int hashCode(){
+            int hash = 1;
+            hash = hash * 31 + this.domNodeObjectModel.hashCode(); /*LocalName can be used since it is non-null*/
+            hash = hash * 31
+                    + this.domNodeObjectModelWONamespaceURI.hashCode();/*Another field that is indicated to be non-null*/
+            return hash;
         }
-        return sb.toString();
     }
 }
