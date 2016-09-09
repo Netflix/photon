@@ -145,20 +145,24 @@ final class IMFCoreConstraintsChecker {
                     ignoreSet.add("InstanceID");
                     ignoreSet.add("EssenceLength");
                     ignoreSet.add("AlternativeCenterCuts");
+                    ignoreSet.add("MCALinkID");
                     boolean isVirtualTrackHomogeneous = true;
                     DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
                         isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet));
                     }
+                    List<DOMNodeObjectModel> modelsIgnoreSet = new ArrayList<>();
                     if (!isVirtualTrackHomogeneous) {
                         for(int i = 1; i< virtualTrackEssenceDescriptors.size(); i++){
                             DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet);
+                            modelsIgnoreSet.add(other);
                             imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(refDOMNodeObjectModel, other));
                         }
 
                         imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List, " +
+                                        "the EssenceDescriptors corresponding to this VirtualTrack in the EssenceDescriptorList are as follows %n%n%s", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), Utilities.serializeObjectCollectionToString(modelsIgnoreSet)));
                     }
                 }
             }

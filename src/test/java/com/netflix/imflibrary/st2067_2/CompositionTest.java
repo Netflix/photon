@@ -60,7 +60,7 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Composition composition = new Composition(inputFile);
         imfErrorLogger.addAllErrors(composition.getErrors());
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 9);
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 8);
     }
 
     @Test

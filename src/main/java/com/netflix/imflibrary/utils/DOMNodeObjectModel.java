@@ -366,7 +366,6 @@ public class DOMNodeObjectModel {
             this.childrenDOMNodes.equals(otherDOMNodeObjectModel.childrenDOMNodes)) {
             return true;
         }
-        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Node represented by Local Name %s is not equal to Node represented by Local Name %s", this.getLocalName(), otherDOMNodeObjectModel.getLocalName()));
         return false;
     }
 

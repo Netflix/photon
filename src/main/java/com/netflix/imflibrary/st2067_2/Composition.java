@@ -241,11 +241,11 @@ public final class Composition {
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty");
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty.");
         }
 
         if (imfErrorLogger.hasFatalErrors()) {
-            throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file"), imfErrorLogger);
+            throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file."), imfErrorLogger);
         }
     }
 
@@ -289,7 +289,7 @@ public final class Composition {
             } else {
                 //Section 6.9.3 st2067-3:2016
                 String message = String.format(
-                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s this is invalid", uuid);
+                        "First segment in Composition XML file has multiple occurrences of virtual track UUID %s this is invalid.", uuid);
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
             }
         }
@@ -1273,7 +1273,8 @@ public final class Composition {
             while (cplEssenceDescriptorIDs.hasNext()) {
                 UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
                 if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptorID %s in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this violates the constraint in st2067-3:2013 section 6.1.10.1", cplEssenceDescriptorUUID.toString()));
+                    //Section 6.1.10.1 st2067-3:2013
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptorID %s in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this is invalid.", cplEssenceDescriptorUUID.toString()));
                 }
             }
         }
@@ -1514,14 +1515,14 @@ public final class Composition {
         while (essenceDescriptorsMapIterator.hasNext()) {
             UUID sourceEncodingElement = essenceDescriptorsMapIterator.next().getKey();
             if (!eDLMap.keySet().contains(sourceEncodingElement)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL", sourceEncodingElement.toString()));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
             }
         }
         Set<String> ignoreSet = new HashSet<>();
-        ignoreSet.add("InstanceUID");
-        ignoreSet.add("InstanceID");
-        ignoreSet.add("EssenceLength");
-        ignoreSet.add("AlternativeCenterCuts");
+        //ignoreSet.add("InstanceUID");
+        //ignoreSet.add("InstanceID");
+        //ignoreSet.add("EssenceLength");
+        //ignoreSet.add("AlternativeCenterCuts");
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
@@ -1531,7 +1532,7 @@ public final class Composition {
             List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
             DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
             if (referenceDOMNodeObjectModel == null) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL", entry.getKey().toString()));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Source Encoding Element %s in a track does not have a corresponding entry in the CPL's EDL.", entry.getKey().toString()));
             }
             else {
                 referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(eDLMap.get(entry.getKey()), ignoreSet);
@@ -1596,7 +1597,7 @@ public final class Composition {
             }
         }
         else{
-            logger.info("No errors were detected in the CompositionPlaylist Document");
+            logger.info("No errors were detected in the CompositionPlaylist Document.");
         }
     }
 }
