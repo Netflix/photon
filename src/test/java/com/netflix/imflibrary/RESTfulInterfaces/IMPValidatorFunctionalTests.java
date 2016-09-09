@@ -338,6 +338,39 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
+    public void cplVirtualTrackConformanceNegativeTestNamespaceURIInconsitencies() throws IOException, SAXException, JAXBException, URISyntaxException {
+
+        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL-de6d2644-e84c-432d-98d5-98d89271d082.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord cplPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+
+        List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
+        Assert.assertTrue(errors.size() == 0);
+
+        Composition composition = new Composition(resourceByteRangeProvider);
+        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2398_full_full.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
+        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
+        Assert.assertTrue(errors.size() == 15);
+
+        inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
+        resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
+        payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
+        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
+        Assert.assertTrue(errors.size() == 1);
+    }
+
+    @Test
     public void cplVirtualTrackConformancePositiveTest()
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");

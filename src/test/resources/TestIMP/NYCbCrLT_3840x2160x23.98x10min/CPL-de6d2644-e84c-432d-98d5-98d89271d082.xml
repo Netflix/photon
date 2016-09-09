@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:ns2="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:ns3="http://www.w3.org/2000/09/xmldsig#" xmlns:ns4="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/">
+    <Id>urn:uuid:de6d2644-e84c-432d-98d5-98d89271d082</Id>
+    <Annotation language="en">IMP</Annotation>
+    <IssueDate>2016-09-08T23:59:29.780Z</IssueDate>
+    <Issuer language="en">Netflix</Issuer>
+    <Creator language="en">Photon PackingListBuilder</Creator>
+    <ContentTitle language="en">Not Included</ContentTitle>
+    <ContentVersionList>
+        <ContentVersion>
+            <Id>urn:uuid:d71c9147-adea-49ed-883f-7276edd7ba82</Id>
+            <LabelText language="en">Photon CompositionPlaylistBuilder</LabelText>
+        </ContentVersion>
+    </ContentVersionList>
+    <EssenceDescriptorList>
+        <EssenceDescriptor>
+            <Id>urn:uuid:f3e86156-007d-4649-a985-e468df5a0f37</Id>
+            <r0:CDCIDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
+                <r0:ComponentDepth>10</r0:ComponentDepth>
+                <r0:HorizontalSubsampling>2</r0:HorizontalSubsampling>
+                <r0:VerticalSubsampling>1</r0:VerticalSubsampling>
+                <r0:BlackRefLevel>0</r0:BlackRefLevel>
+                <r0:WhiteRefLevel>1023</r0:WhiteRefLevel>
+                <r0:ColorSiting>CoSiting</r0:ColorSiting>
+                <r0:SampleRate>24000/1001</r0:SampleRate>
+                <r0:FrameLayout>FullFrame</r0:FrameLayout>
+                <r0:StoredWidth>3840</r0:StoredWidth>
+                <r0:StoredHeight>2160</r0:StoredHeight>
+                <r0:SampledWidth>3840</r0:SampledWidth>
+                <r0:SampledHeight>2160</r0:SampledHeight>
+                <r0:SampledXOffset>0</r0:SampledXOffset>
+                <r0:SampledYOffset>0</r0:SampledYOffset>
+                <r1:DisplayWidth>3840</r1:DisplayWidth>
+                <r1:DisplayHeight>2160</r1:DisplayHeight>
+                <r1:DisplayXOffset>0</r1:DisplayXOffset>
+                <r1:DisplayYOffset>0</r1:DisplayYOffset>
+                <r1:VideoLineMap>
+                    <r2:Int32>1</r2:Int32>
+                    <r2:Int32>0</r2:Int32>
+                </r1:VideoLineMap>
+                <r1:PictureCompression>urn:smpte:ul:060e2b34.0401010d.04010202.03010117</r1:PictureCompression>
+                <r1:ImageAspectRatio>16/9</r1:ImageAspectRatio>
+                <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010107.0d010301.020c0100</r1:ContainerFormat>
+                <r1:TransferCharacteristic>urn:smpte:ul:060e2b34.04010101.04010101.01020000</r1:TransferCharacteristic>
+                <r1:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</r1:CodingEquations>
+                <r1:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</r1:ColorPrimaries>
+                <r1:SubDescriptors>
+                    <r0:JPEG2000SubDescriptor>
+                        <r1:Rsiz>775</r1:Rsiz>
+                        <r1:Xsiz>3840</r1:Xsiz>
+                        <r1:Ysiz>2160</r1:Ysiz>
+                        <r1:XOsiz>0</r1:XOsiz>
+                        <r1:YOsiz>0</r1:YOsiz>
+                        <r1:XTsiz>3840</r1:XTsiz>
+                        <r1:YTsiz>2160</r1:YTsiz>
+                        <r1:XTOsiz>0</r1:XTOsiz>
+                        <r1:YTOsiz>0</r1:YTOsiz>
+                        <r1:Csiz>3</r1:Csiz>
+                        <r1:PictureComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>9</r2:Ssiz>
+<r2:XRSiz>1</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+                            </r2:J2KComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>9</r2:Ssiz>
+<r2:XRSiz>2</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+                            </r2:J2KComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>9</r2:Ssiz>
+<r2:XRSiz>2</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+                            </r2:J2KComponentSizing>
+                        </r1:PictureComponentSizing>
+                        <r1:CodingStyleDefault>01040001000503030001778888888888</r1:CodingStyleDefault>
+                        <r1:J2CLayout>
+                            <r2:RGBAComponent>
+<r2:Code>CompLuma</r2:Code>
+<r2:ComponentSize>10</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompColorDifferenceU</r2:Code>
+<r2:ComponentSize>10</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompColorDifferenceV</r2:Code>
+<r2:ComponentSize>10</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+                            </r2:RGBAComponent>
+                        </r1:J2CLayout>
+                        <r1:InstanceID>urn:uuid:ae91ee63-1dd2-44fe-a537-0aa546d0089c</r1:InstanceID>
+                    </r0:JPEG2000SubDescriptor>
+                </r1:SubDescriptors>
+                <r1:InstanceID>urn:uuid:7b7bdcf0-f83b-4937-a5ec-599c0009b8cd</r1:InstanceID>
+                <r1:LinkedTrackID>2</r1:LinkedTrackID>
+            </r0:CDCIDescriptor>
+        </EssenceDescriptor>
+        <EssenceDescriptor>
+            <Id>urn:uuid:494526ae-20a9-4f5f-9b94-8cde63dd5c3d</Id>
+            <r0:WAVEPCMDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
+                <r1:InstanceID>urn:uuid:e7dd0bfe-4041-40f1-b60e-471596a5e27a</r1:InstanceID>
+                <r1:SubDescriptors>
+                    <r0:SoundfieldGroupLabelSubDescriptor>
+                        <r1:InstanceID>urn:uuid:d59dd198-c351-4a20-be71-3cde005c12fb</r1:InstanceID>
+                        <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020220.09000000</r1:MCALabelDictionaryID>
+                        <r1:MCALinkID>urn:uuid:3dca244b-9b02-4b7b-8c31-24d13ffda1d8</r1:MCALinkID>
+                        <r1:MCATagSymbol>sgLtRt</r1:MCATagSymbol>
+                        <r1:MCATagName>LtRt</r1:MCATagName>
+                        <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+                        <r1:GroupOfSoundfieldGroupsLinkID/>
+                    </r0:SoundfieldGroupLabelSubDescriptor>
+                    <r0:AudioChannelLabelSubDescriptor>
+                        <r1:InstanceID>urn:uuid:82df6b2b-aa8c-4c8d-8358-bf011d007491</r1:InstanceID>
+                        <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020120.03000000</r1:MCALabelDictionaryID>
+                        <r1:MCALinkID>urn:uuid:00000000-0000-0000-0000-000000000000</r1:MCALinkID>
+                        <r1:MCATagSymbol>chLt</r1:MCATagSymbol>
+                        <r1:MCATagName>Lt</r1:MCATagName>
+                        <r1:MCAChannelID>1</r1:MCAChannelID>
+                        <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+                        <r1:SoundfieldGroupLinkID>urn:uuid:3dca244b-9b02-4b7b-8c31-24d13ffda1d8</r1:SoundfieldGroupLinkID>
+                    </r0:AudioChannelLabelSubDescriptor>
+                    <r0:AudioChannelLabelSubDescriptor>
+                        <r1:InstanceID>urn:uuid:88968961-b96a-49a8-a20e-25cb36cdb53d</r1:InstanceID>
+                        <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020120.04000000</r1:MCALabelDictionaryID>
+                        <r1:MCALinkID>urn:uuid:d6d25f83-8596-4c9e-88c7-1e79c8b601ea</r1:MCALinkID>
+                        <r1:MCATagSymbol>chRt</r1:MCATagSymbol>
+                        <r1:MCATagName>Rt</r1:MCATagName>
+                        <r1:MCAChannelID>2</r1:MCAChannelID>
+                        <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+                        <r1:SoundfieldGroupLinkID>urn:uuid:3dca244b-9b02-4b7b-8c31-24d13ffda1d8</r1:SoundfieldGroupLinkID>
+                    </r0:AudioChannelLabelSubDescriptor>
+                </r1:SubDescriptors>
+                <r1:LinkedTrackID>2</r1:LinkedTrackID>
+                <r1:SampleRate>48000/1</r1:SampleRate>
+                <r1:EssenceLength>1441440</r1:EssenceLength>
+                <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010101.0d010301.02060200</r1:ContainerFormat>
+                <r1:AudioSampleRate>48000/1</r1:AudioSampleRate>
+                <r1:Locked>False</r1:Locked>
+                <r1:ChannelCount>2</r1:ChannelCount>
+                <r1:QuantizationBits>24</r1:QuantizationBits>
+                <r1:SoundCompression>urn:smpte:ul:00000000.00000000.00000000.00000000</r1:SoundCompression>
+                <r1:BlockAlign>6</r1:BlockAlign>
+                <r1:AverageBytesPerSecond>288000</r1:AverageBytesPerSecond>
+                <r1:ChannelAssignment>urn:smpte:ul:060e2b34.0401010d.04020210.04010000</r1:ChannelAssignment>
+            </r0:WAVEPCMDescriptor>
+        </EssenceDescriptor>
+    </EssenceDescriptorList>
+    <EditRate>24000 1001</EditRate>
+    <TotalRunningTime>00:10:26</TotalRunningTime>
+    <SegmentList>
+        <Segment>
+            <Id>urn:uuid:6e220009-5d78-4e07-aac7-57453b33c5df</Id>
+            <Annotation language="en">Segment-1</Annotation>
+            <SequenceList>
+                <ns2:MainImageSequence>
+                    <Id>urn:uuid:ea325aca-5f60-4c44-89e5-48353bc3d5c7</Id>
+                    <TrackId>urn:uuid:b9d9bf40-9861-43ad-850c-52f70b95ea56</TrackId>
+                    <ResourceList>
+                        <Resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="TrackFileResourceType">
+                            <Id>urn:uuid:f5726b9d-94ea-48cb-aaa1-cb50d216715b</Id>
+                            <EditRate>24000 1001</EditRate>
+                            <IntrinsicDuration>720</IntrinsicDuration>
+                            <EntryPoint>0</EntryPoint>
+                            <SourceDuration>720</SourceDuration>
+                            <RepeatCount>20</RepeatCount>
+                            <SourceEncoding>urn:uuid:f3e86156-007d-4649-a985-e468df5a0f37</SourceEncoding>
+                            <TrackFileId>urn:uuid:dc418b71-3ff2-4049-9a03-3988476285bc</TrackFileId>
+                            <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        </Resource>
+                    </ResourceList>
+                </ns2:MainImageSequence>
+                <ns2:MainAudioSequence>
+                    <Id>urn:uuid:986f2773-425a-4744-8215-a6ebde2f5f9d</Id>
+                    <TrackId>urn:uuid:fa79cc32-b629-43ce-aaf2-1c4b0a1edf15</TrackId>
+                    <ResourceList>
+                        <Resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="TrackFileResourceType">
+                            <Id>urn:uuid:c2d26173-9dbf-4e33-99b2-601d4e5948cd</Id>
+                            <EditRate>48000 1</EditRate>
+                            <IntrinsicDuration>1441440</IntrinsicDuration>
+                            <EntryPoint>0</EntryPoint>
+                            <SourceDuration>1441440</SourceDuration>
+                            <RepeatCount>20</RepeatCount>
+                            <SourceEncoding>urn:uuid:494526ae-20a9-4f5f-9b94-8cde63dd5c3d</SourceEncoding>
+                            <TrackFileId>urn:uuid:3782c89e-37c3-4f7c-a8ee-34f5be00d8e3</TrackFileId>
+                            <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        </Resource>
+                    </ResourceList>
+                </ns2:MainAudioSequence>
+            </SequenceList>
+        </Segment>
+    </SegmentList>
+</CompositionPlaylist>
