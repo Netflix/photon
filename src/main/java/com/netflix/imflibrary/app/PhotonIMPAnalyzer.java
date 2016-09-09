@@ -266,13 +266,15 @@ public class PhotonIMPAnalyzer {
                         }
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
-                        errorMap.put(packingListAsset.getPath().toString(), packingListErrorLogger.getErrors());
+                        //errorMap.put(packingListAsset.getPath().toString(), packingListErrorLogger.getErrors());
                     }
+                    errorMap.put(packingListAsset.getPath().toString(), packingListErrorLogger.getErrors());
                 }
             } catch (IMFException e) {
                 assetMapErrorLogger.addAllErrors(e.getErrors());
             }
             errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
+
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
             errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
