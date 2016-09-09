@@ -181,7 +181,7 @@ public class DOMNodeObjectModel {
 
         while(iterator.hasNext()){
             Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry = iterator.next();
-            DOMNodeElementTuple newKey = new DOMNodeElementTuple(entry.getKey().getLocalName(), "");
+            DOMNodeElementTuple newKey = new DOMNodeElementTuple("", entry.getKey().getLocalName());
             thisFields.put(newKey, entry.getValue());
         }
 
@@ -442,67 +442,18 @@ public class DOMNodeObjectModel {
                     + this.namespaceURI.hashCode();/*Another field that is indicated to be non-null*/
             return hash;
         }
-    }
-
-    /**
-     * A thin class modeling a Tuple of DOM Node Object Model Elements - one containing namespace URI qualified fields
-     * and another without the namespaceURI qualified fields
-     */
-    private static class DOMNodeObjectModelTuple {
-        private final DOMNodeObjectModel domNodeObjectModel;
-        private final DOMNodeObjectModel domNodeObjectModelWONamespaceURI;
-
-        private DOMNodeObjectModelTuple(@Nonnull DOMNodeObjectModel domNodeObjectModel, @Nonnull DOMNodeObjectModel domNodeObjectModelWONamespaceURI){
-            this.domNodeObjectModel = domNodeObjectModel;
-            this.domNodeObjectModelWONamespaceURI = domNodeObjectModelWONamespaceURI;
-        }
 
         /**
-         * A getter for the DOMNodeObjectModel containing fully qualified fields
-         * @return DOMNodeObjectModel containing fully qualified fields
-         */
-        public DOMNodeObjectModel getDOMNodeObjectModel(){
-            return this.domNodeObjectModel;
-        }
-
-        /**
-         * A getter for the DOMNodeObjectModel containing non-namespace qualified fields
-         * @return DOMNodeObjectModel containing non-namespace qualified fields
-         */
-        public DOMNodeObjectModel getDOMNodeObjectModelWONamespaceURI(){
-            return this.domNodeObjectModelWONamespaceURI;
-        }
-
-        /**
-         * Overriding the equals method of Object to provide a specific implementation for this class
-         * @param other the object to compared with
-         * @return a boolean result of the comparison, false if the passed in object is null or not
-         * of DOMNodeElementTuple type, or if the local name and namespaceURI are not equal to this object.
+         * toString() method of DOMNodeElementTuple
+         * @return a string representing the contents of the DOMNodeElementTuple object
          */
         @Override
-        public boolean equals(Object other){
-            if(other == null
-                    || other.getClass() != this.getClass()){
-                return false;
-            }
-            DOMNodeObjectModelTuple otherDOMNodeObjectModelTuple = DOMNodeObjectModelTuple.class.cast(other);
-            boolean result = true;
-            result &= this.domNodeObjectModel.equals(otherDOMNodeObjectModelTuple.getDOMNodeObjectModel());
-            result &= this.domNodeObjectModelWONamespaceURI.equals(otherDOMNodeObjectModelTuple.getDOMNodeObjectModelWONamespaceURI());
-            return result;
-        }
-
-        /**
-         * A Java compliant implementation of the hashCode() method
-         * @return integer containing the hash code corresponding to this object
-         */
-        @Override
-        public int hashCode(){
-            int hash = 1;
-            hash = hash * 31 + this.domNodeObjectModel.hashCode(); /*LocalName can be used since it is non-null*/
-            hash = hash * 31
-                    + this.domNodeObjectModelWONamespaceURI.hashCode();/*Another field that is indicated to be non-null*/
-            return hash;
+        public String toString(){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(String.format("%nLocalName : %s", this.getLocalName()));
+            stringBuilder.append(String.format("%nNamespaceURI : %s", this.getNamespaceURI()));
+            return stringBuilder.toString();
         }
     }
+
 }

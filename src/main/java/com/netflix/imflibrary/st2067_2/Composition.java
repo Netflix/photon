@@ -1519,7 +1519,9 @@ public final class Composition {
         }
         Set<String> ignoreSet = new HashSet<>();
         ignoreSet.add("InstanceUID");
+        ignoreSet.add("InstanceID");
         ignoreSet.add("EssenceLength");
+        ignoreSet.add("AlternativeCenterCuts");
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
@@ -1535,14 +1537,17 @@ public final class Composition {
                 referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(eDLMap.get(entry.getKey()), ignoreSet);
                 boolean intermediateResult = false;
 
+                List<DOMNodeObjectModel> domNodeObjectModelsIgnoreSet = new ArrayList<>();
                 for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
                     domNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(domNodeObjectModel, ignoreSet);
+                    domNodeObjectModelsIgnoreSet.add(domNodeObjectModel);
                     intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
                 }
                 if (!intermediateResult) {
-                    DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(referenceDOMNodeObjectModel, domNodeObjectModels);
+                    DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(referenceDOMNodeObjectModel, domNodeObjectModelsIgnoreSet);
                     imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(referenceDOMNodeObjectModel, matchingDOMNodeObjectModel));
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile that references it", entry.getKey().toString()));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("EssenceDescriptor with Id %s in the CPL's EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
+                            "EssenceDescriptor in EssenceDescriptorList %n%s%n, EssenceDescriptors found in the TrackFile resource %n%s", entry.getKey().toString(), referenceDOMNodeObjectModel.toString(), Utilities.serializeObjectCollectionToString(domNodeObjectModelsIgnoreSet)));
                 }
             }
         }

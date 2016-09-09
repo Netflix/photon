@@ -142,7 +142,9 @@ final class IMFCoreConstraintsChecker {
                 else {
                     Set<String> ignoreSet = new HashSet<>();
                     ignoreSet.add("InstanceUID");
+                    ignoreSet.add("InstanceID");
                     ignoreSet.add("EssenceLength");
+                    ignoreSet.add("AlternativeCenterCuts");
                     boolean isVirtualTrackHomogeneous = true;
                     DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
