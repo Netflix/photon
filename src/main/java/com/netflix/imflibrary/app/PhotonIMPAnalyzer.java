@@ -353,7 +353,7 @@ public class PhotonIMPAnalyzer {
     }
 
 
-    private static void logErrros(String file, List<ErrorLogger.ErrorObject> errors)
+    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
     {
         if(errors.size()>0)
 
@@ -402,7 +402,7 @@ public class PhotonIMPAnalyzer {
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrros(entry.getKey(), entry.getValue());
+                    logErrors(entry.getKey(), entry.getValue());
                 }
             }
 
@@ -414,7 +414,7 @@ public class PhotonIMPAnalyzer {
 
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrros(entry.getKey(), entry.getValue());
+                    logErrors(entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -424,7 +424,7 @@ public class PhotonIMPAnalyzer {
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
             logger.info("==========================================================================\n");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrros(inputFile.getName(), errors);
+            logErrors(inputFile.getName(), errors);
         }
     }
 }

@@ -22,10 +22,30 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +59,8 @@ import java.util.Set;
  */
 public class DOMNodeObjectModel {
     /*See definitions of NodeType in package org.w3c.dom.Node*/
+    @Nonnull
+    private final Node node;
     @Nonnull
     private final Short nodeType;
     /*Node's Local Name*/
@@ -56,6 +78,7 @@ public class DOMNodeObjectModel {
      * @param node the DOM Node whose object model is desired.
      */
     public DOMNodeObjectModel(@Nonnull Node node){
+        this.node = node;
         this.nodeType = node.getNodeType();
         this.localName = node.getLocalName();
         if(this.localName == null){
@@ -118,7 +141,8 @@ public class DOMNodeObjectModel {
         }
     }
 
-    private DOMNodeObjectModel(String localName, short nodeType, Map<DOMNodeObjectModel, Integer> childrenDOMNodes, Map<DOMNodeElementTuple, Map<String, Integer>> fields, Map<String, Map<String, Integer>> fieldsLocalNamesMap){
+    private DOMNodeObjectModel(Node node, String localName, short nodeType, Map<DOMNodeObjectModel, Integer> childrenDOMNodes, Map<DOMNodeElementTuple, Map<String, Integer>> fields, Map<String, Map<String, Integer>> fieldsLocalNamesMap){
+        this.node = node;
         this.localName = localName;
         this.nodeType = nodeType;
         this.childrenDOMNodes.putAll(childrenDOMNodes);
@@ -135,37 +159,28 @@ public class DOMNodeObjectModel {
      */
     public static DOMNodeObjectModel createDOMNodeObjectModelIgnoreSet(DOMNodeObjectModel domNodeObjectModel, @Nonnull Set<String> ignoreSet){
 
-        Set<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> entries = domNodeObjectModel.getFields().entrySet();
-        Iterator<Map.Entry<DOMNodeElementTuple, Map<String, Integer>>> iterator = entries.iterator();
-        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
 
-        while(iterator.hasNext()){
-            Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry = iterator.next();
+        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
+        for(Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry : domNodeObjectModel.getFields().entrySet()){
             if(!ignoreSet.contains(entry.getKey().getLocalName())){
                 thisFields.put(entry.getKey(), entry.getValue());
             }
         }
 
-        Set<Map.Entry<String, Map<String, Integer>>> fieldsLocalNameEntries = domNodeObjectModel.getFieldsLocalNameMap().entrySet();
-        Iterator<Map.Entry<String, Map<String, Integer>>> iteratorFieldsLocalName = fieldsLocalNameEntries.iterator();
-        Map<String, Map<String, Integer>> thisFieldsLocalNamesMap = new HashMap<>();
 
-        while(iteratorFieldsLocalName.hasNext()){
-            Map.Entry<String, Map<String, Integer>> entry = iteratorFieldsLocalName.next();
+        Map<String, Map<String, Integer>> thisFieldsLocalNamesMap = new HashMap<>();
+        for(Map.Entry<String, Map<String, Integer>> entry : domNodeObjectModel.getFieldsLocalNameMap().entrySet()){
             if(!ignoreSet.contains(entry.getKey())){
                 thisFieldsLocalNamesMap.put(entry.getKey(), entry.getValue());
             }
         }
 
         Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
-        Set<Map.Entry<DOMNodeObjectModel, Integer>> childEntries = childrenDOMNodes.entrySet();
-        Iterator<Map.Entry<DOMNodeObjectModel, Integer>> childEntriesIterator = childEntries.iterator();
-        while(iterator.hasNext()){
-            Map.Entry<DOMNodeObjectModel, Integer> entry = childEntriesIterator.next();
+        for(Map.Entry<DOMNodeObjectModel, Integer> entry : domNodeObjectModel.getChildrenDOMNodes().entrySet()){
             DOMNodeObjectModel child = entry.getKey().createDOMNodeObjectModelIgnoreSet(entry.getKey(), ignoreSet);
             childrenDOMNodes.put(child, entry.getValue());
         }
-        return new DOMNodeObjectModel(domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
+        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
     }
 
     /**
@@ -192,7 +207,7 @@ public class DOMNodeObjectModel {
             DOMNodeObjectModel child = DOMNodeObjectModel.createDOMNodeObjectModelWOFullyQualifiedFields(entry.getKey());
             childrenDOMNodes.put(child, entry.getValue());
         }
-        return new DOMNodeObjectModel(domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(domNodeObjectModel.getFieldsLocalNameMap()));
+        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(domNodeObjectModel.getFieldsLocalNameMap()));
     }
 
     /**
@@ -271,6 +286,14 @@ public class DOMNodeObjectModel {
 
         }
         return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A getter for the DOM node represented by this DOMNodeObjectModel
+     * @return a org.w3c.dom node
+     */
+    public Node getNode(){
+        return this.node;
     }
 
     /**
@@ -369,18 +392,66 @@ public class DOMNodeObjectModel {
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("====== DOM Node Object Model ======%n"));
+        /*
+        sb.append(String.format("%n%n====== DOM Node Object Model ======%n"));
         sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
         sb.append(String.format("Node Local Name : %s%n", this.localName));
+        for(Map.Entry entry : fields.entrySet()){
+            Map<String, Integer> values = (Map<String, Integer>)entry.getValue();
+            Iterator<Map.Entry<String, Integer>> iterator = values.entrySet().iterator();
+            StringBuilder fieldValueStringBuilder = new StringBuilder();
+            while(iterator.hasNext()){
+                Map.Entry<String, Integer> fieldValuesEntry = iterator.next();
+                fieldValueStringBuilder.append(String.format("%nValue %s, appears %d times", fieldValuesEntry.getKey(), fieldValuesEntry.getValue()));
+            }
+            sb.append(String.format("%n%nDOMNodeElement %s has the following values %s%n in the DOM Node", entry.getKey().toString(), fieldValueStringBuilder.toString()));
+            //sb.append(String.format("%s%n", entry.toString()));
+        }
+
         for(Map.Entry<DOMNodeObjectModel, Integer> domEntry : this.childrenDOMNodes.entrySet()) {
             for(Integer i = 0; i < domEntry.getValue(); i++) {
                 sb.append(domEntry.getKey().toString());
             }
         }
-        for(Map.Entry entry : fields.entrySet()){
-            sb.append(String.format("%s%n", entry.toString()));
+        */
+        try {
+            TransformerFactory tFactory =
+                    TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            DOMSource source = new DOMSource(this.node);
+            Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+            File tempDir = tempPath.toFile();
+            File outputFile = new File(tempDir + "/XMLDom.xml");
+            StreamResult result = new StreamResult(outputFile);
+            transformer.transform(source, result);
+            sb.append(readFile(outputFile));
+            outputFile.deleteOnExit();
+        }
+        catch (TransformerException|IOException e){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, e.getMessage());
         }
         return sb.toString();
+    }
+
+    private String readFile(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+
+            return stringBuilder.toString();
+        } finally {
+            reader.close();
+        }
     }
 
     /**
