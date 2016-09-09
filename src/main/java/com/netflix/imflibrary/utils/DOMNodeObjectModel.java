@@ -215,6 +215,12 @@ public class DOMNodeObjectModel {
         return null;
     }
 
+    /**
+     * A method to log errors related to NamespaceURI inconsistencies for DOMNode elements
+     * @param reference a DOMNodeObjectModel to compare against
+     * @param other a DOMNodeObjectModel object which needs to be compared against the reference
+     * @return a list of errors related to NamespaceURI mismatches between the reference and other DOMNodeObjectModel object
+     */
     public static List<ErrorLogger.ErrorObject> getNamespaceURIMismatchErrors(DOMNodeObjectModel reference, DOMNodeObjectModel other){
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -244,7 +250,7 @@ public class DOMNodeObjectModel {
                     }
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("The DOMNodeElement represented by the local name %s, has namespace URI inconsistencies " +
-                                            "in one DOM it appears with the %s " +
+                                            "in one DOM Node it appears with the %s " +
                                             ", in the other DOM Node it appears with the %s"
                                     , entry.getKey()
                                     , stringBuilder1.toString()
