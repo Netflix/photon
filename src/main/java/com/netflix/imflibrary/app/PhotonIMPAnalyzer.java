@@ -266,17 +266,23 @@ public class PhotonIMPAnalyzer {
                         }
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
+                    }
+                    finally {
                         errorMap.put(packingListAsset.getPath().toString(), packingListErrorLogger.getErrors());
                     }
                 }
             } catch (IMFException e) {
                 assetMapErrorLogger.addAllErrors(e.getErrors());
             }
-            errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
+            finally {
+                errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
+            }
+
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-            errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
-
+        }
+        finally {
+            //errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
         }
 
 
@@ -353,7 +359,7 @@ public class PhotonIMPAnalyzer {
     }
 
 
-    private static void logErrros(String file, List<ErrorLogger.ErrorObject> errors)
+    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
     {
         if(errors.size()>0)
 
@@ -402,7 +408,7 @@ public class PhotonIMPAnalyzer {
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrros(entry.getKey(), entry.getValue());
+                    logErrors(entry.getKey(), entry.getValue());
                 }
             }
 
@@ -414,7 +420,7 @@ public class PhotonIMPAnalyzer {
 
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrros(entry.getKey(), entry.getValue());
+                    logErrors(entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -424,7 +430,7 @@ public class PhotonIMPAnalyzer {
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
             logger.info("==========================================================================\n");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrros(inputFile.getName(), errors);
+            logErrors(inputFile.getName(), errors);
         }
     }
 }
