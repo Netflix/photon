@@ -34,6 +34,7 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
 import javax.annotation.Nonnull;
@@ -41,7 +42,8 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -162,6 +164,13 @@ public final class IMFConstraints
                             if (headerPartition.getAudioEssenceSpokenLanguage() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor does not have a RFC5646 spoken language indicated, language code shall be set in the SoundFieldGroupLabelSubDescriptor, unless the AudioEssence does not have a primary spoken language.");
                             }
+                            else{
+                                if(!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerPartition.getAudioEssenceSpokenLanguage()))
+                                {
+                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) is not RFC5646 compliant", headerPartition.getAudioEssenceSpokenLanguage())));
+                                }
+                            }
+
                             //Section 5.3.3 st2067-2:2016 and Section 10 st0382:2007
                             if(!StructuralMetadata.isAudioWaveClipWrapped(waveAudioEssenceDescriptor.getEssenceContainerUL().getULAsBytes()[14])){
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + "WaveAudioEssenceDescriptor indicates that the Audio Essence within an Audio Track File is not Wave Clip-Wrapped.");
@@ -495,5 +504,51 @@ public final class IMFConstraints
         {
             return this.headerPartitionOP1A.toString();
         }
+    }
+
+    /**
+     * A method to verify if the spoken language indicated in the SoundFieldGroupLabelSubDescriptor of the WaveAudioPCMDescriptor
+     * is RFC-5646 compliant or not
+     * @param rfc5646SpokenLanguage the language tag that needs to be verified
+     * @return a boolean indicating the result of the verification check
+     */
+    public static boolean isSpokenLanguageRFC5646Compliant(String rfc5646SpokenLanguage){
+        if(rfc5646SpokenLanguage != null){
+            Matcher matcher = buildRegExpLangRFC5646().matcher(rfc5646SpokenLanguage);
+            return matcher.find();
+        }
+        return false;
+    }
+
+    private static Pattern buildRegExpLangRFC5646()
+    {
+        String extLang = "([A-Za-z]{3}(-[A-Za-z]{3}){0,2})";
+        String language =
+                "(([a-zA-Z]{2,3}(-" + extLang + ")?)|([a-zA-Z]{5,8}))";
+        String script = "([A-Za-z]{4})";
+        String region = "([A-Za-z]{2}|\\d{3})";
+        String variant = "([A-Za-z0-9]{5,8}|(\\d[A-Z-a-z0-9]{3}))";
+        String singleton = "(\\d|[A-W]|[Y-Z]|[a-w]|[y-z])";
+        String extension = "(" + singleton + "(-[A-Za-z0-9]{2,8})+)";
+        String privateUse = "(x(-[A-Za-z0-9]{1,8})+)";
+
+        String langTag =
+                language + "(-" + script + ")?(-" + region + ")?(-" + variant
+                        + ")*(-" + extension + ")*(-" + privateUse + ")?";
+
+        String irregular =
+                "((en-GB-oed)|(i-ami)|(i-bnn)|(i-default)|(i-enochian)|(i-hak)|(i-klingon)|(i-lux)|(i-mingo)|(i-navajo)|(i-pwn)|(i-tao)|(i-tay)|(i-tsu)|(sgn-BE-FR)|(sgn-BE-NL)|(sgn-CH-DE))";
+        String regular =
+                "((art-lojban)|(cel-gaulish)|(no-bok)|(no-nyn)|(zh-guoyu)|(zh-hakka)|(zh-min)|(zh-min-nan)|(zh-xiang))";
+        String grandFathered = "(" + irregular + "|" + regular + ")";
+
+        StringBuffer languageTag = new StringBuffer();
+        languageTag.append("(^").append(privateUse).append("$)");
+        languageTag.append('|');
+        languageTag.append("(^").append(grandFathered).append("$)");
+        languageTag.append('|');
+        languageTag.append("(^").append(langTag).append("$)");
+
+        return Pattern.compile(languageTag.toString());
     }
 }

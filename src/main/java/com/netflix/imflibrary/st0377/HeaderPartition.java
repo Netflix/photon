@@ -65,6 +65,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
  */
@@ -81,6 +84,7 @@ public final class HeaderPartition
     private final Map<String, List<InterchangeObject.InterchangeObjectBO>> interchangeObjectBOsMap = new LinkedHashMap<>();
     private final Map<MXFUID, InterchangeObject> uidToMetadataSets = new LinkedHashMap<>();
     private final Map<MXFUID, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
+    private final IMFErrorLogger imfErrorLogger;
 
     private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
 
@@ -95,6 +99,7 @@ public final class HeaderPartition
      */
     public HeaderPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger) throws IOException
     {
+        this.imfErrorLogger = imfErrorLogger;
         long numBytesRead = 0;
         int numErrors = imfErrorLogger.getNumberOfErrors(); //Number of errors prior to parsing and reading the HeaderPartition
 
@@ -637,7 +642,7 @@ public final class HeaderPartition
                 if (rfc5646SpokenLanguage == null) {
                     rfc5646SpokenLanguage = soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage();
                 } else if (!rfc5646SpokenLanguage.equals(soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage())) {
-                    throw new MXFException(String.format("Language Codes (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", rfc5646SpokenLanguage, soundFieldGroupLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }
             /**
