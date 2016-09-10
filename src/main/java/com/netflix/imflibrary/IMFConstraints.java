@@ -170,21 +170,21 @@ public final class IMFConstraints
                             //Section 5.3.6.2 st2067-2:2016
                             if(subDescriptors.size() == 0){
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                        String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d MCALabelSubDescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), subDescriptors.size()));
+                                        String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), subDescriptors.size()));
                             }
                             else {
                                 //Section 5.3.6.2 st2067-2:2016
                                 List<InterchangeObject.InterchangeObjectBO> audioChannelLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(AudioChannelLabelSubDescriptor.class)).collect(Collectors.toList());
                                 if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d MCALabelSubDescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptors.size()));
+                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptors.size()));
                                 }
                                 for (InterchangeObject.InterchangeObjectBO interchangeObjectBO : audioChannelLabelSubDescriptors) {
                                     MCALabelSubDescriptor.MCALabelSubDescriptorBO mcaLabelSubDescriptorBO = MCALabelSubDescriptor.MCALabelSubDescriptorBO.class.cast(interchangeObjectBO);
                                     //Section 5.3.6.5 st2067-2:2016
                                     if (mcaLabelSubDescriptorBO.getMCAChannelID() == null) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                                String.format("WaveAudioEssenceDescriptor refers to a MCALabelSubDescriptors that does not have its Channel-ID property set %s", mcaLabelSubDescriptorBO.toString()));
+                                                String.format("WaveAudioEssenceDescriptor refers to a AudioChannelLabelSubdescriptor that does not have its Channel-ID property set %s", mcaLabelSubDescriptorBO.toString()));
                                     }
                                 }
                                 List<InterchangeObject.InterchangeObjectBO> soundFieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(SoundFieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
