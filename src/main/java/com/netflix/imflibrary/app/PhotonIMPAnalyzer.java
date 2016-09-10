@@ -274,12 +274,15 @@ public class PhotonIMPAnalyzer {
             } catch (IMFException e) {
                 assetMapErrorLogger.addAllErrors(e.getErrors());
             }
-            errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
+            finally {
+                errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
+            }
 
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-            errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
-
+        }
+        finally {
+            //errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
         }
 
 
