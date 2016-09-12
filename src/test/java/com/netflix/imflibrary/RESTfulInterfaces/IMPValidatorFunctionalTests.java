@@ -35,6 +35,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -58,6 +60,8 @@ import java.util.stream.Collectors;
 
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
+
+    private static final Logger logger = LoggerFactory.getLogger(IMFConstraints.class);
 
     @Test
     public void getPayloadTypeTest() throws IOException {
@@ -258,6 +262,9 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateIMFTrackFileHeaderMetadata(essencesHeaderPartition);
+        for(ErrorLogger.ErrorObject errorObject : errors){
+            logger.error(errorObject.toString());
+        }
         Assert.assertTrue(errors.size() == 4);
     }
 
