@@ -41,7 +41,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -183,26 +185,23 @@ public final class IMFConstraints
                             }
                             else {
                                 //Section 5.3.6.2 st2067-2:2016
-                                List<InterchangeObject.InterchangeObjectBO> audioChannelLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(AudioChannelLabelSubDescriptor.class)).collect(Collectors.toList());
-                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
+                                Map<Long, AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO> audioChannelLabelSubDescriptorMap = headerPartition.getAudioChannelIDToMCASubDescriptorMap();
+                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptorMap.size()) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptors.size()));
+                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptorMap.size()));
                                 }
-                                for (InterchangeObject.InterchangeObjectBO interchangeObjectBO : audioChannelLabelSubDescriptors) {
-                                    MCALabelSubDescriptor.MCALabelSubDescriptorBO mcaLabelSubDescriptorBO = MCALabelSubDescriptor.MCALabelSubDescriptorBO.class.cast(interchangeObjectBO);
+                                for (Long channelID = 1L ; channelID <= waveAudioEssenceDescriptor.getChannelCount() ; channelID++) {
                                     //Section 5.3.6.5 st2067-2:2016
-                                    if (mcaLabelSubDescriptorBO.getMCAChannelID() == null) {
+                                    if (!audioChannelLabelSubDescriptorMap.containsKey(channelID)) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                                String.format("WaveAudioEssenceDescriptor refers to a AudioChannelLabelSubdescriptor that does not have its Channel-ID property set %s", mcaLabelSubDescriptorBO.toString()));
+                                                String.format("AudioChannelLabelSubdescriptor missing for ChannelID %d", channelID));
                                     }
                                 }
                                 List<InterchangeObject.InterchangeObjectBO> soundFieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(SoundFieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
                                 //Section 5.3.6.3 st2067-2:2016
                                 if (soundFieldGroupLabelSubDescriptors.size() != 1) {
-                                    if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
-                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                                String.format("WaveAudioEssenceDescriptor refers to %d SoundFieldGroupLabelSubDescriptors exactly 1 is required", soundFieldGroupLabelSubDescriptors.size()));
-                                    }
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                            String.format("WaveAudioEssenceDescriptor refers to %d SoundFieldGroupLabelSubDescriptors exactly 1 is required", soundFieldGroupLabelSubDescriptors.size()));
                                 }
                                 else {
                                     SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO soundFieldGroupLabelSubDescriptorBO = SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO.class.cast(soundFieldGroupLabelSubDescriptors.get(0));
@@ -213,6 +212,21 @@ public final class IMFConstraints
                                             || (soundFieldGroupLabelSubDescriptorBO.getMCAAudioElementKind() == null || soundFieldGroupLabelSubDescriptorBO.getMCAAudioElementKind().isEmpty())) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                                 String.format("WaveAudioEssenceDescriptor refers to a SoundFieldGroupLabelSubDescriptor that is missing one/all of MCATitle, MCATitleVersion, MCAAudioContentKind, MCAAudioElementKind, %n%s.", soundFieldGroupLabelSubDescriptorBO.toString()));
+                                    }
+                                    SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor)headerPartition.getSoundFieldGroupLabelSubDescriptors()
+                                            .get(0);
+                                    List<InterchangeObject> audioChannelLabelSubDescriptors = headerPartition.getAudioChannelLabelSubDescriptors();
+                                    for (InterchangeObject interchangeObject : audioChannelLabelSubDescriptors) {
+                                        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = AudioChannelLabelSubDescriptor.class.cast(interchangeObject);
+                                        //Section 5.3.6.3 st2067-2:2016
+                                        if(!audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId()
+                                                .equals(soundFieldGroupLabelSubDescriptor.getMCALinkId())) {
+                                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                    String.format("Audio channel with MCALinkID %s refers to wrong SoundfieldGroupLinkId %s, Should refer to %s", audioChannelLabelSubDescriptor
+                                                                    .getMCALinkId().toString(),
+                                                            audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId().toString(),
+                                                            soundFieldGroupLabelSubDescriptor.getMCALinkId().toString()));
+                                        }
                                     }
                                 }
                             }
