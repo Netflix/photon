@@ -52,17 +52,16 @@ public class PhotonIMPAnalyzer {
                                 PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                 continue;
             }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+            try {
+                HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                     0L,
                     (long) payloadRecord.getPayload().length,
                     imfErrorLogger);
 
-            try {
                 /**
                  * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
                  * are in fact from the constituent resources of the VirtualTack
                  */
-                File workingDirectory = Files.createTempDirectory(null).toFile();
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
                 Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
@@ -77,12 +76,7 @@ public class PhotonIMPAnalyzer {
             }
         }
 
-        if (imfErrorLogger.hasFatalErrors()) {
-            return new HashMap<>();
-        }
-
         return Collections.unmodifiableMap(trackFileIDMap);
-
     }
 
 
@@ -190,21 +184,28 @@ public class PhotonIMPAnalyzer {
 
                             if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
-                                UUID trackFileID = null;
 
-                                PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
-                                if(headerPartitionPayloadRecord == null) {
-                                    trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                            String.format("Failed to get header partition for %s", assetFile.getPath()));
+                                try {
+                                    PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
+                                    if (headerPartitionPayloadRecord == null) {
+                                        trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                                String.format("Failed to get header partition for %s", assetFile.getPath()));
+                                    } else {
+                                        List<PayloadRecord> payloadRecords = new ArrayList<>();
+                                        payloadRecords.add(headerPartitionPayloadRecord);
+                                        trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
+                                    }
+                                    if (!trackFileErrorLogger.hasFatalErrors()) {
+                                        headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
+                                    }
+                                } catch( MXFException e) {
+                                    trackFileErrorLogger.addAllErrors(e.getErrors());
                                 }
-                                else {
-                                    List<PayloadRecord> payloadRecords = new ArrayList<>();
-                                    payloadRecords.add(headerPartitionPayloadRecord);
-                                    trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
+                                catch( IMFException e) {
+                                    trackFileErrorLogger.addAllErrors(e.getErrors());
                                 }
-                                errorMap.put(assetFile.getName(), trackFileErrorLogger.getErrors());
-                                if (!trackFileErrorLogger.hasFatalErrors()) {
-                                    headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
+                                finally {
+                                    errorMap.put(assetFile.getName(), trackFileErrorLogger.getErrors());
                                 }
                             }
                         }
@@ -277,12 +278,9 @@ public class PhotonIMPAnalyzer {
             finally {
                 errorMap.put(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME, assetMapErrorLogger.getErrors());
             }
-
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-        }
-        finally {
-            //errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
+            errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
         }
 
 
