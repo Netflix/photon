@@ -65,6 +65,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -661,6 +662,22 @@ public final class HeaderPartition
             }*/
         }
         return rfc5646SpokenLanguage;
+    }
+
+    /**
+     * A method that returns the Channel ID to AudioChannelLabelSubDescriptor
+     * @return Channel ID to AudioChannelLabelSubDescriptor mapping
+     */
+    @Nullable
+    public Map<Long, AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO> getAudioChannelIDToMCASubDescriptorMap() {
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = getSubDescriptors();
+
+        Map<Long, AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO> audioChannelLabelSubDescriptorMap = new HashMap<>();
+        subDescriptors.stream()
+                .filter(e -> e.getClass().getEnclosingClass().equals(AudioChannelLabelSubDescriptor.class))
+                .map(e -> AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class.cast(e))
+                .forEach(e -> audioChannelLabelSubDescriptorMap.put(e.getMCAChannelID() == null? 1 : e.getMCAChannelID(), e));
+        return audioChannelLabelSubDescriptorMap;
     }
 
     /**
