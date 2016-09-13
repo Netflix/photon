@@ -669,14 +669,13 @@ public final class HeaderPartition
      * @return Channel ID to AudioChannelLabelSubDescriptor mapping
      */
     @Nullable
-    public Map<Long, AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO> getAudioChannelIDToMCASubDescriptorMap() {
-        List<InterchangeObject.InterchangeObjectBO> subDescriptors = getSubDescriptors();
+    public Map<Long, AudioChannelLabelSubDescriptor> getAudioChannelIDToMCASubDescriptorMap() {
+        List<InterchangeObject> subDescriptors = getAudioChannelLabelSubDescriptors();
 
-        Map<Long, AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO> audioChannelLabelSubDescriptorMap = new HashMap<>();
+        Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = new HashMap<>();
         subDescriptors.stream()
-                .filter(e -> e.getClass().getEnclosingClass().equals(AudioChannelLabelSubDescriptor.class))
-                .map(e -> AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class.cast(e))
-                .forEach(e -> audioChannelLabelSubDescriptorMap.put(e.getMCAChannelID() == null? 1 : e.getMCAChannelID(), e));
+                .map(e -> AudioChannelLabelSubDescriptor.class.cast(e))
+                .forEach(e -> audioChannelLabelSubDescriptorMap.put(e.getMCAChannelId() == null? 1 : e.getMCAChannelId(), e));
         return audioChannelLabelSubDescriptorMap;
     }
 

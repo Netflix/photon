@@ -71,6 +71,16 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
     }
 
     /**
+     * Getter for the MCAChannelId field of an AudioChannelLabelSubDescriptor object.
+     * @return MCAChannelId of the AudioChannelLabelSubDescriptor object
+     */
+
+    public Long getMCAChannelId()
+    {
+        return this.audioChannelLabelSubDescriptorBO.getMCAChannelID();
+    }
+
+    /**
      * A method that returns a string representation of an AudioChannelLabelSubDescriptor object.
      *
      * @return string representing the object
