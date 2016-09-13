@@ -40,10 +40,12 @@ import com.netflix.imflibrary.utils.Utilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -169,7 +171,11 @@ public final class IMFConstraints
                             else{
                                 if(!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerPartition.getAudioEssenceSpokenLanguage()))
                                 {
-                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) is not RFC5646 compliant", headerPartition.getAudioEssenceSpokenLanguage())));
+                                    GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                                    filePackage = (SourcePackage)genericPackage;
+                                    UUID packageID = filePackage.getPackageMaterialNumberasUUID();
+                                    List<String> strings = IMFConstraints.getPrimarySpokenLanguageUnicodeString(headerPartition.getAudioEssenceSpokenLanguage());
+                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in SoundFieldGroupLabelSubdescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", strings, packageID.toString())));
                                 }
                             }
 
@@ -532,6 +538,56 @@ public final class IMFConstraints
             return matcher.find();
         }
         return false;
+    }
+
+    private static List<String> getPrimarySpokenLanguageUnicodeString(String rfc5646SpokenLanguage){
+
+        Integer asciiStartRange = 0x21;
+        Integer asciiEndRange = 0x7e;
+        String inputString = rfc5646SpokenLanguage;
+        char[] charArray = inputString.toCharArray();
+        List<Integer> unicodeCodePoints = new ArrayList<>();
+        for (int i=0; i<charArray.length;)
+        {
+            if (!Character.isHighSurrogate(charArray[i]))
+            {
+                int unicodeCodePoint = Character.codePointAt(charArray, i, (i+1));
+                unicodeCodePoints.add(unicodeCodePoint);
+                i++;
+            }
+            else
+            {
+                if ((i + 1) < charArray.length)
+                {
+                    int unicodeCodePoint = Character.codePointAt(charArray, i, (i+2));
+                    unicodeCodePoints.add(unicodeCodePoint);
+                    i += 2;
+                }
+                else
+                {
+                    throw new IllegalArgumentException(String.format("Invalid character in '%s'. Only high surrogate exists", new String(charArray)));
+                }
+            }
+        }
+
+        StringBuilder unicodeString = new StringBuilder();
+        unicodeString.append("0x");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int unicodeCodePoint : unicodeCodePoints)
+        {
+            unicodeString.append(String.format("%02x", unicodeCodePoint));
+            if(unicodeCodePoint > asciiStartRange
+                    || unicodeCodePoint < asciiEndRange){
+                stringBuilder.append(".");
+            }
+            else{
+                stringBuilder.append(String.format("%s", String.copyValueOf(Character.toChars(unicodeCodePoint))));
+            }
+        }
+        List<String> strings = new ArrayList<>();
+        strings.add(unicodeString.toString());
+        strings.add(stringBuilder.toString());
+        return strings;
     }
 
     private static Pattern buildRegExpLangRFC5646()
