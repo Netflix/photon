@@ -167,7 +167,7 @@ public final class IMFConstraints
                             else{
                                 if(!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerPartition.getAudioEssenceSpokenLanguage()))
                                 {
-                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code %s is not RFC5646 compliant", headerPartition.getAudioEssenceSpokenLanguage())));
+                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) is not RFC5646 compliant", headerPartition.getAudioEssenceSpokenLanguage())));
                                 }
                             }
 
