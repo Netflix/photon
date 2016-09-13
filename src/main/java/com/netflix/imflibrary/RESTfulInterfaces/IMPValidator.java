@@ -558,20 +558,24 @@ public class IMPValidator {
                         .getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                 continue;
             }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+            HeaderPartition headerPartition = null;
+            try {
+                headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                     0L,
                     (long)payloadRecord.getPayload().length,
                     imfErrorLogger);
-            try {
+
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
             }
             catch (IMFException | MXFException e){
-                Preface preface = headerPartition.getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage)genericPackage;
-                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                if(headerPartition != null) {
+                    Preface preface = headerPartition.getPreface();
+                    GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                    SourcePackage filePackage = (SourcePackage) genericPackage;
+                    UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                }
                 if(e instanceof IMFException){
                     IMFException imfException = (IMFException)e;
                     imfErrorLogger.addAllErrors(imfException.getErrors());
