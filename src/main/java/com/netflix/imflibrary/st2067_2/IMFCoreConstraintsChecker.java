@@ -18,10 +18,18 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * A class that performs 2013 CoreConstraints st2067-2:2013 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
+ * A class that performs CoreConstraints st2067-2 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
  */
 final class IMFCoreConstraintsChecker {
 
+    private static final Set<String> VirtualTrackHomogeneityIgnoreSet = new HashSet<String>(){{
+        add("InstanceUID");
+        add("InstanceID");
+        add("EssenceLength");
+        add("AlternativeCenterCuts");
+        add("MCALinkID");
+        add("LinkedTrackID");
+    }};
 
     //To prevent instantiation
     private IMFCoreConstraintsChecker(){
@@ -140,21 +148,15 @@ final class IMFCoreConstraintsChecker {
                             String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
                 else {
-                    Set<String> ignoreSet = new HashSet<>();
-                    ignoreSet.add("InstanceUID");
-                    ignoreSet.add("InstanceID");
-                    ignoreSet.add("EssenceLength");
-                    ignoreSet.add("AlternativeCenterCuts");
-                    ignoreSet.add("MCALinkID");
                     boolean isVirtualTrackHomogeneous = true;
-                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), ignoreSet);
+                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
-                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet));
+                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet));
                     }
                     List<DOMNodeObjectModel> modelsIgnoreSet = new ArrayList<>();
                     if (!isVirtualTrackHomogeneous) {
                         for(int i = 1; i< virtualTrackEssenceDescriptors.size(); i++){
-                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), ignoreSet);
+                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet);
                             modelsIgnoreSet.add(other);
                             imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(refDOMNodeObjectModel, other));
                         }
