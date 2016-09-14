@@ -220,17 +220,30 @@ public final class IMFConstraints
                                     SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor)headerPartition.getSoundFieldGroupLabelSubDescriptors()
                                             .get(0);
                                     List<InterchangeObject> audioChannelLabelSubDescriptors = headerPartition.getAudioChannelLabelSubDescriptors();
-                                    for (InterchangeObject interchangeObject : audioChannelLabelSubDescriptors) {
-                                        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = AudioChannelLabelSubDescriptor.class.cast(interchangeObject);
-                                        //Section 5.3.6.3 st2067-2:2016
-                                        if(!audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId()
-                                                .equals(soundFieldGroupLabelSubDescriptor.getMCALinkId())) {
-                                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                                    String.format("Audio channel with MCALinkID %s refers to wrong SoundfieldGroupLinkId %s, Should refer to %s, in the IMFTrackFile represented by ID %s", audioChannelLabelSubDescriptor
-                                                                    .getMCALinkId().toString(),
-                                                            audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId().toString(),
-                                                            soundFieldGroupLabelSubDescriptor.getMCALinkId().toString(),
-                                                            packageID.toString()));
+                                    if(soundFieldGroupLabelSubDescriptor.getMCALinkId() == null) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                String.format("soundFieldGroupLabelSubDescriptor is missing MCALinkID, in the IMFTrackFile represented by ID %s",
+                                                        packageID.toString()));
+                                    }
+                                    else
+                                    {
+                                        for (InterchangeObject interchangeObject : audioChannelLabelSubDescriptors) {
+                                            AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = AudioChannelLabelSubDescriptor.class.cast(interchangeObject);
+                                            //Section 5.3.6.3 st2067-2:2016
+                                            if(audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId() == null) {
+                                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                        String.format("Audio channel with MCALinkID %s is missing SoundfieldGroupLinkId, in the IMFTrackFile represented by ID %s",
+                                                                audioChannelLabelSubDescriptor.getMCALinkId() != null ? audioChannelLabelSubDescriptor.getMCALinkId().toString() : "",
+                                                                packageID.toString()));
+                                            } else if(!audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId()
+                                                    .equals(soundFieldGroupLabelSubDescriptor.getMCALinkId())) {
+                                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
+                                                        String.format("Audio channel with MCALinkID %s refers to wrong SoundfieldGroupLinkId %s, Should refer to %s, in the IMFTrackFile represented by ID %s",
+                                                                audioChannelLabelSubDescriptor.getMCALinkId() != null ? audioChannelLabelSubDescriptor.getMCALinkId().toString() : "",
+                                                                audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId().toString(),
+                                                                soundFieldGroupLabelSubDescriptor.getMCALinkId().toString(),
+                                                                packageID.toString()));
+                                            }
                                         }
                                     }
                                 }
