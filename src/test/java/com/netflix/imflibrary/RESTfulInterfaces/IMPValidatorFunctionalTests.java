@@ -472,6 +472,168 @@ public class IMPValidatorFunctionalTests {
         Assert.assertTrue(conformanceErrors.size() == 0);
     }
 
+    private byte[] getHeaderPartition(File inputFile) throws IOException {
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long rangeEnd = archiveFileSize - 1;
+        long rangeStart = archiveFileSize - 4;
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
+        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+
+        rangeStart = archiveFileSize - randomIndexPackSize;
+        rangeEnd = archiveFileSize - 1;
+
+        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
+        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+        return resourceByteRangeProvider.getByteRangeAsBytes(partitionByteOffsets.get(0), partitionByteOffsets.get(1)-1);
+    }
+
+    @Test
+    public void cplConformancePositiveTestFixedIMP()
+            throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
+        File inputFile = new File ("/Users/schakrovorthy/Assets/IMFAssets/TestIMPs/20160902_ChimeraShortClips_EasyDCP_23976_2/CPL_a611c132-df6c-4c8e-a010-8920cf0fab8d.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        Composition composition = new Composition(resourceByteRangeProvider);
+
+        //Resource-1
+        File imfTrackFile = new File ("/Users/schakrovorthy/Assets/IMFAssets/TestIMPs/20160902_ChimeraShortClips_EasyDCP_23976_2/4d38dcf8-3be3-4849-b31f-95e51445f192_pcm.mxf");
+        byte[] bytes1 = getHeaderPartition(imfTrackFile);
+        ByteProvider byteProvider = new ByteArrayDataProvider(bytes1);
+
+        HeaderPartition headerPartition1 = new HeaderPartition(byteProvider,
+                0L,
+                bytes1.length,
+                imfErrorLogger);
+        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition1, imfErrorLogger);
+        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+        Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        SourcePackage filePackage = (SourcePackage) genericPackage;
+        UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes1,
+                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes1)),
+                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                imfTrackFile.getName(),
+                imfTrackFile.length()));
+
+        //Resource-2
+        imfTrackFile = new File ("/Users/schakrovorthy/Assets/IMFAssets/TestIMPs/20160902_ChimeraShortClips_EasyDCP_23976_2/488b1db1-6c31-4d92-9a90-53bbe9726f75_pcm.mxf");
+        byte[] bytes2 = getHeaderPartition(imfTrackFile);
+        byteProvider = new ByteArrayDataProvider(bytes2);
+
+        HeaderPartition headerPartition2 = new HeaderPartition(byteProvider,
+                0L,
+                bytes2.length,
+                imfErrorLogger);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition2, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+        preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+        genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        filePackage = (SourcePackage) genericPackage;
+        packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes2,
+                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes2)),
+                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                imfTrackFile.getName(),
+                imfTrackFile.length()));
+
+        //Resource-3
+        imfTrackFile = new File ("/Users/schakrovorthy/Assets/IMFAssets/TestIMPs/20160902_ChimeraShortClips_EasyDCP_23976_2/e27b89f3-9969-4540-a920-033f663b0d09_j2c.mxf");
+        byte[] bytes3 = getHeaderPartition(imfTrackFile);
+        byteProvider = new ByteArrayDataProvider(bytes3);
+
+        HeaderPartition headerPartition3 = new HeaderPartition(byteProvider,
+                0L,
+                bytes3.length,
+                imfErrorLogger);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition3, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+        preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+        genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        filePackage = (SourcePackage) genericPackage;
+        packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes3,
+                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes3)),
+                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                imfTrackFile.getName(),
+                imfTrackFile.length()));
+
+        //Resource-4
+        imfTrackFile = new File ("/Users/schakrovorthy/Assets/IMFAssets/TestIMPs/20160902_ChimeraShortClips_EasyDCP_23976_2/f28b9dae-2e68-483b-a96d-9b6fb5580fe7_j2c.mxf");
+        byte[] bytes4 = getHeaderPartition(imfTrackFile);
+        byteProvider = new ByteArrayDataProvider(bytes4);
+
+        HeaderPartition headerPartition4 = new HeaderPartition(byteProvider,
+                0L,
+                bytes4.length,
+                imfErrorLogger);
+        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition4, imfErrorLogger);
+        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+        preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+        genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        filePackage = (SourcePackage) genericPackage;
+        packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes4,
+                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes4)),
+                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                imfTrackFile.getName(),
+                imfTrackFile.length()));
+
+        //Create a temporary working directory under home
+        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
+        File tempDir = tempPath.toFile();
+
+        IMPBuilder.buildIMP_2016("IMP",
+                "Netflix",
+                composition.getVirtualTracks(),
+                composition.getEditRate(),
+                imfTrackFileMetadataMap,
+                tempDir);
+
+        boolean cplFound = false;
+        File cplFile = null;
+
+        for (File file : tempDir.listFiles()) {
+            if (file.getName().contains("CPL-")) {
+                cplFound = true;
+                cplFile = file;
+            }
+        }
+        Assert.assertTrue(cplFound == true);
+
+        ResourceByteRangeProvider fileByteRangeProvider = new FileByteRangeProvider(cplFile);
+        byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
+        PayloadRecord cplPayloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
+        Assert.assertTrue(errors.size() == 0);
+
+        composition = new Composition(fileByteRangeProvider);
+        Assert.assertTrue(composition.getErrors().size() == 0);
+
+        PayloadRecord headerPartition1PayloadRecord = new PayloadRecord(bytes1, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
+        PayloadRecord headerPartition2PayloadRecord = new PayloadRecord(bytes2, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
+        PayloadRecord headerPartition3PayloadRecord = new PayloadRecord(bytes3, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
+        PayloadRecord headerPartition4PayloadRecord = new PayloadRecord(bytes4, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
+        List<PayloadRecord> essencesHeaderPartitionPayloads = new ArrayList<>();
+
+        essencesHeaderPartitionPayloads.add(headerPartition1PayloadRecord);
+        essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
+        essencesHeaderPartitionPayloads.add(headerPartition3PayloadRecord);
+        essencesHeaderPartitionPayloads.add(headerPartition4PayloadRecord);
+
+        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartitionPayloads);
+        Assert.assertTrue(conformanceErrors.size() == 2);
+    }
+
     @Test
     public void cplMergeabilityNegativeTest() throws IOException {
 
