@@ -576,8 +576,8 @@ public final class IMFConstraints
         for (int unicodeCodePoint : unicodeCodePoints)
         {
             unicodeString.append(String.format("%02x", unicodeCodePoint));
-            if(unicodeCodePoint > asciiStartRange
-                    || unicodeCodePoint < asciiEndRange){
+            if(unicodeCodePoint < asciiStartRange
+                    || unicodeCodePoint > asciiEndRange){
                 stringBuilder.append(".");
             }
             else{
