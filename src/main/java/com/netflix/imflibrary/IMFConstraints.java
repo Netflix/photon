@@ -190,12 +190,14 @@ public final class IMFConstraints
                                         String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), subDescriptors.size()));
                             }
                             else {
+                                List<InterchangeObject> audioChannelLabelSubDescriptors = headerPartition.getAudioChannelLabelSubDescriptors();
                                 //Section 5.3.6.2 st2067-2:2016
-                                Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = headerPartition.getAudioChannelIDToMCASubDescriptorMap();
-                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptorMap.size()) {
+                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptors.size()) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
-                                            String.format("WaveAudioEssenceDescriptor indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptorMap.size()));
+                                            String.format("WaveAudioEssenceDescriptor1 indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel " +
+                                                    "should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptors.size()));
                                 }
+                                Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = headerPartition.getAudioChannelIDToMCASubDescriptorMap();
                                 for (Long channelID = 1L ; channelID <= waveAudioEssenceDescriptor.getChannelCount() ; channelID++) {
                                     //Section 5.3.6.5 st2067-2:2016
                                     if (!audioChannelLabelSubDescriptorMap.containsKey(channelID)) {
@@ -221,7 +223,6 @@ public final class IMFConstraints
                                     }
                                     SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor)headerPartition.getSoundFieldGroupLabelSubDescriptors()
                                             .get(0);
-                                    List<InterchangeObject> audioChannelLabelSubDescriptors = headerPartition.getAudioChannelLabelSubDescriptors();
                                     for (InterchangeObject interchangeObject : audioChannelLabelSubDescriptors) {
                                         AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = AudioChannelLabelSubDescriptor.class.cast(interchangeObject);
                                         //Section 5.3.6.3 st2067-2:2016
