@@ -265,7 +265,7 @@ public class IMPValidatorFunctionalTests {
         for(ErrorLogger.ErrorObject errorObject : errors){
             logger.error(errorObject.toString());
         }
-        Assert.assertTrue(errors.size() == 6);
+        Assert.assertTrue(errors.size() == 8);
     }
 
     @Test
@@ -374,7 +374,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 2);
+        Assert.assertTrue(errors.size() == 1);
     }
 
     @Test
@@ -471,106 +471,6 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, composition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
         Assert.assertTrue(conformanceErrors.size() == 0);
     }
-
-/*
-    @Test
-    public void cplConformancePositiveTest()
-            throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider, imfErrorLogger);
-
-        File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
-        resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
-        ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider,
-                0L,
-                bytes.length,
-                imfErrorLogger);
-        MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-        Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-        SourcePackage filePackage = (SourcePackage) genericPackage;
-        UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-
-        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes,
-                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes)),
-                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                "NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf",
-                bytes.length));
-
-
-        File headerPartition2 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2398_full_full.mxf.hdr");
-        resourceByteRangeProvider = new FileByteRangeProvider(headerPartition2);
-        bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
-        byteProvider = new ByteArrayDataProvider(bytes);
-        headerPartition = new HeaderPartition(byteProvider,
-                0L,
-                bytes.length,
-                imfErrorLogger);
-        headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition);
-        headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A);
-        preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-        genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-        filePackage = (SourcePackage) genericPackage;
-        packageUUID = filePackage.getPackageMaterialNumberasUUID();
-
-        imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes,
-                IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes)),
-                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                "NYCbCrLT_3840x2160x2398_full_full.mxf",
-                bytes.length));
-
-        //Create a temporary working directory under home
-        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-        File tempDir = tempPath.toFile();
-
-        IMPBuilder.buildIMP_2016("IMP",
-                "Netflix",
-                composition.getVirtualTracks(),
-                composition.getEditRate(),
-                imfTrackFileMetadataMap,
-                tempDir);
-
-        boolean cplFound = false;
-        File cplFile = null;
-
-        for (File file : tempDir.listFiles()) {
-            if (file.getName().contains("CPL-")) {
-                cplFound = true;
-                cplFile = file;
-            }
-        }
-        Assert.assertTrue(cplFound == true);
-
-        ResourceByteRangeProvider fileByteRangeProvider = new FileByteRangeProvider(cplFile);
-        byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
-        PayloadRecord cplPayloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
-        Assert.assertTrue(errors.size() == 0);
-        IMFErrorLogger cplConformanceErrorLogger = new IMFErrorLoggerImpl();
-
-        composition = new Composition(fileByteRangeProvider, cplConformanceErrorLogger);
-        fileByteRangeProvider = new FileByteRangeProvider(headerPartition1);
-        byte[] headerPartition1_bytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
-        PayloadRecord headerPartition1PayloadRecord = new PayloadRecord(headerPartition1_bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
-
-        fileByteRangeProvider = new FileByteRangeProvider(headerPartition2);
-        byte[] headerPartition2_bytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
-        PayloadRecord headerPartition2PayloadRecord = new PayloadRecord(headerPartition2_bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
-        List<PayloadRecord> essencesHeaderPartitionPayloads = new ArrayList<>();
-
-        essencesHeaderPartitionPayloads.add(headerPartition1PayloadRecord);
-        essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
-
-        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartitionPayloads);
-        Assert.assertTrue(conformanceErrors.size() == 0);
-    }
-*/
 
     @Test
     public void cplMergeabilityNegativeTest() throws IOException {

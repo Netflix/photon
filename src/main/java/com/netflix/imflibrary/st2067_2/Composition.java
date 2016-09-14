@@ -1523,6 +1523,7 @@ public final class Composition {
         //ignoreSet.add("InstanceID");
         //ignoreSet.add("EssenceLength");
         //ignoreSet.add("AlternativeCenterCuts");
+        //ignoreSet.add("GroupOfSoundfieldGroupsLinkID");
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
