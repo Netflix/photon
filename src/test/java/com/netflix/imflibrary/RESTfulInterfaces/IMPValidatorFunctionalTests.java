@@ -265,7 +265,7 @@ public class IMPValidatorFunctionalTests {
         for(ErrorLogger.ErrorObject errorObject : errors){
             logger.error(errorObject.toString());
         }
-        Assert.assertTrue(errors.size() == 6);
+        Assert.assertTrue(errors.size() == 8);
     }
 
     @Test
