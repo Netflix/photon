@@ -57,6 +57,9 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
 
     public MXFUID getSoundfieldGroupLinkId()
     {
+        if(this.audioChannelLabelSubDescriptorBO.soundfield_group_link_id == null) {
+            return null;
+        }
         return new MXFUID(this.audioChannelLabelSubDescriptorBO.soundfield_group_link_id);
     }
 
@@ -67,6 +70,9 @@ public final class AudioChannelLabelSubDescriptor extends GenericDescriptor
 
     public MXFUID getMCALinkId()
     {
+        if(this.audioChannelLabelSubDescriptorBO.mca_link_id == null) {
+            return null;
+        }
         return new MXFUID(this.audioChannelLabelSubDescriptorBO.mca_link_id);
     }
 

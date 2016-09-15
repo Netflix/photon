@@ -61,6 +61,9 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
      */
     public MXFUID getMCALinkId()
     {
+        if(this.soundFieldGroupLabelSubDescriptorBO.mca_link_id == null) {
+            return null;
+        }
         return new MXFUID(this.soundFieldGroupLabelSubDescriptorBO.mca_link_id);
     }
 
