@@ -298,7 +298,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 5);
+        Assert.assertTrue(errors.size() == 8);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL"));
     }
