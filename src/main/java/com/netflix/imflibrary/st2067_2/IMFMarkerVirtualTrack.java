@@ -28,8 +28,9 @@ import java.util.UUID;
 @Immutable
 public final class IMFMarkerVirtualTrack extends Composition.VirtualTrack {
     public IMFMarkerVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
-                                 List<IMFMarkerResourceType> resourceList){
-        super(trackID, sequenceTypeEnum, resourceList);
+                                 List<IMFMarkerResourceType> resourceList,
+                                 Composition.EditRate compositionEditRate){
+        super(trackID, sequenceTypeEnum, resourceList, compositionEditRate);
     }
 
     /**
