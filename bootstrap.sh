@@ -66,8 +66,6 @@ fi
 
 echo "Checking out ${check_this_out}"
 git checkout ${check_this_out} || die "Error: can't checkout ${check_this_out} in ${photon_git_repo_dir}"
-echo "Getting latest code"
-git pull || die "Error: Can't perform git pull in ${photon_git_repo_dir}"
 
 echo "Cleaning the build dir"
 ./gradlew clean || die "Failure while running ./gradlew clean"
