@@ -270,17 +270,17 @@ public class CompositionTest
         resourceList10.add(imfTrackFileResourceType6);
         resourceList10.add(imfTrackFileResourceType3);
 
-
-        Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList1);
-        Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList2);
-        Composition.VirtualTrack virtualTrack3 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList3);
-        Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList4);
-        Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList5);
-        Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList6);
-        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList7);
-        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList8);
-        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList9);
-        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList10);
+        Composition.EditRate compositionEditRate = new Composition.EditRate(editRate);
+        Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList1, compositionEditRate);
+        Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList2, compositionEditRate);
+        Composition.VirtualTrack virtualTrack3 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList3, compositionEditRate);
+        Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList4, compositionEditRate);
+        Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList5, compositionEditRate);
+        Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList6, compositionEditRate);
+        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList7, compositionEditRate);
+        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList8, compositionEditRate);
+        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList9, compositionEditRate);
+        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList10, compositionEditRate);
 
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack2) == false);
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack3) == true);

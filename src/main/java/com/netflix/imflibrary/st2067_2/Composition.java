@@ -278,11 +278,13 @@ public final class Composition {
                     if (virtualTrackResourceList.get(0) instanceof IMFTrackFileResourceType) {
                         virtualTrack = new IMFEssenceComponentVirtualTrack(uuid,
                                 sequence.getType(),
-                                (List<IMFTrackFileResourceType>) virtualTrackResourceList);
+                                (List<IMFTrackFileResourceType>) virtualTrackResourceList,
+                                compositionPlaylistType.getEditRate());
                     } else if (virtualTrackResourceList.get(0) instanceof IMFMarkerResourceType) {
                         virtualTrack = new IMFMarkerVirtualTrack(uuid,
                                 sequence.getType(),
-                                (List<IMFMarkerResourceType>) virtualTrackResourceList);
+                                (List<IMFMarkerResourceType>) virtualTrackResourceList,
+                                compositionPlaylistType.getEditRate());
                     }
                 }
                 virtualTrackMap.put(uuid, virtualTrack);
@@ -915,6 +917,7 @@ public final class Composition {
         protected final UUID trackID;
         protected final SequenceTypeEnum sequenceTypeEnum;
         protected final List<? extends IMFBaseResourceType> resources;
+        protected final Composition.EditRate compositionEditRate;
 
         /**
          * Constructor for a VirtualTrack object
@@ -922,11 +925,13 @@ public final class Composition {
          * @param trackID          the UUID associated with this VirtualTrack object
          * @param sequenceTypeEnum the type of the associated sequence
          * @param resources        the resource list of the Virtual Track
+         * @param compositionEditRate the edit rate of the composition
          */
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum, List<? extends IMFBaseResourceType> resources) {
+        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum, List<? extends IMFBaseResourceType> resources, Composition.EditRate compositionEditRate) {
             this.trackID = trackID;
             this.sequenceTypeEnum = sequenceTypeEnum;
             this.resources = resources;
+            this.compositionEditRate = compositionEditRate;
         }
 
         /**
@@ -960,7 +965,7 @@ public final class Composition {
          * A method to return the duration of this VirtualTrack
          * @return a long integer representing the duration of this VirtualTrack
          */
-        public long getDuration(){
+        public long getDurationInCompositionEditUnits(){
             long duration = 0L;
             if(this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)
                     || this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)){
@@ -970,7 +975,9 @@ public final class Composition {
                     duration += imfTrackFileResourceType.getSourceDuration().longValue() * imfTrackFileResourceType.getRepeatCount().longValue();
                 }
             }
-            return duration;
+            Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();//Resources of this virtual track should all have the same edit rate we enforce that check during IMFCoreConstraintsChecker.checkVirtualTracks()
+            long durationInCompositionEditUnits = Math.round((double) duration * (((double)this.compositionEditRate.getNumerator()/this.compositionEditRate.getDenominator()) / ((double)resourceEditRate.getNumerator()/resourceEditRate.getDenominator())));
+            return durationInCompositionEditUnits;
         }
 
         /**
@@ -989,7 +996,7 @@ public final class Composition {
             List<? extends IMFBaseResourceType> otherResourceList = other.resources;
             boolean result = false;
             if(this instanceof IMFEssenceComponentVirtualTrack){
-                if(this.getDuration() != other.getDuration()){
+                if(this.getDurationInCompositionEditUnits() != other.getDurationInCompositionEditUnits()){
                     return false;
                 }
                 IMFEssenceComponentVirtualTrack thisVirtualTrack = IMFEssenceComponentVirtualTrack.class.cast(this);
