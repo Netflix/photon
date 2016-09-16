@@ -963,9 +963,9 @@ public final class Composition {
 
         /**
          * A method to return the duration of this VirtualTrack
-         * @return a long integer representing the duration of this VirtualTrack
+         * @return a long integer representing the duration of this VirtualTrack in Track Edit Rate units
          */
-        public long getDurationInCompositionEditUnits(){
+        public long getDurationInTrackEditRateUnits(){
             long duration = 0L;
             if(this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainImageSequence)
                     || this.getSequenceTypeEnum().equals(SequenceTypeEnum.MainAudioSequence)){
@@ -975,6 +975,15 @@ public final class Composition {
                     duration += imfTrackFileResourceType.getSourceDuration().longValue() * imfTrackFileResourceType.getRepeatCount().longValue();
                 }
             }
+            return duration;
+        }
+
+        /**
+         * A method to return the duration of this VirtualTrack
+         * @return a long integer representing the duration of this VirtualTrack in Composition Edit Rate units
+         */
+        public long getDuration(){
+            long duration = getDurationInTrackEditRateUnits();
             Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();//Resources of this virtual track should all have the same edit rate we enforce that check during IMFCoreConstraintsChecker.checkVirtualTracks()
             long durationInCompositionEditUnits = Math.round((double) duration * (((double)this.compositionEditRate.getNumerator()/this.compositionEditRate.getDenominator()) / ((double)resourceEditRate.getNumerator()/resourceEditRate.getDenominator())));
             return durationInCompositionEditUnits;
