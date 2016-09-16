@@ -7,7 +7,7 @@
 #  - Can be run using \curl -sSL https://raw.githubusercontent.com/Netflix/photon/master/bootstrap.sh | bash
 
 
-photon_git_repo_url=https://github.com/Netflix/photon.git
+photon_git_repo_url=git@github.com:Netflix/photon.git
 photon_git_repo_parent_dir=~/Projects/stash
 photon_git_repo_dir=${photon_git_repo_parent_dir}/photon
 photon_install_dir=~/dev/photon_builds/$(date +"%Y-%m-%d")
