@@ -1005,7 +1005,7 @@ public final class Composition {
             List<? extends IMFBaseResourceType> otherResourceList = other.resources;
             boolean result = false;
             if(this instanceof IMFEssenceComponentVirtualTrack){
-                if(this.getDurationInCompositionEditUnits() != other.getDurationInCompositionEditUnits()){
+                if(this.getDuration() != other.getDuration()){
                     return false;
                 }
                 IMFEssenceComponentVirtualTrack thisVirtualTrack = IMFEssenceComponentVirtualTrack.class.cast(this);
