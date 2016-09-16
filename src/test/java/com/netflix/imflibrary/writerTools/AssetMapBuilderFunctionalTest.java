@@ -97,7 +97,7 @@ public class AssetMapBuilderFunctionalTest {
 
         File assetMapFile = null;
         for(File file : tempDir.listFiles()){
-            if(file.getName().contains("AssetMap-")){
+            if(file.getName().contains("ASSETMAP.xml")){
                 assetMapFile = file;
             }
         }

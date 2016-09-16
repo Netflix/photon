@@ -155,7 +155,7 @@ public class IMPBuilderFunctionalTest {
         File cplFile = null;
 
         for(File file : tempDir.listFiles()){
-            if(file.getName().contains("AssetMap-")){
+            if(file.getName().contains("ASSETMAP.xml")){
                 assetMapFound = true;
                 assetMapFile = file;
             }
@@ -286,7 +286,7 @@ public class IMPBuilderFunctionalTest {
         File cplFile = null;
 
         for(File file : tempDir.listFiles()){
-            if(file.getName().contains("AssetMap-")){
+            if(file.getName().contains("ASSETMAP.xml")){
                 assetMapFound = true;
                 assetMapFile = file;
             }
@@ -395,7 +395,7 @@ public class IMPBuilderFunctionalTest {
         File cplFile = null;
 
         for(File file : tempDir.listFiles()){
-            if(file.getName().contains("AssetMap-")){
+            if(file.getName().contains("ASSETMAP.xml")){
                 assetMapFound = true;
                 assetMapFile = file;
             }

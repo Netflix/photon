@@ -62,6 +62,7 @@ public class PackingListBuilder {
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
+    private final String pklFileName;
 
     /**
      * A constructor for the PackingListBuilder object
@@ -80,6 +81,7 @@ public class PackingListBuilder {
         this.groupId = null;
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = imfErrorLogger;
+        this.pklFileName = "PKL-" + this.uuid.toString() + ".xml";
     }
 
     /**
@@ -103,6 +105,7 @@ public class PackingListBuilder {
         this.groupId = groupId;
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = imfErrorLogger;
+        this.pklFileName = "PKL-" + this.uuid.toString() + ".xml";
     }
 
     /**
@@ -195,9 +198,8 @@ public class PackingListBuilder {
         packingListType.setSignature(null);
 
 
-        File outputFile = new File(this.workingDirectory + "/" + "PKL-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + this.pklFileName);
         boolean formatted = true;
-
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
                 InputStream packingListSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd");
@@ -341,6 +343,15 @@ public class PackingListBuilder {
         return imfErrorLogger.getErrors();
     }
 
+    /**
+     * Getter for the PKL file name for the PackingList
+     *
+     * @return PKL file name for the PackingList.
+     */
+    public String getPKLFileName() {
+        return this.pklFileName;
+    }
+
     public static enum PKLAssetTypeEnum {
         TEXT_XML("text/xml"),
         APP_MXF("application/mxf"),
@@ -429,9 +440,8 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        File outputFile = new File(this.workingDirectory + File.separator + "PKL-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + this.pklFileName);
         boolean formatted = true;
-
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
                 InputStream packingListSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/PKL/packingList_schema.xsd");
