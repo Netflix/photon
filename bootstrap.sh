@@ -7,7 +7,7 @@
 #  - Can be run using \curl -sSL https://raw.githubusercontent.com/Netflix/photon/master/bootstrap.sh | bash
 
 
-photon_git_repo_url=https://github.com/Netflix/photon.git
+photon_git_repo_url=git@github.com:Netflix/photon.git
 photon_git_repo_parent_dir=~/Projects/stash
 photon_git_repo_dir=${photon_git_repo_parent_dir}/photon
 photon_install_dir=~/dev/photon_builds/$(date +"%Y-%m-%d")
@@ -49,11 +49,23 @@ fi
 
 
 echo "Building Photon.."
+echo "Changing to build dir: cd ${photon_git_repo_dir}"
 cd ${photon_git_repo_dir} || die "Error: can't cd to ${photon_git_repo_dir}"
-echo "Checking out master branch"
-git checkout master || die "Error: can't checkout master photon branch branch in ${photon_git_repo_dir}"
-echo "Getting latest code"
-git pull || die "Error: Can't perform git pull in ${photon_git_repo_dir}"
+
+echo "Fetching latest code.."
+git fetch || die "Error running git fetch"
+
+echo "Determining the latest release.."
+latest_release=$(curl -s https://api.github.com/repos/netflix/photon/releases/latest | grep 'tag_name' | grep -o 'v.*"' | tr -d '"')
+echo "Latest release found: ${latest_release}"
+check_this_out=master
+
+if [[ ! -z "${latest_release}"  ]] ; then
+	check_this_out=${latest_release}
+fi
+
+echo "Checking out ${check_this_out}"
+git checkout ${check_this_out} || die "Error: can't checkout ${check_this_out} in ${photon_git_repo_dir}"
 
 echo "Cleaning the build dir"
 ./gradlew clean || die "Failure while running ./gradlew clean"
