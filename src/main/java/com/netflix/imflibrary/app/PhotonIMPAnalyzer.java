@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -179,10 +180,16 @@ public class PhotonIMPAnalyzer {
                         packingListErrorLogger.addAllErrors(packingList.getErrors());
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
-                            File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
-                            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-
                             if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
+                                URI path = assetMap.getPath(asset.getUUID());
+                                if( path == null) {
+                                    packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
+                                    continue;
+                                }
+                                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
                                 try {
@@ -214,54 +221,56 @@ public class PhotonIMPAnalyzer {
                                 getTrackFileIdToHeaderPartitionPayLoadMap(headerPartitionPayloadRecords);
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
-                            File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
-                            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) &&
-                                    Composition.isCompositionPlaylist(resourceByteRangeProvider)) {
-                                IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
-                                IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
-
-
-                                PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
-                                        PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
-
-                                try {
-                                    Composition composition = new Composition(resourceByteRangeProvider);
-                                    compositionErrorLogger.addAllErrors(composition.getErrors());
-                                    Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
-                                            .keySet();
+                            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+                                URI path = assetMap.getPath(asset.getUUID());
+                                if( path == null) {
+                                    packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
+                                    continue;
+                                }                                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                                if (Composition.isCompositionPlaylist(resourceByteRangeProvider)) {
+                                    IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
+                                    IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
+                                    PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
+                                            PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
 
                                     try {
-                                        if (!isCompositionComplete(composition, trackFileIDsSet, compositionConformanceErrorLogger)) {
-                                            for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
-                                                Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
-                                                List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
-                                                for (UUID trackFileId : trackFileIds) {
-                                                    if (trackFileIDToHeaderPartitionPayLoadMap.containsKey(trackFileId))
-                                                        trackHeaderPartitionPayloads.add
-                                                                (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
-                                                }
+                                        Composition composition = new Composition(resourceByteRangeProvider);
+                                        compositionErrorLogger.addAllErrors(composition.getErrors());
+                                        Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
+                                                .keySet();
 
-                                                if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
-                                                    compositionConformanceErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
-                                                } else if (trackHeaderPartitionPayloads.size() != 0) {
-                                                    compositionConformanceErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
+                                        try {
+                                            if (!isCompositionComplete(composition, trackFileIDsSet, compositionConformanceErrorLogger)) {
+                                                for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+                                                    Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
+                                                    List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
+                                                    for (UUID trackFileId : trackFileIds) {
+                                                        if (trackFileIDToHeaderPartitionPayLoadMap.containsKey(trackFileId))
+                                                            trackHeaderPartitionPayloads.add
+                                                                    (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
+                                                    }
+
+                                                    if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
+                                                        compositionConformanceErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
+                                                    } else if (trackHeaderPartitionPayloads.size() != 0) {
+                                                        compositionConformanceErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
+                                                    }
                                                 }
+                                            } else {
+                                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, headerPartitionPayloadRecords));
                                             }
-                                        } else {
-                                            compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, headerPartitionPayloadRecords));
+                                        } catch (IMFException e) {
+                                            compositionConformanceErrorLogger.addAllErrors(e.getErrors());
+                                        } finally {
+                                            errorMap.put(assetFile.getName() + " " + CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
                                         }
+                                    } catch (IMFException e) {
+                                        compositionErrorLogger.addAllErrors(e.getErrors());
+                                    } finally {
+                                        errorMap.put(assetFile.getName(), compositionErrorLogger.getErrors());
                                     }
-                                    catch(IMFException e) {
-                                        compositionConformanceErrorLogger.addAllErrors(e.getErrors());
-                                    }
-                                    finally {
-                                        errorMap.put(assetFile.getName() + " "+  CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
-                                    }
-                                } catch (IMFException e) {
-                                    compositionErrorLogger.addAllErrors(e.getErrors());
-                                } finally {
-                                    errorMap.put(assetFile.getName(), compositionErrorLogger.getErrors());
                                 }
                             }
                         }

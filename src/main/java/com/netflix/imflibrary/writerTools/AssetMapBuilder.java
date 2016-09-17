@@ -64,6 +64,8 @@ public class AssetMapBuilder {
     private final List<AssetMapBuilder.Asset> assets;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
+    private final String assetMapFileName;
+
 
     /**
      * A constructor for the AssetMapBuilder object
@@ -92,6 +94,7 @@ public class AssetMapBuilder {
         this.assets = Collections.unmodifiableList(assets);
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = imfErrorLogger;
+        this.assetMapFileName = "ASSETMAP.xml";
     }
 
     /**
@@ -145,7 +148,7 @@ public class AssetMapBuilder {
         }
         assetMapType.setAssetList(assetList);
 
-        File outputFile = new File(this.workingDirectory + File.separator + "AssetMap-" + this.uuid.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + this.assetMapFileName);
         List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputFile, true);
         this.imfErrorLogger.addAllErrors(errors);
 
@@ -318,5 +321,14 @@ public class AssetMapBuilder {
                     .ErrorLevels.FATAL, e.getMessage());
         }
         return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * Getter for the AssetMap file name
+     *
+     * @return File name for the AssetMap
+     */
+    public String getAssetMapFileName() {
+        return this.assetMapFileName;
     }
 }

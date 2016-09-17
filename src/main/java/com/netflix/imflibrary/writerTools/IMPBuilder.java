@@ -103,22 +103,13 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
-        File cplFile = null;
-        byte[] cplHash = null;
-        File[] files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("CPL-")) {
-                    cplFile = file;
-                    cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
-                }
-            }
-        }
 
-        if(cplFile == null){
+        File cplFile = new File(workingDirectory + File.separator + compositionPlaylistBuilder_2013.getCPLFileName());
+        if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
-        String cplFileName = cplFile.getName();
+        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+
 
         /**
          * Build the PackingList
@@ -142,7 +133,7 @@ public class IMPBuilder {
                                                                     Arrays.copyOf(cplHash, cplHash.length),
                                                                     cplFile.length(),
                                                                     PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
-                                                                    PackingListBuilder.buildPKLUserTextType_2007(cplFileName, "en"));
+                                                                    PackingListBuilder.buildPKLUserTextType_2007(compositionPlaylistBuilder_2013.getCPLFileName(), "en"));
         packingListBuilderAssets.add(cplAsset);
         Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet();
         for(Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileMetadataEntriesSet){
@@ -164,17 +155,11 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
-        File pklFile = null;
-        files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("PKL-")) {
-                    pklFile = file;
-                }
-            }
-        }
-        if(pklFile == null){
-            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
+
+        File pklFile = new File(workingDirectory + File.separator + packingListBuilder.getPKLFileName());
+        if(!pklFile.exists()){
+            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath
+                    ()));
         }
 
         /**
@@ -213,20 +198,14 @@ public class IMPBuilder {
         assetMapBuilder.build();
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
-            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
+            throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s",
+                    Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
 
-        File assetMapFile = null;
-        files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("AssetMap-")) {
-                    assetMapFile = file;
-                }
-            }
-        }
-        if(assetMapFile == null){
-            throw new IMFAuthoringException(String.format("AssetMap file does not exist in the working directory %s, IMP is incomplete", workingDirectory.getAbsolutePath()));
+        File assetMapFile = new File(workingDirectory + File.separator + assetMapBuilder.getAssetMapFileName());
+        if(!assetMapFile.exists()){
+            throw new IMFAuthoringException(String.format("AssetMap file does not exist in the working directory %s", workingDirectory.getAbsolutePath
+                    ()));
         }
 
         return imfErrorLogger.getErrors();
@@ -300,21 +279,12 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the CompositionPlaylist. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
-        File cplFile = null;
-        byte[] cplHash = null;
-        File[] files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("CPL-")) {
-                    cplFile = file;
-                    cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
-                }
-            }
-        }
-        if(cplFile == null){
+
+        File cplFile = new File(workingDirectory + File.separator + compositionPlaylistBuilder_2016.getCPLFileName());
+        if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
-        String cplFileName = cplFile.getName();
+        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
 
         /**
          * Build the PackingList
@@ -339,7 +309,7 @@ public class IMPBuilder {
                         packingListBuilder.buildDefaultDigestMethodType(),
                         cplFile.length(),
                         PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
-                        PackingListBuilder.buildPKLUserTextType_2016(cplFileName, "en"));
+                        PackingListBuilder.buildPKLUserTextType_2016(compositionPlaylistBuilder_2016.getCPLFileName(), "en"));
         packingListBuilderAssets.add(cplAsset);
         Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet();
         for(Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileMetadataEntriesSet){
@@ -359,17 +329,10 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
         numErrors = (imfErrorLogger.getNumberOfErrors() > 0) ? imfErrorLogger.getNumberOfErrors()-1 : 0;
-        File pklFile = null;
-        files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("PKL-")) {
-                    pklFile = file;
-                }
-            }
-        }
-        if(pklFile == null){
-            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
+        File pklFile = new File(workingDirectory + File.separator + packingListBuilder.getPKLFileName());
+        if(!pklFile.exists()){
+            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath
+                    ()));
         }
 
         /**
@@ -411,17 +374,10 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()))));
         }
 
-        File assetMapFile = null;
-        files = workingDirectory.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.getName().contains("AssetMap-")) {
-                    assetMapFile = file;
-                }
-            }
-        }
-        if(assetMapFile == null){
-            throw new IMFAuthoringException(String.format("AssetMap file does not exist in the working directory %s, IMP is incomplete", workingDirectory.getAbsolutePath()));
+        File assetMapFile = new File(workingDirectory + File.separator + assetMapBuilder.getAssetMapFileName());
+        if(!assetMapFile.exists()){
+            throw new IMFAuthoringException(String.format("AssetMap file does not exist in the working directory %s", workingDirectory.getAbsolutePath
+                    ()));
         }
 
         return imfErrorLogger.getErrors();

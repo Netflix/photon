@@ -102,6 +102,8 @@ public class CompositionPlaylistBuilder_2016 {
 
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final static String defaultContentKindScope = "http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind";
+    private final String cplFileName;
+
 
 
     /**
@@ -138,6 +140,7 @@ public class CompositionPlaylistBuilder_2016 {
         this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = new IMFErrorLoggerImpl();
+        cplFileName = "CPL-" + this.uuid.toString() + ".xml";
     }
 
     /**
@@ -153,9 +156,7 @@ public class CompositionPlaylistBuilder_2016 {
         org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2016();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
-
-        cplRoot.setId(UUIDHelper.fromUUID(cplUUID));
+        cplRoot.setId(UUIDHelper.fromUUID(this.uuid));
         cplRoot.setAnnotation(this.annotationText);
         cplRoot.setIssueDate(IMFUtils.createXMLGregorianCalendar());
         cplRoot.setIssuer(this.issuer);
@@ -206,7 +207,7 @@ public class CompositionPlaylistBuilder_2016 {
         cplRoot.setSegmentList(buildSegmentList(new ArrayList<SegmentType>(){{add(segmentType);}}));
         cplRoot.setSigner(null);
         cplRoot.setSignature(null);
-        File outputFile = new File(this.workingDirectory + File.separator + "CPL-" + cplUUID.toString() + ".xml");
+        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
         serializeCPLToXML(cplRoot, outputFile);
         return imfErrorLogger.getErrors();
     }
@@ -650,6 +651,15 @@ public class CompositionPlaylistBuilder_2016 {
         private Composition.SequenceTypeEnum getSequenceType(){
             return this.sequenceType;
         }
+    }
+
+    /**
+     * Getter for the CPL file name for the Composition
+     *
+     * @return CPL file name for the Composition.
+     */
+    public String getCPLFileName() {
+        return this.cplFileName;
     }
 
 }
