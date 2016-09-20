@@ -160,7 +160,7 @@ public final class IMFErrorLoggerImpl implements IMFErrorLogger //This is really
 
         if (rangeEnd > (this.errorObjects.size()))
         {
-            throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize -1) = %d", rangeEnd, (this.errorObjects.size()-1)));
+            throw new IllegalArgumentException(String.format("rangeEnd = %d is not <= (resourceSize) = %d", rangeEnd, (this.errorObjects.size())));
         }
     }
 

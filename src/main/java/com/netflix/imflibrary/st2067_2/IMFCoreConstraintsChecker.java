@@ -209,22 +209,27 @@ final class IMFCoreConstraintsChecker {
                 {
                     //Section 6.9.3 st2067-3:2016
                     String message = String.format(
-                            "Segment %s in Composition XML file contains virtual track UUID %s, which does not appear in all the segments of the Composition, this is invalid",
-                            segment.getId(), uuid);
+                            "Segment represented by the ID %s in the Composition represented by ID %s contains virtual track represented by ID %s, which does not appear in all the segments of the Composition, this is invalid",
+                            segment.getId(), compositionPlaylistType.getId().toString(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
                 List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
                 Long sequenceDurationInCompositionEditUnits = 0L;
-                Double sequenceDuration = 0.0;
+                Double sequenceDurationDoubleValue = 0.0;
                 for(IMFBaseResourceType imfBaseResourceType : resources){
-                    double resourceEditRate = (double)imfBaseResourceType.getEditRate().getNumerator()/imfBaseResourceType.getEditRate().getDenominator();
-                    sequenceDuration += (double)(imfBaseResourceType.getDuration() * compositionEditRate)/resourceEditRate;
+                    double resourceEditRate = Double.valueOf((double)imfBaseResourceType.getEditRate().getNumerator()/imfBaseResourceType.getEditRate().getDenominator());
+                    sequenceDurationDoubleValue += (Double)(imfBaseResourceType.getDuration() * compositionEditRate)/resourceEditRate;
                 }
-                sequenceDurationInCompositionEditUnits = Math.round(sequenceDuration);
+                //Section 7.3 st2067-3:2016
+                if(Math.round(sequenceDurationDoubleValue) != sequenceDurationDoubleValue.intValue()){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("Segment represented by the Id %s has a sequence represented by ID %s, whose duration represented in Composition Edit Units (%f) is not an integer", segment.getId(), sequence.getId(), sequenceDurationDoubleValue));
+                }
+                sequenceDurationInCompositionEditUnits = Math.round(sequenceDurationDoubleValue);
                 sequencesDurationSet.add(sequenceDurationInCompositionEditUnits);
 
             }
-            //Section 7.3 st2067-3:2016
+            //Section 7.2 st2067-3:2016
             if(sequencesDurationSet.size() > 1){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
