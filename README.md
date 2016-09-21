@@ -69,6 +69,9 @@ java -cp ./build/libs/*: com.netflix.imflibrary.st0429_8.PackingList packing_lis
 ```
 java -cp ./build/libs/*: com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
 ```
+```
+java -cp ./build/libs/*: com.netflix.imflibrary.app.PhotonIMPAnalyzer IMP_folder_path
+```
 
 For Windows please refer to the following examples
 
@@ -95,7 +98,7 @@ java -cp build\libs\*; com.netflix.imflibrary.st0429_8.PackingList packing_list_
 ```
 ```
 java -cp build\libs\*; com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
-``````
-java -cp ./build/libs/*: com.netflix.imflibrary.app.PhotonIMPAnalyzer IMP_folder_path
 ```
+```
+java -cp build\libs\*; com.netflix.imflibrary.app.PhotonIMPAnalyzer IMP_folder_path
 ```
