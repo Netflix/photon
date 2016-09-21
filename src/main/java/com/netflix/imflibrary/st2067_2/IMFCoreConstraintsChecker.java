@@ -209,25 +209,39 @@ final class IMFCoreConstraintsChecker {
                 {
                     //Section 6.9.3 st2067-3:2016
                     String message = String.format(
-                            "Segment %s in Composition XML file contains virtual track UUID %s, which does not appear in all the segments of the Composition, this is invalid",
-                            segment.getId(), uuid);
+                            "Segment represented by the ID %s in the Composition represented by ID %s contains virtual track represented by ID %s, which does not appear in all the segments of the Composition, this is invalid",
+                            segment.getId(), compositionPlaylistType.getId().toString(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
                 List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
                 Long sequenceDurationInCompositionEditUnits = 0L;
-                Double sequenceDuration = 0.0;
+                Long sequenceDuration = 0L;
+                //Based on Section 6.2 and 6.3 in st2067-2:2016 All resources of either an Image Sequence or an Audio Sequence have to be of the same EditRate, hence we can sum the source durations of all the resources
+                //of a virtual track to get its duration in resource edit units.
                 for(IMFBaseResourceType imfBaseResourceType : resources){
-                    double resourceEditRate = (double)imfBaseResourceType.getEditRate().getNumerator()/imfBaseResourceType.getEditRate().getDenominator();
-                    sequenceDuration += (double)(imfBaseResourceType.getDuration() * compositionEditRate)/resourceEditRate;
+                    sequenceDuration += imfBaseResourceType.getDuration();
                 }
-                sequenceDurationInCompositionEditUnits = Math.round(sequenceDuration);
+                //Section 7.3 st2067-3:2016
+                long compositionEditRateNumerator = compositionPlaylistType.getEditRate().getNumerator();
+                long compositionEditRateDenominator = compositionPlaylistType.getEditRate().getDenominator();
+                long resourceEditRateNumerator = resources.get(0).getEditRate().getNumerator();
+                long resourceEditRateDenominator = resources.get(0).getEditRate().getDenominator();
+
+                long sequenceDurationInCompositionEditRateReminder = (sequenceDuration * compositionEditRateNumerator * resourceEditRateDenominator) % (compositionEditRateDenominator * resourceEditRateNumerator);
+                Double sequenceDurationDoubleValue = ((double)sequenceDuration * compositionEditRateNumerator * resourceEditRateDenominator) / (compositionEditRateDenominator * resourceEditRateNumerator);
+                if(sequenceDurationInCompositionEditRateReminder != 0){
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("Segment represented by the Id %s in the Composition represented by ID %s has a sequence represented by ID %s, whose duration represented in Composition Edit Units is (%f) is not an integer"
+                                    , segment.getId(), compositionPlaylistType.getId().toString(), sequence.getId(), sequenceDurationDoubleValue));
+                }
+                sequenceDurationInCompositionEditUnits = Math.round(sequenceDurationDoubleValue);
                 sequencesDurationSet.add(sequenceDurationInCompositionEditUnits);
 
             }
-            //Section 7.3 st2067-3:2016
+            //Section 7.2 st2067-3:2016
             if(sequencesDurationSet.size() > 1){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
+                        String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment, %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
             }
 
             if (trackIDs.size() != virtualTrackMap.size())
