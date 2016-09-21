@@ -16,6 +16,10 @@ Photon can be built very easily by using the included Gradle wrapper. Having dow
 $ ./gradlew clean
 $ ./gradlew build
 
+For Windows
+$ gradlew.bat clean
+$ gradlew.bat build
+
 ## Full Documentation
 
 - [Wiki](https://github.com/Netflix/photon/wiki)
@@ -65,7 +69,33 @@ java -cp ./build/libs/*: com.netflix.imflibrary.st0429_8.PackingList packing_lis
 ```
 java -cp ./build/libs/*: com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
 ```
+
+For Windows please refer to the following examples
+
+To download all dependencies, you just have to run:
+
 ```
+$ gradlew.bat getDependencies
+```
+
+It will download all dependencies into build\libs directory, where Photon.*.jar is built. Multiple sample applications have been provided with this project (e.g., com.netflix.imflibrary.app.IMFTrackFileReader). Having obtained the dependencies, you can run an application as follows:
+
+```
+java -cp build\libs\*; <fully qualified class name> <zero or more arguments>
+```
+E.g.,
+```
+java -cp build\libs\*; com.netflix.imflibrary.app.IMFTrackFileReader imf_track_file_path working_directory_path
+```
+```
+java -cp build\libs\*; com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
+```
+```
+java -cp build\libs\*; com.netflix.imflibrary.st0429_8.PackingList packing_list_file_path
+```
+```
+java -cp build\libs\*; com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
+``````
 java -cp ./build/libs/*: com.netflix.imflibrary.app.PhotonIMPAnalyzer IMP_folder_path
 ```
 ```
