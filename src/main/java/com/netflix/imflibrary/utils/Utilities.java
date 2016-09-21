@@ -21,8 +21,8 @@ public final class Utilities {
     public static String serializeObjectCollectionToString(Collection<? extends Object> collection){
         StringBuilder stringBuilder = new StringBuilder();
         Iterator iterator = collection.iterator();
+        stringBuilder.append(String.format("%n"));
         while(iterator.hasNext()){
-            stringBuilder.append(String.format("%n"));
             stringBuilder.append(iterator.next().toString());
             stringBuilder.append(String.format("%n"));
         }
