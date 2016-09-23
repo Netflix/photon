@@ -60,9 +60,10 @@ final class IMFCoreConstraintsChecker {
                 Composition.EditRate compositionEditRate = compositionPlaylistType.getEditRate();
                 for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
+                    //Section 6.4 st2067-2:2016
                     if (trackResourceEditRate != null
                             && !trackResourceEditRate.equals(compositionEditRate)) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as atleast one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
                     }
                 }
             }
@@ -84,8 +85,9 @@ final class IMFCoreConstraintsChecker {
 
                     IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
                     DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
+                    //Section 6.8 st2067-2:2016
                     if(domNodeObjectModel == null){
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by a " +
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by a " +
                                         "VirtualTrack Resource does not have a corresponding EssenceDescriptor in the EssenceDescriptorList in the CPL",
                                 imfTrackFileResourceType.getSourceEncoding()));
                     }
@@ -93,7 +95,7 @@ final class IMFCoreConstraintsChecker {
 
                         if (!refSourceEncodingElement.equals(imfTrackFileResourceType.getSourceEncoding())) {
                             refSourceEncodingElement = imfTrackFileResourceType.getSourceEncoding();
-                            //Section 6.3.1 st2067-2:2016 Edit Rate check
+                            //Section 6.3.1 and 6.3.2 st2067-2:2016 Edit Rate check
                             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                                 essenceDescriptorField = "SampleRate";
                             } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)) {
@@ -137,7 +139,8 @@ final class IMFCoreConstraintsChecker {
                                                     "which does not have a value set for the field %s, however the Resource Edit Rate is %s"
                                             , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
                         } else if (!essenceEditRate.equals(imfBaseResourceType.getEditRate())) {
-                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            //Section 6.3.1 and 6.3.2 st2067-2:2016
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                     String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
                                                     "whose indicated %s value is %s, however the Resource Edit Rate is %s"
                                             , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
@@ -145,9 +148,9 @@ final class IMFCoreConstraintsChecker {
                         virtualTrackEssenceDescriptors.add(domNodeObjectModel);
                     }
                 }
-
+                //Section 6.8 st2067-2:2016
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
                 else {
@@ -163,9 +166,9 @@ final class IMFCoreConstraintsChecker {
                             modelsIgnoreSet.add(other);
                             imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(refDOMNodeObjectModel, other));
                         }
-
+                        //Section 6.2 st2067-2:2016
                         imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                 String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List, " +
                                         "the EssenceDescriptors corresponding to this VirtualTrack in the EssenceDescriptorList are as follows %n%n%s", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), Utilities.serializeObjectCollectionToString(modelsIgnoreSet)));
                     }
@@ -176,17 +179,17 @@ final class IMFCoreConstraintsChecker {
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
         //Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", compositionPlaylistType.getId().toString()));
         }
         else{
             if(numberOfMainImageEssences > 1){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
             }
         }
 
         //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         if(!foundMainAudioEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", compositionPlaylistType.getId().toString()));
         }
 
         return imfErrorLogger.getErrors();
@@ -211,7 +214,7 @@ final class IMFCoreConstraintsChecker {
                     String message = String.format(
                             "Segment represented by the ID %s in the Composition represented by ID %s contains virtual track represented by ID %s, which does not appear in all the segments of the Composition, this is invalid",
                             segment.getId(), compositionPlaylistType.getId().toString(), uuid);
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
                 List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
                 Long sequenceDurationInCompositionEditUnits = 0L;
@@ -229,6 +232,7 @@ final class IMFCoreConstraintsChecker {
 
                 long sequenceDurationInCompositionEditRateReminder = (sequenceDuration * compositionEditRateNumerator * resourceEditRateDenominator) % (compositionEditRateDenominator * resourceEditRateNumerator);
                 Double sequenceDurationDoubleValue = ((double)sequenceDuration * compositionEditRateNumerator * resourceEditRateDenominator) / (compositionEditRateDenominator * resourceEditRateNumerator);
+                //Section 7.3 st2067-3:2016
                 if(sequenceDurationInCompositionEditRateReminder != 0){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Segment represented by the Id %s in the Composition represented by ID %s has a sequence represented by ID %s, whose duration represented in Composition Edit Units is (%f) is not an integer"
@@ -240,15 +244,15 @@ final class IMFCoreConstraintsChecker {
             }
             //Section 7.2 st2067-3:2016
             if(sequencesDurationSet.size() > 1){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment, %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
             }
-
+            //Section 6.9.3 st2067-3:2016
             if (trackIDs.size() != virtualTrackMap.size())
             {
                 String message = String.format(
                         "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), virtualTrackMap.size());
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, message);
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, message);
             }
 
         }
@@ -257,6 +261,7 @@ final class IMFCoreConstraintsChecker {
     public static List checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType>
             virtualBaseResourceList){
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        //Section 6.9.3 st2067-3:2016
         if(virtualBaseResourceList == null
                 || virtualBaseResourceList.size() == 0){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s does not have any associated resources this is invalid", trackID.toString()));
@@ -302,7 +307,7 @@ final class IMFCoreConstraintsChecker {
                 editRates.add(baseResourceEditRate);
             }
         }
-
+        //Section 6.2, 6.3.1 and 6.3.2 st2067-2:2016
         if(editRates.size() > 1){
             StringBuilder editRatesString = new StringBuilder();
             Iterator iterator = editRates.iterator();
@@ -310,7 +315,7 @@ final class IMFCoreConstraintsChecker {
                 editRatesString.append(iterator.next().toString());
                 editRatesString.append(String.format("%n"));
             }
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s", trackID.toString(), editRatesString.toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s", trackID.toString(), editRatesString.toString()));
         }
         return imfErrorLogger.getErrors();
     }
