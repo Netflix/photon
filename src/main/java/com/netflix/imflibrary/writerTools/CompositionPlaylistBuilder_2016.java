@@ -127,7 +127,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                            @Nonnull File workingDirectory){
-        this.uuid = IMFUUIDGenerator.getInstance().generateUUID();
+        this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
         this.creator = creator;
