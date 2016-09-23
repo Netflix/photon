@@ -196,7 +196,7 @@ public final class HeaderPartition
 
         if (prefaceSetCount != 1)
         {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     HeaderPartition.ERROR_DESCRIPTION_PREFIX + String.format("Found %d Preface sets, only one is allowed in header partition",
                             prefaceSetCount));
         }
