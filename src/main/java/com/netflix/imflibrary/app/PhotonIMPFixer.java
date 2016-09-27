@@ -54,7 +54,7 @@ public class PhotonIMPFixer {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         UUID packageUUID = null;
         if (headerPartitionPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format("Payload asset type is %s, expected asset type %s", headerPartitionPayloadRecord.getPayloadAssetType(),
                             PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -94,7 +94,7 @@ public class PhotonIMPFixer {
 
         for (PayloadRecord payloadRecord : headerPartitionPayloadRecords) {
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(),
                                 PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -269,7 +269,7 @@ public class PhotonIMPFixer {
 
         PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
         if(headerPartitionPayload == null) {
-            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format("Failed to get header partition"));
         }
         else {
