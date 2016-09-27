@@ -81,7 +81,7 @@ public final class PHDRMetaDataTrackSubDescriptor extends SubDescriptor
 
             if (this.instance_uid == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_FIELD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         PHDRMetaDataTrackSubDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
         }

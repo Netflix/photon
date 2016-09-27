@@ -52,40 +52,34 @@ public class DOMNodeObjectModelTest {
 
         List<InterchangeObject.InterchangeObjectBO> essenceDescriptors1 = headerPartition1.getEssenceDescriptors();
         for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors1) {
-            try {
-                List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-                List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition1.getSubDescriptors(essenceDescriptor);
-                for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
-                    if (subDescriptorBO != null) {
-                        subDescriptorHeaders.add(subDescriptorBO.getHeader());
-                    }
+            List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
+            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition1.getSubDescriptors(essenceDescriptor);
+            for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
+                if (subDescriptorBO != null) {
+                    subDescriptorHeaders.add(subDescriptorBO.getHeader());
                 }
-                    /*Create a dom*/
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                Document document = docBuilder.newDocument();
-
-                //DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, headerPartitionTuple, essenceDescriptorHeader, subDescriptorHeaders);
-                PrimerPack primerPack = headerPartition1.getPrimerPack();
-
-                RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(primerPack.getHeader(), getByteProvider(resourceByteRangeProvider1, primerPack.getHeader()));
-
-                Triplet essenceDescriptorTriplet = regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor.getHeader(), getByteProvider(resourceByteRangeProvider1, essenceDescriptor.getHeader()));
-                //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
-                /*Get the Triplets corresponding to the SubDescriptors*/
-                List<Triplet> subDescriptorTriplets = new ArrayList<>();
-                for (KLVPacket.Header subDescriptorHeader : subDescriptorHeaders) {
-                    subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider1, subDescriptorHeader)));
-                }
-                DocumentFragment documentFragment = regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
-                Node node = documentFragment.getFirstChild();
-                essenceDescriptorNodes1.add(node);
-                essenceDescriptorDOMNodeObjectModels1.add(new DOMNodeObjectModel(node));
-            } catch (ParserConfigurationException e) {
-                imfErrorLogger1.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR,
-                        IMFErrorLogger.IMFErrors
-                                .ErrorLevels.FATAL, e.getMessage());
             }
+                /*Create a dom*/
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document document = docBuilder.newDocument();
+
+            //DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, headerPartitionTuple, essenceDescriptorHeader, subDescriptorHeaders);
+            PrimerPack primerPack = headerPartition1.getPrimerPack();
+
+            RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(primerPack.getHeader(), getByteProvider(resourceByteRangeProvider1, primerPack.getHeader()));
+
+            Triplet essenceDescriptorTriplet = regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor.getHeader(), getByteProvider(resourceByteRangeProvider1, essenceDescriptor.getHeader()));
+            //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
+            /*Get the Triplets corresponding to the SubDescriptors*/
+            List<Triplet> subDescriptorTriplets = new ArrayList<>();
+            for (KLVPacket.Header subDescriptorHeader : subDescriptorHeaders) {
+                subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider1, subDescriptorHeader)));
+            }
+            DocumentFragment documentFragment = regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+            Node node = documentFragment.getFirstChild();
+            essenceDescriptorNodes1.add(node);
+            essenceDescriptorDOMNodeObjectModels1.add(new DOMNodeObjectModel(node));
         }
         return essenceDescriptorDOMNodeObjectModels1;
     }

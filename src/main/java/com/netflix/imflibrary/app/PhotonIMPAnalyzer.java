@@ -47,7 +47,7 @@ public class PhotonIMPAnalyzer {
 
         for (PayloadRecord payloadRecord : headerPartitionPayloadRecords) {
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(),
                                 PayloadRecord.PayloadAssetType.EssencePartition.toString()));
@@ -195,7 +195,7 @@ public class PhotonIMPAnalyzer {
                                 try {
                                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
                                     if (headerPartitionPayloadRecord == null) {
-                                        trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                        trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                                                 String.format("Failed to get header partition for %s", assetFile.getPath()));
                                     } else {
                                         List<PayloadRecord> payloadRecords = new ArrayList<>();
@@ -302,7 +302,7 @@ public class PhotonIMPAnalyzer {
 
             PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
             if(headerPartitionPayload == null) {
-                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format("Failed to get header partition"));
             }
             else {

@@ -69,29 +69,9 @@ public interface IMFErrorLogger extends ErrorLogger
         public enum ErrorCodes
         {
             /**
-             * The KLV_LAYER_ERROR.
+             * The IMF_ESSENCE_METADATA_ERROR.
              */
-            KLV_LAYER_ERROR("KLV Error"),
-
-            /**
-             * The MXF_PARTITION_FIELD_ERROR.
-             */
-            MXF_PARTITION_FIELD_ERROR("MXF Partition Field Error"),
-
-            /**
-             * The MXF_PARTITION_ERROR.
-             */
-            MXF_PARTITION_ERROR ("MXF Partition Error"),
-
-            /**
-             * The MXF_OPERATIONAL_PATTERN_1A_ERROR.
-             */
-            MXF_OPERATIONAL_PATTERN_1A_ERROR("MXF OP1A Pattern Error"),
-
-            /**
-             * The MXF_HEADER_PARTITION_ERROR.
-             */
-            MXF_HEADER_PARTITION_ERROR ("MXF Header Partition Error"),
+            IMF_ESSENCE_METADATA_ERROR("IMF Essence metadata Error"),
 
             /**
              * The IMF_ESSENCE_COMPONENT_ERROR.
@@ -141,7 +121,12 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * The URI_ERROR.
              */
-            URI_ERROR("URI Syntax Error");
+            URI_ERROR("URI Syntax Error"),
+
+            /**
+             * INTERNAL_ERROR.
+             */
+            INTERNAL_ERROR ("Internal processing error");
 
             private final String error;
 

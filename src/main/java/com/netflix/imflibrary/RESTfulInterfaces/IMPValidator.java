@@ -550,7 +550,7 @@ public class IMPValidator {
         List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
         for(PayloadRecord payloadRecord : essencesHeaderPartition){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_PARTITION_ERROR,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format
                         ("Payload asset type is %s, expected asset type %s",

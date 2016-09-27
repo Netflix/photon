@@ -1461,7 +1461,7 @@ public final class Composition {
                     Node node = documentFragment.getFirstChild();
                     essenceDescriptorNodes.add(node);
                 } catch (ParserConfigurationException e) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.MXF_HEADER_PARTITION_ERROR,
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR,
                             IMFErrorLogger.IMFErrors
                             .ErrorLevels.FATAL, e.getMessage());
                 }
