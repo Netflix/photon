@@ -199,10 +199,10 @@ public class PhotonIMPFixer {
                     byte[] bytes = headerPartitionPayloadRecord.getPayload();
                     imfTrackFileMetadataMap.put(getTrackFileId(headerPartitionPayloadRecord),
                             new IMPBuilder.IMFTrackFileMetadata(bytes,
-                                    IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes)),
+                                    IMFUtils.generateSHA1Hash(resourceByteRangeProvider),
                                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                                     assetFile.getName(),
-                                    bytes.length)
+                                    resourceByteRangeProvider.getResourceSize())
                     );
                     File outputFile = new File(targetFile.toString() + File.separator + assetFile.getName());
                     Files.copy(assetFile.toPath(), outputFile.toPath(), REPLACE_EXISTING);
