@@ -179,7 +179,7 @@ public class PhotonIMPFixer {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(File rootFile, File targetFile, String versionCPLSchema) throws
+    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(File rootFile, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
             IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
@@ -197,15 +197,21 @@ public class PhotonIMPFixer {
                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, new IMFErrorLoggerImpl());
                     headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
                     byte[] bytes = headerPartitionPayloadRecord.getPayload();
+                    byte[] hash = asset.getHash();
+                    if( generateHash) {
+                        hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+                    }
                     imfTrackFileMetadataMap.put(getTrackFileId(headerPartitionPayloadRecord),
                             new IMPBuilder.IMFTrackFileMetadata(bytes,
-                                    IMFUtils.generateSHA1Hash(resourceByteRangeProvider),
+                                    hash,
                                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                                     assetFile.getName(),
                                     resourceByteRangeProvider.getResourceSize())
                     );
-                    File outputFile = new File(targetFile.toString() + File.separator + assetFile.getName());
-                    Files.copy(assetFile.toPath(), outputFile.toPath(), REPLACE_EXISTING);
+                    if(copyTrackfile) {
+                        File outputFile = new File(targetFile.toString() + File.separator + assetFile.getName());
+                        Files.copy(assetFile.toPath(), outputFile.toPath(), REPLACE_EXISTING);
+                    }
                 }
             }
 
@@ -284,8 +290,12 @@ public class PhotonIMPFixer {
     private static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <input_package_directory> <output_package_directory> <cpl_schema>%n", PhotonIMPAnalyzer.class.getName()));
-        sb.append(String.format("cpl_schema:         CPL schema for output IMP, supported values are 2013 or 2016%n"));
+        sb.append(String.format("%s input_package_directory output_package_directory [options]%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("options:            %n"));
+        sb.append(String.format("-cs, --cpl-schema=VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
+        sb.append(String.format("-nc, --no-copy                 don't copy track files     %n"));
+        sb.append(String.format("-nh, --no-hash                 No update for trackfile hash in PKL %n"));
+
 
         return sb.toString();
     }
@@ -294,7 +304,7 @@ public class PhotonIMPFixer {
     public static void main(String args[]) throws
             IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
 
-        if (args.length < 2 || args.length > 3) {
+        if (args.length < 2) {
             logger.error(usage());
             System.exit(-1);
         }
@@ -314,8 +324,30 @@ public class PhotonIMPFixer {
         }
 
         String versionCPLSchema = "";
-        if (args.length >= 3) {
-            versionCPLSchema = args[2];
+        Boolean copyTrackFile = true;
+        Boolean generateHash = true;
+
+        for(int argIdx = 2; argIdx < args.length; ++argIdx)
+        {
+            String curArg = args[argIdx];
+            String nextArg = argIdx < args.length - 1 ? args[argIdx + 1] : "";
+            if(curArg.equalsIgnoreCase("--cpl-schema") || curArg.equalsIgnoreCase("-cs")) {
+                if(nextArg.length() == 0 || nextArg.charAt(0) == '-') {
+                    logger.error(usage());
+                    System.exit(-1);
+                }
+                versionCPLSchema = nextArg;
+            }
+            else if(curArg.equalsIgnoreCase("--no-copy") || curArg.equalsIgnoreCase("-nc")) {
+                copyTrackFile = false;
+            }
+            else if(curArg.equalsIgnoreCase("--no-hash") || curArg.equalsIgnoreCase("-nh")) {
+                generateHash = false;
+            }
+            else {
+                logger.error(usage());
+                System.exit(-1);
+            }
         }
 
         if (!inputFile.exists() || !inputFile.isDirectory()) {
@@ -323,7 +355,7 @@ public class PhotonIMPFixer {
         }
         else
         {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema);
+            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
             if (errors.size() > 0) {
                 logger.info(String.format("IMPWriter encountered errors:"));
                 for (ErrorLogger.ErrorObject errorObject : errors) {
