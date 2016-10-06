@@ -375,7 +375,7 @@ public class IMPValidator {
 
             imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
 
-            List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
+            List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
             for (PayloadRecord payloadRecord : essencesHeaderPartition) {
                 if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger
@@ -386,7 +386,7 @@ public class IMPValidator {
                                     PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                     continue;
                 }
-                headerPartitionTuples.add(new HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                         0L,
                         (long) payloadRecord.getPayload().length,
                         imfErrorLogger),
@@ -735,36 +735,6 @@ public class IMPValidator {
 
         return imfErrorLogger.getErrors();
 
-    }
-
-    /**
-     * An object model for a HeaderPartition and access to the raw bytes corresponding to the HeaderPartition
-     */
-    public static class HeaderPartitionTuple {
-        private final HeaderPartition headerPartition;
-        private final ResourceByteRangeProvider resourceByteRangeProvider;
-
-        private HeaderPartitionTuple(HeaderPartition headerPartition, ResourceByteRangeProvider resourceByteRangeProvider){
-            this.headerPartition = headerPartition;
-            this.resourceByteRangeProvider = resourceByteRangeProvider;
-        }
-
-        /**
-         * A getter for the resourceByteRangeProvider object corresponding to this HeaderPartition to allow
-         * access to the raw bytes
-         * @return ResourceByteRangeProvider object corresponding to this HeaderPartition
-         */
-        public ResourceByteRangeProvider getResourceByteRangeProvider(){
-            return this.resourceByteRangeProvider;
-        }
-
-        /**
-         * A getter for the HeaderPartition object corresponding to a resource referenced from the Composition
-         * @return HeaderPartition of a certain resource in the Composition
-         */
-        public HeaderPartition getHeaderPartition(){
-            return this.headerPartition;
-        }
     }
 
     private static String usage()

@@ -169,6 +169,14 @@ final class CompositionModel_st2067_2_2013 {
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
 
+        String ApplicationID = "";
+        for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
+            JAXBElement jaxbElement = (JAXBElement)(object);
+            if(jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
+                ApplicationID = (String)jaxbElement.getValue();
+            }
+        }
+
         return new IMFCompositionPlaylistType(compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -177,6 +185,7 @@ final class CompositionModel_st2067_2_2013 {
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 Collections.synchronizedList(segmentList),
-                Collections.synchronizedList(essenceDescriptorList));
+                Collections.synchronizedList(essenceDescriptorList),
+                "org.smpte_ra.schemas.st2067_2_2013", ApplicationID);
     }
 }

@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -185,6 +186,13 @@ final class CompositionModel_st2067_2_2016 {
         }
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
+        String ApplicationID = "";
+        for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
+            JAXBElement jaxbElement = (JAXBElement)(object);
+            if(jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
+                ApplicationID = (String)jaxbElement.getValue();
+            }
+        }
 
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
@@ -194,6 +202,17 @@ final class CompositionModel_st2067_2_2016 {
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 Collections.synchronizedList(segmentList),
-                Collections.synchronizedList(essenceDescriptorList));
+                Collections.synchronizedList(essenceDescriptorList),
+                "org.smpte_ra.schemas.st2067_2_2016", ApplicationID
+                );
+    }
+
+    /**
+     * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
+     *
+     * @return the uri for the CoreConstraints schema for this CompositionPlaylist
+     */
+    public String getCoreConstraintsVersion() {
+        return "org.smpte_ra.schemas.st2067_2_2016";
     }
 }
