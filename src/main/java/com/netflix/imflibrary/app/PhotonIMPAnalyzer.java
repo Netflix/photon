@@ -53,28 +53,17 @@ public class PhotonIMPAnalyzer {
                                 PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                 continue;
             }
-            try {
-                HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long) payloadRecord.getPayload().length,
-                    imfErrorLogger);
 
-                /**
-                 * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-                 * are in fact from the constituent resources of the VirtualTack
-                 */
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage) genericPackage;
-                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                trackFileIDMap.put(packageUUID, payloadRecord);
-            } catch (IMFException e) {
-                imfErrorLogger.addAllErrors(e.getErrors());
-            } catch (MXFException e) {
-                imfErrorLogger.addAllErrors(e.getErrors());
-            }
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                0L,
+                (long) payloadRecord.getPayload().length,
+                imfErrorLogger);
+
+            Preface preface = headerPartition.getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage) genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            trackFileIDMap.put(packageUUID, payloadRecord);
         }
 
         return Collections.unmodifiableMap(trackFileIDMap);
@@ -201,8 +190,6 @@ public class PhotonIMPAnalyzer {
                                         List<PayloadRecord> payloadRecords = new ArrayList<>();
                                         payloadRecords.add(headerPartitionPayloadRecord);
                                         trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
-                                    }
-                                    if (!trackFileErrorLogger.hasFatalErrors()) {
                                         headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
                                     }
                                 } catch( MXFException e) {
