@@ -62,7 +62,7 @@ public final class MXFOperationalPattern1A
     @SuppressWarnings({"PMD.NcssMethodCount","PMD.CollapsibleIfStatements"})
     public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-
+        int previousNumberOfErrors = imfErrorLogger.getErrors().size();
         Preface preface = headerPartition.getPreface();
         String trackFileID_Prefix = "";
         if(preface != null) {
@@ -279,7 +279,7 @@ public final class MXFOperationalPattern1A
 
         }
 
-        if(imfErrorLogger.hasFatalErrors()){
+        if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
             throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
         }
         return new HeaderPartitionOP1A(headerPartition);

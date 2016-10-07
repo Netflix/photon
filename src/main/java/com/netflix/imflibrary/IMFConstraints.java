@@ -75,6 +75,7 @@ public final class IMFConstraints
      */
     public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
+        int previousNumberOfErrors = imfErrorLogger.getErrors().size();
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
 
@@ -278,7 +279,7 @@ public final class IMFConstraints
             }
         }
 
-        if(imfErrorLogger.hasFatalErrors()){
+        if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
             throw new IMFException(String.format("Found fatal errors in the in the IMFTrackFile represented by ID %s that violate the IMF Core constraints.", packageID.toString()), imfErrorLogger);
         }
         return new HeaderPartitionIMF(headerPartitionOP1A);
@@ -294,6 +295,8 @@ public final class IMFConstraints
     @SuppressWarnings({"PMD.CollapsibleIfStatements"})
     public static void checkIMFCompliance(List<PartitionPack> partitionPacks, IMFErrorLogger imfErrorLogger)
     {
+        int previousNumberOfErrors = imfErrorLogger.getErrors().size();
+
         //From st2067-5-2013 section 5.1.5, a partition shall only have one of header metadata, essence, index table
         for (PartitionPack partitionPack : partitionPacks)
         {
@@ -322,7 +325,7 @@ public final class IMFConstraints
                 }
             }
         }
-        if(imfErrorLogger.hasFatalErrors()){
+        if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
             throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate the IMF Core constraints"), imfErrorLogger);
         }
     }
