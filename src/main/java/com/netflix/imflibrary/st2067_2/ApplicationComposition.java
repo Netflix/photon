@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
+ * This interface represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
  * A Composition object can be constructed from an XML file only if it satisfies all the constraints specified
  * in st2067-3 and st2067-2. This object model is intended to be agnostic of specific versions of the definitions of a
  * CompositionPlaylist(st2067-3) and its accompanying Core constraints(st2067-2).

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by svenkatrav on 10/7/16.
+ * A class that models Composition with Application 2Extended constraints from 2067-21 specification
  */
 public class Application2ExtendedComposition extends AbstractApplicationComposition {
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{

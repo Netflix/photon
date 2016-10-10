@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
- * Created by svenkatrav on 10/7/16.
+ * A class that models Composition with Application 2 constraints from 2067-20 specification
  */
 public class Application2Composition extends AbstractApplicationComposition {
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{
