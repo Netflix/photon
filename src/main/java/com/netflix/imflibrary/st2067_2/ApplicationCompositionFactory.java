@@ -53,7 +53,7 @@ public class ApplicationCompositionFactory {
 
         if(clazz == null) {
             clazz = Application2ExtendedComposition.class;
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
         }
 
