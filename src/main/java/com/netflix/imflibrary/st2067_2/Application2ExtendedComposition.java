@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * Created by svenkatrav on 10/7/16.
  */
-public class Application2ExtendedComposition extends Composition {
+public class Application2ExtendedComposition extends AbstractApplicationComposition {
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{
         add("SignalStandard");
         add("Active Format Descriptor");

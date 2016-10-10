@@ -183,6 +183,6 @@ public interface ApplicationComposition {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static boolean isCompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-        return Composition.isCompositionPlaylist(resourceByteRangeProvider);
+        return AbstractApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider);
     }
 }
