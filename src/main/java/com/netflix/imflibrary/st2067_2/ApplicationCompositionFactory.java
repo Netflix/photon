@@ -19,13 +19,10 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -39,9 +36,13 @@ import java.util.*;
  */
 public class ApplicationCompositionFactory {
     private static final Map<String, Class> supportedApplicationClassMap = Collections.unmodifiableMap(new HashMap<String, Class>() {{
-        put("http://www.smpte-ra.org/schemas/2067-20/2016", Composition.class);
-        put("http://www.smpte-ra.org/schemas/2067-21/2016", Composition.class);
+        put("http://www.smpte-ra.org/schemas/2067-20/2016", Application2Composition.class);
+        put("http://www.smpte-ra.org/schemas/2067-21/2016", Application2ExtendedComposition.class);
     }});
+
+    public static ApplicationComposition getApplicationComposition(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
+        return getApplicationComposition(new FileByteRangeProvider(inputFile), imfErrorLogger);
+    }
 
     public static ApplicationComposition getApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         ApplicationComposition composition = null;
@@ -53,8 +54,9 @@ public class ApplicationCompositionFactory {
         if(clazz != null)
         {
             try {
-                composition = ApplicationComposition.class.cast(clazz.getConstructor(IMFCompositionPlaylistType.class)
-                        .newInstance(imfCompositionPlaylistType));
+                Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);
+                composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType);
+                imfErrorLogger.addAllErrors(composition.getErrors());
             }
             catch(NoSuchMethodException|IllegalAccessException|InstantiationException| InvocationTargetException e){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,

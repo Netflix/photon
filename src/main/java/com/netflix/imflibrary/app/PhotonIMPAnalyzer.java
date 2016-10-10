@@ -15,7 +15,9 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
@@ -25,7 +27,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.*;
 
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
@@ -82,9 +83,9 @@ public class PhotonIMPAnalyzer {
 
     }
 
-    private static Boolean isCompositionComplete(Composition composition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static Boolean isCompositionComplete(ApplicationComposition applicationComposition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
         Boolean bComplete = true;
-        for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
             for (UUID uuid : virtualTrack.getTrackResourceIds()) {
                 if (!trackFileIDsSet.contains(uuid)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
@@ -216,21 +217,20 @@ public class PhotonIMPAnalyzer {
                                     continue;
                                 }                                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
                                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                                if (Composition.isCompositionPlaylist(resourceByteRangeProvider)) {
+                                if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
                                     PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
                                             PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
 
                                     try {
-                                        Composition composition = new Composition(resourceByteRangeProvider);
-                                        compositionErrorLogger.addAllErrors(composition.getErrors());
+                                        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, compositionErrorLogger);
                                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                                 .keySet();
 
                                         try {
-                                            if (!isCompositionComplete(composition, trackFileIDsSet, compositionConformanceErrorLogger)) {
-                                                for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+                                            if (!isCompositionComplete(applicationComposition, trackFileIDsSet, compositionConformanceErrorLogger)) {
+                                                for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
                                                     Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
                                                     List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
                                                     for (UUID trackFileId : trackFileIds) {

@@ -27,7 +27,8 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -68,7 +69,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider);
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -142,8 +143,8 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
-                composition.getVirtualTracks(),
-                composition.getEditRate(),
+                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEditRate(),
                 imfTrackFileMetadataMap,
                 tempDir);
 
@@ -199,7 +200,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider);
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -273,8 +274,8 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",
-                composition.getVirtualTracks(),
-                composition.getEditRate(),
+                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEditRate(),
                 imfTrackFileMetadataMap,
                 tempDir);
 
@@ -329,7 +330,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider);
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -382,8 +383,8 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",
-                composition.getVirtualTracks(),
-                composition.getEditRate(),
+                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEditRate(),
                 imfTrackFileMetadataMap,
                 tempDir);
 

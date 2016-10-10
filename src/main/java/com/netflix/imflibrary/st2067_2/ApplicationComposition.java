@@ -175,4 +175,14 @@ public interface ApplicationComposition {
     public List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(List<Composition.HeaderPartitionTuple>
                                                                    headerPartitionTuples,
                                                      boolean conformAllVirtualTracksInCpl) throws IOException;
+    /**
+     * A method that confirms if the inputStream corresponds to a Composition document instance.
+     *
+     * @param resourceByteRangeProvider corresponding to the Composition XML file.
+     * @return a boolean indicating if the input file is a Composition document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static boolean isCompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+        return Composition.isCompositionPlaylist(resourceByteRangeProvider);
+    }
 }
