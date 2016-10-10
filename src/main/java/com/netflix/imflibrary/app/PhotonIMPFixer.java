@@ -242,7 +242,7 @@ public class PhotonIMPFixer {
                         {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2016("IMP",
                                     "Netflix",
-                                    applicationComposition.getVirtualTracks(),
+                                    applicationComposition.getEssenceVirtualTracks(),
                                     applicationComposition.getEditRate(),
                                     "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
@@ -252,7 +252,7 @@ public class PhotonIMPFixer {
                         else if(versionCPLSchema.equals("2013")) {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2013("IMP",
                                     "Netflix",
-                                    applicationComposition.getVirtualTracks(),
+                                    applicationComposition.getEssenceVirtualTracks(),
                                     applicationComposition.getEditRate(),
                                     "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,

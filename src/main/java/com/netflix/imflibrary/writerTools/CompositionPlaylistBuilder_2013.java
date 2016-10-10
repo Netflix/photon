@@ -173,6 +173,7 @@ public class CompositionPlaylistBuilder_2013 {
          */
         List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         List<CompositionPlaylistBuilder_2013.SequenceTypeTuple> sequenceTypeTuples = new ArrayList<>();
+
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
             /**
              * Build the EssenceDescriptorList

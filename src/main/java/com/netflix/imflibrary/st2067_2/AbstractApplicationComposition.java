@@ -88,27 +88,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      * @throws IOException        any I/O related error is exposed through an IOException
      */
     public AbstractApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-        imfErrorLogger = new IMFErrorLoggerImpl();
-
-        this.compositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType( resourceByteRangeProvider, imfErrorLogger);
-
-        this.coreConstraintsVersion = this.compositionPlaylistType.getCoreConstraintsVersion();
-
-        this.virtualTrackMap = this.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-        this.essenceDescriptorListMap = this.getEssenceDescriptorListMap();
-
-        imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
-                .virtualTrackMap, essenceDescriptorListMap));
-
-        if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
-                (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty.");
-        }
-
-        if (imfErrorLogger.hasFatalErrors()) {
-            throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file."), imfErrorLogger);
-        }
+        this(IMFCompositionPlaylistType.getCompositionPlayListType( resourceByteRangeProvider, new IMFErrorLoggerImpl()), new HashSet<String>());
     }
 
 
@@ -123,7 +103,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         this.compositionPlaylistType = imfCompositionPlaylistType;
 
-        this.coreConstraintsVersion = this.compositionPlaylistType.getContentOriginator();
+        this.coreConstraintsVersion = this.compositionPlaylistType.getCoreConstraintsVersion();
 
         this.virtualTrackMap = this.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
         this.essenceDescriptorListMap = this.getEssenceDescriptorListMap(ignoreSet);
