@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
@@ -36,7 +37,9 @@ import java.util.*;
  */
 public class ApplicationCompositionFactory {
     private static final Map<String, Class> supportedApplicationClassMap = Collections.unmodifiableMap(new HashMap<String, Class>() {{
+        put("http://www.smpte-ra.org/schemas/2067-20/2013", Application2Composition.class);
         put("http://www.smpte-ra.org/schemas/2067-20/2016", Application2Composition.class);
+        put("http://www.smpte-ra.org/schemas/2067-21/2014", Application2ExtendedComposition.class);
         put("http://www.smpte-ra.org/schemas/2067-21/2016", Application2ExtendedComposition.class);
     }});
 
@@ -51,22 +54,33 @@ public class ApplicationCompositionFactory {
         String applicationIdentification = imfCompositionPlaylistType.getApplicationIdentification();
         Class<?> clazz = supportedApplicationClassMap.get(applicationIdentification);
 
-        if(clazz != null)
-        {
-            try {
-                Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);
-                composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType);
-                imfErrorLogger.addAllErrors(composition.getErrors());
+        if(clazz == null) {
+            clazz = Application2ExtendedComposition.class;
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
+        }
+
+        try {
+            Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);
+            composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType);
+            imfErrorLogger.addAllErrors(composition.getErrors());
+        }
+        catch(NoSuchMethodException|IllegalAccessException|InstantiationException| InvocationTargetException e){
+            IMFException imfException = null;
+            if(e instanceof InvocationTargetException ) {
+                Throwable ex = InvocationTargetException.class.cast(e).getTargetException();
+               if(ex instanceof IMFException) {
+                   imfException = IMFException.class.cast(ex);
+                   throw imfException;
+               }
             }
-            catch(NoSuchMethodException|IllegalAccessException|InstantiationException| InvocationTargetException e){
+
+            if(imfException != null) {
+                throw imfException;
+            } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format(String.format("No matching constructor for class %s", clazz.getSimpleName())));
             }
-        }
-        else
-        {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Unsupported ApplicationIdentification %s in CPL", applicationIdentification));
         }
 
         return composition;

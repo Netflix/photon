@@ -169,14 +169,16 @@ final class CompositionModel_st2067_2_2013 {
 
 
         String applicationID = "";
-        for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
-            if(object instanceof JAXBElement) {
-                JAXBElement jaxbElement = (JAXBElement) (object);
-                if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
-                    if (jaxbElement.getValue() instanceof List) {
-                        List applicationIDList = (List) jaxbElement.getValue();
-                        if (applicationIDList.size() == 1 && applicationIDList.get(0) instanceof String) {
-                            applicationID = applicationIDList.get(0).toString();
+        if(compositionPlaylistType.getExtensionProperties() != null) {
+            for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
+                if (object instanceof JAXBElement) {
+                    JAXBElement jaxbElement = (JAXBElement) (object);
+                    if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
+                        if (jaxbElement.getValue() instanceof List) {
+                            List applicationIDList = (List) jaxbElement.getValue();
+                            if (applicationIDList.size() == 1 && applicationIDList.get(0) instanceof String) {
+                                applicationID = applicationIDList.get(0).toString();
+                            }
                         }
                     }
                 }

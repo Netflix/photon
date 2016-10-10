@@ -145,6 +145,7 @@ public class IMPBuilderFunctionalTest {
                 "Netflix",
                 applicationComposition.getVirtualTracks(),
                 applicationComposition.getEditRate(),
+                "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
                 tempDir);
 
@@ -276,6 +277,7 @@ public class IMPBuilderFunctionalTest {
                 "Netflix",
                 applicationComposition.getVirtualTracks(),
                 applicationComposition.getEditRate(),
+                "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
                 tempDir);
 
@@ -385,6 +387,7 @@ public class IMPBuilderFunctionalTest {
                 "Netflix",
                 applicationComposition.getVirtualTracks(),
                 applicationComposition.getEditRate(),
+                "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
                 tempDir);
 

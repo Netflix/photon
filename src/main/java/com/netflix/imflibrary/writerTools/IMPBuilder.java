@@ -44,6 +44,7 @@ public class IMPBuilder {
      * @param issuer a human readable text indicating the issuer of the XML documents
      * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
      * @param compositionEditRate the EditRate of the composition
+     * @param applicationId ApplicationId for the composition
      * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
      * @param workingDirectory a folder location for the generated documents
      * @return a list of errors that occurred while building an IMP
@@ -56,6 +57,7 @@ public class IMPBuilder {
                                                               @Nonnull String issuer,
                                                               @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                                               @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull String applicationId,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                                               @Nonnull File workingDirectory)
             throws IOException, ParserConfigurationException, URISyntaxException
@@ -92,6 +94,7 @@ public class IMPBuilder {
                                                                                                                 CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013("Photon PackingListBuilder", "en"),
                                                                                                                 virtualTracks,
                                                                                                                 compositionEditRate,
+                                                                                                                applicationId,
                                                                                                                 totalRunningTime,
                                                                                                                 trackFileHeaderPartitionMap,
                                                                                                                 workingDirectory);
@@ -218,6 +221,7 @@ public class IMPBuilder {
      * @param issuer a human readable text indicating the issuer of the XML documents
      * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
      * @param compositionEditRate the EditRate of the composition
+     * @param applicationId ApplicationId for the composition
      * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
      * @param workingDirectory a folder location for the generated documents
      * @return a list of errors that occurred while building an IMP
@@ -232,6 +236,7 @@ public class IMPBuilder {
                                                               @Nonnull String issuer,
                                                               @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                                               @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull String applicationId,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                                               @Nonnull File workingDirectory)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException
@@ -268,6 +273,7 @@ public class IMPBuilder {
                 CompositionPlaylistBuilder_2016.buildCPLUserTextType_2016("Photon PackingListBuilder", "en"),
                 virtualTracks,
                 compositionEditRate,
+                applicationId,
                 totalRunningTime,
                 trackFileHeaderPartitionMap,
                 workingDirectory);

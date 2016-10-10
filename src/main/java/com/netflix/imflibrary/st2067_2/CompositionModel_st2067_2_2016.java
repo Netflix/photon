@@ -184,11 +184,20 @@ final class CompositionModel_st2067_2_2016 {
         }
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
-        String ApplicationID = "";
-        for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
-            JAXBElement jaxbElement = (JAXBElement)(object);
-            if(jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
-                ApplicationID = (String)jaxbElement.getValue();
+        String applicationID = "";
+        if(compositionPlaylistType.getExtensionProperties() != null) {
+            for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
+                if (object instanceof JAXBElement) {
+                    JAXBElement jaxbElement = (JAXBElement) (object);
+                    if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
+                        if (jaxbElement.getValue() instanceof List) {
+                            List applicationIDList = (List) jaxbElement.getValue();
+                            if (applicationIDList.size() == 1 && applicationIDList.get(0) instanceof String) {
+                                applicationID = applicationIDList.get(0).toString();
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -201,7 +210,7 @@ final class CompositionModel_st2067_2_2016 {
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 Collections.synchronizedList(segmentList),
                 Collections.synchronizedList(essenceDescriptorList),
-                "org.smpte_ra.schemas.st2067_2_2016", ApplicationID
+                "org.smpte_ra.schemas.st2067_2_2016", applicationID
                 );
     }
 

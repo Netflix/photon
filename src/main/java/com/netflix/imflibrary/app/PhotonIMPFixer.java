@@ -244,6 +244,7 @@ public class PhotonIMPFixer {
                                     "Netflix",
                                     applicationComposition.getVirtualTracks(),
                                     applicationComposition.getEditRate(),
+                                    "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));
 
@@ -253,6 +254,7 @@ public class PhotonIMPFixer {
                                     "Netflix",
                                     applicationComposition.getVirtualTracks(),
                                     applicationComposition.getEditRate(),
+                                    "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));
                         }

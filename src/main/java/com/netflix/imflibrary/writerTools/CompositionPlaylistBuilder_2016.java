@@ -47,6 +47,7 @@ import org.smpte_ra.schemas.st2067_2_2016.SegmentType;
 import org.smpte_ra.schemas.st2067_2_2016.SequenceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -64,11 +65,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.time.LocalTime;
@@ -103,6 +100,7 @@ public class CompositionPlaylistBuilder_2016 {
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final static String defaultContentKindScope = "http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind";
     private final String cplFileName;
+    private final String applicationId;
 
 
 
@@ -114,6 +112,7 @@ public class CompositionPlaylistBuilder_2016 {
      * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
      * @param virtualTracks a list of VirtualTracks of the Composition
      * @param compositionEditRate the edit rate of the Composition
+     * @param applicationId ApplicationId for the composition
      * @param totalRunningTime a long value representing in seconds the total running time of this composition
      * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
      * @param workingDirectory a folder location where the constructed CPL document can be written to
@@ -124,6 +123,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType creator,
                                            @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                            @Nonnull Composition.EditRate compositionEditRate,
+                                           @Nonnull String applicationId,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
                                            @Nonnull File workingDirectory){
@@ -141,6 +141,7 @@ public class CompositionPlaylistBuilder_2016 {
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = new IMFErrorLoggerImpl();
         cplFileName = "CPL-" + this.uuid.toString() + ".xml";
+        this.applicationId = applicationId;
     }
 
     /**
@@ -207,7 +208,24 @@ public class CompositionPlaylistBuilder_2016 {
         cplRoot.setSegmentList(buildSegmentList(new ArrayList<SegmentType>(){{add(segmentType);}}));
         cplRoot.setSigner(null);
         cplRoot.setSignature(null);
-        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
+        try {
+            String nodeString = "<ApplicationIdentification xmlns=\"http://www.smpte-ra.org/schemas/2067-2/2016\">" +
+                    this.applicationId +
+                    "</ApplicationIdentification>";
+
+            Element element = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(new ByteArrayInputStream(nodeString.getBytes("UTF-8")))
+                    .getDocumentElement();
+            org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType.ExtensionProperties extensionProperties = new org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType.ExtensionProperties();
+            extensionProperties.getAny().add(element);
+            cplRoot.setExtensionProperties( extensionProperties);
+        }
+        catch(SAXException ex) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    "Failed to create DOM node for ApplicationIdentification");
+        }File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
         serializeCPLToXML(cplRoot, outputFile);
         return imfErrorLogger.getErrors();
     }
