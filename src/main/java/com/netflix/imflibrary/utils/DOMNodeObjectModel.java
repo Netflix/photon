@@ -177,10 +177,13 @@ public class DOMNodeObjectModel {
 
         Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
         for(Map.Entry<DOMNodeObjectModel, Integer> entry : domNodeObjectModel.getChildrenDOMNodes().entrySet()){
-            DOMNodeObjectModel child = entry.getKey().createDOMNodeObjectModelIgnoreSet(entry.getKey(), ignoreSet);
-            if(child.getChildrenDOMNodes().size() > 0
-                    || child.getFields().size() > 0) {
-                childrenDOMNodes.put(child, entry.getValue());
+            if(!ignoreSet.contains(entry.getKey().getLocalName()))
+            {
+                DOMNodeObjectModel child = entry.getKey().createDOMNodeObjectModelIgnoreSet(entry.getKey(), ignoreSet);
+                if (child.getChildrenDOMNodes().size() > 0
+                        || child.getFields().size() > 0) {
+                    childrenDOMNodes.put(child, entry.getValue());
+                }
             }
         }
         return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
