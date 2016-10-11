@@ -66,7 +66,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
     private final String coreConstraintsVersion;
     private final Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap;
-    private final Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
     private final IMFErrorLogger imfErrorLogger;
 
@@ -108,7 +107,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         this.essenceDescriptorKeyIgnoreSet = Collections.unmodifiableSet(ignoreSet);
 
         this.virtualTrackMap = this.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
-        this.essenceDescriptorListMap = this.getEssenceDescriptorListMap(ignoreSet);
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap= this.getEssenceDescriptorListMap(ignoreSet);
 
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
                 .virtualTrackMap, essenceDescriptorListMap));
@@ -870,7 +869,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
                         "Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
             }
         }
-        Set<String> ignoreSet = this.essenceDescriptorKeyIgnoreSet;
+        Set<String> ignoreSet = new HashSet<String>();
         //ignoreSet.add("InstanceUID");
         //ignoreSet.add("InstanceID");
         //ignoreSet.add("EssenceLength");
