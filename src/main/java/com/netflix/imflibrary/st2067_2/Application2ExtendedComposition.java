@@ -11,9 +11,9 @@ import java.util.Set;
 public class Application2ExtendedComposition extends AbstractApplicationComposition {
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{
         add("SignalStandard");
-        add("Active Format Descriptor");
-        add("Video Line Map");
-        add("Alpha Transparency");
+        add("ActiveFormatDescriptor");
+        add("VideoLineMap");
+        add("AlphaTransparency");
         add("PixelLayout");
     }});
 

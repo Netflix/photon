@@ -60,7 +60,7 @@ import java.util.*;
 @Immutable
 public abstract class AbstractApplicationComposition implements ApplicationComposition {
     private static final Logger logger = LoggerFactory.getLogger(AbstractApplicationComposition.class);
-
+    private final Set<String> essenceDescriptorKeyIgnoreSet;
 
 
 
@@ -104,6 +104,8 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         this.compositionPlaylistType = imfCompositionPlaylistType;
 
         this.coreConstraintsVersion = this.compositionPlaylistType.getCoreConstraintsVersion();
+
+        this.essenceDescriptorKeyIgnoreSet = Collections.unmodifiableSet(ignoreSet);
 
         this.virtualTrackMap = this.getVirtualTracksMap(compositionPlaylistType, imfErrorLogger);
         this.essenceDescriptorListMap = this.getEssenceDescriptorListMap(ignoreSet);
@@ -868,7 +870,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
                         "Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
             }
         }
-        Set<String> ignoreSet = new HashSet<>();
+        Set<String> ignoreSet = this.essenceDescriptorKeyIgnoreSet;
         //ignoreSet.add("InstanceUID");
         //ignoreSet.add("InstanceID");
         //ignoreSet.add("EssenceLength");
