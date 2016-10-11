@@ -2,8 +2,6 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -25,23 +23,23 @@ public class CompositionTest
     public void testCompositionPlaylist() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
-        Composition composition = new Composition(inputFile);
-        Assert.assertTrue(Composition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
-        Assert.assertTrue(composition.toString().length() > 0);
-        Assert.assertEquals(composition.getEditRate().getNumerator().longValue(), 24);
-        Assert.assertEquals(composition.getEditRate().getDenominator().longValue(), 1);
-        Assert.assertEquals(composition.getUUID(), UUID.fromString("682feecb-7516-4d93-b533-f40d4ce60539"));
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
+        Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
+        Assert.assertTrue(applicationComposition.toString().length() > 0);
+        Assert.assertEquals(applicationComposition.getEditRate().getNumerator().longValue(), 24);
+        Assert.assertEquals(applicationComposition.getEditRate().getDenominator().longValue(), 1);
+        Assert.assertEquals(applicationComposition.getUUID(), UUID.fromString("682feecb-7516-4d93-b533-f40d4ce60539"));
 
         UUID uuid = UUID.fromString("586286d2-c45f-4b2f-ad76-58eecd0202b4");
-        Assert.assertEquals(composition.getVirtualTrackMap().size(), 2);
-        Composition.VirtualTrack virtualTrack = composition.getVirtualTrackMap().get(uuid);
+        Assert.assertEquals(applicationComposition.getVirtualTracks().size(), 2);
+        Composition.VirtualTrack virtualTrack = applicationComposition.getVideoVirtualTrack();
         Assert.assertEquals(virtualTrack.getSequenceTypeEnum(), Composition.SequenceTypeEnum.MainImageSequence);
 
-        Assert.assertTrue(composition.getAnnotation().length() > 0);
-        Assert.assertTrue(composition.getIssuer().length() > 0);
-        Assert.assertTrue(composition.getCreator().length() > 0);
-        Assert.assertTrue(composition.getContentOriginator().length() > 0);
-        Assert.assertTrue(composition.getContentTitle().length() > 0);
+        Assert.assertTrue(applicationComposition.getAnnotation().length() > 0);
+        Assert.assertTrue(applicationComposition.getIssuer().length() > 0);
+        Assert.assertTrue(applicationComposition.getCreator().length() > 0);
+        Assert.assertTrue(applicationComposition.getContentOriginator().length() > 0);
+        Assert.assertTrue(applicationComposition.getContentTitle().length() > 0);
     }
 
     @Test
@@ -49,7 +47,7 @@ public class CompositionTest
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(inputFile);
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
     }
 
@@ -58,8 +56,7 @@ public class CompositionTest
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_InconsistentNamespaceURI.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(inputFile);
-        imfErrorLogger.addAllErrors(composition.getErrors());
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertTrue(imfErrorLogger.getErrors().size() == 8);
     }
 

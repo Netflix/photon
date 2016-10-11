@@ -16,6 +16,9 @@
 		<TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
 	</CompositionTimecode>
 	<EditRate>24000 1001</EditRate>
+	<ExtensionProperties>
+		<ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2016</ApplicationIdentification>
+	</ExtensionProperties>
 	<SegmentList>
 		<Segment>
 			<Id>urn:uuid:2cb4c538-465d-4fe4-9ae9-2a9cf7ca4dae</Id>

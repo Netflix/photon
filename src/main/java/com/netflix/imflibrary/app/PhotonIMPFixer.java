@@ -15,7 +15,8 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
@@ -32,12 +33,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -127,9 +125,9 @@ public class PhotonIMPFixer {
         return Collections.unmodifiableMap(trackFileIDMap);
     }
 
-    private static Boolean isCompositionComplete(Composition composition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static Boolean isCompositionComplete(ApplicationComposition applicationComposition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
         Boolean bComplete = true;
-        for (IMFEssenceComponentVirtualTrack virtualTrack : composition.getEssenceVirtualTracks()) {
+        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
             for (UUID uuid : virtualTrack.getTrackResourceIds()) {
                 if (!trackFileIDsSet.contains(uuid)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
@@ -222,21 +220,21 @@ public class PhotonIMPFixer {
             for (PackingList.Asset asset : packingList.getAssets()) {
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && Composition.isCompositionPlaylist(resourceByteRangeProvider)) {
-                    Composition composition = new Composition(resourceByteRangeProvider);
+                if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
+                    ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
                     Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap.keySet();
                         if(versionCPLSchema.equals(""))
                         {
-                            if (composition.getCoreConstraintsVersion().contains("st2067_2_2013")) {
+                            if (applicationComposition.getCoreConstraintsVersion().contains("st2067_2_2013")) {
                                 versionCPLSchema = "2013";
                             }
-                            else if (composition.getCoreConstraintsVersion().contains("st2067_2_2016")) {
+                            else if (applicationComposition.getCoreConstraintsVersion().contains("st2067_2_2016")) {
                                 versionCPLSchema = "2016";
                             }
                             else {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR,
                                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                        String.format("Input package CoreConstraintsVersion %s not supported", composition.getCoreConstraintsVersion().toString()));
+                                        String.format("Input package CoreConstraintsVersion %s not supported", applicationComposition.getCoreConstraintsVersion().toString()));
                             }
                         }
 
@@ -244,8 +242,9 @@ public class PhotonIMPFixer {
                         {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2016("IMP",
                                     "Netflix",
-                                    composition.getVirtualTracks(),
-                                    composition.getEditRate(),
+                                    applicationComposition.getEssenceVirtualTracks(),
+                                    applicationComposition.getEditRate(),
+                                    "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));
 
@@ -253,8 +252,9 @@ public class PhotonIMPFixer {
                         else if(versionCPLSchema.equals("2013")) {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2013("IMP",
                                     "Netflix",
-                                    composition.getVirtualTracks(),
-                                    composition.getEditRate(),
+                                    applicationComposition.getEssenceVirtualTracks(),
+                                    applicationComposition.getEditRate(),
+                                    "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));
                         }

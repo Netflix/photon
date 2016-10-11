@@ -9,7 +9,9 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
@@ -67,7 +69,7 @@ public class IMPValidator {
         else if(PackingList.isFileOfSupportedSchema(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.PackingList;
         }
-        else if(Composition.isCompositionPlaylist(resourceByteRangeProvider)){
+        else if(ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
         }
         return PayloadRecord.PayloadAssetType.Unknown;
@@ -270,8 +272,7 @@ public class IMPValidator {
         }
 
         try {
-            Composition composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()));
-            imfErrorLogger.addAllErrors(composition.getErrors());
+            ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
         }
         catch(IMFException e)
         {
@@ -297,8 +298,8 @@ public class IMPValidator {
             throw new IMFException("Virtual track failed validation", imfErrorLogger);
         }
 
-        Composition composition = new Composition(new ByteArrayByteRangeProvider(cpl.getPayload()));
-        return composition.getVirtualTracks();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+        return applicationComposition.getVirtualTracks();
     }
 
     /**
@@ -343,11 +344,9 @@ public class IMPValidator {
             List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()));
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
 
-        imfErrorLogger.addAllErrors(composition.getErrors());
-
-        List<VirtualTrack> virtualTracks = new ArrayList<>(composition.getVirtualTracks());
+        List<VirtualTrack> virtualTracks = new ArrayList<>(applicationComposition.getVirtualTracks());
         imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartitionPayloads));
         if(imfErrorLogger.hasFatalErrors()){
@@ -371,11 +370,11 @@ public class IMPValidator {
             if (imfErrorLogger.hasFatalErrors())
                 return Collections.unmodifiableList(imfErrorLogger.getErrors());
 
-            Composition composition = new Composition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()));
+            ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
 
             imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
 
-            List<HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
+            List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
             for (PayloadRecord payloadRecord : essencesHeaderPartition) {
                 if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger
@@ -386,7 +385,7 @@ public class IMPValidator {
                                     PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                     continue;
                 }
-                headerPartitionTuples.add(new HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                         0L,
                         (long) payloadRecord.getPayload().length,
                         imfErrorLogger),
@@ -397,10 +396,10 @@ public class IMPValidator {
                 return imfErrorLogger.getErrors();
             }
 
-            imfErrorLogger.addAllErrors(composition.conformVirtualTracksInComposition(Collections.unmodifiableList
+            imfErrorLogger.addAllErrors(applicationComposition.conformVirtualTracksInComposition(Collections.unmodifiableList
                     (headerPartitionTuples), conformAllVirtualTracks));
 
-            imfErrorLogger.addAllErrors(composition.getErrors());
+            imfErrorLogger.addAllErrors(applicationComposition.getErrors());
         }
         catch(IMFException e)
         {
@@ -425,10 +424,10 @@ public class IMPValidator {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> cplPayloadRecords = Collections.unmodifiableList(cplPayloads);
-        List<Composition> compositions = new ArrayList<>();
+        List<ApplicationComposition> applicationCompositions = new ArrayList<>();
         try
         {
-            compositions.add(new Composition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload())));
+            applicationCompositions.add(ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
         }
         catch(IMFException e)
         {
@@ -439,7 +438,7 @@ public class IMPValidator {
         for (PayloadRecord cpl : cplPayloadRecords) {
             try
             {
-                compositions.add(new Composition(new ByteArrayByteRangeProvider(cpl.getPayload())));
+                applicationCompositions.add(ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
             }
             catch(IMFException e)
             {
@@ -451,11 +450,11 @@ public class IMPValidator {
             return imfErrorLogger.getErrors();
         }
 
-        VirtualTrack referenceVideoVirtualTrack = compositions.get(0).getVideoVirtualTrack();
-        UUID referenceCPLUUID = compositions.get(0).getUUID();
-        for (int i = 1; i < compositions.size(); i++) {
-            if (!referenceVideoVirtualTrack.equivalent(compositions.get(i).getVideoVirtualTrack())) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
+        VirtualTrack referenceVideoVirtualTrack = applicationCompositions.get(0).getVideoVirtualTrack();
+        UUID referenceCPLUUID = applicationCompositions.get(0).getUUID();
+        for (int i = 1; i < applicationCompositions.size(); i++) {
+            if (!referenceVideoVirtualTrack.equivalent(applicationCompositions.get(i).getVideoVirtualTrack())) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
             }
         }
 
@@ -466,9 +465,9 @@ public class IMPValidator {
          */
         Boolean bAudioVirtualTrackMapFail = false;
         List<Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
-        for (Composition composition : compositions) {
+        for (ApplicationComposition applicationComposition : applicationCompositions) {
             try {
-                audioVirtualTracksMapList.add(composition.getAudioVirtualTracksMap());
+                audioVirtualTracksMapList.add(applicationComposition.getAudioVirtualTracksMap());
             }
             catch(IMFException e)
             {
@@ -482,7 +481,7 @@ public class IMPValidator {
             Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
             for (int i = 1; i < audioVirtualTracksMapList.size(); i++) {
                 if (!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)), imfErrorLogger)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceCPLUUID));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
                 }
             }
         }
@@ -490,12 +489,12 @@ public class IMPValidator {
         /**
          * Perform MarkerTrack mergeability checks
          */
-        Composition.VirtualTrack referenceMarkerVirtualTrack = compositions.get(0).getMarkerVirtualTrack();
+        Composition.VirtualTrack referenceMarkerVirtualTrack = applicationCompositions.get(0).getMarkerVirtualTrack();
         if (referenceMarkerVirtualTrack != null) {
-            UUID referenceMarkerCPLUUID = compositions.get(0).getUUID();
-            for (int i = 1; i < compositions.size(); i++) {
-                if (!referenceVideoVirtualTrack.equivalent(compositions.get(i).getMarkerVirtualTrack())) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", compositions.get(i).getUUID(), referenceMarkerCPLUUID));
+            UUID referenceMarkerCPLUUID = applicationCompositions.get(0).getUUID();
+            for (int i = 1; i < applicationCompositions.size(); i++) {
+                if (!referenceVideoVirtualTrack.equivalent(applicationCompositions.get(i).getMarkerVirtualTrack())) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceMarkerCPLUUID));
                 }
             }
         }
@@ -735,36 +734,6 @@ public class IMPValidator {
 
         return imfErrorLogger.getErrors();
 
-    }
-
-    /**
-     * An object model for a HeaderPartition and access to the raw bytes corresponding to the HeaderPartition
-     */
-    public static class HeaderPartitionTuple {
-        private final HeaderPartition headerPartition;
-        private final ResourceByteRangeProvider resourceByteRangeProvider;
-
-        private HeaderPartitionTuple(HeaderPartition headerPartition, ResourceByteRangeProvider resourceByteRangeProvider){
-            this.headerPartition = headerPartition;
-            this.resourceByteRangeProvider = resourceByteRangeProvider;
-        }
-
-        /**
-         * A getter for the resourceByteRangeProvider object corresponding to this HeaderPartition to allow
-         * access to the raw bytes
-         * @return ResourceByteRangeProvider object corresponding to this HeaderPartition
-         */
-        public ResourceByteRangeProvider getResourceByteRangeProvider(){
-            return this.resourceByteRangeProvider;
-        }
-
-        /**
-         * A getter for the HeaderPartition object corresponding to a resource referenced from the Composition
-         * @return HeaderPartition of a certain resource in the Composition
-         */
-        public HeaderPartition getHeaderPartition(){
-            return this.headerPartition;
-        }
     }
 
     private static String usage()

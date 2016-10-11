@@ -25,7 +25,9 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -316,8 +318,8 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
         Assert.assertTrue(errors.size() == 0);
 
-        Composition composition = new Composition(resourceByteRangeProvider);
-        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+        List<? extends Composition.VirtualTrack> virtualTracks = applicationComposition.getVirtualTracks();
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -357,8 +359,8 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
         Assert.assertTrue(errors.size() == 0);
 
-        Composition composition = new Composition(resourceByteRangeProvider);
-        List<? extends Composition.VirtualTrack> virtualTracks = composition.getVirtualTracks();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+        List<? extends Composition.VirtualTrack> virtualTracks = applicationComposition.getVirtualTracks();
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2398_full_full.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -384,7 +386,7 @@ public class IMPValidatorFunctionalTests {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Composition composition = new Composition(resourceByteRangeProvider);
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
 
         File headerPartition1 = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -435,8 +437,9 @@ public class IMPValidatorFunctionalTests {
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
-                composition.getVirtualTracks(),
-                composition.getEditRate(),
+                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEditRate(),
+                "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
                 tempDir);
 
@@ -457,7 +460,7 @@ public class IMPValidatorFunctionalTests {
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
         Assert.assertTrue(errors.size() == 0);
 
-        composition = new Composition(fileByteRangeProvider);
+        applicationComposition = ApplicationCompositionFactory.getApplicationComposition(fileByteRangeProvider, imfErrorLogger);
         fileByteRangeProvider = new FileByteRangeProvider(headerPartition1);
         byte[] headerPartition1_bytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord headerPartition1PayloadRecord = new PayloadRecord(headerPartition1_bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, 0L);
@@ -468,7 +471,7 @@ public class IMPValidatorFunctionalTests {
         List<PayloadRecord> essencesHeaderPartitionPayloads = new ArrayList<>();
         essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
 
-        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, composition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
+        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, applicationComposition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
         Assert.assertTrue(conformanceErrors.size() == 0);
     }
 

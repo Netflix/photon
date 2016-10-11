@@ -167,6 +167,9 @@
     </EssenceDescriptorList>
     <EditRate>24000 1001</EditRate>
     <TotalRunningTime>00:10:26</TotalRunningTime>
+    <ExtensionProperties>
+        <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2016">http://www.smpte-ra.org/schemas/2067-21/2016</ApplicationIdentification>
+    </ExtensionProperties>
     <SegmentList>
         <Segment>
             <Id>urn:uuid:6e220009-5d78-4e07-aac7-57453b33c5df</Id>

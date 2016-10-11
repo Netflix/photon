@@ -2,7 +2,6 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import org.w3c.dom.Element;
@@ -169,6 +168,23 @@ final class CompositionModel_st2067_2_2013 {
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
 
+        String applicationID = "";
+        if(compositionPlaylistType.getExtensionProperties() != null) {
+            for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
+                if (object instanceof JAXBElement) {
+                    JAXBElement jaxbElement = (JAXBElement) (object);
+                    if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
+                        if (jaxbElement.getValue() instanceof List) {
+                            List applicationIDList = (List) jaxbElement.getValue();
+                            if (applicationIDList.size() == 1 && applicationIDList.get(0) instanceof String) {
+                                applicationID = applicationIDList.get(0).toString();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return new IMFCompositionPlaylistType(compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -177,6 +193,7 @@ final class CompositionModel_st2067_2_2013 {
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 Collections.synchronizedList(segmentList),
-                Collections.synchronizedList(essenceDescriptorList));
+                Collections.synchronizedList(essenceDescriptorList),
+                "org.smpte_ra.schemas.st2067_2_2013", applicationID);
     }
 }

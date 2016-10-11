@@ -250,7 +250,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2016">http://www-smpte-ra.org/schemas/2067-3/2013</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2016">http://www.smpte-ra.org/schemas/2067-21/2016</ApplicationIdentification>
   </ExtensionProperties>  
   <SegmentList>
     <Segment>
