@@ -70,8 +70,12 @@ import java.util.List;
  * CompositionPlaylist(st2067-3) and its accompanying Core constraints(st2067-2).
  */
 @Immutable
-public abstract class Composition {
+public final class Composition {
     private static final Logger logger = LoggerFactory.getLogger(Composition.class);
+
+    private Composition() {
+
+    }
 
     /**
      * This class is an immutable implementation of a rational number described as a ratio of two longs and used to hold
