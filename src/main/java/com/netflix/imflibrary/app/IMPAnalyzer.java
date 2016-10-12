@@ -1,9 +1,7 @@
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
@@ -34,10 +32,10 @@ import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
 /**
  * Created by svenkatrav on 9/2/16.
  */
-public class PhotonIMPAnalyzer {
+public class IMPAnalyzer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
-    private static final Logger logger = LoggerFactory.getLogger(PhotonIMPAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPAnalyzer.class);
 
     private static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
                                                                                 headerPartitionPayloadRecords) throws
@@ -344,11 +342,11 @@ public class PhotonIMPAnalyzer {
     private static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s <package_directory>%n", PhotonIMPAnalyzer.class.getName()));
-        sb.append(String.format("%s <cpl_file>%n", PhotonIMPAnalyzer.class.getName()));
-        sb.append(String.format("%s <asset_map_file>%n", PhotonIMPAnalyzer.class.getName()));
-        sb.append(String.format("%s <pkl_file>%n", PhotonIMPAnalyzer.class.getName()));
-        sb.append(String.format("%s <mxf_file>%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <package_directory>%n", IMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <cpl_file>%n", IMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <asset_map_file>%n", IMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <pkl_file>%n", IMPAnalyzer.class.getName()));
+        sb.append(String.format("%s <mxf_file>%n", IMPAnalyzer.class.getName()));
         return sb.toString();
     }
 

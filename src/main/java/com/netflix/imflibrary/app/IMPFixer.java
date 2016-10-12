@@ -41,10 +41,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Created by svenkatrav on 9/2/16.
  */
-public class PhotonIMPFixer {
+public class IMPFixer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
-    private static final Logger logger = LoggerFactory.getLogger(PhotonIMPAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPAnalyzer.class);
 
     private static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
             IOException {
@@ -290,7 +290,7 @@ public class PhotonIMPFixer {
     private static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
-        sb.append(String.format("%s input_package_directory output_package_directory [options]%n", PhotonIMPAnalyzer.class.getName()));
+        sb.append(String.format("%s input_package_directory output_package_directory [options]%n", IMPAnalyzer.class.getName()));
         sb.append(String.format("options:            %n"));
         sb.append(String.format("-cs, --cpl-schema=VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
         sb.append(String.format("-nc, --no-copy                 don't copy track files     %n"));
