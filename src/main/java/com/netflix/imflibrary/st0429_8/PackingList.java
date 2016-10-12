@@ -180,7 +180,8 @@ public final class PackingList
                 for (org.smpte_ra.schemas.st0429_8_2007.PKL.AssetType assetType : packingListType_st0429_8_2007_PKL.getAssetList().getAsset())
                 {
                     Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
-                            assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue());
+					    assetType.getSize().longValue(), assetType.getType(),
+					    assetType.getOriginalFileName() != null ? assetType.getOriginalFileName().getValue() : null);
                     this.assetList.add(asset);
                 }
                 break;
@@ -191,8 +192,9 @@ public final class PackingList
                 for (org.smpte_ra.schemas.st2067_2_2016.PKL.AssetType assetType : packingListType_st2067_2_2016_PKL.getAssetList().getAsset())
                 {
                     Asset asset = new Asset(assetType.getId(), Arrays.copyOf(assetType.getHash(), assetType.getHash().length),
-                            assetType.getSize().longValue(), assetType.getType(), assetType.getOriginalFileName().getValue(),
-                            assetType.getHashAlgorithm().getAlgorithm());
+					    assetType.getSize().longValue(), assetType.getType(),
+					    assetType.getOriginalFileName() != null ? assetType.getOriginalFileName().getValue() : null,
+					    assetType.getHashAlgorithm().getAlgorithm());
                     this.assetList.add(asset);
                 }
                 break;
