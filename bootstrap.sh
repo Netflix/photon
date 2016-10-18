@@ -93,7 +93,7 @@ cat <<EOT > ${photon_validator_script_to_generate}
 
 set -x 
 
-java -cp ${photon_install_dir}/libs/*:* com.netflix.imflibrary.app.IMPAnalyzer \${1} > \${1}_IMP_validation_output.txt
+java -cp ${photon_install_dir}/libs/*:* com.netflix.imflibrary.app.IMPAnalyzer \${1}
 
 EOT
 
