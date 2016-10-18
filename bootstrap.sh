@@ -86,34 +86,30 @@ echo "Installing java classes"
 cp -r ./build/libs ${photon_install_dir}/ || die "Error running cp -r ./build/libs ${photon_install_dir}/"
 
 
-
 echo "Creating IMP validation script: ${photon_validator_script_to_generate}"
 cat <<EOT > ${photon_validator_script_to_generate}
 #!/usr/bin/env bash
 
 set -x 
 
-java -cp ${photon_install_dir}/libs/*:* com.netflix.imflibrary.app.IMPAnalyzer \${1} > \${1}_IMP_validation_output.txt
+java -cp ${photon_install_dir}/libs/*:* com.netflix.imflibrary.app.IMPAnalyzer \${1}
 
 EOT
 
-
-echo "Installing photon validator script: cp ${photon_validator_script_to_generate} ${photon_validator_script_install_dir}/"
-cp ${photon_validator_script_to_generate} ${photon_validator_script_install_dir}/
-
-if [ ! -e  ${photon_validator_script_installed_path} ] ; then
-	echo "Script didn't install, using sudo"
-	sudo cp ${photon_validator_script_to_generate} ${photon_validator_script_install_dir}/
-	echo "Setting permissions: sudo chmod ugo+x ${photon_validator_script_installed_path}"
-	sudo chmod ugo+x ${photon_validator_script_installed_path} || die "Error setting permissions on IMP validator script: chmod ugo+x ${photon_validator_script_installed_path} "
-else
+echo "Installing photon validator script to ${photon_validator_script_install_dir}/"
+if [ -w ${photon_validator_script_install_dir} ] ; then
+	cp ${photon_validator_script_to_generate} ${photon_validator_script_install_dir}/ || echo "Unable to install validation script here: ${photon_validator_script_install_dir}"	
 	echo "Setting permissions: chmod ugo+x ${photon_validator_script_installed_path}"
 	chmod ugo+x ${photon_validator_script_installed_path} || die "Error setting permissions on IMP validator script: chmod ugo+x ${photon_validator_script_installed_path} "
+else 
+	sudo cp ${photon_validator_script_to_generate} ${photon_validator_script_install_dir}/ || echo "Unable to install validation script here: ${photon_validator_script_install_dir}"
+	echo "Setting permissions: sudo chmod ugo+x ${photon_validator_script_installed_path}"
+	sudo chmod ugo+x ${photon_validator_script_installed_path} || die "Error setting permissions on IMP validator script: chmod ugo+x ${photon_validator_script_installed_path} "
 fi
 
 
-
 echo "Done"
+
 cat <<EOT
 
 To run IMP validation:
