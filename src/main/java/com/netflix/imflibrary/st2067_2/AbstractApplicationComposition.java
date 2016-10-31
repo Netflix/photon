@@ -19,8 +19,6 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.*;
-import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
-import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -30,7 +28,7 @@ import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.utils.*;
-import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
+import com.netflix.imflibrary.utils.RegXMLLibHelper;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +40,13 @@ import org.xml.sax.SAXException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -67,7 +64,9 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     private final String coreConstraintsVersion;
     private final Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
-    private final IMFErrorLogger imfErrorLogger;
+    protected final IMFErrorLogger imfErrorLogger;
+
+    protected final RegXMLLibDictionary regXMLLibDictionary;
 
     /**
      * Constructor for a {@link AbstractApplicationComposition Composition} object from a XML file
@@ -101,6 +100,8 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         imfErrorLogger = new IMFErrorLoggerImpl();
 
         this.compositionPlaylistType = imfCompositionPlaylistType;
+
+        this.regXMLLibDictionary = new RegXMLLibDictionary();
 
         this.coreConstraintsVersion = this.compositionPlaylistType.getCoreConstraintsVersion();
 
@@ -339,6 +340,25 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     }
 
     /**
+     * Getter for the Track file resources in this Composition
+     *
+     * @return a list of track file resources that are a part of this composition or an empty list if there are none
+     * track
+     */
+    public List<IMFTrackFileResourceType> getTrackFileResources() {
+        List<IMFTrackFileResourceType> trackFileResources = new ArrayList<>();
+        Iterator iterator = this.getVirtualTrackMap().entrySet().iterator();
+        while (iterator != null
+                && iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getResourceList().size() != 0 && virtualTrack.getResourceList().get(0) instanceof IMFTrackFileResourceType) {
+                trackFileResources.addAll(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackFileResourceList());
+            }
+        }
+        return Collections.unmodifiableList(trackFileResources);
+    }
+
+    /**
      * Getter for the essence VirtualTracks in this Composition
      *
      * @return a list of essence virtual tracks that are a part of this composition or an empty list if there are none
@@ -449,6 +469,34 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     public List<DOMNodeObjectModel> getEssenceDescriptors() {
         Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = this.getEssenceDescriptorListMap();
         return new ArrayList<>(essenceDescriptorMap.values());
+    }
+
+    /**
+     * A utility method to retrieve the EssenceDescriptors within a Composition based on the name.
+     *
+     * @param  descriptorName EssenceDescriptor name
+     * @return A list of DOMNodeObjectModels representing EssenceDescriptors with given name.
+     */
+    public List<DOMNodeObjectModel> getEssenceDescriptors(String descriptorName) {
+        return this.getEssenceDescriptors()
+                .stream().filter(e -> e.getLocalName().equals(descriptorName))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * A utility method to retrieve the EssenceDescriptor within a Composition for a Resource with given track file ID.
+     *
+     * @param trackFileId the track file id of the resource
+     * @return  the DOMNodeObjectModel representing the EssenceDescriptor
+     */
+    public DOMNodeObjectModel getEssenceDescriptor(UUID trackFileId) {
+        IMFTrackFileResourceType imfTrackFileResourceType = this.getTrackFileResources()
+                .stream()
+                .filter(e -> UUIDHelper.fromUUIDAsURNStringToUUID(e.getTrackFileId()).equals(trackFileId))
+                .findFirst()
+                .get();
+
+        return this.getEssenceDescriptorListMap().get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
     }
 
     /**
@@ -822,10 +870,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         PrimerPack primerPack = headerPartitionTuple.getHeaderPartition().getPrimerPack();
         ResourceByteRangeProvider resourceByteRangeProvider = headerPartitionTuple.getResourceByteRangeProvider();
-
-
         RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(primerPack.getHeader(), getByteProvider(resourceByteRangeProvider, primerPack.getHeader()));
-
         Triplet essenceDescriptorTriplet = regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, getByteProvider(resourceByteRangeProvider, essenceDescriptor));
         //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
         /*Get the Triplets corresponding to the SubDescriptors*/
@@ -909,5 +954,12 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         return imfErrorLogger.getErrors();
     }
+
+    protected DOMNodeObjectModel getImageEssenceDescriptor() {
+        DOMNodeObjectModel imageEssenceDOMNode = this.getEssenceDescriptor(
+                this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
+        return imageEssenceDOMNode;
+    }
+
 
 }

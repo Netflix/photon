@@ -18,7 +18,10 @@
 
 package com.netflix.imflibrary.st0377.header;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.exceptions.IMFException;
 
 import java.util.Arrays;
 
@@ -26,6 +29,8 @@ import java.util.Arrays;
  * Object model corresponding to a Universal Label defined in st377-1:2011
  */
 public class UL {
+
+    private static final String UL_as_a_URN_PREFIX = "urn:smpte:ul:";
 
     private final byte[] ul;
 
@@ -73,4 +78,30 @@ public class UL {
         }
         return stringBuilder.toString();
     }
+
+    /**
+     * A helper method to return the UUID without the "urn:uuid:" prefix
+     * @param ULasURN a urn:uuid type
+     * @return a UL without the "urn:smpte:ul:" prefix
+     */
+    public static UL fromULAsURNStringToUL(String ULasURN)
+    {
+        if (!ULasURN.startsWith(UL.UL_as_a_URN_PREFIX))
+        {
+            IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.UUID_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.NON_FATAL, String.format("Input UUID %s " +
+                    "does not start with %s", ULasURN, UL
+                    .UL_as_a_URN_PREFIX));
+            throw new IMFException(String.format("Input UUID %s does not start with %s", ULasURN, UL
+                    .UL_as_a_URN_PREFIX), imfErrorLogger);
+        }
+        String ulValue = ULasURN.split(UL.UL_as_a_URN_PREFIX)[1].replace(".", "");
+        byte[] bytes = new byte[16];
+        for( int i =0; i < 16; i++) {
+            bytes[i] = (byte)Integer.parseInt(ulValue.substring(i*2, i*2+2), 16);
+        }
+        return new UL(bytes);
+    }
+
 }

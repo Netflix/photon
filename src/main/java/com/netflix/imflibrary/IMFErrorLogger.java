@@ -126,7 +126,12 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * INTERNAL_ERROR.
              */
-            INTERNAL_ERROR ("Internal processing error");
+            INTERNAL_ERROR ("Internal processing error"),
+
+            /**
+             * APPLICATION_COMPOSITION_ERROR.
+             */
+            APPLICATION_COMPOSITION_ERROR ("Application Composition error");
 
             private final String error;
 

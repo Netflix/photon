@@ -52,7 +52,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -68,19 +68,39 @@
             <m:CodingStyleDefault>0104000100050303000011911913613613613613613613613613613601040001000503030000119119136136136136136136136136136136010400010005030300001191191361361361361361361361361361360104000100050303000011911913613613613613613613613613613601040001000503030000119119136136136136136136136136136136</m:CodingStyleDefault>
             <m:J2CLayout>
               <m:RGBAComponent>
-                <m:Code>CompRed</m:Code>
+                <m:Code>CompLuma</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
               <m:RGBAComponent>
-                <m:Code>CompGreen</m:Code>
+                <m:Code>CompColorDifferenceU</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
               <m:RGBAComponent>
-                <m:Code>CompBlue</m:Code>
+                <m:Code>CompColorDifferenceV</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>

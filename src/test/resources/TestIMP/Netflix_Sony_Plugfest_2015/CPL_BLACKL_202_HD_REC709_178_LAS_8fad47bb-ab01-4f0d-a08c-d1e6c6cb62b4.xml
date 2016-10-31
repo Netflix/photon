@@ -445,7 +445,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2016</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2017">http://www.smpte-ra.org/schemas/2067-21/2014</ApplicationIdentification>
   </ExtensionProperties>
   <SegmentList>
     <Segment>

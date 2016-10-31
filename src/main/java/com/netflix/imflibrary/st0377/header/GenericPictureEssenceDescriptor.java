@@ -22,10 +22,29 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
+import java.util.Enumeration;
+
 /**
  * Object model corresponding to GenericPictureEssenceDescriptor structural metadata set defined in st377-1:2011
  */
 public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
+    public static final String rgbaDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01012900";
+    public static final String cdciDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01012800";
+    public static final String frameLayoutUL = "urn:smpte:ul:060e2b34.01010101.04010301.04000000";
+    public static final String frameLayoutTypeUL= "urn:smpte:ul:060e2b34.01040101.02010108.00000000";
+    public static final String storedWidthUL = "urn:smpte:ul:060e2b34.01010101.04010502.02000000";
+    public static final String storedHeightUL = "urn:smpte:ul:060e2b34.01010101.04010502.01000000";
+    public static final String sampleRateUL = "urn:smpte:ul:060e2b34.01010101.04060101.00000000";
+    public static final String storedF2OffsetUL = "urn:smpte:ul:060e2b34.01010105.04010302.08000000";
+    public static final String sampledWidthUL = "urn:smpte:ul:060e2b34.01010101.04010501.08000000";
+    public static final String sampledHeightUL = "urn:smpte:ul:060e2b34.01010101.04010501.07000000";
+    public static final String subdescriptorsUL = "urn:smpte:ul:060e2b34.01010109.06010104.06100000";
+    public static final String jpeg2000SubDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01015a00";
+    public static final String j2cLayoutUL = "urn:smpte:ul:060e2b34.0101010e.04010603.0e000000";
+    public static final String rgbaComponentUL = "urn:smpte:ul:060e2b34.01040101.03010400.00000000";
+    public static final String componentSizeUL = "urn:smpte:ul:060e2b34.01040101.01010100.00000000";
+    public static final String codeUL = "urn:smpte:ul:060e2b34.01040101.0201010e.00000000";
+    public static final String rgbaComponentKindUL = "urn:smpte:ul:060e2b34.01040101.0201010e.00000000";
 
     public static abstract class GenericPictureEssenceDescriptorBO extends FileDescriptorBO {
 
@@ -44,5 +63,48 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         GenericPictureEssenceDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
+    }
+
+    public static enum RGBAComponentType {
+        Null(0),
+        Red(0x52),
+        Green(0x47),
+        Blue(0x42),
+        Luma(0x59),
+        ChromaU(0x55),
+        ChromaV(0x56);
+        private final Integer code;
+
+        RGBAComponentType(Integer code) {
+            this.code = code;
+        }
+
+        public static RGBAComponentType fromCode(Integer code) {
+            for(RGBAComponentType cur : RGBAComponentType.values())
+            {
+                if(code.equals(cur.getCode()))
+                {
+                    return cur;
+                }
+            }
+            return null;
+        }
+
+        public Integer getCode() { return this.code;}
+    }
+
+    public static enum FrameLayoutType {
+        FullFrame(0),
+        SeperateFields(1),
+        SingleField(2),
+        MixedFields(3),
+        SegmentedFrame(4);
+        private final Integer value;
+
+        FrameLayoutType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() { return this.value;}
     }
 }

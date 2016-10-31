@@ -20,6 +20,9 @@ package com.netflix.imflibrary.utils;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st0377.CompoundDataTypes;
+import com.netflix.imflibrary.st0377.header.UL;
+import com.sun.org.apache.xalan.internal.lib.ExsltStrings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -46,13 +49,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * A class that implements the logic of representing a DOM Node into a Hierarchical Hash Map
@@ -456,6 +455,102 @@ public class DOMNodeObjectModel {
             return stringBuilder.toString();
         } finally {
             reader.close();
+        }
+    }
+
+    /**
+     * A method to obtain DOMNodeObjectModel with given LocalName
+     * @param name the LocalName of the DOMNodeObjectModel
+     * @return Returns DOMNodeObjectModel
+     */
+    public List<DOMNodeObjectModel> getDOMNodes(String name) {
+        List<DOMNodeObjectModel> domNodeObjectModelList = new ArrayList<>();
+        this.getChildrenDOMNodes().entrySet()
+                .stream()
+                .filter(e -> e.getKey().getLocalName().equals(name))
+                .forEach( e ->
+                {
+                    for(int i =0; i <e.getValue(); i++)
+                    {
+                        domNodeObjectModelList.add(e.getKey());
+                    }
+                });
+        return Collections.unmodifiableList(domNodeObjectModelList);
+    }
+
+    /**
+     * A method to obtain DOMNodeObjectModel with given LocalName
+     * @param name the LocalName of the DOMNodeObjectModel
+     * @return Returns DOMNodeObjectModel
+     */
+    public DOMNodeObjectModel getDOMNode(String name) {
+        List<DOMNodeObjectModel> domNodeObjectModelList = getDOMNodes(name);
+        if(domNodeObjectModelList.size() > 0) {
+            return domNodeObjectModelList.get(0);
+        }
+        else
+            return null;
+    }
+
+    /**
+     * A method to obtain the UL value of a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns field value as a UL
+     */
+    @Nullable
+    public UL getFieldAsUL(String name) {
+        String value = getFieldAsString(name);
+        return value != null ? UL.fromULAsURNStringToUL(value) : null;
+    }
+
+    /**
+     * A method to obtain the Number value of a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns field value as a Number
+     */
+    @Nullable
+    public Long getFieldAsNumber(String name) {
+        String value = getFieldAsString(name);
+        return value != null ? Long.valueOf(value) : null;
+    }
+
+    /**
+     * A method to obtain the String value of a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns field value as a String
+     */
+    @Nullable
+    public String getFieldAsString(String name) {
+        try {
+            Map<String, Integer> map = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).findFirst().get().getValue();
+            if (map.size() >= 1) {
+                Map.Entry<String, Integer> entry = map.entrySet().iterator().next();
+                return entry.getKey();
+            }
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain the Rational value of a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns fields value as a Fraction
+     */
+    @Nullable
+    public  Fraction getFieldAsFraction(String name) {
+        try {
+            Map<String, Integer> map = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).findFirst().get().getValue();
+            if (map.size() >= 1) {
+                Map.Entry<String, Integer> entry = map.entrySet().iterator().next();
+                return Fraction.valueOf(entry.getKey());
+            }
+            return null;
+        }
+        catch(Exception e) {
+            return null;
         }
     }
 

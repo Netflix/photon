@@ -45,7 +45,16 @@ public class CompositionTest
     @Test
     public void compositionPositiveTest() throws IOException {
         File inputFile = TestHelper.findResourceByPath
-                ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
+                ("TestIMP/MERIDIAN_Netflix_Photon_161006/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
+    }
+
+    @Test
+    public void app2CompositionPositiveTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
@@ -57,7 +66,7 @@ public class CompositionTest
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_InconsistentNamespaceURI.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 8);
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 9);
     }
 
     @Test
