@@ -21,12 +21,22 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
     public static final Integer MAX_YUV_IMAGE_FRAME_HEIGHT = 2160;
     public static final Integer MAX_RGB_IMAGE_FRAME_WIDTH = 4096;
     public static final Integer MAX_RGB_IMAGE_FRAME_HEIGHT = 3112;
-    public static final List<Fraction>rgbaSampleRateSupported = Collections.unmodifiableList(new ArrayList<Fraction>() {{
+    public static final Set<Fraction>rgbaSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
         add(new Fraction(24L)); add(new Fraction(25L)); add(new Fraction(30L)); add(new Fraction(50L)); add(new Fraction(60L)); add(new Fraction(120L));
         add(new Fraction(24000L, 1001L)); add(new Fraction(30000L, 1001L)); add(new Fraction(60000L, 1001L)); }});
-    public static final List<Fraction>yuvSampleRateSupported = Collections.unmodifiableList(new ArrayList<Fraction>() {{
+    public static final Set<Fraction>yuvSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
         add(new Fraction(24L)); add(new Fraction(25L)); add(new Fraction(30L)); add(new Fraction(50L)); add(new Fraction(60L));
         add(new Fraction(24000L, 1001L)); add(new Fraction(30000L, 1001L)); add(new Fraction(60000L, 1001L)); }});
+    public static final Map<Colorimetry, Set<Integer>>colorToBitDepthMap = Collections.unmodifiableMap(new HashMap<Colorimetry, Set<Integer>>() {{
+        put(Colorimetry.Color3, new HashSet<Integer>(){{ add(8); add(10); }});
+        put(Colorimetry.Color4, new HashSet<Integer>(){{ add(8); add(10); }});
+        put(Colorimetry.Color5, new HashSet<Integer>(){{ add(10); add(12); }});
+        put(Colorimetry.Color6, new HashSet<Integer>(){{ add(10); add(12); add(16);}});
+        put(Colorimetry.Color7, new HashSet<Integer>(){{ add(10); add(12); add(16); }});
+    }});
+    public static final Set<Integer>bitDepthsSupported = Collections.unmodifiableSet(new HashSet<Integer>() {{
+        add(8); add(10); add(12); add(16); }});
+
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{
         add("SignalStandard");
         add("ActiveFormatDescriptor");
@@ -61,7 +71,6 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
 
     public static void validateImageEssenceDescriptor(DOMNodeObjectModel imageEssencedescriptorDOMNode, RegXMLLibDictionary regXMLLibDictionary, IMFErrorLogger imfErrorLogger) {
         Boolean isRGBA = null;
-
         if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(rgbaDescriptorUL))) {
             isRGBA = true;
         } else if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(cdciDescriptorUL))) {
@@ -102,8 +111,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("SampleRate missing in %s", imageEssencedescriptorDOMNode.getLocalName()));
             } else {
-                List<Fraction> frameRateSupported = isRGBA ? rgbaSampleRateSupported : yuvSampleRateSupported;
-                if (frameRateSupported.stream().filter(e -> e.equals(sampleRate)).count() == 0) {
+                Set<Fraction> frameRateSupported = isRGBA ? rgbaSampleRateSupported : yuvSampleRateSupported;
+                if (!frameRateSupported.contains(sampleRate)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid SampleRate %s" +
                                     "for %s Descriptor in Application#2E Composition", sampleRate, isRGBA ? "RGBA" : "CDCI"));
@@ -126,6 +135,7 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                                 "shall be equal to storedWidth or storedHeight respectively in Image Essence Descriptor in Application#2E Composition"));
             }
 
+            Colorimetry color = Application2Composition.getColorimetry(imageEssencedescriptorDOMNode, regXMLLibDictionary, isRGBA, imfErrorLogger);
 
             DOMNodeObjectModel subDescriptors = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
             if (subDescriptors == null) {
@@ -141,7 +151,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                             IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("JPEG2000SubDescriptor missing in SubDescriptors"));
                 } else {
-                    Application2Composition.validateJ2CLayout(jpeg2000SubdescriptorDOMNode, regXMLLibDictionary, isRGBA, imfErrorLogger);
+                    Set<Integer> validBitDepthSet = color != null ? colorToBitDepthMap.get(color) : bitDepthsSupported;
+                    Application2Composition.validateJ2CLayout(jpeg2000SubdescriptorDOMNode, regXMLLibDictionary, isRGBA, validBitDepthSet, imfErrorLogger);
                 }
             }
         }

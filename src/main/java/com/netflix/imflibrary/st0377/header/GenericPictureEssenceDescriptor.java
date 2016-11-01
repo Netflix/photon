@@ -45,6 +45,10 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String componentSizeUL = "urn:smpte:ul:060e2b34.01040101.01010100.00000000";
     public static final String codeUL = "urn:smpte:ul:060e2b34.01040101.0201010e.00000000";
     public static final String rgbaComponentKindUL = "urn:smpte:ul:060e2b34.01040101.0201010e.00000000";
+    public static final String colorPrimariesUL = "urn:smpte:ul:060e2b34.01010109.04010201.01060100";
+    public static final String transferCharacteristicUL = "urn:smpte:ul:060e2b34.01010102.04010201.01010200";
+    public static final String codingEquationsUL = "urn:smpte:ul:060e2b34.01010102.04010201.01030100";
+
 
     public static abstract class GenericPictureEssenceDescriptorBO extends FileDescriptorBO {
 
@@ -79,10 +83,10 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
             this.code = code;
         }
 
-        public static RGBAComponentType fromCode(Integer code) {
+        public static RGBAComponentType valueOf(Integer code) {
             for(RGBAComponentType cur : RGBAComponentType.values())
             {
-                if(code.equals(cur.getCode()))
+                if(cur.getCode().equals(code))
                 {
                     return cur;
                 }

@@ -493,29 +493,7 @@ public class DOMNodeObjectModel {
     }
 
     /**
-     * A method to obtain the UL value of a field within DOMNodeObjectModel
-     * @param name the LocalName for the field
-     * @return Returns field value as a UL
-     */
-    @Nullable
-    public UL getFieldAsUL(String name) {
-        String value = getFieldAsString(name);
-        return value != null ? UL.fromULAsURNStringToUL(value) : null;
-    }
-
-    /**
-     * A method to obtain the Number value of a field within DOMNodeObjectModel
-     * @param name the LocalName for the field
-     * @return Returns field value as a Number
-     */
-    @Nullable
-    public Long getFieldAsNumber(String name) {
-        String value = getFieldAsString(name);
-        return value != null ? Long.valueOf(value) : null;
-    }
-
-    /**
-     * A method to obtain the String value of a field within DOMNodeObjectModel
+     * A method to obtain value of a field within DOMNodeObjectModel as a String
      * @param name the LocalName for the field
      * @return Returns field value as a String
      */
@@ -535,23 +513,75 @@ public class DOMNodeObjectModel {
     }
 
     /**
-     * A method to obtain the Rational value of a field within DOMNodeObjectModel
+     * A method to obtain value of a field within DOMNodeObjectModel as a UL
+     * @param name the LocalName for the field
+     * @return Returns field value as a UL
+     */
+    @Nullable
+    public UL getFieldAsUL(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+            return UL.fromULAsURNStringToUL(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a String
+     * @param name the LocalName for the field
+     * @return Returns field value as a Number
+     */
+    @Nullable
+    public Long getFieldAsNumber(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Long.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as an Integer
+     * @param name the LocalName for the field
+     * @return Returns field value as an Integer
+     */
+    @Nullable
+    public Integer getFieldAsInteger(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Integer.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a Fraction
      * @param name the LocalName for the field
      * @return Returns fields value as a Fraction
      */
     @Nullable
     public  Fraction getFieldAsFraction(String name) {
+        String value = getFieldAsString(name);
         try {
-            Map<String, Integer> map = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).findFirst().get().getValue();
-            if (map.size() >= 1) {
-                Map.Entry<String, Integer> entry = map.entrySet().iterator().next();
-                return Fraction.valueOf(entry.getKey());
-            }
-            return null;
+            if(value != null)
+                return Fraction.valueOf(value);
         }
         catch(Exception e) {
             return null;
         }
+        return null;
     }
 
     /**

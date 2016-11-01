@@ -104,4 +104,28 @@ public class UL {
         return new UL(bytes);
     }
 
+    /**
+     * A Java compliant implementation of the hashCode() method
+     *
+     * @return integer containing the hash code corresponding to this object
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(ul);
+    }
+
+    /**
+     * Compares this object to the specified object
+     *
+     * @param  other the object to be compared
+     *
+     * @return  true if the objects are the same; false otherwise
+     */
+    public boolean equals(Object other) {
+        if ((null == other) || (other.getClass() != this.getClass()))
+            return false;
+        UL id = (UL)other;
+        return Arrays.equals(this.ul, id.getULAsBytes());
+    }
+
 }

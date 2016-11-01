@@ -43,9 +43,9 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>

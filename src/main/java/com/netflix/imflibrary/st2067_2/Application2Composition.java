@@ -1,16 +1,16 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
+import static com.netflix.imflibrary.st2067_2.Colorimetry.*;
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType.*;
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.*;
 
@@ -20,11 +20,13 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 public class Application2Composition extends AbstractApplicationComposition {
     public static final Integer MAX_IMAGE_FRAME_WIDTH = 1920;
     public static final Integer MAX_IMAGE_FRAME_HEIGHT = 1080;
-    public static final List<Fraction>progressiveSampleRateSupported = Collections.unmodifiableList(new ArrayList<Fraction>() {{
+    public static final Set<Fraction>progressiveSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
         add(new Fraction(24L)); add(new Fraction(25L)); add(new Fraction(30L)); add(new Fraction(50L)); add(new Fraction(60L));
         add(new Fraction(24000L, 1001L)); add(new Fraction(30000L, 1001L)); add(new Fraction(60000L, 1001L)); }});
-    public static final List<Fraction>interlaceSampleRateSupported = Collections.unmodifiableList(new ArrayList<Fraction>() {{
+    public static final Set<Fraction>interlaceSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
         add(new Fraction(24L)); add(new Fraction(30L)); add(new Fraction(30000L, 1001L)); }});
+    public static final Set<Integer>bitDepthsSupported = Collections.unmodifiableSet(new HashSet<Integer>() {{
+        add(8); add(10); }});
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{
         add("SignalStandard");
         add("ActiveFormatDescriptor");
@@ -101,8 +103,8 @@ public class Application2Composition extends AbstractApplicationComposition {
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("SampleRate missing in %s", imageEssencedescriptorDOMNode.getLocalName()));
         } else {
-            List<Fraction> frameRateSupported = isProgressive ? progressiveSampleRateSupported : interlaceSampleRateSupported;
-            if (frameRateSupported.stream().filter(e -> e.equals(sampleRate)).count() == 0) {
+            Set<Fraction> frameRateSupported = isProgressive ? progressiveSampleRateSupported : interlaceSampleRateSupported;
+            if (!frameRateSupported.contains(sampleRate)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid SampleRate %s" +
                                 "for %s frame structure in Application#2 Composition", sampleRate, isProgressive ? "progressive" : "interlace"));
@@ -126,6 +128,9 @@ public class Application2Composition extends AbstractApplicationComposition {
         }
 
 
+        //Colorimetry
+       Application2Composition.getColorimetry(imageEssencedescriptorDOMNode, regXMLLibDictionary, isRGBA, imfErrorLogger);
+
         DOMNodeObjectModel subDescriptors = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
         if (subDescriptors == null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -140,12 +145,17 @@ public class Application2Composition extends AbstractApplicationComposition {
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("JPEG2000SubDescriptor missing in SubDescriptors"));
             } else {
-                validateJ2CLayout(jpeg2000SubdescriptorDOMNode, regXMLLibDictionary, isRGBA, imfErrorLogger);
+                validateJ2CLayout(jpeg2000SubdescriptorDOMNode, regXMLLibDictionary, isRGBA, bitDepthsSupported, imfErrorLogger);
             }
         }
+
+        //BitDepth
+
     }
 
-    public static void validateJ2CLayout(DOMNodeObjectModel jpeg2000SubdescriptorDOMNode, RegXMLLibDictionary regXMLLibDictionary, Boolean isRGBA, IMFErrorLogger imfErrorLogger) {
+    public static void validateJ2CLayout(DOMNodeObjectModel jpeg2000SubdescriptorDOMNode, RegXMLLibDictionary regXMLLibDictionary, Boolean isRGBA, Set<Integer> bitDepthSet,
+                                         IMFErrorLogger
+                                         imfErrorLogger) {
         DOMNodeObjectModel j2cLayout = jpeg2000SubdescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(j2cLayoutUL));
         if (j2cLayout == null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -158,52 +168,103 @@ public class Application2Composition extends AbstractApplicationComposition {
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("No RGBAComponent present in J2CLayout"));
             } else {
-                Long refPixelBitDepth = rgbaComponents.get(0).getFieldAsNumber(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, componentSizeUL));
-                if (refPixelBitDepth == null) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("RGBAComponent missing bit depth in J2CLayout"));
-                } else {
-                    Map<RGBAComponentType, Integer> componentMap = new HashMap<>();
-                    for (DOMNodeObjectModel domNodeObjectModel : rgbaComponents) {
-                        String code = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, codeUL));
-                        RGBAComponentType codeValue = RGBAComponentType.fromCode(regXMLLibDictionary.getEnumerationValueFromName(rgbaComponentKindUL, code));
-                        if (codeValue == null ) {
-                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                    String.format("RGBAComponent %s is invalid", code));
-                        }
-                        else {
-                            Long pixelBitDepth = domNodeObjectModel.getFieldAsNumber(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, componentSizeUL));
-                            if (pixelBitDepth == null || (codeValue.equals(Null) && pixelBitDepth != 0) || (!codeValue.equals(Null) && !pixelBitDepth.equals(refPixelBitDepth))) {
-                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                        String.format("RGBAComponent %s has invalid bit depth", code));
-                            }
-                        }
-
-                        if (componentMap.containsKey(codeValue)) {
-                            Integer count = componentMap.get(codeValue);
-                            componentMap.put(codeValue, count + 1);
-                        } else {
-                            componentMap.put(codeValue, 1);
-                        }
-                    }
-                    if (!((isRGBA && componentMap.containsKey(Red) && componentMap.get(Red) == 1 && componentMap.containsKey(Blue) && componentMap.get(Blue) == 1 &&
-                            componentMap.containsKey(Green) && componentMap.get(Green) == 1 && componentMap.containsKey(Null) && componentMap.get(Null)
-                            == 5) ||
-                            (!isRGBA && componentMap.containsKey(Luma) && componentMap.get(Luma) == 1 && componentMap.containsKey(ChromaU) && componentMap.get(ChromaU) == 1 &&
-                                    componentMap.containsKey(ChromaV) && componentMap.get(ChromaV) == 1 && componentMap.containsKey(Null) && componentMap.get(Null) == 5))) {
-                        String expectedLayout = isRGBA ?
-                                "{ ‘R’, " + refPixelBitDepth + ", ‘G’, " + refPixelBitDepth + ", ‘B’, " + refPixelBitDepth + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }" :
-                                "{ ‘Y’, " + refPixelBitDepth + ", ‘U’, " + refPixelBitDepth + ", ‘V’, " + refPixelBitDepth + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }";
+                Integer refPixelBitDepth = null;
+                Map<RGBAComponentType, Integer> componentMap = new HashMap<>();
+                for (DOMNodeObjectModel domNodeObjectModel : rgbaComponents) {
+                    String code = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, codeUL));
+                    if (code == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                                 IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                String.format("RGBAComponent in J2CLayout does not match expected layout %s", expectedLayout));
+                                String.format("J2CLayout has a RGBAComponent with missing Code"));
                     }
-
+                    else
+                    {
+                        RGBAComponentType codeValue = RGBAComponentType.valueOf(regXMLLibDictionary.getEnumerationValueFromName(rgbaComponentKindUL, code));
+                        if (codeValue == null) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("J2CLayout has a RGBAComponent with unknown Code %s", code));
+                        }
+                        else {
+                            Integer pixelBitDepth = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, componentSizeUL));
+                            if (pixelBitDepth == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                        String.format("J2CLayout has a RGBAComponent %s with missing ComponentSize", code));
+                            } else {
+                                if(refPixelBitDepth == null) {
+                                    refPixelBitDepth = pixelBitDepth;
+                                }
+                                if ((codeValue.equals(Null) && pixelBitDepth != 0) ||
+                                        (!codeValue.equals(Null) && (!pixelBitDepth.equals(refPixelBitDepth) || !bitDepthSet.contains(pixelBitDepth)))) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                            String.format("J2CLayout has a RGBAComponent %s with invalid ComponentSize %d", code, pixelBitDepth));
+                                }
+                            }
+                            if (componentMap.containsKey(codeValue)) {
+                                Integer count = componentMap.get(codeValue);
+                                componentMap.put(codeValue, count + 1);
+                            } else {
+                                componentMap.put(codeValue, 1);
+                            }
+                        }
+                    }
                 }
+                if (refPixelBitDepth != null && (!((isRGBA && componentMap.containsKey(Red) && componentMap.get(Red) == 1 && componentMap.containsKey(Blue) && componentMap.get(Blue) == 1 &&
+                        componentMap.containsKey(Green) && componentMap.get(Green) == 1 && componentMap.containsKey(Null) && componentMap.get(Null)
+                        == 5) ||
+                        (!isRGBA && componentMap.containsKey(Luma) && componentMap.get(Luma) == 1 && componentMap.containsKey(ChromaU) && componentMap.get(ChromaU) == 1 &&
+                                componentMap.containsKey(ChromaV) && componentMap.get(ChromaV) == 1 && componentMap.containsKey(Null) && componentMap.get(Null) == 5)))) {
+                    String expectedLayout = isRGBA ?
+                            "{ ‘R’, " + refPixelBitDepth + ", ‘G’, " + refPixelBitDepth + ", ‘B’, " + refPixelBitDepth + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }" :
+                            "{ ‘Y’, " + refPixelBitDepth + ", ‘U’, " + refPixelBitDepth + ", ‘V’, " + refPixelBitDepth + ", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }";
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("RGBAComponent in J2CLayout does not match expected layout %s", expectedLayout));
+                }
+
             }
         }
+    }
+
+    public static Colorimetry getColorimetry(DOMNodeObjectModel imageEssencedescriptorDOMNode, RegXMLLibDictionary regXMLLibDictionary, Boolean isRGBA, IMFErrorLogger imfErrorLogger) {
+        //ColorPrimaries
+        ColorPrimaries colorPrimaries = ColorPrimaries.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(colorPrimariesUL)));
+        if (colorPrimaries == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid/missing ColorPrimaries in Image Essence Descriptor"));
+        }
+
+        //TransferCharacteristic
+        TransferCharacteristic transferCharacteristic = TransferCharacteristic.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(transferCharacteristicUL)));
+        if (transferCharacteristic == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid/missing TransferCharacteristic in Image Essence Descriptor"));
+        }
+
+        //CodingEquations
+        CodingEquation codingEquation = null;
+        if(!isRGBA) {
+            codingEquation = CodingEquation.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(codingEquationsUL)));
+            if (codingEquation == null) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid/missing CodingEquations in Image Essence Descriptor"));
+            } else {
+
+            }
+
+        }
+
+        if(colorPrimaries != null && transferCharacteristic != null) {
+            Colorimetry color = Colorimetry.valueOf(colorPrimaries, transferCharacteristic);
+            if(color == null || (!isRGBA && color.getCodingEquation() != null && !color.getCodingEquation().equals(codingEquation))) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Invalid ColorPrimaries-TransferCharacteristic-CodingEquations combination in Image Essence Descriptor"));
+            }
+            return color;
+        }
+
+        return null;
     }
 }
