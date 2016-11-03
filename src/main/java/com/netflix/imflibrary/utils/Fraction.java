@@ -4,8 +4,8 @@ package com.netflix.imflibrary.utils;
  * Created by svenkatrav on 10/26/16.
  */
 public class Fraction {
-    private final Long numerator;
-    private final Long denominator;
+    private final Integer numerator;
+    private final Integer denominator;
 
     /**
      * Instantiates a new Fraction.
@@ -13,7 +13,7 @@ public class Fraction {
      * @param numerator Numerator value of the Fraction
      * @param denominator Denominator value of the Fraction
      */
-    public Fraction(Long numerator, Long denominator)
+    public Fraction(Integer numerator, Integer denominator)
     {
         this.numerator = numerator;
         this.denominator = denominator;
@@ -24,10 +24,10 @@ public class Fraction {
      *
      * @param numerator Numerator value of the Fraction
      */
-    public Fraction(Long numerator)
+    public Fraction(Integer numerator)
     {
         this.numerator = numerator;
-        this.denominator = 1L;
+        this.denominator = 1;
     }
 
     /**
@@ -40,7 +40,7 @@ public class Fraction {
         try {
             String values[] = s.split("(\\s|/)");
             if (values.length == 2) {
-                return new Fraction(Long.valueOf(values[0]), Long.valueOf(values[1]));
+                return new Fraction(Integer.valueOf(values[0]), Integer.valueOf(values[1]));
             }
         }
         catch(Exception e) {
@@ -55,7 +55,7 @@ public class Fraction {
      *
      * @return the numerator
      */
-    public long getNumerator()
+    public Integer getNumerator()
     {
         return this.numerator;
     }
@@ -65,7 +65,7 @@ public class Fraction {
      *
      * @return the denominator
      */
-    public long getDenominator()
+    public Integer getDenominator()
     {
         return this.denominator;
     }
@@ -79,17 +79,14 @@ public class Fraction {
      */
     public boolean equals(Object other)
     {
-        if (!(other instanceof Fraction))
+        if (other == null  || !(other instanceof Fraction))
         {
             return false;
         }
 
         Fraction otherObject = (Fraction)other;
-        if (this.numerator != null && this.denominator != null && otherObject.denominator != null &&
-            otherObject.numerator != null) {
-            return (this.numerator * otherObject.denominator) == (this.denominator * otherObject.numerator);
-        }
-        return false;
+        return (this.numerator.equals(otherObject.getNumerator()) &&
+                this.denominator.equals(otherObject.getDenominator()));
     }
 
     /**
@@ -98,7 +95,10 @@ public class Fraction {
      */
     public int hashCode()
     {
-        return numerator.hashCode() + denominator.hashCode();
+        Integer hash = 1;
+        hash = hash * 31 + this.numerator;
+        hash = hash * 31 + this.denominator;
+        return hash;
     }
 
     /**

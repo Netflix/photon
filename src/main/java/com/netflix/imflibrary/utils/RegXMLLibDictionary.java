@@ -114,26 +114,6 @@ public final class RegXMLLibDictionary {
     }
 
     /**
-     * A utility method that gets string representation for an enumeration value provided URN for the enumeration type and the integer enumeration value
-     * @param typeURN - URN for the enumeration type
-     * @param value - Integer value of the enumeration
-     * @return String representation of the enumeration
-     */
-    public String getEnumerationNameFromValue(String typeURN, Integer value) {
-        String enumName = null;
-        DefinitionResolver definitionResolver = this.metaDictionaryCollection;
-        Definition definition = definitionResolver.getDefinition(AUID.fromURN(typeURN));
-        if(definition == null ) {
-            return null;
-        }else if (definition instanceof EnumerationTypeDefinition) {
-            EnumerationTypeDefinition enumerationTypeDefinition = EnumerationTypeDefinition.class.cast(definition);
-            List<String> enumList = enumerationTypeDefinition.getElements().stream().filter(e -> e.getValue() == value).map( e -> e.getName()).collect(Collectors.toList());
-            enumName = (enumList.size() > 0)  ? enumList.get(0) : null;
-        }
-        return enumName;
-    }
-
-    /**
      * A utility method that gets an enumeration value provided URN for the enumeration type and the string representation of the enumeration value
      * @param typeURN - URN for the enumeration type
      * @param name - String representation of the enumeration

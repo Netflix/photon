@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
+import com.netflix.imflibrary.st2067_2.Colorimetry;
 
 import java.util.Enumeration;
 
@@ -48,6 +49,12 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String colorPrimariesUL = "urn:smpte:ul:060e2b34.01010109.04010201.01060100";
     public static final String transferCharacteristicUL = "urn:smpte:ul:060e2b34.01010102.04010201.01010200";
     public static final String codingEquationsUL = "urn:smpte:ul:060e2b34.01010102.04010201.01030100";
+    public static final String componentMinRefUL = "urn:smpte:ul:060e2b34.01010105.04010503.0c000000";
+    public static final String componentMaxRefUL = "urn:smpte:ul:060e2b34.01010105.04010503.0b000000";
+    public static final String blackRefLevelUL = "urn:smpte:ul:060e2b34.01010101.04010503.03000000";
+    public static final String whiteRefLevelUL = "urn:smpte:ul:060e2b34.01010101.04010503.04000000";
+    public static final String horizontalSubSamplingUL = "urn:smpte:ul:060e2b34.01010101.04010501.05000000";
+    public static final String verticalSubSamplingUL = "urn:smpte:ul:060e2b34.01010102.04010501.10000000";
 
 
     public static abstract class GenericPictureEssenceDescriptorBO extends FileDescriptorBO {
@@ -110,5 +117,14 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         }
 
         public Integer getValue() { return this.value;}
+
+        public static FrameLayoutType valueOf(Integer value) {
+            for(FrameLayoutType frameLayout: FrameLayoutType.values()) {
+                if(frameLayout.getValue().equals(value)) {
+                    return frameLayout;
+                }
+            }
+            return null;
+        }
     }
 }

@@ -1,9 +1,13 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.utils.Fraction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by svenkatrav on 10/31/16.
@@ -53,7 +57,7 @@ public enum Colorimetry {
         ITU601(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.01.04.01.01.01.02.01.00.00")),
         ITU709(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.01.04.01.01.01.02.02.00.00")),
         ITU2020NCL(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.02.06.00.00"));
-        private UL codingEquationUL;
+        private final UL codingEquationUL;
         CodingEquation(@Nonnull UL codingEquationUL) {
             this.codingEquationUL = codingEquationUL;
         }
@@ -78,7 +82,7 @@ public enum Colorimetry {
         ITU2020(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.01.04.01.01.01.01.09.00.00")),
         SMPTEST2084(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.01.0A.00.00"));
 
-        private UL transferCharacteristicUL;
+        private final UL transferCharacteristicUL;
         TransferCharacteristic(@Nonnull UL transferCharacteristicUL) {
             this.transferCharacteristicUL = transferCharacteristicUL;
         }
@@ -104,7 +108,7 @@ public enum Colorimetry {
         ITU2020(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.03.04.00.00")),
         P3D65(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.03.06.00.00"));
 
-        private UL colorPrimariesUL;
+        private final UL colorPrimariesUL;
         ColorPrimaries(@Nonnull UL colorPrimariesUL) {
             this.colorPrimariesUL = colorPrimariesUL;
         }
@@ -122,5 +126,126 @@ public enum Colorimetry {
             return null;
         }
 
+    }
+
+    static class ComponentLevel {
+        private final Integer bitDepth;
+        private final Integer minLevel;
+        private final Integer maxLevel;
+
+        public ComponentLevel(Integer bitDepth, Integer minLevel, Integer maxLevel) {
+            this.bitDepth = bitDepth;
+            this.minLevel = minLevel;
+            this.maxLevel = maxLevel;
+        }
+
+        public Integer getBitDepth() {
+            return bitDepth;
+        }
+
+        public Integer getMaxLevel() {
+            return maxLevel;
+        }
+
+        public Integer getMinLevel() {
+            return minLevel;
+        }
+
+        public boolean equals(Object other)
+        {
+            if (other == null || !(other instanceof ComponentLevel))
+            {
+                return false;
+            }
+
+            ComponentLevel otherObject = (ComponentLevel)other;
+
+            return (this.bitDepth.equals(otherObject.getBitDepth()) &&
+                    this.maxLevel.equals(otherObject.getMaxLevel()) &&
+                    this.minLevel.equals(otherObject.getMinLevel()));
+        }
+
+        public int hashCode()
+        {
+            Integer hash = 1;
+            hash = hash *31 + this.getBitDepth();
+            hash = hash *31 + this.getMaxLevel();
+            hash = hash *31 + this.getMinLevel();
+            return hash;
+        }
+    }
+
+    public static enum Quantization {
+        QE1(new HashSet<ComponentLevel>() {{
+            add(new ComponentLevel(8, 16, 235));
+            add(new ComponentLevel(10, 64, 940));
+            add(new ComponentLevel(12, 256, 3760));
+            add(new ComponentLevel(16, 4096, 60160)); }} ),
+        QE2(new HashSet<ComponentLevel>() {{
+            add(new ComponentLevel(8, 0, 255));
+            add(new ComponentLevel(10, 0, 1023));
+            add(new ComponentLevel(12, 0, 4095));
+            add(new ComponentLevel(16, 0, 65535)); }} );
+
+        private final Set<ComponentLevel> componentLevels;
+        Quantization(Set<ComponentLevel> componentLevels) {
+
+            this.componentLevels = componentLevels;
+        }
+
+        public Set<ComponentLevel> getComponentLevels() {
+            return this.componentLevels;
+        }
+
+        public static Quantization valueOf(Integer bitDepth, Integer minLevel, Integer maxLevel) {
+            ComponentLevel componentLevel = new ComponentLevel(bitDepth, minLevel, maxLevel);
+            for(Quantization quantization: Quantization.values()) {
+                if(quantization.getComponentLevels().contains(componentLevel)) {
+                    return quantization;
+                }
+            }
+            return null;
+        }
+    }
+
+    public static enum Sampling {
+        Sampling444(1, 1),
+        Sampling422(2, 1);
+        Integer horizontalSubSampling;
+        Integer verticalSubSampling;
+        Sampling(Integer horizontalSubSampling, Integer verticalSubSampling) {
+            this.horizontalSubSampling = horizontalSubSampling;
+            this.verticalSubSampling = verticalSubSampling;
+        }
+
+        public Integer getHorizontalSubSampling() {
+            return horizontalSubSampling;
+        }
+
+        public Integer getVerticalSubSampling() {
+            return verticalSubSampling;
+        }
+
+        public static Sampling valueOf(Integer horizontalSubSampling, Integer verticalSubSampling) {
+            for(Sampling sampling: Sampling.values()) {
+                if(sampling.getHorizontalSubSampling().equals(horizontalSubSampling) && sampling.getVerticalSubSampling().equals( verticalSubSampling)) {
+                    return sampling;
+                }
+            }
+            return null;
+        }
+    }
+
+    public static enum ColorSpace {
+        RGB(new HashSet<RGBAComponentType>() {{ add(RGBAComponentType.Red); add(RGBAComponentType.Green); add(RGBAComponentType.Blue);}}),
+        YUV(new HashSet<RGBAComponentType>() {{ add(RGBAComponentType.Luma); add(RGBAComponentType.ChromaU); add(RGBAComponentType.ChromaV);}}),;
+        private final Set<RGBAComponentType> componentTypeSet;
+        ColorSpace(Set<RGBAComponentType> componentTypeSet) {
+            this.componentTypeSet = componentTypeSet;
+        }
+
+        public Set<RGBAComponentType> getComponentTypeSet() {
+            return componentTypeSet;
+        }
     }
 }
