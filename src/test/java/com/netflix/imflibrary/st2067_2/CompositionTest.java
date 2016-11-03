@@ -66,7 +66,7 @@ public class CompositionTest
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_InconsistentNamespaceURI.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 9);
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 11);
     }
 
     @Test

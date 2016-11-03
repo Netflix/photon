@@ -52,7 +52,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -80,7 +80,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>

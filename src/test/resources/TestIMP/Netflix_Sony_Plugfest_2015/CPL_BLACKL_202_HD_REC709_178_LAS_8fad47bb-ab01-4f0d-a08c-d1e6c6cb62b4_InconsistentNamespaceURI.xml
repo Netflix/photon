@@ -53,7 +53,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -81,7 +81,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -118,7 +118,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>0c197b77-e20a-4057-8b5a-4ac4cbf63606</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -146,7 +146,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -183,7 +183,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>abd361ac-e9ec-4a60-9c98-c66b55c4327b</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -211,7 +211,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -248,7 +248,7 @@
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>5cd5a914-7b81-4fa2-be07-10eb5c3ebbb5</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -276,7 +276,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>

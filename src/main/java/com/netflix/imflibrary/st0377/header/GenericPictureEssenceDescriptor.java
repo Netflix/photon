@@ -83,7 +83,8 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         Blue(0x42),
         Luma(0x59),
         ChromaU(0x55),
-        ChromaV(0x56);
+        ChromaV(0x56),
+        Unknown(-1);
         private final Integer code;
 
         RGBAComponentType(Integer code) {
@@ -98,7 +99,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
                     return cur;
                 }
             }
-            return null;
+            return Unknown;
         }
 
         public Integer getCode() { return this.code;}
@@ -109,7 +110,8 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         SeperateFields(1),
         SingleField(2),
         MixedFields(3),
-        SegmentedFrame(4);
+        SegmentedFrame(4),
+        Unknown(-1);
         private final Integer value;
 
         FrameLayoutType(Integer value) {
@@ -124,7 +126,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
                     return frameLayout;
                 }
             }
-            return null;
+            return Unknown;
         }
     }
 }
