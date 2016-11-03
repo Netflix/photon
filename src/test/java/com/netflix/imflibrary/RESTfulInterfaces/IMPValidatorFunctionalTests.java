@@ -151,7 +151,7 @@ public class IMPValidatorFunctionalTests {
 
     @Test
     public void validCPLTest_2013Schema() throws IOException {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
@@ -357,7 +357,7 @@ public class IMPValidatorFunctionalTests {
 
         List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertTrue(errors.size() == 4);
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
         List<? extends Composition.VirtualTrack> virtualTracks = applicationComposition.getVirtualTracks();
@@ -368,7 +368,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
-        Assert.assertTrue(errors.size() == 15);
+        Assert.assertTrue(errors.size() == 19);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -376,7 +376,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.size() == 5);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class IMPValidatorFunctionalTests {
         byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord cplPayloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertTrue(errors.size() == 4);
 
         applicationComposition = ApplicationCompositionFactory.getApplicationComposition(fileByteRangeProvider, imfErrorLogger);
         fileByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -472,7 +472,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
 
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, applicationComposition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
-        Assert.assertTrue(conformanceErrors.size() == 0);
+        Assert.assertTrue(conformanceErrors.size() == 4);
     }
 
     private byte[] getHeaderPartition(File inputFile) throws IOException {
@@ -519,7 +519,7 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertTrue(errors.size() == 3);
     }
 
     @Test

@@ -43,16 +43,16 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -68,19 +68,39 @@
             <m:CodingStyleDefault>0104000100050303000011911913613613613613613613613613613601040001000503030000119119136136136136136136136136136136010400010005030300001191191361361361361361361361361361360104000100050303000011911913613613613613613613613613613601040001000503030000119119136136136136136136136136136136</m:CodingStyleDefault>
             <m:J2CLayout>
               <m:RGBAComponent>
-                <m:Code>CompRed</m:Code>
+                <m:Code>CompLuma</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
               <m:RGBAComponent>
-                <m:Code>CompGreen</m:Code>
+                <m:Code>CompColorDifferenceU</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
               <m:RGBAComponent>
-                <m:Code>CompBlue</m:Code>
+                <m:Code>CompColorDifferenceV</m:Code>
                 <m:ComponentSize>10</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
+              </m:RGBAComponent>
+              <m:RGBAComponent>
+                <m:Code>CompNull</m:Code>
+                <m:ComponentSize>0</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -250,7 +270,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-20/2013</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2014</ApplicationIdentification>
   </ExtensionProperties>  
   <SegmentList>
     <Segment>

@@ -6,7 +6,6 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
 import com.sandflow.smpte.klv.Triplet;
 import org.testng.Assert;
 import org.testng.annotations.Test;

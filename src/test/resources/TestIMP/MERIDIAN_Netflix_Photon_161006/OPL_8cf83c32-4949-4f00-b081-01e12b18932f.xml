@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OutputProfileList>
+<Id>urn:uuid:8cf83c32-4949-4f00-b081-01e12b18932f</Id>
+<Annotation>Meridian UHD 5994P</Annotation>
+<IssueDate>2016-10-06T08:35:02-00:00</IssueDate>
+<Issuer>R&amp;S</Issuer>
+<Creator>Clipster 6.1.0.0 Beta (build 111500)</Creator>
+<CompositionPlayListReference>
+<ID>urn:uuid:0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85</ID>
+</CompositionPlayListReference></OutputProfileList>

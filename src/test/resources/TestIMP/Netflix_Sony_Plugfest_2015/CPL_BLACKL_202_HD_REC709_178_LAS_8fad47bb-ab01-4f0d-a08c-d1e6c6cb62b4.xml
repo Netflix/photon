@@ -43,16 +43,16 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -80,7 +80,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -108,16 +108,16 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>0c197b77-e20a-4057-8b5a-4ac4cbf63606</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -145,7 +145,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -173,16 +173,16 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>abd361ac-e9ec-4a60-9c98-c66b55c4327b</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -210,7 +210,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -238,16 +238,16 @@
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
         <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
-        <m:TransferCharacteristics>060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristics>
-        <m:ColorPrimaries>ColorPrimaries_ITU709</m:ColorPrimaries>
-        <m:CodingEquations>CodingEquations_ITU709</m:CodingEquations>
+        <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
+        <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
+        <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
         <m:VideoLineMap>
           <m:Int32>0</m:Int32>
           <m:Int32>0</m:Int32>
         </m:VideoLineMap>
         <m:LinkedTrackID>0</m:LinkedTrackID>
         <m:SubDescriptors>
-          <m:JPEG2000PictureSubDescriptor>
+          <m:JPEG2000SubDescriptor>
             <m:InstanceUID>5cd5a914-7b81-4fa2-be07-10eb5c3ebbb5</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
             <m:Xsiz>3840</m:Xsiz>
@@ -275,7 +275,7 @@
                 <m:ComponentSize>10</m:ComponentSize>
               </m:RGBAComponent>
             </m:J2CLayout>
-          </m:JPEG2000PictureSubDescriptor>
+          </m:JPEG2000SubDescriptor>
         </m:SubDescriptors>
       </m:CDCIDescriptor>
     </EssenceDescriptor>
@@ -445,7 +445,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2016</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2017">http://www.smpte-ra.org/schemas/2067-21/2014</ApplicationIdentification>
   </ExtensionProperties>
   <SegmentList>
     <Segment>

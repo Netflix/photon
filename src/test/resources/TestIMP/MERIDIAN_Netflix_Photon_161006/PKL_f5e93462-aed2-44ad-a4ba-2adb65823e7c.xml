@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><PackingList xmlns="http://www.smpte-ra.org/schemas/429-8/2007/PKL">
+<Id>urn:uuid:f5e93462-aed2-44ad-a4ba-2adb65823e7c</Id>
+<AnnotationText>MERIDIAN</AnnotationText>
+<IssueDate>2016-10-06T08:35:02-00:00</IssueDate>
+<Issuer>R&amp;S</Issuer>
+<Creator>Clipster 6.1.0.0 Beta (build 111500)</Creator>
+<AssetList>
+<Asset>
+<Id>urn:uuid:0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85</Id>
+<AnnotationText>Meridian UHD 5994P</AnnotationText>
+<Hash>IW0J5IZBsAxLMCCmWtHvfHhjVUw=</Hash>
+<Size>15214</Size>
+<Type>text/xml</Type>
+<OriginalFileName>CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml</OriginalFileName></Asset>
+<Asset>
+<Id>urn:uuid:61d91654-2650-4abf-abbc-ad2c7f640bf8</Id>
+<Hash>fL7SnTeNskm71I4otXqr/T0D5LQ=</Hash>
+<Size>79486353</Size>
+<Type>application/mxf</Type>
+<OriginalFileName>MERIDIAN_Netflix_Photon_161006_00.mxf</OriginalFileName></Asset>
+<Asset>
+<Id>urn:uuid:9fcb24c4-5c57-4082-a694-7470d5168aa4</Id>
+<Hash>X6GxGHTavnlIRLZiD7hHe5/CUh4=</Hash>
+<Size>595339</Size>
+<Type>application/mxf</Type>
+<OriginalFileName>MERIDIAN_Netflix_Photon_161006_ENG-51_00.mxf</OriginalFileName></Asset></AssetList></PackingList>

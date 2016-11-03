@@ -17,7 +17,7 @@ import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
+import com.netflix.imflibrary.utils.RegXMLLibHelper;
 import com.sandflow.smpte.klv.Triplet;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;

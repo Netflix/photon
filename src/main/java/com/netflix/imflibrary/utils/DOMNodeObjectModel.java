@@ -20,17 +20,15 @@ package com.netflix.imflibrary.utils;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st0377.header.UL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -38,21 +36,12 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class that implements the logic of representing a DOM Node into a Hierarchical Hash Map
@@ -457,6 +446,132 @@ public class DOMNodeObjectModel {
         } finally {
             reader.close();
         }
+    }
+
+    /**
+     * A method to obtain DOMNodeObjectModel with given LocalName
+     * @param name the LocalName of the DOMNodeObjectModel
+     * @return Returns DOMNodeObjectModel
+     */
+    public List<DOMNodeObjectModel> getDOMNodes(String name) {
+        List<DOMNodeObjectModel> domNodeObjectModelList = new ArrayList<>();
+        this.getChildrenDOMNodes().entrySet()
+                .stream()
+                .filter(e -> e.getKey().getLocalName().equals(name))
+                .forEach( e ->
+                {
+                    for(int i =0; i <e.getValue(); i++)
+                    {
+                        domNodeObjectModelList.add(e.getKey());
+                    }
+                });
+        return Collections.unmodifiableList(domNodeObjectModelList);
+    }
+
+    /**
+     * A method to obtain DOMNodeObjectModel with given LocalName
+     * @param name the LocalName of the DOMNodeObjectModel
+     * @return Returns DOMNodeObjectModel
+     */
+    public DOMNodeObjectModel getDOMNode(String name) {
+        List<DOMNodeObjectModel> domNodeObjectModelList = getDOMNodes(name);
+        if(domNodeObjectModelList.size() > 0) {
+            return domNodeObjectModelList.get(0);
+        }
+        else
+            return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a String
+     * @param name the LocalName for the field
+     * @return Returns field value as a String
+     */
+    @Nullable
+    public String getFieldAsString(String name) {
+        try {
+            Map<String, Integer> map = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).findFirst().get().getValue();
+            if (map.size() >= 1) {
+                Map.Entry<String, Integer> entry = map.entrySet().iterator().next();
+                return entry.getKey();
+            }
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a UL
+     * @param name the LocalName for the field
+     * @return Returns field value as a UL
+     */
+    @Nullable
+    public UL getFieldAsUL(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+            return UL.fromULAsURNStringToUL(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a String
+     * @param name the LocalName for the field
+     * @return Returns field value as a Number
+     */
+    @Nullable
+    public Long getFieldAsNumber(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Long.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as an Integer
+     * @param name the LocalName for the field
+     * @return Returns field value as an Integer
+     */
+    @Nullable
+    public Integer getFieldAsInteger(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Integer.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a Fraction
+     * @param name the LocalName for the field
+     * @return Returns fields value as a Fraction
+     */
+    @Nullable
+    public  Fraction getFieldAsFraction(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Fraction.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
     }
 
     /**

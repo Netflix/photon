@@ -18,45 +18,21 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.st0377.HeaderPartition;
-import com.netflix.imflibrary.st0377.PrimerPack;
-import com.netflix.imflibrary.st0377.header.GenericPackage;
-import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.Preface;
-import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
-import com.netflix.imflibrary.utils.Utilities;
-import com.netflix.imflibrary.writerTools.RegXMLLibHelper;
-import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
