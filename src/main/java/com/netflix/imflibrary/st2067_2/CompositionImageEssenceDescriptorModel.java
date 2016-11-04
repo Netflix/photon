@@ -41,24 +41,65 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer storedOffset;
     private final Integer sampleWidth;
     private final Integer sampleHeight;
+    private final CodingEquation codingEquation;
+    private final TransferCharacteristic transferCharacteristic;
+    private final ColorPrimaries colorPrimaries;
 
-    public CompositionImageEssenceDescriptorModel(@Nonnull UUID imageEssencedescriptorID, @Nonnull DOMNodeObjectModel imageEssencedescriptorDOMNode, @Nonnull RegXMLLibDictionary regXMLLibDictionary) {
+    public CompositionImageEssenceDescriptorModel(@Nonnull UUID imageEssencedescriptorID, @Nonnull DOMNodeObjectModel imageEssencedescriptorDOMNode, @Nonnull RegXMLLibDictionary regXMLLibDictionary)
+    {
         this.imageEssencedescriptorDOMNode = imageEssencedescriptorDOMNode;
         this.imageEssencedescriptorID = imageEssencedescriptorID;
         this.regXMLLibDictionary = regXMLLibDictionary;
         this.imfErrorLogger = new IMFErrorLoggerImpl();
-        this.colorSpace = parseColorSpace();
-        this.frameLayoutType = parseFrameLayout();
-        this.storedWidth = parseStoredWidth();
-        this.storedHeight = parseStoredHeight();
-        this.sampleRate = parseSampleRate();
-        this.storedOffset = parseStoredOffset();
-        this.sampleHeight = parseSampleHeight();
-        this.sampleWidth = parseSampleWidth();
+
+        if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(rgbaDescriptorUL))) {
+          this.colorSpace = ColorSpace.RGB;
+        } else if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(cdciDescriptorUL))) {
+            this.colorSpace = ColorSpace.YUV;
+        } else {
+            this.colorSpace = ColorSpace.Unknown;
+        }
+
+        this.frameLayoutType = FrameLayoutType.valueOf(regXMLLibDictionary.getEnumerationValueFromName(frameLayoutTypeUL, getFieldAsString(frameLayoutUL)));
+
+        Integer storedWidth = getFieldAsInteger(storedWidthUL);
+        storedWidth = storedWidth != null ? storedWidth : -1;
+        this.storedWidth = storedWidth;
+
+        Integer storedHeight = getFieldAsInteger(storedHeightUL);
+        storedHeight = storedHeight != null ? storedHeight : -1;
+        this.storedHeight = storedHeight;
+
+        Fraction sampleRate = getFieldAsFraction(sampleRateUL);
+        sampleRate = sampleRate != null ? sampleRate : new Fraction(0);
+        this.sampleRate = sampleRate;
+
+        this.storedOffset = getFieldAsInteger(storedF2OffsetUL);
+        this.sampleHeight = getFieldAsInteger(sampledHeightUL);
+        this.sampleWidth = getFieldAsInteger(sampledWidthUL);
+
+        this.transferCharacteristic = Colorimetry.TransferCharacteristic.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN
+                (transferCharacteristicUL)));
+
+        this.colorPrimaries = Colorimetry.ColorPrimaries.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(colorPrimariesUL)));
+
+        if(colorSpace.equals(ColorSpace.YUV)) {
+            this.codingEquation = Colorimetry.CodingEquation.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(codingEquationsUL)));
+        }
+        else {
+            this.codingEquation = CodingEquation.None;
+        }
+
         if(!this.colorSpace.equals(ColorSpace.Unknown)) {
             this.pixelBitDepth = parsePixelBitDepth(this.colorSpace);
             this.quantization = parseQuantization(this.colorSpace, this.pixelBitDepth);
-            this.color = parseColorimetry(this.colorSpace);
+
+            Colorimetry color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
+            if((colorSpace.equals(ColorSpace.YUV) && !color.getCodingEquation().equals(this.codingEquation))) {
+                color = Colorimetry.Unknown;
+            }
+            this.color = color;
+
             this.sampling = parseSampling(this.colorSpace);
         }
         else {
@@ -126,13 +167,20 @@ public final class CompositionImageEssenceDescriptorModel {
         return imfErrorLogger.getErrors();
     }
 
-    private @Nullable String getFieldAsString(@Nonnull String urn) {
-        return imageEssencedescriptorDOMNode.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(urn));
+    public CodingEquation getCodingEquation() {
+        return codingEquation;
     }
 
-    private @Nullable UL getFieldAsUL(@Nonnull String urn) {
-        return imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(urn));
+    public ColorPrimaries getColorPrimaries() {
+        return colorPrimaries;
+    }
 
+    public TransferCharacteristic getTransferCharacteristic() {
+        return transferCharacteristic;
+    }
+
+    private @Nullable String getFieldAsString(@Nonnull String urn) {
+        return imageEssencedescriptorDOMNode.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
 
     private @Nullable Integer getFieldAsInteger(@Nonnull String urn) {
@@ -143,75 +191,6 @@ public final class CompositionImageEssenceDescriptorModel {
         return imageEssencedescriptorDOMNode.getFieldAsFraction(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
 
-    private @Nonnull ColorSpace parseColorSpace() {
-        ColorSpace colorSpace = ColorSpace.Unknown;
-
-        if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(rgbaDescriptorUL))) {
-            colorSpace = ColorSpace.RGB;
-        } else if (imageEssencedescriptorDOMNode.getLocalName().equals(regXMLLibDictionary.getSymbolNameFromURN(cdciDescriptorUL))) {
-            colorSpace = ColorSpace.YUV;
-        }
-        return colorSpace;
-    }
-
-    private @Nonnull FrameLayoutType parseFrameLayout() {
-        return FrameLayoutType.valueOf(regXMLLibDictionary.getEnumerationValueFromName(frameLayoutTypeUL, getFieldAsString(frameLayoutUL)));
-    }
-
-    private @Nonnull Integer parseStoredWidth() {
-        Integer storedWidth = getFieldAsInteger(storedWidthUL);
-        return storedWidth != null ? storedWidth : -1;
-    }
-
-    private @Nonnull Integer parseStoredHeight() {
-        Integer storedHeight = getFieldAsInteger(storedHeightUL);
-        return storedHeight != null ? storedHeight : -1;
-    }
-
-    private @Nonnull Fraction parseSampleRate() {
-        //SampleRate
-        Fraction sampleRate = getFieldAsFraction(sampleRateUL);
-        return sampleRate != null ? sampleRate : new Fraction(0);
-    }
-
-    private @Nullable Integer parseStoredOffset() {
-        //StoredF2Offset
-        return getFieldAsInteger(storedF2OffsetUL);
-    }
-
-    private @Nullable Integer parseSampleWidth() {
-        return getFieldAsInteger(sampledWidthUL);
-    }
-
-    private @Nullable Integer parseSampleHeight() {
-        return getFieldAsInteger(sampledHeightUL);
-    }
-
-    private @Nonnull Colorimetry parseColorimetry(@Nonnull ColorSpace colorSpace) {
-        //ColorPrimaries
-        Colorimetry.ColorPrimaries colorPrimaries = Colorimetry.ColorPrimaries.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(colorPrimariesUL)));
-        //TransferCharacteristic
-        Colorimetry.TransferCharacteristic transferCharacteristic = Colorimetry.TransferCharacteristic.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN
-                (transferCharacteristicUL)));
-
-        //CodingEquations
-        Colorimetry.CodingEquation codingEquation = CodingEquation.Unknown;
-        if(colorSpace.equals(ColorSpace.RGB)) {
-            codingEquation = CodingEquation.None;
-        }
-        else if(colorSpace.equals(ColorSpace.YUV)) {
-            codingEquation = Colorimetry.CodingEquation.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(codingEquationsUL)));
-        }
-
-        Colorimetry color = Colorimetry.valueOf(colorPrimaries, transferCharacteristic);
-        if((colorSpace.equals(ColorSpace.YUV) && !color.getCodingEquation().equals(codingEquation))) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries(%s)-TransferCharacteristic(%s)-CodingEquation(%s) combination in Image Essence Descriptor",
-                            imageEssencedescriptorID.toString(), colorPrimaries.toString(), transferCharacteristic.toString(), codingEquation != null ? codingEquation.toString() : ""));
-        }
-        return color;
-    }
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorSpace colorSpace) {
         Integer refPixelBitDepth = null;
@@ -339,11 +318,18 @@ public final class CompositionImageEssenceDescriptorModel {
 
         if(signalMax != null && signalMin != null) {
             quantization = Colorimetry.Quantization.valueOf(pixelBitDepth, signalMin, signalMax);
+            if(quantization.equals(Quantization.Unknown)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s has invalid combination of ComponentMinRef/BlackRefLevel(%d)-ComponentMaxRef/WhiteRefLevel(%d)-PixelBitDepth(%d) in Image " +
+                                        "Essence Descriptor",
+                                imageEssencedescriptorID.toString(), signalMin, signalMax, pixelBitDepth ));
+            }
         }
         return quantization;
     }
 
-    private @Nonnull Sampling parseSampling(@Nonnull ColorSpace colorSpace) {
+    private @Nonnull Sampling parseSampling(@Nonnull  ColorSpace colorSpace) {
         Colorimetry.Sampling sampling = Sampling.Unknown;
         if(colorSpace.equals(ColorSpace.RGB)) {
             return Colorimetry.Sampling.Sampling444;
@@ -359,6 +345,13 @@ public final class CompositionImageEssenceDescriptorModel {
             }
             else {
                 sampling = Colorimetry.Sampling.valueOf(horizontalSubSampling, verticalSubSampling);
+                if(sampling.equals(Sampling.Unknown)) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("EssenceDescriptor with ID %s has invalid combination of HorizontalSubSampling(%d)-VerticalSubSampling(%d) in Image " +
+                                            "Essence Descriptor",
+                                    imageEssencedescriptorID.toString(), horizontalSubSampling, verticalSubSampling));
+                }
             }
         }
         return sampling;

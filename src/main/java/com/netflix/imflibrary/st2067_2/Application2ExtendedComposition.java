@@ -89,21 +89,17 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
 
         ColorSpace colorSpace = imageEssenceDescriptorModel.getColorSpace();
-        if( colorSpace.equals(ColorSpace.Unknown)) {
-            return;
-        }
-
         if( !colorSpace.equals(ColorSpace.RGB) && !colorSpace.equals(ColorSpace.YUV)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s invalid ColorSpace(%s) in Application#2E Composition",
-                            imageEssenceDescriptorID.toString(), colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid Picture Essence Descriptor as per Application#2 Composition",
+                            imageEssenceDescriptorID.toString()));
+            return;
         }
 
         //storedWidth
         Integer storedWidth = imageEssenceDescriptorModel.getStoredWidth();
-        if (storedWidth != null &&
-                ((colorSpace.equals(ColorSpace.RGB) && storedWidth > MAX_RGB_IMAGE_FRAME_WIDTH) ||
+        if (((colorSpace.equals(ColorSpace.RGB) && storedWidth > MAX_RGB_IMAGE_FRAME_WIDTH) ||
                 (colorSpace.equals(ColorSpace.YUV) && storedWidth > MAX_YUV_IMAGE_FRAME_WIDTH))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
@@ -113,8 +109,7 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
 
         //storedHeight
         Integer storedHeight = imageEssenceDescriptorModel.getStoredHeight();
-        if (storedHeight != null &&
-                ((colorSpace.equals(ColorSpace.RGB) && storedHeight > MAX_RGB_IMAGE_FRAME_HEIGHT) ||
+        if (((colorSpace.equals(ColorSpace.RGB) && storedHeight > MAX_RGB_IMAGE_FRAME_HEIGHT) ||
                         (colorSpace.equals(ColorSpace.YUV) && storedHeight > MAX_YUV_IMAGE_FRAME_HEIGHT))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
@@ -125,8 +120,7 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         //PixelBitDepth
         Integer pixelBitDepth = imageEssenceDescriptorModel.getPixelBitDepth();
         Colorimetry color = imageEssenceDescriptorModel.getColor();
-        if( pixelBitDepth != null &&
-                (!bitDepthsSupported.contains(pixelBitDepth) || !colorToBitDepthMap.get(color).contains(pixelBitDepth))) {
+        if( !bitDepthsSupported.contains(pixelBitDepth) || !colorToBitDepthMap.get(color).contains(pixelBitDepth)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s invalid PixelBitDepth(%d) for Color(%s) in Application#2E Composition",

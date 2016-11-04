@@ -23,7 +23,7 @@
       <Id>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</Id>
       <m:CDCIDescriptor>
         <m:InstanceUID>b3fb64fd-3f32-41d8-852a-4f30c83fa554</m:InstanceUID>
-        <m:SampleRate>24000 1001</m:SampleRate>
+        <m:SampleRate>30000 1001</m:SampleRate>
         <m:EssenceLength>7148</m:EssenceLength>
         <m:ComponentDepth>10</m:ComponentDepth>
         <m:HorizontalSubsampling>2</m:HorizontalSubsampling>
@@ -33,11 +33,11 @@
         <m:ColorRange>897</m:ColorRange>
         <m:VerticalSubsampling>1</m:VerticalSubsampling>
         <m:ContainerFormat>urn:uuid:060e2b34-0401-0107-0d01-0301020c0100</m:ContainerFormat>
-        <m:FrameLayout>FullFrame</m:FrameLayout>
-        <m:StoredWidth>3840</m:StoredWidth>
-        <m:StoredHeight>2160</m:StoredHeight>
-        <m:ActiveWidth>3840</m:ActiveWidth>
-        <m:ActiveHeight>2160</m:ActiveHeight>
+        <m:FrameLayout>SeparateFields</m:FrameLayout>
+        <m:StoredWidth>1920</m:StoredWidth>
+        <m:StoredHeight>1080</m:StoredHeight>
+        <m:ActiveWidth>1920</m:ActiveWidth>
+        <m:ActiveHeight>1080</m:ActiveHeight>
         <m:ActiveXOffset>0</m:ActiveXOffset>
         <m:ActiveYOffset>0</m:ActiveYOffset>
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
@@ -55,12 +55,12 @@
           <m:JPEG2000SubDescriptor>
             <m:InstanceUID>de93a299-1c55-415d-b8a4-36e89740f4ae</m:InstanceUID>
             <m:Rsiz>261</m:Rsiz>
-            <m:Xsiz>3840</m:Xsiz>
-            <m:Ysiz>2160</m:Ysiz>
+            <m:Xsiz>1920</m:Xsiz>
+            <m:Ysiz>1080</m:Ysiz>
             <m:XOsiz>0</m:XOsiz>
             <m:YOsiz>0</m:YOsiz>
-            <m:XTsiz>3840</m:XTsiz>
-            <m:YTsiz>2160</m:YTsiz>
+            <m:XTsiz>1920</m:XTsiz>
+            <m:YTsiz>1080</m:YTsiz>
             <m:XTOsiz>0</m:XTOsiz>
             <m:YTOsiz>0</m:YTOsiz>
             <m:Csiz>3</m:Csiz>
@@ -114,7 +114,7 @@
         <m:ChannelCount>6</m:ChannelCount>
         <m:QuantizationBits>24</m:QuantizationBits>
         <m:DialNorm>0</m:DialNorm>
-        <m:ReferenceImageEditRate>24000/1001</m:ReferenceImageEditRate>
+        <m:ReferenceImageEditRate>30000/1001</m:ReferenceImageEditRate>
         <m:BlockAlign>6</m:BlockAlign>
         <m:SequenceOffset>0</m:SequenceOffset>
         <m:AverageBytesPerSecond>864000</m:AverageBytesPerSecond>
@@ -184,7 +184,7 @@
       </m:WAVEPCMDescriptor>
     </EssenceDescriptor>
     <EssenceDescriptor>
-      <Id>urn:uuid:72639abb-06f1-4e6d-8600-07af1e061192</Id>
+      <Id>urn:uuid:fe0ca4ce-2877-411b-9fbf-e8c64d561a6d</Id>
       <m:WAVEPCMDescriptor>
         <m:SampleRate>48000 1</m:SampleRate>
         <m:EssenceLength>15750288</m:EssenceLength>
@@ -193,7 +193,7 @@
         <m:ChannelCount>2</m:ChannelCount>
         <m:QuantizationBits>24</m:QuantizationBits>
         <m:DialNorm>0</m:DialNorm>
-        <m:ReferenceImageEditRate>24000/1001</m:ReferenceImageEditRate>
+        <m:ReferenceImageEditRate>30000/1001</m:ReferenceImageEditRate>
         <m:BlockAlign>6</m:BlockAlign>
         <m:SequenceOffset>0</m:SequenceOffset>
         <m:AverageBytesPerSecond>288000</m:AverageBytesPerSecond>
@@ -202,10 +202,10 @@
         <m:SubDescriptors>
           <m:SoundfieldGroupLabelSubDescriptor>
             <m:MCALabelDictionaryID>060e2b34.0401.010d.03020220.01000000</m:MCALabelDictionaryID>
-            <m:MCALinkID>1f88ff25-0192-4461-b60d-1596da487d35</m:MCALinkID>
+            <m:MCALinkID>a6009790-a5d8-4a6a-80d0-492f37e859a8</m:MCALinkID>
             <m:MCATagSymbol>sgST</m:MCATagSymbol>
             <m:MCATagName>Standard Stereo</m:MCATagName>
-            <m:RFC5646AudioLanguageCode>es-MX</m:RFC5646AudioLanguageCode>
+            <m:RFC5646AudioLanguageCode>en-US</m:RFC5646AudioLanguageCode>
             <m:MCATitle>GIC MCA Title</m:MCATitle>
             <m:MCATitleVersion>GIC MCA Titleversion</m:MCATitleVersion>
             <m:MCAAudioContentKind>GIC Audio Content</m:MCAAudioContentKind>
@@ -214,7 +214,7 @@
           <m:AudioChannelLabelSubDescriptor>
             <m:SoundfieldGroupLinkID>00000000-0000-0000-0000-000000000000</m:SoundfieldGroupLinkID>
             <m:MCALabelDictionaryID>060e2b34-0401-010d-0302-010100000000</m:MCALabelDictionaryID>
-            <m:MCALinkID>30430655-effc-4816-a8d6-31f3c7bfcde4</m:MCALinkID>
+            <m:MCALinkID>cd58192d-b53e-4b84-b238-12727c592f3a</m:MCALinkID>
             <m:MCATagSymbol>chL</m:MCATagSymbol>
             <m:MCATagName>Left</m:MCATagName>
             <m:MCAChannelID>1</m:MCAChannelID>
@@ -222,7 +222,7 @@
           <m:AudioChannelLabelSubDescriptor>
             <m:SoundfieldGroupLinkID>00000000-0000-0000-0000-000000000000</m:SoundfieldGroupLinkID>
             <m:MCALabelDictionaryID>060e2b34-0401-010d-0302-010200000000</m:MCALabelDictionaryID>
-            <m:MCALinkID>2e60a287-7a47-4f71-b68b-f06140d0f92d</m:MCALinkID>
+            <m:MCALinkID>60d60688-e1b7-4e05-b443-d5ce45a1576d</m:MCALinkID>
             <m:MCATagSymbol>chR</m:MCATagSymbol>
             <m:MCATagName>Right</m:MCATagName>
             <m:MCAChannelID>2</m:MCAChannelID>
@@ -235,7 +235,7 @@
 		<r0:DCTimedTextDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
 		  <r1:InstanceID>urn:uuid:3febc096-8727-495d-8715-bb5398d98cfe</r1:InstanceID>
 		  <r1:LinkedTrackID>2</r1:LinkedTrackID>
-		  <r1:SampleRate>24000/1001</r1:SampleRate>
+		  <r1:SampleRate>30000/1001</r1:SampleRate>
 		  <r1:EssenceLength>6381</r1:EssenceLength>
 		  <r1:ContainerFormat>urn:smpte:ul:060e2b34.0401010a.0d010301.02130101</r1:ContainerFormat>
 		  <r1:DataEssenceCoding>urn:smpte:ul:00000000.00000000.00000000.00000000</r1:DataEssenceCoding>
@@ -250,7 +250,7 @@
     <TimecodeRate>24</TimecodeRate>
     <TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
   </CompositionTimecode>
-  <EditRate>24000 1001</EditRate>
+  <EditRate>30000 1001</EditRate>
   <LocaleList>
     <Locale>
       <Annotation/>
@@ -270,7 +270,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2014</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-20/2013</ApplicationIdentification>
   </ExtensionProperties>  
   <SegmentList>
     <Segment>
@@ -444,10 +444,10 @@
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:ec9f8003-655e-438a-b30a-d7700ec4cb6f</Id>
               <Annotation>Netflix_Plugfest_Oct2015.mxf</Annotation>
-              <EditRate>24000 1001</EditRate>
-              <IntrinsicDuration>7148</IntrinsicDuration>
+              <EditRate>30000 1001</EditRate>
+              <IntrinsicDuration>8935</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>7148</SourceDuration>
+              <SourceDuration>8935</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -486,20 +486,20 @@
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
         -->
         <cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
-          <Id>urn:uuid:f2f128d9-1f28-49e8-b060-74db33252c48</Id>
-          <TrackId>urn:uuid:74a7e6d1-9ebf-4f6e-a996-6a8b520890f2</TrackId>
+          <Id>urn:uuid:daa41b9f-4214-47d3-9750-2908d35592b9</Id>
+          <TrackId>urn:uuid:b8ee769c-b768-451c-bb5f-9c38fd3a5d18</TrackId>
           <ResourceList>
             <Resource xsi:type="TrackFileResourceType">
-              <Id>urn:uuid:ddc5e809-21f9-4db8-a17e-08489120064c</Id>
-              <Annotation>Netflix_Plugfest_Oct2015_LAS20</Annotation>
+              <Id>urn:uuid:8e910d09-a3e8-4f2e-88b4-37beb3e3c883</Id>
+              <Annotation>Netflix_Plugfest_Oct2015_ENG20</Annotation>
               <EditRate>48000 1</EditRate>
               <IntrinsicDuration>15750288</IntrinsicDuration>
-              <EntryPoint>1430992</EntryPoint>
+              <EntryPoint>1439992</EntryPoint>
               <SourceDuration>14310296</SourceDuration>
               <RepeatCount>1</RepeatCount>
-              <SourceEncoding>urn:uuid:72639abb-06f1-4e6d-8600-07af1e061192</SourceEncoding>
-              <TrackFileId>urn:uuid:778d40b5-7033-4924-b423-f91ce4208e58</TrackFileId>
-              <Hash>eh07wSJlQBIhxgt710jjwRWBi1g=</Hash>
+              <SourceEncoding>urn:uuid:fe0ca4ce-2877-411b-9fbf-e8c64d561a6d</SourceEncoding>
+              <TrackFileId>urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34</TrackFileId>
+              <Hash>9zit4G2zsmwpLqwXwFEJTu7UG50=</Hash>
               <!--
               <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
               -->
@@ -514,10 +514,10 @@
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:dc20d8ec-5e14-479e-b3ea-7fc993daaaf1</Id>
               <Annotation>Netflix_Plugfest_Oct2015_FULL_Vers_IMSC</Annotation>
-              <EditRate>24000 1001</EditRate>
-              <IntrinsicDuration>7148</IntrinsicDuration>
+              <EditRate>30000 1001</EditRate>
+              <IntrinsicDuration>8935</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>7148</SourceDuration>
+              <SourceDuration>8935</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:3febc096-8727-495d-8715-bb5398d98cfe</SourceEncoding>
               <TrackFileId>urn:uuid:85b67cbd-2c87-4dfc-ab7a-23876e3c28cb</TrackFileId>

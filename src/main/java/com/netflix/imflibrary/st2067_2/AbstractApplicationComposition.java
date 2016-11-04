@@ -45,13 +45,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType.FullFrame;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType.SeperateFields;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.*;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.ChromaV;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.Null;
-
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
  * A Composition object can be constructed from an XML file only if it satisfies all the constraints specified

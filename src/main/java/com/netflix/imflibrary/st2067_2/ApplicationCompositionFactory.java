@@ -46,39 +46,39 @@ public class ApplicationCompositionFactory {
 
     public static ApplicationComposition getApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         ApplicationComposition composition = null;
-
-        IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, imfErrorLogger);
-        String applicationIdentification = imfCompositionPlaylistType.getApplicationIdentification();
-        Class<?> clazz = supportedApplicationClassMap.get(applicationIdentification);
-
-        if(clazz == null) {
-            clazz = Application2ExtendedComposition.class;
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
-        }
+        Class<?> clazz = null;
 
         try {
+            IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, imfErrorLogger);
+            String applicationIdentification = imfCompositionPlaylistType.getApplicationIdentification();
+            clazz = supportedApplicationClassMap.get(applicationIdentification);
+
+            if(clazz == null) {
+                clazz = Application2ExtendedComposition.class;
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
+            }
+
             Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);
             composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType);
             imfErrorLogger.addAllErrors(composition.getErrors());
         }
+        catch(IMFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+            return null;
+        }
         catch(NoSuchMethodException|IllegalAccessException|InstantiationException| InvocationTargetException e){
-            IMFException imfException = null;
             if(e instanceof InvocationTargetException ) {
                 Throwable ex = InvocationTargetException.class.cast(e).getTargetException();
                if(ex instanceof IMFException) {
-                   imfException = IMFException.class.cast(ex);
-                   throw imfException;
+                   imfErrorLogger.addAllErrors(IMFException.class.cast(ex).getErrors());
+                   return null;
                }
             }
 
-            if(imfException != null) {
-                throw imfException;
-            } else {
-                e.printStackTrace();
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format(String.format("No matching constructor for class %s", clazz.getSimpleName())));
-            }
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format(String.format("No matching constructor for class %s", clazz != null ? clazz.getSimpleName(): "ApplicationComposition")));
+            return null;
         }
 
         return composition;

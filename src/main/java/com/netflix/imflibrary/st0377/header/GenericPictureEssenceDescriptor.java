@@ -107,7 +107,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
 
     public static enum FrameLayoutType {
         FullFrame(0),
-        SeperateFields(1),
+        SeparateFields(1),
         SingleField(2),
         MixedFields(3),
         SegmentedFrame(4),
