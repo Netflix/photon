@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2013" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Id>urn:uuid:0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85</Id>
+<Annotation>Meridian UHD 5994P</Annotation>
+<IssueDate>2016-10-06T08:35:02-00:00</IssueDate>
+<Issuer>R&amp;S</Issuer>
+<Creator>Clipster 6.1.0.0 Beta (build 111500)</Creator>
+<ContentOriginator>R&amp;S</ContentOriginator>
+<ContentTitle>MERIDIAN</ContentTitle>
+<ContentKind>Test</ContentKind>
+<ContentVersionList>
+<ContentVersion>
+<Id>urn:uuid:e0bc5520-caf0-4ca4-93c2-e46be501ceb2</Id>
+<LabelText>20161006</LabelText>
+</ContentVersion>
+</ContentVersionList>
+<EssenceDescriptorList>
+<EssenceDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
+<Id>urn:uuid:4c109a4a-9711-4d8f-bd89-6449a0fc6738</Id>
+<r0:RGBADescriptor>
+ <r1:PixelLayout>
+  <r2:RGBAComponent>
+   <r2:Code>CompRed</r2:Code>
+   <r2:ComponentSize>10</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompGreen</r2:Code>
+   <r2:ComponentSize>10</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompBlue</r2:Code>
+   <r2:ComponentSize>10</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompNull</r2:Code>
+   <r2:ComponentSize>0</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompNull</r2:Code>
+   <r2:ComponentSize>0</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompNull</r2:Code>
+   <r2:ComponentSize>0</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompNull</r2:Code>
+   <r2:ComponentSize>0</r2:ComponentSize>
+  </r2:RGBAComponent>
+  <r2:RGBAComponent>
+   <r2:Code>CompNull</r2:Code>
+   <r2:ComponentSize>0</r2:ComponentSize>
+  </r2:RGBAComponent>
+ </r1:PixelLayout>
+ <r1:ComponentMinRef>0</r1:ComponentMinRef>
+ <r1:ComponentMaxRef>1023</r1:ComponentMaxRef>
+ <r1:ScanningDirection>ScanningDirection_LeftToRightTopToBottom</r1:ScanningDirection>
+ <r1:SampleRate>60000/1001</r1:SampleRate>
+ <r1:FrameLayout>FullFrame</r1:FrameLayout>
+ <r1:StoredWidth>1920</r1:StoredWidth>
+ <r1:StoredHeight>1080</r1:StoredHeight>
+ <r1:SampledWidth>1920</r1:SampledWidth>
+ <r1:SampledHeight>1080</r1:SampledHeight>
+ <r1:SampledXOffset>0</r1:SampledXOffset>
+ <r1:SampledYOffset>0</r1:SampledYOffset>
+ <r1:DisplayWidth>1920</r1:DisplayWidth>
+ <r1:DisplayHeight>1080</r1:DisplayHeight>
+ <r1:DisplayXOffset>0</r1:DisplayXOffset>
+ <r1:DisplayYOffset>0</r1:DisplayYOffset>
+ <r1:VideoLineMap>
+  <r2:Int32>1</r2:Int32>
+  <r2:Int32>0</r2:Int32>
+ </r1:VideoLineMap>
+ <r1:PictureCompression>urn:smpte:ul:060e2b34.0401010d.04010202.03010319</r1:PictureCompression>
+ <r1:ImageAspectRatio>16/9</r1:ImageAspectRatio>
+ <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010107.0d010301.020c0100</r1:ContainerFormat>
+ <r1:TransferCharacteristic>urn:smpte:ul:060e2b34.04010101.04010101.01020000</r1:TransferCharacteristic>
+ <r1:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</r1:ColorPrimaries>
+ <r1:MasteringDisplayWhitePointChromaticity>
+  <r2:X>15635</r2:X>
+  <r2:Y>16450</r2:Y>
+ </r1:MasteringDisplayWhitePointChromaticity>
+ <r1:MasteringDisplayPrimaries>
+  <r2:ColorPrimary>
+   <r2:X>34000</r2:X>
+   <r2:Y>16000</r2:Y>
+  </r2:ColorPrimary>
+  <r2:ColorPrimary>
+   <r2:X>13250</r2:X>
+   <r2:Y>34500</r2:Y>
+  </r2:ColorPrimary>
+  <r2:ColorPrimary>
+   <r2:X>7500</r2:X>
+   <r2:Y>3000</r2:Y>
+  </r2:ColorPrimary>
+ </r1:MasteringDisplayPrimaries>
+ <r1:MasteringDisplayMaximumLuminance>40000000</r1:MasteringDisplayMaximumLuminance>
+ <r1:MasteringDisplayMinimumLuminance>50</r1:MasteringDisplayMinimumLuminance>
+ <r1:SubDescriptors>
+  <r0:JPEG2000SubDescriptor>
+   <r1:Rsiz>1367</r1:Rsiz>
+   <r1:Xsiz>1920</r1:Xsiz>
+   <r1:Ysiz>1080</r1:Ysiz>
+   <r1:XOsiz>0</r1:XOsiz>
+   <r1:YOsiz>0</r1:YOsiz>
+   <r1:XTsiz>1920</r1:XTsiz>
+   <r1:YTsiz>1080</r1:YTsiz>
+   <r1:XTOsiz>0</r1:XTOsiz>
+   <r1:YTOsiz>0</r1:YTOsiz>
+   <r1:Csiz>3</r1:Csiz>
+   <r1:PictureComponentSizing>
+    <r2:J2KComponentSizing>
+     <r2:Ssiz>11</r2:Ssiz>
+     <r2:XRSiz>1</r2:XRSiz>
+     <r2:YRSiz>1</r2:YRSiz>
+    </r2:J2KComponentSizing>
+    <r2:J2KComponentSizing>
+     <r2:Ssiz>11</r2:Ssiz>
+     <r2:XRSiz>1</r2:XRSiz>
+     <r2:YRSiz>1</r2:YRSiz>
+    </r2:J2KComponentSizing>
+    <r2:J2KComponentSizing>
+     <r2:Ssiz>11</r2:Ssiz>
+     <r2:XRSiz>1</r2:XRSiz>
+     <r2:YRSiz>1</r2:YRSiz>
+    </r2:J2KComponentSizing>
+   </r1:PictureComponentSizing>
+   <r1:CodingStyleDefault>0104000101060303000077888888888888</r1:CodingStyleDefault>
+   <r1:J2CLayout>
+    <r2:RGBAComponent>
+     <r2:Code>CompRed</r2:Code>
+     <r2:ComponentSize>10</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompGreen</r2:Code>
+     <r2:ComponentSize>10</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompBlue</r2:Code>
+     <r2:ComponentSize>10</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompNull</r2:Code>
+     <r2:ComponentSize>0</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompNull</r2:Code>
+     <r2:ComponentSize>0</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompNull</r2:Code>
+     <r2:ComponentSize>0</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompNull</r2:Code>
+     <r2:ComponentSize>0</r2:ComponentSize>
+    </r2:RGBAComponent>
+    <r2:RGBAComponent>
+     <r2:Code>CompNull</r2:Code>
+     <r2:ComponentSize>0</r2:ComponentSize>
+    </r2:RGBAComponent>
+   </r1:J2CLayout>
+   <r1:InstanceID>urn:uuid:63606d65-014a-4712-bf86-00fd86bd530e</r1:InstanceID>
+  </r0:JPEG2000SubDescriptor>
+ </r1:SubDescriptors>
+ <r1:InstanceID>urn:uuid:d5926f6e-fae4-4515-a1fb-157a2d92c525</r1:InstanceID>
+ <r1:LinkedTrackID>2</r1:LinkedTrackID>
+</r0:RGBADescriptor>
+</EssenceDescriptor>
+<EssenceDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
+<Id>urn:uuid:0a2446df-ed83-4a79-89e7-85e5c52d942f</Id>
+<r0:WAVEPCMDescriptor>
+ <r1:SampleRate>48000/1</r1:SampleRate>
+ <r1:AudioSampleRate>48000/1</r1:AudioSampleRate>
+ <r1:ChannelCount>6</r1:ChannelCount>
+ <r1:QuantizationBits>24</r1:QuantizationBits>
+ <r1:Locked>True</r1:Locked>
+ <r1:AudioReferenceLevel>0</r1:AudioReferenceLevel>
+ <r1:BlockAlign>18</r1:BlockAlign>
+ <r1:AverageBytesPerSecond>864000</r1:AverageBytesPerSecond>
+ <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010101.0d010301.02060200</r1:ContainerFormat>
+ <r1:SubDescriptors>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020101.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:bc2418a9-4652-4fde-a24c-60e7ddc0d9e5</r1:MCALinkID>
+   <r1:MCATagSymbol>chL</r1:MCATagSymbol>
+   <r1:MCATagName>Left</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>1</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:cdb97716-279e-40bc-9345-9f46fcff2213</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020102.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:11372bc6-a0b7-49f7-b9a9-056f3baaf79f</r1:MCALinkID>
+   <r1:MCATagSymbol>chR</r1:MCATagSymbol>
+   <r1:MCATagName>Right</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>2</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:18b3ab79-8628-43db-a1d7-353560c94fd3</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020103.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:1db3920f-f0f1-4126-addc-d655c3a67ab8</r1:MCALinkID>
+   <r1:MCATagSymbol>chC</r1:MCATagSymbol>
+   <r1:MCATagName>Center</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>3</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:dd4a7110-c7c7-4c05-bd7a-f6a219067bb7</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020104.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:ea29c419-f161-4b5b-86bb-54d4aa035b0b</r1:MCALinkID>
+   <r1:MCATagSymbol>chLFE</r1:MCATagSymbol>
+   <r1:MCATagName>LFE</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>4</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:5fb81fb4-45a1-4c3f-a4dc-ec9a6ce57bea</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020105.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:3df5316f-eb9a-428e-94ee-e97c21d3ca00</r1:MCALinkID>
+   <r1:MCATagSymbol>chLs</r1:MCATagSymbol>
+   <r1:MCATagName>Left Surround</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>5</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:73881719-65e3-4dfd-abd8-089d1b56d4d8</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:AudioChannelLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020106.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:8c53f201-063c-495a-9f53-22b92cca1968</r1:MCALinkID>
+   <r1:MCATagSymbol>chRs</r1:MCATagSymbol>
+   <r1:MCATagName>Right Surround</r1:MCATagName>
+   <r1:SoundfieldGroupLinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:SoundfieldGroupLinkID>
+   <r1:MCAChannelID>6</r1:MCAChannelID>
+   <r1:InstanceID>urn:uuid:f058a71d-8300-4551-bf5b-0d7319915244</r1:InstanceID>
+  </r0:AudioChannelLabelSubDescriptor>
+  <r0:SoundfieldGroupLabelSubDescriptor>
+   <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020201.00000000</r1:MCALabelDictionaryID>
+   <r1:MCALinkID>urn:uuid:a7c2e9f5-9c0a-4465-8a71-92db546928af</r1:MCALinkID>
+   <r1:MCATagSymbol>sg51</r1:MCATagSymbol>
+   <r1:MCATagName>5.1</r1:MCATagName>
+   <r1:RFC5646SpokenLanguage>en</r1:RFC5646SpokenLanguage>
+   <r1:MCATitle>MERIDIAN</r1:MCATitle>
+   <r1:MCATitleVersion>20160916</r1:MCATitleVersion>
+   <r1:MCAAudioContentKind>Master</r1:MCAAudioContentKind>
+   <r1:MCAAudioElementKind>Composite Mix</r1:MCAAudioElementKind>
+   <r1:InstanceID>urn:uuid:94348f5d-8fb0-4a2d-95b1-b3a517acb9fb</r1:InstanceID>
+  </r0:SoundfieldGroupLabelSubDescriptor>
+ </r1:SubDescriptors>
+ <r1:ChannelAssignment>urn:smpte:ul:060e2b34.0401010d.04020210.04010000</r1:ChannelAssignment>
+ <r1:ReferenceImageEditRate>60000/1001</r1:ReferenceImageEditRate>
+ <r1:InstanceID>urn:uuid:18e44274-9919-4b67-bfc5-e7790abae2d2</r1:InstanceID>
+ <r1:LinkedTrackID>2</r1:LinkedTrackID>
+</r0:WAVEPCMDescriptor>
+</EssenceDescriptor>
+</EssenceDescriptorList>
+<CompositionTimecode>
+<TimecodeDropFrame>1</TimecodeDropFrame>
+<TimecodeRate>60</TimecodeRate>
+<TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
+</CompositionTimecode>
+<EditRate>60000 1001</EditRate>
+<LocaleList>
+<Locale>
+<Annotation>Meridian UHD 5994P</Annotation>
+<LanguageList>
+<Language>en</Language>
+</LanguageList>
+<RegionList>
+<Region>021</Region>
+</RegionList>
+<ContentMaturityRatingList>
+<ContentMaturityRating>
+<Agency>http://www.mpaa.org/2003-ratings</Agency>
+<Rating>PG-13</Rating>
+</ContentMaturityRating>
+</ContentMaturityRatingList>
+</Locale>
+</LocaleList>
+<ExtensionProperties>
+<cc:ApplicationIdentification xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-20/2016</cc:ApplicationIdentification>
+<MaxCLL xmlns="http://www.smpte-ra.org/schemas/2067-21/2016">0</MaxCLL>
+<MaxFALL xmlns="http://www.smpte-ra.org/schemas/2067-21/2016">0</MaxFALL>
+</ExtensionProperties>
+<SegmentList>
+<Segment>
+<Id>urn:uuid:96dbf539-3926-4d52-bd49-53287f1b28af</Id>
+<Annotation>Reel_name_01</Annotation>
+<SequenceList>
+<MarkerSequence>
+<Id>urn:uuid:30ae3ea3-2e96-4103-8df9-42ffadd5c35f</Id>
+<TrackId>urn:uuid:d8d8f419-9a02-49de-b6b9-2f43c2ba771c</TrackId>
+<ResourceList>
+<Resource xsi:type="MarkerResourceType">
+<Id>urn:uuid:155b4d8d-c3f3-438c-a3f9-e2b70a284e97</Id>
+<IntrinsicDuration>40</IntrinsicDuration>
+<Marker>
+<Annotation></Annotation>
+<Label>FFOC</Label>
+<Offset>1</Offset>
+</Marker>
+</Resource>
+</ResourceList>
+</MarkerSequence>
+<cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
+<Id>urn:uuid:b0d2d8be-6c31-4332-96ce-278d660d9243</Id>
+<TrackId>urn:uuid:883f7e10-8923-4540-8e1d-b01b3ca177dd</TrackId>
+<ResourceList>
+<Resource xsi:type="TrackFileResourceType">
+<Id>urn:uuid:a5586a0b-1e3f-4c99-9de5-5a66f20cbaf8</Id>
+<EditRate>60000 1001</EditRate>
+<IntrinsicDuration>40</IntrinsicDuration>
+<SourceDuration>40</SourceDuration>
+<SourceEncoding>urn:uuid:4c109a4a-9711-4d8f-bd89-6449a0fc6738</SourceEncoding>
+<TrackFileId>urn:uuid:61d91654-2650-4abf-abbc-ad2c7f640bf8</TrackFileId>
+</Resource>
+</ResourceList>
+</cc:MainImageSequence>
+<cc:MainAudioSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2013">
+<Id>urn:uuid:f8e4ec0e-7b97-4208-a108-b4dac44e5863</Id>
+<TrackId>urn:uuid:54263c13-18ab-4456-8b66-2c48584da330</TrackId>
+<ResourceList>
+<Resource xsi:type="TrackFileResourceType">
+<Id>urn:uuid:65e8bfca-739e-42b2-8fd5-907216cc481d</Id>
+<EditRate>48000 1</EditRate>
+<IntrinsicDuration>32032</IntrinsicDuration>
+<SourceDuration>32032</SourceDuration>
+<SourceEncoding>urn:uuid:0a2446df-ed83-4a79-89e7-85e5c52d942f</SourceEncoding>
+<TrackFileId>urn:uuid:9fcb24c4-5c57-4082-a694-7470d5168aa4</TrackFileId>
+</Resource>
+</ResourceList>
+</cc:MainAudioSequence>
+</SequenceList>
+</Segment>
+</SegmentList>
+</CompositionPlaylist>

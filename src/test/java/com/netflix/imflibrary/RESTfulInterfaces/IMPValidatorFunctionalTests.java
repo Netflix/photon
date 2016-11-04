@@ -519,7 +519,7 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertTrue(errors.size() == 3);
+        Assert.assertTrue(errors.size() == 1);
     }
 
     @Test
@@ -547,7 +547,6 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertTrue(errors.size() == 1);
-        Assert.assertTrue(errors.get(0).toString().contains("not of the same duration"));
+        Assert.assertTrue(errors.size() == 0);
     }
 }
