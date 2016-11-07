@@ -23,7 +23,7 @@
       <Id>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</Id>
       <m:CDCIDescriptor>
         <m:InstanceUID>b3fb64fd-3f32-41d8-852a-4f30c83fa554</m:InstanceUID>
-        <m:SampleRate>30000 1001</m:SampleRate>
+        <m:SampleRate>60000 1001</m:SampleRate>
         <m:EssenceLength>7148</m:EssenceLength>
         <m:ComponentDepth>10</m:ComponentDepth>
         <m:HorizontalSubsampling>2</m:HorizontalSubsampling>
