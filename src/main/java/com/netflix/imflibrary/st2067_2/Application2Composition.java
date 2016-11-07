@@ -20,7 +20,7 @@ public class Application2Composition extends AbstractApplicationComposition {
         add(new Fraction(24)); add(new Fraction(25)); add(new Fraction(30)); add(new Fraction(50)); add(new Fraction(60));
         add(new Fraction(24000, 1001)); add(new Fraction(30000, 1001)); add(new Fraction(60000, 1001)); }});
     public static final Set<Fraction>interlaceSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
-        add(new Fraction(24)); add(new Fraction(30)); add(new Fraction(30000, 1001)); }});
+        add(new Fraction(50)); add(new Fraction(60)); add(new Fraction(60000, 1001)); }});
     public static final Set<Integer>bitDepthsSupported = Collections.unmodifiableSet(new HashSet<Integer>() {{
         add(8); add(10); }});
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>() {{

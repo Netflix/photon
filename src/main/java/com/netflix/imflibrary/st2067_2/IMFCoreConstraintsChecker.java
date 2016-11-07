@@ -2,7 +2,9 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 
@@ -124,8 +126,18 @@ final class IMFCoreConstraintsChecker {
                                             denominator = 1L;
                                         }
                                         List<Long> editRate = new ArrayList<>();
-                                        editRate.add(numerator);
+                                        Integer sampleRateToEditRateScale = 1;
+
+                                        if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                                            CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
+                                                    (imfTrackFileResourceType.getSourceEncoding()),
+                                                    domNodeObjectModel,
+                                                    new RegXMLLibDictionary());
+                                            sampleRateToEditRateScale = imageEssenceDescriptorModel.getFrameLayoutType().equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) ? 2 : 1;
+                                        }
+                                        editRate.add(numerator / sampleRateToEditRateScale);
                                         editRate.add(denominator);
+
                                         essenceEditRate = new Composition.EditRate(editRate);
                                     }
                                 }
