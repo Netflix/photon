@@ -31,6 +31,7 @@ final class IMFCoreConstraintsChecker {
         add("LinkedTrackID");
         add("SoundfieldGroupLinkID");
         add("MCAChannelID");
+        add("LinkedGenerationID");
     }};
 
     //To prevent instantiation
