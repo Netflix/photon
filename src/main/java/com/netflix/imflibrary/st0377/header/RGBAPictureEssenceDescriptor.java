@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
@@ -70,6 +71,9 @@ public final class RGBAPictureEssenceDescriptor extends GenericPictureEssenceDes
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class RGBAPictureEssenceDescriptorBO extends GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO
     {
+        @MXFProperty(size=4) protected final Long component_max_ref = null;
+        @MXFProperty(size=4) protected final Long component_min_ref = null;
+
         /**
          * Instantiates a new parsed RGBAPictureEssenceDescriptor object by virtue of parsing the MXF file bitstream
          *
@@ -92,6 +96,22 @@ public final class RGBAPictureEssenceDescriptor extends GenericPictureEssenceDes
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         RGBAPictureEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
+        }
+
+        /**
+         * Accessor for the ComponentMaxRef UL
+         * @return a long integer representing the maximum value for RGB components
+         */
+        public Long getComponentMaxRef(){
+            return this.component_max_ref;
+        }
+
+        /**
+         * Accessor for the ComponentMinRef UL
+         * @return a long integer representing the minimum value for RGB components
+         */
+        public Long getComponentMinRef(){
+            return this.component_min_ref;
         }
 
         /**

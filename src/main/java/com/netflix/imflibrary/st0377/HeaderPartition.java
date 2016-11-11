@@ -20,32 +20,13 @@ package com.netflix.imflibrary.st0377;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.MXFUID;
-import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
+import com.netflix.imflibrary.st0377.header.*;
+import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
-import com.netflix.imflibrary.st0377.header.ContentStorage;
-import com.netflix.imflibrary.st0377.header.EssenceContainerData;
-import com.netflix.imflibrary.st0377.header.GenericDescriptor;
-import com.netflix.imflibrary.st0377.header.GenericPackage;
-import com.netflix.imflibrary.st0377.header.GenericTrack;
-import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.MaterialPackage;
-import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
-import com.netflix.imflibrary.st0377.header.Preface;
-import com.netflix.imflibrary.st0377.header.RGBAPictureEssenceDescriptor;
-import com.netflix.imflibrary.st0377.header.Sequence;
-import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.SourceClip;
-import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st0377.header.StructuralComponent;
-import com.netflix.imflibrary.st0377.header.StructuralMetadata;
-import com.netflix.imflibrary.st0377.header.TimelineTrack;
-import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -910,20 +891,170 @@ public final class HeaderPartition
         }
     }
 
-    /*
-    L ← Empty list that will contain the sorted nodes
-while there are unmarked nodes do
-    select an unmarked node n
-    visit(n)
-function visit(node n)
-    if n has a temporary mark then stop (not a DAG)
-    if n is not marked (i.e. has not been visited yet) then
-        mark n temporarily
-        for each node m with an edge from n to m do
-            visit(m)
-        mark n permanently
-        add n to head of L
+    /**
+     * A method to verify the presence of an InterchangeObjectBO
+     * @boolean
      */
+    private boolean hasInterchangeObjectBO(Class clazz){
+        String simpleName = clazz.getSimpleName();
+        return  (this.interchangeObjectBOsMap.containsKey(simpleName) && (this.interchangeObjectBOsMap.get(simpleName) != null && this.interchangeObjectBOsMap.get(simpleName).size() > 0));
+    }
+
+    private List<InterchangeObject.InterchangeObjectBO> getInterchangeObjectBOs(Class clazz){
+        String simpleName = clazz.getSimpleName();
+        if(this.interchangeObjectBOsMap.get(simpleName) == null){
+            return Collections.unmodifiableList(new ArrayList<InterchangeObject.InterchangeObjectBO>());
+        }
+        else {
+            return Collections.unmodifiableList(this.interchangeObjectBOsMap.get(simpleName));
+        }
+    }
+
+    /**
+     * A method that returns the coding equation for underlying image essence
+     * @return Enum representing the coding equation
+     */
+    public Colorimetry.CodingEquation getImageCodingEquation() {
+        Colorimetry.CodingEquation codingEquation = Colorimetry.CodingEquation.Unknown;
+        Class clazz = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class;
+        if(hasCDCIPictureEssenceDescriptor()) {
+            clazz = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class;
+        }
+        List<InterchangeObject.InterchangeObjectBO> interchangeObjectBOList = this.getInterchangeObjectBOs(clazz);
+        if(interchangeObjectBOList.size() >0) {
+            GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO genericPictureEssenceDescriptorBO =
+                    GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO.class.cast(interchangeObjectBOList.get(0));
+            codingEquation = Colorimetry.CodingEquation.valueOf(genericPictureEssenceDescriptorBO.getCodingEquationsUL());
+        }
+        return codingEquation;
+    }
+
+    /**
+     * A method that returns the transfer characteristic for underlying image essence
+     * @return Enum representing the transfer characteristic
+     */
+    public Colorimetry.TransferCharacteristic getImageTransferCharacteristic() {
+        Colorimetry.TransferCharacteristic transferCharacteristic = Colorimetry.TransferCharacteristic.Unknown;
+        Class clazz = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class;
+        if(hasCDCIPictureEssenceDescriptor()) {
+            clazz = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class;
+        }
+        List<InterchangeObject.InterchangeObjectBO> interchangeObjectBOList = this.getInterchangeObjectBOs(clazz);
+        if(interchangeObjectBOList.size() >0) {
+            GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO genericPictureEssenceDescriptorBO =
+                    GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO.class.cast(interchangeObjectBOList.get(0));
+            transferCharacteristic = Colorimetry.TransferCharacteristic.valueOf(genericPictureEssenceDescriptorBO.getTransferCharacteristicUL());
+        }
+        return transferCharacteristic;
+    }
+
+    /**
+     * A method that returns the color primaries for underlying image essence
+     * @return Enum representing the color primaries
+     */
+    public Colorimetry.ColorPrimaries getImageColorPrimaries() {
+        Colorimetry.ColorPrimaries colorPrimaries = Colorimetry.ColorPrimaries.Unknown;
+        Class clazz = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class;
+        if(hasCDCIPictureEssenceDescriptor()) {
+            clazz = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class;
+        }
+        List<InterchangeObject.InterchangeObjectBO> interchangeObjectBOList = this.getInterchangeObjectBOs(clazz);
+        if(interchangeObjectBOList.size() >0) {
+            GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO genericPictureEssenceDescriptorBO =
+                    GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO.class.cast(interchangeObjectBOList.get(0));
+            colorPrimaries = Colorimetry.ColorPrimaries.valueOf(genericPictureEssenceDescriptorBO.getColorPrimariesUL());
+        }
+        return colorPrimaries;
+    }
+
+    /**
+     * A method that returns the pixel bit depth of the underlying image essence
+     * @return Integer representing the pixel bit depth
+     */
+    public Integer getImagePixelBitDepth() {
+        Integer pixelBitDepth = 0;
+
+        if(hasCDCIPictureEssenceDescriptor()) {
+            CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO cdciPictureEssenceDescriptorBO = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class.cast(this.getInterchangeObjectBOs
+                    (CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class).get(0));
+            pixelBitDepth = Colorimetry.Quantization.componentRangeToBitDepth(cdciPictureEssenceDescriptorBO.getBlackRefLevel(),
+                    cdciPictureEssenceDescriptorBO.getWhiteRefLevel());
+        } else if(hasRGBAPictureEssenceDescriptor()) {
+            RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO rgbaPictureEssenceDescriptorBO = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class.cast(this
+                    .getInterchangeObjectBOs
+                            (RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class).get(0));
+            pixelBitDepth = Colorimetry.Quantization.componentRangeToBitDepth(rgbaPictureEssenceDescriptorBO.getComponentMinRef(),
+                    rgbaPictureEssenceDescriptorBO.getComponentMaxRef());
+        }
+        return pixelBitDepth;
+    }
+
+    /**
+     * A method that returns the color primaries for underlying image essence
+     * @return Enum representing the quantization type
+     */
+    public Colorimetry.Quantization getImageQuantization() {
+        Colorimetry.Quantization quantization = Colorimetry.Quantization.Unknown;
+        Integer pixelBitDepth = getImagePixelBitDepth();
+        if(hasCDCIPictureEssenceDescriptor()) {
+            CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO cdciPictureEssenceDescriptorBO = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class.cast(this.getInterchangeObjectBOs
+                    (CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class).get(0));
+            quantization =  Colorimetry.Quantization.valueOf(pixelBitDepth, cdciPictureEssenceDescriptorBO.getBlackRefLevel(),
+                    cdciPictureEssenceDescriptorBO.getWhiteRefLevel());
+        } else if(hasRGBAPictureEssenceDescriptor()) {
+            RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO rgbaPictureEssenceDescriptorBO = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class.cast(this
+                    .getInterchangeObjectBOs
+                    (RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class).get(0));
+                quantization = Colorimetry.Quantization.valueOf(pixelBitDepth, rgbaPictureEssenceDescriptorBO.getComponentMinRef(),
+                        rgbaPictureEssenceDescriptorBO.getComponentMaxRef());
+        }
+        return quantization;
+    }
+
+    /**
+     * A method that returns the color model for underlying image essence
+     * @return Enum representing the color model
+     */
+    public Colorimetry.ColorModel getImageColorModel() {
+        if(hasCDCIPictureEssenceDescriptor()) {
+            return Colorimetry.ColorModel.YUV;
+        }
+        else if(hasRGBAPictureEssenceDescriptor()) {
+            return Colorimetry.ColorModel.RGB;
+        }
+        return Colorimetry.ColorModel.Unknown;
+    }
+
+    /**
+     * A method that returns the chroma sampling for underlying image essence
+     * @return Enum representing the chroma sampling
+     */
+    public Colorimetry.Sampling getImageSampling() {
+        if (hasRGBAPictureEssenceDescriptor()) {
+            return Colorimetry.Sampling.Sampling444;
+        } else if (hasCDCIPictureEssenceDescriptor()) {
+            CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO cdciPictureEssenceDescriptorBO = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class.cast(this.getInterchangeObjectBOs
+                    (CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class).get(0));
+            return Colorimetry.Sampling.valueOf(cdciPictureEssenceDescriptorBO.getHorizontal_subsampling().intValue(),
+                    cdciPictureEssenceDescriptorBO.getVertical_subsampling().intValue());
+        }
+        return Colorimetry.Sampling.Unknown;
+    }
+
+    /*
+        L ← Empty list that will contain the sorted nodes
+    while there are unmarked nodes do
+        select an unmarked node n
+        visit(n)
+    function visit(node n)
+        if n has a temporary mark then stop (not a DAG)
+        if n is not marked (i.e. has not been visited yet) then
+            mark n temporarily
+            for each node m with an edge from n to m do
+                visit(m)
+            mark n permanently
+            add n to head of L
+         */
     private static List<Node> resolve(List<Node> adjacencyList)
     {
         List<Node> sortedList = new LinkedList<>();

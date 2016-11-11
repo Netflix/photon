@@ -74,6 +74,8 @@ public final class CDCIPictureEssenceDescriptor extends GenericPictureEssenceDes
         @MXFProperty(size=4) private final Long component_depth = null;
         @MXFProperty(size=4) private final Long horizontal_subsampling = null;
         @MXFProperty(size=4) private final Long vertical_subsampling = null;
+        @MXFProperty(size=4) protected final Long black_ref_level = null;
+        @MXFProperty(size=4) protected final Long white_ref_level = null;
 
         /**
          * Instantiates a new parsed CDCIPictureEssenceDescriptor object by virtue of parsing the MXF file bitstream
@@ -97,6 +99,38 @@ public final class CDCIPictureEssenceDescriptor extends GenericPictureEssenceDes
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         CDCIPictureEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
+        }
+
+        /**
+         * Accessor for the horizontal sampling
+         * @return a long integer representing the horizontal sampling
+         */
+        public Long getHorizontal_subsampling() {
+            return horizontal_subsampling;
+        }
+
+        /**
+         * Accessor for the vertical sampling
+         * @return a long integer representing the vertical sampling
+         */
+        public Long getVertical_subsampling() {
+            return vertical_subsampling;
+        }
+
+        /**
+         * Accessor for the BlackRefLevel UL
+         * @return a long integer representing the luminance value for black
+         */
+        public Long getBlackRefLevel(){
+            return this.black_ref_level;
+        }
+
+        /**
+         * Accessor for the WhiteRefLevel UL
+         * @return a long integer representing the luminance value for white
+         */
+        public Long getWhiteRefLevel(){
+            return this.white_ref_level;
         }
 
         /**

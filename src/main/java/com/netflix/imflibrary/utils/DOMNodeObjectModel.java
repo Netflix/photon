@@ -521,12 +521,12 @@ public class DOMNodeObjectModel {
     }
 
     /**
-     * A method to obtain value of a field within DOMNodeObjectModel as a String
+     * A method to obtain value of a field within DOMNodeObjectModel as a Long
      * @param name the LocalName for the field
-     * @return Returns field value as a Number
+     * @return Returns field value as a Long
      */
     @Nullable
-    public Long getFieldAsNumber(String name) {
+    public Long getFieldAsLong(String name) {
         String value = getFieldAsString(name);
         try {
             if(value != null)
