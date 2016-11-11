@@ -1,13 +1,14 @@
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
 import com.netflix.imflibrary.st0377.header.UL;
-import com.netflix.imflibrary.utils.Fraction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by svenkatrav on 10/31/16.
@@ -18,7 +19,7 @@ public enum Colorimetry {
     Color3(ColorPrimaries.ITU709,     TransferCharacteristic.ITU709,            CodingEquation.ITU709),
     Color4(ColorPrimaries.ITU709,     TransferCharacteristic.IEC6196624xvYCC,   CodingEquation.ITU709),
     Color5(ColorPrimaries.ITU2020,    TransferCharacteristic.ITU2020,           CodingEquation.ITU2020NCL),
-    Color6(ColorPrimaries.P3D65,      TransferCharacteristic.ITU2020,           CodingEquation.None),
+    Color6(ColorPrimaries.P3D65,      TransferCharacteristic.SMPTEST2084,       CodingEquation.None),
     Color7(ColorPrimaries.ITU2020,    TransferCharacteristic.SMPTEST2084,       CodingEquation.ITU2020NCL),
     Unknown(ColorPrimaries.Unknown,   TransferCharacteristic.Unknown,           CodingEquation.Unknown);
 
@@ -135,10 +136,10 @@ public enum Colorimetry {
 
     static class ComponentLevel {
         private final Integer bitDepth;
-        private final Integer minLevel;
-        private final Integer maxLevel;
+        private final Long minLevel;
+        private final Long maxLevel;
 
-        public ComponentLevel(@Nonnull Integer bitDepth, @Nonnull Integer minLevel, @Nonnull Integer maxLevel) {
+        public ComponentLevel(@Nonnull Integer bitDepth, @Nonnull Long minLevel, @Nonnull Long maxLevel) {
             this.bitDepth = bitDepth;
             this.minLevel = minLevel;
             this.maxLevel = maxLevel;
@@ -148,11 +149,11 @@ public enum Colorimetry {
             return bitDepth;
         }
 
-        public @Nonnull Integer getMaxLevel() {
+        public @Nonnull Long getMaxLevel() {
             return maxLevel;
         }
 
-        public @Nonnull Integer getMinLevel() {
+        public @Nonnull Long getMinLevel() {
             return minLevel;
         }
 
@@ -174,23 +175,23 @@ public enum Colorimetry {
         {
             Integer hash = 1;
             hash = hash *31 + this.getBitDepth();
-            hash = hash *31 + this.getMaxLevel();
-            hash = hash *31 + this.getMinLevel();
+            hash = hash *31 + this.getMaxLevel().intValue();
+            hash = hash *31 + this.getMinLevel().intValue();
             return hash;
         }
     }
 
     public static enum Quantization {
         QE1(new HashSet<ComponentLevel>() {{
-            add(new ComponentLevel(8, 16, 235));
-            add(new ComponentLevel(10, 64, 940));
-            add(new ComponentLevel(12, 256, 3760));
-            add(new ComponentLevel(16, 4096, 60160)); }} ),
+            add(new ComponentLevel(8, 16L, 235L));
+            add(new ComponentLevel(10, 64L, 940L));
+            add(new ComponentLevel(12, 256L, 3760L));
+            add(new ComponentLevel(16, 4096L, 60160L)); }} ),
         QE2(new HashSet<ComponentLevel>() {{
-            add(new ComponentLevel(8, 0, 255));
-            add(new ComponentLevel(10, 0, 1023));
-            add(new ComponentLevel(12, 0, 4095));
-            add(new ComponentLevel(16, 0, 65535)); }} ),
+            add(new ComponentLevel(8, 0L, 255L));
+            add(new ComponentLevel(10, 0L, 1023L));
+            add(new ComponentLevel(12, 0L, 4095L));
+            add(new ComponentLevel(16, 0L, 65535L)); }} ),
         Unknown(new HashSet<>());
 
         private final Set<ComponentLevel> componentLevels;
@@ -203,7 +204,7 @@ public enum Colorimetry {
             return this.componentLevels;
         }
 
-        public static @Nonnull Quantization valueOf(@Nonnull Integer pixelBitDepth, @Nonnull Integer minLevel, @Nonnull Integer maxLevel) {
+        public static @Nonnull Quantization valueOf(@Nonnull Integer pixelBitDepth, @Nonnull Long minLevel, @Nonnull Long maxLevel) {
             ComponentLevel componentLevel = new ComponentLevel(pixelBitDepth, minLevel, maxLevel);
             for(Quantization quantization: Quantization.values()) {
                 if(quantization.getComponentLevels().contains(componentLevel)) {
@@ -211,6 +212,17 @@ public enum Colorimetry {
                 }
             }
             return Unknown;
+        }
+
+        public static @Nonnull Integer componentRangeToBitDepth(@Nonnull Long minLevel, @Nonnull Long maxLevel) {
+            for(Quantization quantization: Quantization.values()) {
+                List<Integer> bitDepths = quantization.getComponentLevels().stream()
+                        .filter( e -> e.getMaxLevel().equals(maxLevel) && e.getMinLevel().equals(minLevel)).map(e -> e.bitDepth).collect(Collectors.toList());
+                if(bitDepths.size() == 1) {
+                    return bitDepths.get(0);
+                }
+            }
+            return 0;
         }
     }
 
@@ -243,12 +255,12 @@ public enum Colorimetry {
         }
     }
 
-    public static enum ColorSpace {
+    public static enum ColorModel {
         RGB(new HashSet<RGBAComponentType>() {{ add(RGBAComponentType.Red); add(RGBAComponentType.Green); add(RGBAComponentType.Blue);}}),
         YUV(new HashSet<RGBAComponentType>() {{ add(RGBAComponentType.Luma); add(RGBAComponentType.ChromaU); add(RGBAComponentType.ChromaV);}}),
         Unknown(new HashSet<>());
         private final Set<RGBAComponentType> componentTypeSet;
-        ColorSpace(@Nonnull Set<RGBAComponentType> componentTypeSet) {
+        ColorModel(@Nonnull Set<RGBAComponentType> componentTypeSet) {
             this.componentTypeSet = componentTypeSet;
         }
 

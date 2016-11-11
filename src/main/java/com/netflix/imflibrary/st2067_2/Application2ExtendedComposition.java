@@ -1,10 +1,11 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
-import com.netflix.imflibrary.st2067_2.Colorimetry.*;
+import com.netflix.imflibrary.Colorimetry.*;
 
 
 import javax.annotation.Nonnull;
@@ -88,8 +89,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
     {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
 
-        ColorSpace colorSpace = imageEssenceDescriptorModel.getColorSpace();
-        if( !colorSpace.equals(ColorSpace.RGB) && !colorSpace.equals(ColorSpace.YUV)) {
+        ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
+        if( !colorModel.equals(ColorModel.RGB) && !colorModel.equals(ColorModel.YUV)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has Invalid Picture Essence Descriptor as per Application#2 Composition",
@@ -99,22 +100,22 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
 
         //storedWidth
         Integer storedWidth = imageEssenceDescriptorModel.getStoredWidth();
-        if (((colorSpace.equals(ColorSpace.RGB) && storedWidth > MAX_RGB_IMAGE_FRAME_WIDTH) ||
-                (colorSpace.equals(ColorSpace.YUV) && storedWidth > MAX_YUV_IMAGE_FRAME_WIDTH))) {
+        if (((colorModel.equals(ColorModel.RGB) && storedWidth > MAX_RGB_IMAGE_FRAME_WIDTH) ||
+                (colorModel.equals(ColorModel.YUV) && storedWidth > MAX_YUV_IMAGE_FRAME_WIDTH))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid StoredWidth(%d) for ColorSpace(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), storedWidth, colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has invalid StoredWidth(%d) for ColorModel(%s) as per Application#2E specification",
+                            imageEssenceDescriptorID.toString(), storedWidth, colorModel.name()));
         }
 
         //storedHeight
         Integer storedHeight = imageEssenceDescriptorModel.getStoredHeight();
-        if (((colorSpace.equals(ColorSpace.RGB) && storedHeight > MAX_RGB_IMAGE_FRAME_HEIGHT) ||
-                        (colorSpace.equals(ColorSpace.YUV) && storedHeight > MAX_YUV_IMAGE_FRAME_HEIGHT))) {
+        if (((colorModel.equals(ColorModel.RGB) && storedHeight > MAX_RGB_IMAGE_FRAME_HEIGHT) ||
+                        (colorModel.equals(ColorModel.YUV) && storedHeight > MAX_YUV_IMAGE_FRAME_HEIGHT))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid storedHeight(%d) for ColorSpace(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), storedHeight, colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has invalid storedHeight(%d) for ColorModel(%s) as per Application#2E specification",
+                            imageEssenceDescriptorID.toString(), storedHeight, colorModel.name()));
         }
 
         //PixelBitDepth
@@ -138,32 +139,32 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
 
         //SampleRate
         Fraction sampleRate = imageEssenceDescriptorModel.getSampleRate();
-        Set<Fraction> frameRateSupported = colorSpace.equals(ColorSpace.RGB) ? rgbaSampleRateSupported : yuvSampleRateSupported;
+        Set<Fraction> frameRateSupported = colorModel.equals(ColorModel.RGB) ? rgbaSampleRateSupported : yuvSampleRateSupported;
         if (!frameRateSupported.contains(sampleRate)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid SampleRate(%s) for ColorSpace(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), sampleRate.toString(), colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid SampleRate(%s) for ColorModel(%s) as per Application#2E specification",
+                            imageEssenceDescriptorID.toString(), sampleRate.toString(), colorModel.name()));
         }
 
         //Sampling
         Sampling sampling = imageEssenceDescriptorModel.getSampling();
-        if((colorSpace.equals(ColorSpace.RGB) && !sampling.equals(Sampling.Sampling444)) ||
-                (colorSpace.equals(ColorSpace.YUV) && !sampling.equals(Sampling.Sampling422))) {
+        if((colorModel.equals(ColorModel.RGB) && !sampling.equals(Sampling.Sampling444)) ||
+                (colorModel.equals(ColorModel.YUV) && !sampling.equals(Sampling.Sampling422))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid Sampling(%s) for ColorSpace(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), sampling.name(), colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid Sampling(%s) for ColorModel(%s) as per Application#2E specification",
+                            imageEssenceDescriptorID.toString(), sampling.name(), colorModel.name()));
         }
 
         //Quantization
         Quantization quantization = imageEssenceDescriptorModel.getQuantization();
-        if((colorSpace.equals(ColorSpace.RGB) && !(quantization.equals(Quantization.QE2) || quantization.equals(Quantization.QE1))) ||
-                (colorSpace.equals(ColorSpace.YUV) && !quantization.equals(Quantization.QE1))) {
+        if((colorModel.equals(ColorModel.RGB) && !(quantization.equals(Quantization.QE2) || quantization.equals(Quantization.QE1))) ||
+                (colorModel.equals(ColorModel.YUV) && !quantization.equals(Quantization.QE1))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid Quantization(%s) for ColorSpace(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), quantization.name(), colorSpace.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid Quantization(%s) for ColorModel(%s) as per Application#2E specification",
+                            imageEssenceDescriptorID.toString(), quantization.name(), colorModel.name()));
         }
     }
 }

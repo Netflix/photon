@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
@@ -8,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
-import static com.netflix.imflibrary.st2067_2.Colorimetry.*;
+import static com.netflix.imflibrary.Colorimetry.*;
 
 /**
  * A class that models Composition with Application 2 constraints from 2067-20 specification
@@ -59,8 +60,8 @@ public class Application2Composition extends AbstractApplicationComposition {
             imfErrorLogger)
     {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
-        ColorSpace colorSpace = imageEssenceDescriptorModel.getColorSpace();
-        if( colorSpace.equals(ColorSpace.Unknown)) {
+        ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
+        if( colorModel.equals(ColorModel.Unknown)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has Invalid Picture Essence Descriptor as per Application#2 Composition",
@@ -126,8 +127,8 @@ public class Application2Composition extends AbstractApplicationComposition {
     {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
 
-        ColorSpace colorSpace = imageEssenceDescriptorModel.getColorSpace();
-        if( !colorSpace.equals(ColorSpace.RGB) && !colorSpace.equals(ColorSpace.YUV)) {
+        ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
+        if( !colorModel.equals(ColorModel.RGB) && !colorModel.equals(ColorModel.YUV)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has Invalid Picture Essence Descriptor as per Application#2 Composition",
@@ -195,13 +196,13 @@ public class Application2Composition extends AbstractApplicationComposition {
         Quantization quantization = imageEssenceDescriptorModel.getQuantization();
         Colorimetry color = imageEssenceDescriptorModel.getColor();
         if((sampling.equals(Sampling.Sampling422) &&
-                !(quantization.equals(Quantization.QE1) && colorSpace.equals(ColorSpace.YUV))) ||
+                !(quantization.equals(Quantization.QE1) && colorModel.equals(ColorModel.YUV))) ||
                 (quantization.equals(Quantization.QE2) &&
-                        !(colorSpace.equals(ColorSpace.RGB) && color.equals(Colorimetry.Color3)))) {
+                        !(colorModel.equals(ColorModel.RGB) && color.equals(Colorimetry.Color3)))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid combination of quantization(%s)-Sampling(%s)-colorSpace(%s)-color(%s) as per Application#2 specification",
-                            imageEssenceDescriptorID.toString(), quantization.name(), sampling.name(), colorSpace.name(), color.name() ));
+                    String.format("EssenceDescriptor with ID %s has invalid combination of quantization(%s)-Sampling(%s)-colorModel(%s)-color(%s) as per Application#2 specification",
+                            imageEssenceDescriptorID.toString(), quantization.name(), sampling.name(), colorModel.name(), color.name() ));
         }
     }
 }

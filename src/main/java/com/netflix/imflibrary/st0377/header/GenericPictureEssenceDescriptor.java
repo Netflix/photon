@@ -21,9 +21,6 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
-import com.netflix.imflibrary.st2067_2.Colorimetry;
-
-import java.util.Enumeration;
 
 /**
  * Object model corresponding to GenericPictureEssenceDescriptor structural metadata set defined in st377-1:2011
@@ -65,6 +62,10 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         @MXFProperty(size=0) protected final CompoundDataTypes.Rational aspect_ratio = null;
         @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Integer> video_line_map = null;
         @MXFProperty(size=16) protected final UL picture_essence_coding = null;
+        @MXFProperty(size=16) protected final UL color_primaries = null;
+        @MXFProperty(size=16) protected final UL coding_equations = null;
+        @MXFProperty(size=16) protected final UL transfer_characteristic = null;
+
 
         /**
          * Constructor for a File descriptor ByteObject.
@@ -74,6 +75,31 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         GenericPictureEssenceDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
+
+        /**
+         * Accessor for the ColorPrimaries UL
+         * @return a UL representing the ColorPrimaries
+         */
+        public UL getColorPrimariesUL(){
+            return this.color_primaries;
+        }
+
+        /**
+         * Accessor for the CodingEquations UL
+         * @return a UL representing the CodingEquations
+         */
+        public UL getCodingEquationsUL(){
+            return this.coding_equations;
+        }
+
+        /**
+         * Accessor for the TransferCharacteristic UL
+         * @return a UL representing the TransferCharacteristic
+         */
+        public UL getTransferCharacteristicUL(){
+            return this.transfer_characteristic;
+        }
+
     }
 
     public static enum RGBAComponentType {

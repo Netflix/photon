@@ -16,13 +16,18 @@
 
 package com.netflix.imflibrary.st0377;
 
+import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -175,6 +180,58 @@ public class HeaderPartitionTest
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
         Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertEquals(headerPartition.getImageColorModel(), Colorimetry.ColorModel.YUV);
+        Assert.assertEquals(headerPartition.getImageCodingEquation(), Colorimetry.CodingEquation.ITU709);
+        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.Unknown);
+        Assert.assertEquals(headerPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.ITU709);
+        Assert.assertEquals(headerPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
+        Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling422);
+        Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 10);
+
+
+        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
+    }
+
+    @Test
+    public void videoHeaderPartitionTest2() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long rangeEnd = archiveFileSize - 1;
+        long rangeStart = archiveFileSize - 4;
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
+        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+
+        rangeStart = archiveFileSize - randomIndexPackSize;
+        rangeEnd = archiveFileSize - 1;
+
+        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
+        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+
+        rangeStart = partitionByteOffsets.get(0);
+        rangeEnd = partitionByteOffsets.get(1) - 1;
+        byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
+
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+        Assert.assertTrue(headerPartition.toString().length() > 0);
+        Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertEquals(headerPartition.getImageColorModel(), Colorimetry.ColorModel.RGB);
+        Assert.assertEquals(headerPartition.getImageCodingEquation(), Colorimetry.CodingEquation.Unknown);
+        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.ITU2020);
+        Assert.assertEquals(headerPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.SMPTEST2084);
+        Assert.assertEquals(headerPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
+        Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling444);
+        Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 12);
+
+
         Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
         Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
     }
