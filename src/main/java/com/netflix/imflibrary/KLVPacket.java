@@ -51,6 +51,9 @@ public final class KLVPacket
     private static final byte[] KLV_FILL_ITEM_KEY_MASK = {   1,    1,     1,    1,    1,    1,   1,    0,    1,    1,    1,     1,    1,   1,    1,    1};
 
     private static final byte[] PHDR_IMAGE_METADATA_ITEM_KEY = {0x06, 0x0E, 0x2B, 0x34, 0x01, 0x02, 0x01, 0x05, 0x0E, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
+    //the following mask can be used to ignore byte values in 8th and 16th positions
+    private static final byte[] PHDR_IMAGE_METADATA_ITEM_KEY_MASK = {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0};
+
     private static final byte[] GENERIC_STREAM_PARTITION_DATA_ELEMENT_KEY = {0x06, 0x0E, 0x2B, 0x34, 0x01, 0x01, 0x01, 0x0C, 0x0D, 0x01, 0x05, 0x09, 0x01, 0x00, 0x00, 0x00};
 
     /**
@@ -79,7 +82,14 @@ public final class KLVPacket
      */
     public static boolean isPHDRImageMetadataItemKey(byte[] key)
     {
-        return Arrays.equals(key, KLVPacket.PHDR_IMAGE_METADATA_ITEM_KEY);
+        for (int i=0; i<KLVPacket.KEY_FIELD_SIZE; i++)
+        {
+            if ((KLVPacket.PHDR_IMAGE_METADATA_ITEM_KEY_MASK[i] != 0) && (key[i] != KLVPacket.PHDR_IMAGE_METADATA_ITEM_KEY[i]))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
