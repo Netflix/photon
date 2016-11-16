@@ -75,7 +75,8 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
         DocumentBuilder docBuilder = null;
         docBuilder = docFactory.newDocumentBuilder();
         Document document = docBuilder.newDocument();
-        Assert.assertTrue(imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfTrackFileReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0)), subDescriptorHeaders) != null);
+        Assert.assertTrue(imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, imfTrackFileReader.getEssenceDescriptorKLVHeader(essenceDescriptors.get(0)), subDescriptorHeaders, imfErrorLogger) !=
+                null);
     }
 
     @Test

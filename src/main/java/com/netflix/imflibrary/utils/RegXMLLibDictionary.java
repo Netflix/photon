@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
@@ -37,6 +39,8 @@ import com.sandflow.smpte.regxml.dict.definitions.RecordTypeDefinition;
 import com.sandflow.smpte.util.AUID;
 import com.sandflow.smpte.util.UL;
 import com.sandflow.smpte.util.UUID;
+import com.sandflow.util.events.Event;
+import com.sandflow.util.events.EventHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 
@@ -85,7 +89,22 @@ public final class RegXMLLibDictionary {
             GroupsRegister greg = GroupsRegister.fromXML(groupsRegister);
             TypesRegister treg = TypesRegister.fromXML(typesRegister);
 
-            this.metaDictionaryCollection = fromRegister(treg, greg, ereg);
+            IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+            RegxmlValidationEventHandlerImpl handler = new RegxmlValidationEventHandlerImpl(true);
+            this.metaDictionaryCollection = fromRegister(treg, greg, ereg, handler);
+            if (handler.hasErrors()) {
+                handler.getErrors().stream()
+                        .map(e -> new ErrorLogger.ErrorObject(
+                                IMFErrorLogger.IMFErrors.ErrorCodes.SMPTE_REGISTER_PARSE_ERROR,
+                                e.getValidationEventSeverity(),
+                                "Error code : " + e.getCode().name() + " - " + e.getErrorMessage())
+                        )
+                        .forEach(imfErrorLogger::addError);
+
+                if(imfErrorLogger.hasFatalErrors()) {
+                    throw new IMFException(handler.toString(), imfErrorLogger);
+                }
+            }
             in.close();
         }
         catch (Exception e){

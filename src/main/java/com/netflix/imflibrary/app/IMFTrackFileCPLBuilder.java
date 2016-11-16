@@ -210,7 +210,7 @@ final class IMFTrackFileCPLBuilder {
                 essenceDescriptorBaseType.setId(uuid);
                 uuidList.add(uuid);
 
-                DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, essenceDescriptorHeader, subDescriptorHeaders);
+                DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, essenceDescriptorHeader, subDescriptorHeaders, imfErrorLogger);
                 Node node = documentFragment.getFirstChild();
 
                 essenceDescriptorBaseType.getAny().add(node);
@@ -366,14 +366,15 @@ final class IMFTrackFileCPLBuilder {
      * @throws MXFException - any MXF standard related non-compliance will be exposed through a MXF exception
      * @throws TransformerException - any XML transformation critical error will be exposed through a TransformerException
      */
-    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException, TransformerException {
+    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws MXFException, IOException,
+            TransformerException {
 
         File outputFile = new File(this.workingDirectory + "/" + "EssenceDescriptor.xml");
 
         document.setXmlStandalone(true);
 
 
-        DocumentFragment documentFragment = getEssenceDescriptorAsDocumentFragment(document, essenceDescriptor, subDescriptors);
+        DocumentFragment documentFragment = getEssenceDescriptorAsDocumentFragment(document, essenceDescriptor, subDescriptors, imfErrorLogger);
         document.appendChild(documentFragment);
 
         /* write DOM to file */
@@ -396,7 +397,8 @@ final class IMFTrackFileCPLBuilder {
         return outputFile;
     }
 
-    private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors) throws MXFException, IOException {
+    private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws
+            MXFException, IOException {
         document.setXmlStandalone(true);
 
         Triplet essenceDescriptorTriplet = this.regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.imfTrackFileReader.getByteProvider(essenceDescriptor));
@@ -406,7 +408,7 @@ final class IMFTrackFileCPLBuilder {
         for(KLVPacket.Header subDescriptorHeader : subDescriptors){
             subDescriptorTriplets.add(this.regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.imfTrackFileReader.getByteProvider(subDescriptorHeader)));
         }
-        return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+        return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, imfErrorLogger);
     }
 
     private static String usage()

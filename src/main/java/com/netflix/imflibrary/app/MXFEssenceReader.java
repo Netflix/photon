@@ -252,7 +252,7 @@ public class MXFEssenceReader {
         for(KLVPacket.Header subDescriptorHeader : subDescriptors){
             subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(subDescriptorHeader)));
         }
-        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, this.imfErrorLogger);
     }
 
     private KLVPacket.Header getPrimerPackHeader() throws IOException {
