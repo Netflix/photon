@@ -300,7 +300,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 8);
+        Assert.assertTrue(errors.size() == 9);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL"));
     }
@@ -327,7 +327,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(2), payloadRecords);
-        Assert.assertTrue(errors.size() == 3);
+        Assert.assertEquals(errors.size(), 4);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -335,7 +335,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 3);
+        Assert.assertEquals(errors.size(), 4);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -368,7 +368,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
-        Assert.assertTrue(errors.size() == 19);
+        Assert.assertEquals(errors.size(), 20);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -376,7 +376,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertTrue(errors.size() == 5);
+        Assert.assertEquals(errors.size(), 6);
     }
 
     @Test
@@ -472,7 +472,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
 
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, applicationComposition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
-        Assert.assertTrue(conformanceErrors.size() == 4);
+        Assert.assertEquals(conformanceErrors.size(), 5);
     }
 
     private byte[] getHeaderPartition(File inputFile) throws IOException {

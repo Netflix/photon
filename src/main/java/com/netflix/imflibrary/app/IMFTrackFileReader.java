@@ -722,7 +722,7 @@ final class IMFTrackFileReader
                 /*Output file containing the RegXML representation of the EssenceDescriptor*/
                     KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
                     List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
-                    File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders);
+                    File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders, imfErrorLogger);
                     logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.getAbsolutePath()));
                 }
             } catch (ParserConfigurationException | TransformerException e) {

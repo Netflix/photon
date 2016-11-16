@@ -75,7 +75,7 @@ public class DOMNodeObjectModelTest {
             for (KLVPacket.Header subDescriptorHeader : subDescriptorHeaders) {
                 subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider1, subDescriptorHeader)));
             }
-            DocumentFragment documentFragment = regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+            DocumentFragment documentFragment = regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, imfErrorLogger1);
             Node node = documentFragment.getFirstChild();
             essenceDescriptorNodes1.add(node);
             essenceDescriptorDOMNodeObjectModels1.add(new DOMNodeObjectModel(node));
