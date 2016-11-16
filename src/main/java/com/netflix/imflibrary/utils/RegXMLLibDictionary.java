@@ -20,37 +20,21 @@ package com.netflix.imflibrary.utils;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.exceptions.MXFException;
-import com.sandflow.smpte.klv.*;
-import com.sandflow.smpte.klv.exceptions.KLVException;
-import com.sandflow.smpte.mxf.PrimerPack;
-import com.sandflow.smpte.mxf.Set;
 import com.sandflow.smpte.register.ElementsRegister;
 import com.sandflow.smpte.register.GroupsRegister;
 import com.sandflow.smpte.register.TypesRegister;
-import com.sandflow.smpte.regxml.FragmentBuilder;
 import com.sandflow.smpte.regxml.dict.DefinitionResolver;
 import com.sandflow.smpte.regxml.dict.MetaDictionaryCollection;
 import com.sandflow.smpte.regxml.dict.definitions.Definition;
 import com.sandflow.smpte.regxml.dict.definitions.EnumerationTypeDefinition;
 import com.sandflow.smpte.regxml.dict.definitions.RecordTypeDefinition;
 import com.sandflow.smpte.util.AUID;
-import com.sandflow.smpte.util.UL;
-import com.sandflow.smpte.util.UUID;
-import com.sandflow.util.events.Event;
-import com.sandflow.util.events.EventHandler;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,7 +79,7 @@ public final class RegXMLLibDictionary {
             if (handler.hasErrors()) {
                 handler.getErrors().stream()
                         .map(e -> new ErrorLogger.ErrorObject(
-                                IMFErrorLogger.IMFErrors.ErrorCodes.SMPTE_REGISTER_PARSE_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorCodes.SMPTE_REGISTER_PARSING_ERROR,
                                 e.getValidationEventSeverity(),
                                 "Error code : " + e.getCode().name() + " - " + e.getErrorMessage())
                         )

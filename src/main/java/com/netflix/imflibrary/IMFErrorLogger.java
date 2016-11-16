@@ -134,9 +134,9 @@ public interface IMFErrorLogger extends ErrorLogger
             APPLICATION_COMPOSITION_ERROR ("Application Composition error"),
 
             /**
-             * SMPTE_REGISTER_PARSE_ERROR.
+             * SMPTE_REGISTER_PARSING_ERROR.
              */
-            SMPTE_REGISTER_PARSE_ERROR ("SMPTE Register parsing error");
+            SMPTE_REGISTER_PARSING_ERROR("SMPTE Register parsing error");
 
             private final String error;
 
