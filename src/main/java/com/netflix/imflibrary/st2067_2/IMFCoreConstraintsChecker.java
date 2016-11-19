@@ -57,7 +57,8 @@ final class IMFCoreConstraintsChecker {
 
             //TODO: Support for subtitle sequence needed
             if (!(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence))) {
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon",
                                 virtualTrack.getSequenceTypeEnum().toString()));
