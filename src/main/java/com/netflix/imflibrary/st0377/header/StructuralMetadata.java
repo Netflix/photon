@@ -596,6 +596,10 @@ public final class StructuralMetadata
                     return Object.class; //Application Referenced Object
                 case 0x48 :
                     return WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO.class;
+                case 0x64 :
+                    return TimedTextDescriptor.TimedTextDescriptorBO.class;
+                case 0x65 :
+                    return TimeTextResourceSubDescriptor.TimeTextResourceSubdescriptorBO.class;
                 case 0x6b :
                     return AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class;
                 case 0x6c :
