@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.utils.ByteProvider;
 
 import javax.annotation.concurrent.Immutable;
@@ -58,6 +59,9 @@ public final class TimeTextResourceSubDescriptor extends SubDescriptor {
      */
     @Immutable
     public static final class TimeTextResourceSubdescriptorBO extends SubDescriptorBO{
+        @MXFProperty(size=4) private final Long body_SID = null;
+        @MXFProperty(size=16) protected final byte[] generation_uid = null;
+
         /**
          * Instantiates a new time text resource sub descriptor ByteObject.
          *
