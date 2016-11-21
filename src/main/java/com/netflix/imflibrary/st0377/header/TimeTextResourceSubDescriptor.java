@@ -59,7 +59,7 @@ public final class TimeTextResourceSubDescriptor extends SubDescriptor {
      */
     @Immutable
     public static final class TimeTextResourceSubdescriptorBO extends SubDescriptorBO{
-        @MXFProperty(size=4) private final Long body_SID = null;
+        @MXFProperty(size=4) private final Long body_sid = null;
         @MXFProperty(size=16) protected final byte[] generation_uid = null;
 
         /**
