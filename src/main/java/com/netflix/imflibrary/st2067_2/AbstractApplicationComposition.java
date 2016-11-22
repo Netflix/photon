@@ -92,6 +92,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      *
      * @param imfCompositionPlaylistType corresponding to the Composition XML file.
      *                                  if any {@link IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @param ignoreSet Set of essence descriptor fields to ignore in track homogeneity check
      */
     public AbstractApplicationComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, @Nonnull Set<String> ignoreSet) {
         imfErrorLogger = new IMFErrorLoggerImpl();

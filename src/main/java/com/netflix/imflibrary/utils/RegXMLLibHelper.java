@@ -90,6 +90,7 @@ public final class RegXMLLibHelper {
      * A utility method that provides an XML Document fragment representing an MXF KLV triplet
      * @param triplet the KLV triplet that needs to be serialized to an XML document fragment
      * @param document the XML document that the document fragment is associated with
+     * @param imfErrorLogger Logger for recording any errors
      * @return An XML DOM DocumentFragment
      * @throws MXFException if any error occurs while trying to create the document fragment
      */
@@ -129,6 +130,7 @@ public final class RegXMLLibHelper {
      * @param essenceDescriptorTriplet - a KLV triplet corresponding to an Essence Descriptor
      * @param document an XML document
      * @param subDescriptorTriplets list of triplets corresponding to the subdescriptors referred by the essenceDescriptor
+     * @param imfErrorLogger Logger for recording any errors
      * @return An XML DOM DocumentFragment
      * @throws MXFException if any error occurs while trying to create the document fragment
      */
