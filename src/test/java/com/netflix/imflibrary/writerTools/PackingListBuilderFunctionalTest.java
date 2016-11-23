@@ -105,7 +105,7 @@ public class PackingListBuilderFunctionalTest {
 
         resourceByteRangeProvider = new FileByteRangeProvider(pklOutputFile);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         //Destroy the temporary working directory
         tempDir.delete();
