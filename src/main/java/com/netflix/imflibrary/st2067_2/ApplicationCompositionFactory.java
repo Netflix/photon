@@ -18,11 +18,14 @@
 
 package com.netflix.imflibrary.st2067_2;
 
+import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -33,12 +36,46 @@ import java.util.*;
  * This class provides a factory method to construct ApplicationComposition based on CPL ApplicationIdentification.
  */
 public class ApplicationCompositionFactory {
-    private static final Map<String, Class> supportedApplicationClassMap = Collections.unmodifiableMap(new HashMap<String, Class>() {{
-        put("http://www.smpte-ra.org/schemas/2067-20/2013", Application2Composition.class);
-        put("http://www.smpte-ra.org/schemas/2067-20/2016", Application2Composition.class);
-        put("http://www.smpte-ra.org/schemas/2067-21/2014", Application2ExtendedComposition.class);
-        put("http://www.smpte-ra.org/schemas/2067-21/2016", Application2ExtendedComposition.class);
+    private static final Set<String> namespacesApplication2Composition = Collections.unmodifiableSet(new HashSet<String>() {{
+        add("http://www.smpte-ra.org/schemas/2067-20/2013");
+        add("http://www.smpte-ra.org/schemas/2067-20/2016");
     }});
+
+    private static final Set<String> namespacesApplication2EComposition = Collections.unmodifiableSet(new HashSet<String>() {{
+        add("http://www.smpte-ra.org/schemas/2067-21/2014");
+        add("http://www.smpte-ra.org/schemas/2067-21/2016");
+    }});
+
+    public enum ApplicationCompositionType {
+        APPLICATION_2_COMPOSITION_TYPE(Application2Composition.class,          namespacesApplication2Composition),
+        APPLICATION_2E_COMPOSITION_TYPE(Application2ExtendedComposition.class, namespacesApplication2EComposition);
+        private Set<String> nameSpaceSet;
+        private Class<?> clazz;
+
+        ApplicationCompositionType(Class<?> clazz, Set<String> nameSpaceSet) {
+            this.nameSpaceSet = nameSpaceSet;
+            this.clazz = clazz;
+        }
+
+        public Class<?> getClazz() {
+            return clazz;
+        }
+
+        public Set<String> getNameSpaceSet() {
+            return nameSpaceSet;
+        }
+
+        public static @Nullable ApplicationCompositionType fromApplicationID(String applicationIdentification) {
+
+            for(ApplicationCompositionType applicationCompositionType : ApplicationCompositionType.values()) {
+                if(applicationCompositionType.getNameSpaceSet().contains(applicationIdentification)) {
+                    return applicationCompositionType;
+                }
+            }
+
+            return null;
+        }
+    }
 
     public static ApplicationComposition getApplicationComposition(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
         return getApplicationComposition(new FileByteRangeProvider(inputFile), imfErrorLogger);
@@ -51,12 +88,16 @@ public class ApplicationCompositionFactory {
         try {
             IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, imfErrorLogger);
             String applicationIdentification = imfCompositionPlaylistType.getApplicationIdentification();
-            clazz = supportedApplicationClassMap.get(applicationIdentification);
+            ApplicationCompositionType applicationCompositionType = ApplicationCompositionType.fromApplicationID(applicationIdentification);
 
-            if(clazz == null) {
+            if(applicationCompositionType == null) {
                 clazz = Application2ExtendedComposition.class;
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
+            }
+            else
+            {
+                clazz = applicationCompositionType.getClazz();
             }
 
             Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);

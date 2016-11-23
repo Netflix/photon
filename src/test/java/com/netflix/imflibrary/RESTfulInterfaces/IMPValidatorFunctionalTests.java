@@ -108,7 +108,7 @@ public class IMPValidatorFunctionalTests {
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateAssetMap(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class IMPValidatorFunctionalTests {
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord assetMapPayloadRecord = new PayloadRecord(assetMapBytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, assetMapResourceByteRangeProvider.getResourceSize());
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKLAndAssetMap(assetMapPayloadRecord, pklPayloadRecordList);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 
     @Test
@@ -267,7 +267,7 @@ public class IMPValidatorFunctionalTests {
         for(ErrorLogger.ErrorObject errorObject : errors){
             logger.error(errorObject.toString());
         }
-        Assert.assertTrue(errors.size() == 8);
+        Assert.assertEquals(errors.size(), 8);
     }
 
     @Test
@@ -300,7 +300,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartition.add(payloadRecord);
 
         List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
-        Assert.assertTrue(errors.size() == 9);
+        Assert.assertEquals(errors.size(), 9);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL"));
     }
@@ -316,7 +316,7 @@ public class IMPValidatorFunctionalTests {
 
         List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
         List<? extends Composition.VirtualTrack> virtualTracks = applicationComposition.getVirtualTracks();
@@ -343,7 +343,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord0 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord0); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertEquals(errors.size(), 1);
     }
 
     @Test
@@ -357,7 +357,7 @@ public class IMPValidatorFunctionalTests {
 
         List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
-        Assert.assertTrue(errors.size() == 4);
+        Assert.assertEquals(errors.size(), 1);
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
         List<? extends Composition.VirtualTrack> virtualTracks = applicationComposition.getVirtualTracks();
@@ -368,7 +368,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
-        Assert.assertEquals(errors.size(), 20);
+        Assert.assertEquals(errors.size(), 17);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -376,7 +376,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
-        Assert.assertEquals(errors.size(), 6);
+        Assert.assertEquals(errors.size(), 3);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class IMPValidatorFunctionalTests {
         byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord cplPayloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);
-        Assert.assertTrue(errors.size() == 4);
+        Assert.assertEquals(errors.size(), 1);
 
         applicationComposition = ApplicationCompositionFactory.getApplicationComposition(fileByteRangeProvider, imfErrorLogger);
         fileByteRangeProvider = new FileByteRangeProvider(headerPartition1);
@@ -472,7 +472,7 @@ public class IMPValidatorFunctionalTests {
         essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
 
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, applicationComposition.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
-        Assert.assertEquals(conformanceErrors.size(), 5);
+        Assert.assertEquals(conformanceErrors.size(), 2);
     }
 
     private byte[] getHeaderPartition(File inputFile) throws IOException {
@@ -519,7 +519,7 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertTrue(errors.size() == 1);
+        Assert.assertEquals(errors.size(), 1);
     }
 
     @Test
@@ -547,6 +547,6 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 }

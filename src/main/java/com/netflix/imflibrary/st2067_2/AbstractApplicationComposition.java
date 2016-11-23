@@ -953,10 +953,20 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return imfErrorLogger.getErrors();
     }
 
-    protected DOMNodeObjectModel getImageEssenceDescriptor() {
-        DOMNodeObjectModel imageEssenceDOMNode = this.getEssenceDescriptor(
+    public @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel() {
+        CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
+        DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
                 this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
-        return imageEssenceDOMNode;
+
+        if (imageEssencedescriptorDOMNode != null) {
+            UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
+                    .get();
+            imageEssenceDescriptorModel =
+                    new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
+                            regXMLLibDictionary);
+        }
+
+        return imageEssenceDescriptorModel;
     }
 
 
