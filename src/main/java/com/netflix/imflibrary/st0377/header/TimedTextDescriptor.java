@@ -26,6 +26,8 @@ import com.netflix.imflibrary.utils.ByteProvider;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,14 +38,41 @@ public final class TimedTextDescriptor extends GenericDataEssenceDescriptor
 {
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + TimedTextDescriptor.class.getSimpleName() + " : ";
     private final TimedTextDescriptorBO timedTextDescriptorBO;
+    private final List<TimeTextResourceSubDescriptor> subDescriptorList;
 
     /**
      * Constructor for a TimedTextDescriptor object
      * @param timedTextDescriptorBO the parsed TimedTextDescriptor object
      */
-    public TimedTextDescriptor(TimedTextDescriptorBO timedTextDescriptorBO)
+    public TimedTextDescriptor(TimedTextDescriptorBO timedTextDescriptorBO, List<TimeTextResourceSubDescriptor> subDescriptorList)
     {
         this.timedTextDescriptorBO = timedTextDescriptorBO;
+        this.subDescriptorList = Collections.unmodifiableList(subDescriptorList);
+    }
+
+    /**
+     * Getter for the TimeTextResourceSubDescriptor list
+     * @return a list containing TimeTextResourceSubDescriptors
+     */
+    public List<TimeTextResourceSubDescriptor> getSubDescriptorList() {
+        return subDescriptorList;
+    }
+
+    /**
+     * Getter for the UCSEncoding
+     * @return a String representing the ISO/IEC 10646-1encoding of the essence data
+     */
+    public String getUCSEncoding() {
+        return this.timedTextDescriptorBO.ucs_encoding;
+    }
+
+    /**
+     * Getter for the NamespaceURI
+     * @return a String representing the URI value which is the XML namespace name of the top-level
+     * XML element in the essence data
+     */
+    public String getNamespaceURI(){
+        return this.timedTextDescriptorBO.namespace_uri;
     }
 
     /**
@@ -71,6 +100,12 @@ public final class TimedTextDescriptor extends GenericDataEssenceDescriptor
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class TimedTextDescriptorBO extends FileDescriptorBO
     {
+        @MXFProperty(size=16) private final UL resource_id = null;
+        @MXFProperty(size=0, charset="UTF-16") private final String ucs_encoding = null;
+        @MXFProperty(size=0, charset="UTF-16") private final String namespace_uri = null;
+
+
+
         /**
          * Instantiates a new parsed TimedTextDescriptor object by virtue of parsing the MXF file bitstream
          *

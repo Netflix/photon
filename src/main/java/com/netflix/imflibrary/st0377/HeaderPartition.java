@@ -225,7 +225,8 @@ public final class HeaderPartition
             InterchangeObject.InterchangeObjectBO interchangeObjectBO = uidToBOs.get(node.uid);
             if (node.depends.size() == 0
                     && !interchangeObjectBO.getClass().equals(SourceClip.SourceClipBO.class)
-                    && !interchangeObjectBO.getClass().equals(Sequence.SequenceBO.class)){
+                    && !interchangeObjectBO.getClass().equals(Sequence.SequenceBO.class)
+                    && !interchangeObjectBO.getClass().equals(TimedTextDescriptor.TimedTextDescriptorBO.class)){
                 InterchangeObject interchangeObject = this.constructInterchangeObject(interchangeObjectBO.getClass().getEnclosingClass(), interchangeObjectBO, node);
                 this.cacheInterchangeObject(interchangeObject);
                 this.uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), interchangeObject);
@@ -396,6 +397,17 @@ public final class HeaderPartition
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), waveAudioEssenceDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
+                    List<TimeTextResourceSubDescriptor> subDescriptorList = new ArrayList<>();
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        if(dependentInterchangeObject instanceof TimeTextResourceSubDescriptor) {
+                            subDescriptorList.add((TimeTextResourceSubDescriptor)dependentInterchangeObject);
+                        }
+                    }
+                    TimedTextDescriptor timedTextDescriptor = new TimedTextDescriptor((TimedTextDescriptor.TimedTextDescriptorBO) interchangeObjectBO, subDescriptorList);
+                    this.cacheInterchangeObject(timedTextDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), timedTextDescriptor);
                 }
             }
         }
