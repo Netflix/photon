@@ -45,6 +45,14 @@ public final class TimeTextResourceSubDescriptor extends SubDescriptor {
     }
 
     /**
+     * Getter for the MIMEMediaType
+     * @return a String representing the A MIME Type identifier which identifies the resource data type
+     */
+    public String getMimeMediaType() {
+        return this.subDescriptorBO.mime_media_type;
+    }
+
+    /**
      * A method that returns a string representation of a TimeTextResourceSubdescriptor object
      *
      * @return string representing the object
@@ -61,6 +69,7 @@ public final class TimeTextResourceSubDescriptor extends SubDescriptor {
     public static final class TimeTextResourceSubdescriptorBO extends SubDescriptorBO{
         @MXFProperty(size=4) private final Long body_sid = null;
         @MXFProperty(size=16) protected final byte[] generation_uid = null;
+        @MXFProperty(size=0, charset="UTF-16") private final String mime_media_type = null;
 
         /**
          * Instantiates a new time text resource sub descriptor ByteObject.
