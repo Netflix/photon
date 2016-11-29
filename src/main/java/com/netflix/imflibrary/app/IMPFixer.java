@@ -222,6 +222,9 @@ public class IMPFixer {
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+                    if(applicationComposition == null){
+                        continue;
+                    }
                     Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap.keySet();
                         if(versionCPLSchema.equals(""))
                         {
