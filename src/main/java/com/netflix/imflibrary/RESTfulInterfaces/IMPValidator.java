@@ -299,6 +299,9 @@ public class IMPValidator {
         }
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger);
+        if(applicationComposition == null) {
+            return new ArrayList<>();
+        }
         return applicationComposition.getVirtualTracks();
     }
 
@@ -345,6 +348,9 @@ public class IMPValidator {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
+        if(applicationComposition == null) {
+            return imfErrorLogger.getErrors();
+        }
 
         List<VirtualTrack> virtualTracks = new ArrayList<>(applicationComposition.getVirtualTracks());
         imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
@@ -371,6 +377,9 @@ public class IMPValidator {
                 return Collections.unmodifiableList(imfErrorLogger.getErrors());
 
             ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
+            if(applicationComposition == null) {
+                return imfErrorLogger.getErrors();
+            }
 
             imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
 
@@ -427,7 +436,13 @@ public class IMPValidator {
         List<ApplicationComposition> applicationCompositions = new ArrayList<>();
         try
         {
-            applicationCompositions.add(ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()), imfErrorLogger));
+            ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()),
+                imfErrorLogger);
+            if(applicationComposition == null) {
+                return imfErrorLogger.getErrors();
+            }
+
+            applicationCompositions.add(applicationComposition);
         }
         catch(IMFException e)
         {
@@ -438,7 +453,12 @@ public class IMPValidator {
         for (PayloadRecord cpl : cplPayloadRecords) {
             try
             {
-                applicationCompositions.add(ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()), imfErrorLogger));
+                ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cpl.getPayload()),
+                    imfErrorLogger);
+                if(applicationComposition != null) {
+                    applicationCompositions.add(applicationComposition);
+                }
+
             }
             catch(IMFException e)
             {

@@ -223,6 +223,9 @@ public class IMPAnalyzer {
 
                                     try {
                                         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, compositionErrorLogger);
+                                        if(applicationComposition == null) {
+                                            continue;
+                                        }
                                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                                 .keySet();
 
