@@ -18,6 +18,8 @@
 
 package com.netflix.imflibrary.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.sandflow.smpte.klv.Group;
 import com.sandflow.smpte.klv.LocalSet;
 import com.sandflow.smpte.klv.LocalTagRegister;
@@ -40,6 +42,8 @@ import com.sandflow.smpte.util.UUID;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.utils.ByteProvider;
+import com.sandflow.util.events.Event;
+import com.sandflow.util.events.EventHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 
@@ -86,20 +90,37 @@ public final class RegXMLLibHelper {
      * A utility method that provides an XML Document fragment representing an MXF KLV triplet
      * @param triplet the KLV triplet that needs to be serialized to an XML document fragment
      * @param document the XML document that the document fragment is associated with
+     * @param imfErrorLogger Logger for recording any errors
      * @return An XML DOM DocumentFragment
      * @throws MXFException if any error occurs while trying to create the document fragment
      */
 
-    public DocumentFragment getDocumentFragment(Triplet triplet, Document document) throws MXFException {
+    public DocumentFragment getDocumentFragment(Triplet triplet, Document document, IMFErrorLogger imfErrorLogger) throws MXFException {
         try {
             HashMap<UUID, Set> setResolver = new HashMap<>();
             Group group = LocalSet.fromTriplet(triplet, this.localTagRegister);
             Set set = Set.fromGroup(group);
             setResolver.put(set.getInstanceID(), set);
-            FragmentBuilder fragmentBuilder = new FragmentBuilder(this.regXMLLibDictionary.getMetaDictionaryCollection(), setResolver);
-            return fragmentBuilder.fromTriplet(group, document);
+
+            RegxmlValidationEventHandlerImpl handler = new RegxmlValidationEventHandlerImpl(true);
+            FragmentBuilder fragmentBuilder = new FragmentBuilder(this.regXMLLibDictionary.getMetaDictionaryCollection(), setResolver, null, handler);
+            DocumentFragment documentFragment = fragmentBuilder.fromTriplet(group, document);
+            if (handler.hasErrors()) {
+                handler.getErrors().stream()
+                        .map(e -> new ErrorLogger.ErrorObject(
+                                IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR,
+                                e.getValidationEventSeverity(),
+                                "Error code : " + e.getCode().name() + " - " + e.getErrorMessage())
+                        )
+                        .forEach(imfErrorLogger::addError);
+
+                if(imfErrorLogger.hasFatalErrors()) {
+                    throw new MXFException(handler.toString(), imfErrorLogger);
+                }
+            }
+            return documentFragment;
         }
-        catch (FragmentBuilder.RuleException | KLVException | ParserConfigurationException e){
+        catch (FragmentBuilder.RuleException | KLVException e){
             throw new MXFException(String.format("Could not generate MXFFragment for the KLV Set"));
         }
     }
@@ -109,11 +130,12 @@ public final class RegXMLLibHelper {
      * @param essenceDescriptorTriplet - a KLV triplet corresponding to an Essence Descriptor
      * @param document an XML document
      * @param subDescriptorTriplets list of triplets corresponding to the subdescriptors referred by the essenceDescriptor
+     * @param imfErrorLogger Logger for recording any errors
      * @return An XML DOM DocumentFragment
      * @throws MXFException if any error occurs while trying to create the document fragment
      */
 
-    public DocumentFragment getEssenceDescriptorDocumentFragment(Triplet essenceDescriptorTriplet, List<Triplet> subDescriptorTriplets, Document document) throws MXFException {
+    public DocumentFragment getEssenceDescriptorDocumentFragment(Triplet essenceDescriptorTriplet, List<Triplet> subDescriptorTriplets, Document document, IMFErrorLogger imfErrorLogger) throws MXFException {
         try {
             HashMap<UUID, Set> setResolver = new HashMap<>();
             Group group = LocalSet.fromTriplet(essenceDescriptorTriplet, this.localTagRegister);
@@ -125,10 +147,25 @@ public final class RegXMLLibHelper {
                 Set subDescriptorSet = Set.fromGroup(subDescriptorGroup);
                 setResolver.put(subDescriptorSet.getInstanceID(), subDescriptorSet);
             }
-            FragmentBuilder fragmentBuilder = new FragmentBuilder(this.regXMLLibDictionary.getMetaDictionaryCollection(), setResolver);
-            return fragmentBuilder.fromTriplet(group, document);
+            RegxmlValidationEventHandlerImpl handler = new RegxmlValidationEventHandlerImpl(true);
+            FragmentBuilder fragmentBuilder = new FragmentBuilder(this.regXMLLibDictionary.getMetaDictionaryCollection(), setResolver, null, handler);
+            DocumentFragment documentFragment = fragmentBuilder.fromTriplet(group, document);
+            if (handler.hasErrors()) {
+                handler.getErrors().stream()
+                        .map(e -> new ErrorLogger.ErrorObject(
+                                IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR,
+                                e.getValidationEventSeverity(),
+                                "Error code : " + e.getCode().name() + " - " + e.getErrorMessage())
+                        )
+                        .forEach(imfErrorLogger::addError);
+
+                if(imfErrorLogger.hasFatalErrors()) {
+                    throw new MXFException(handler.toString(), imfErrorLogger);
+                }
+            }
+            return documentFragment;
         }
-        catch (FragmentBuilder.RuleException | KLVException | ParserConfigurationException e){
+        catch (FragmentBuilder.RuleException | KLVException e){
             throw new MXFException(String.format("Could not generate MXFFragment for the KLV Set"));
         }
     }

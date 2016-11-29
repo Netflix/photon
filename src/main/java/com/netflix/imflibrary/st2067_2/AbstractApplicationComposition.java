@@ -92,6 +92,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      *
      * @param imfCompositionPlaylistType corresponding to the Composition XML file.
      *                                  if any {@link IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @param ignoreSet Set of essence descriptor fields to ignore in track homogeneity check
      */
     public AbstractApplicationComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, @Nonnull Set<String> ignoreSet) {
         imfErrorLogger = new IMFErrorLoggerImpl();
@@ -875,7 +876,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         for (KLVPacket.Header subDescriptorHeader : subDescriptors) {
             subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider, subDescriptorHeader)));
         }
-        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document);
+        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, this.imfErrorLogger);
     }
 
     private ByteProvider getByteProvider(ResourceByteRangeProvider resourceByteRangeProvider, KLVPacket.Header header) throws IOException {
@@ -952,10 +953,20 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return imfErrorLogger.getErrors();
     }
 
-    protected DOMNodeObjectModel getImageEssenceDescriptor() {
-        DOMNodeObjectModel imageEssenceDOMNode = this.getEssenceDescriptor(
+    public @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel() {
+        CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
+        DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
                 this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
-        return imageEssenceDOMNode;
+
+        if (imageEssencedescriptorDOMNode != null) {
+            UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
+                    .get();
+            imageEssenceDescriptorModel =
+                    new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
+                            regXMLLibDictionary);
+        }
+
+        return imageEssenceDescriptorModel;
     }
 
 

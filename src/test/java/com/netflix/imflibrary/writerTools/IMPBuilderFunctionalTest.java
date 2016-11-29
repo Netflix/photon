@@ -178,19 +178,19 @@ public class IMPBuilderFunctionalTest {
         byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateAssetMap(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(pklFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.PackingList, 0L, 0L);
         errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(cplFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 
     @Test
@@ -310,19 +310,19 @@ public class IMPBuilderFunctionalTest {
         byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateAssetMap(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(pklFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.PackingList, 0L, 0L);
         errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(cplFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
     }
 
     @Test
@@ -420,18 +420,18 @@ public class IMPBuilderFunctionalTest {
         byte[] documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, 0L);
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateAssetMap(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(pklFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.PackingList, 0L, 0L);
         errors = IMPValidator.validatePKL(payloadRecord);
-        Assert.assertTrue(errors.size() == 0);
+        Assert.assertEquals(errors.size(), 0);
 
         fileByteRangeProvider = new FileByteRangeProvider(cplFile);
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertTrue(errors.size() == 4);
+        Assert.assertEquals(errors.size(), 1);
     }
 }

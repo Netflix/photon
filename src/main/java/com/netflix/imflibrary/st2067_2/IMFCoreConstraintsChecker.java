@@ -55,6 +55,17 @@ final class IMFCoreConstraintsChecker {
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
+            //TODO: Support for subtitle sequence needed
+            if (!(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence))) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon",
+                                virtualTrack.getSequenceTypeEnum().toString()));
+                continue;
+            }
+
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
                 numberOfMainImageEssences++;
@@ -73,7 +84,8 @@ final class IMFCoreConstraintsChecker {
             }
 
             if((virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence))
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence))
                     && compositionPlaylistType.getEssenceDescriptorList() != null
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
             {
@@ -97,7 +109,8 @@ final class IMFCoreConstraintsChecker {
                         if (!refSourceEncodingElement.equals(imfTrackFileResourceType.getSourceEncoding())) {
                             refSourceEncodingElement = imfTrackFileResourceType.getSourceEncoding();
                             //Section 6.3.1 and 6.3.2 st2067-2:2016 Edit Rate check
-                            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence) ||
+                                    virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)) {
                                 essenceDescriptorField = "SampleRate";
                             } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)) {
                                 essenceDescriptorField = "SampleRate";
@@ -164,7 +177,8 @@ final class IMFCoreConstraintsChecker {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
-                else {
+                else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
+                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
                     boolean isVirtualTrackHomogeneous = true;
                     DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {

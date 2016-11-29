@@ -34,16 +34,19 @@ public @interface MXFProperty
 {
     /**
      * Describes the size in bytes of a syntax element. Equals 0 when size is obtained from the MXF file bitstream
+     * @return Size in bytes of a syntax element
      */
     int size() default 0;
 
     /**
      * Describes the charset encoding used for String syntax element
+     * @return Charset encoding used for String syntax element
      */
     String charset() default "US-ASCII";
 
     /**
      * Describes whether the value associated with a syntax element corresponds to a reference
+     * @return Indicates whether the value associated with a syntax element corresponds to a reference
      */
     boolean depends() default false;
 }

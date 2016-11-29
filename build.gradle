@@ -62,7 +62,7 @@ dependencies {
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
      */
-    compile group: 'com.sandflow', name: 'regxmllib', version: '1.1.0'
+    compile group: 'com.sandflow', name: 'regxmllib', version: '1.1.1'
     /**
      * Following should be enabled and the above should be disabled
      * when necessary to verify changes to the RegXMLLib library that are

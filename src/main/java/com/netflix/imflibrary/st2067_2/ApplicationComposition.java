@@ -23,6 +23,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
 
 /**
  * This interface represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -160,6 +163,22 @@ public interface ApplicationComposition {
     @Nonnull
     public List<DOMNodeObjectModel> getEssenceDescriptors();
 
+    /**
+     * A utility method to retrieve the EssenceDescriptors within a Composition based on the name.
+     *
+     * @param  descriptorName EssenceDescriptor name
+     * @return A list of DOMNodeObjectModels representing EssenceDescriptors with given name.
+     */
+    @Nonnull List<DOMNodeObjectModel> getEssenceDescriptors(String descriptorName);
+
+    /**
+     * A utility method to retrieve the EssenceDescriptor within a Composition for a Resource with given track file ID.
+     *
+     * @param trackFileId the track file id of the resource
+     * @return  the DOMNodeObjectModel representing the EssenceDescriptor
+     */
+    @Nullable DOMNodeObjectModel getEssenceDescriptor(UUID trackFileId);
+
     public Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> getAudioVirtualTracksMap();
 
     /**
@@ -175,6 +194,21 @@ public interface ApplicationComposition {
     public List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(List<Composition.HeaderPartitionTuple>
                                                                    headerPartitionTuples,
                                                      boolean conformAllVirtualTracksInCpl) throws IOException;
+
+    /**
+     * A method to get Application Composition type.
+     *
+     * @return Application Composition Type
+     */
+    ApplicationCompositionType getApplicationCompositionType();
+
+    /**
+     * A method to get Composition image essence descriptor model
+     *
+     * @return Application CompositionImageEssenceDescriptorModel
+     */
+    @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel();
+
     /**
      * A method that confirms if the inputStream corresponds to a Composition document instance.
      *

@@ -475,6 +475,26 @@ public final class StructuralMetadata
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "white_ref_level");
         }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0c, 0x01, 0x01, 0x15, 0x12, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "resource_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0c, 0x04, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "ucs_encoding");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x08, 0x01, 0x02, 0x01, 0x05, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "namespace_uri");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x07, 0x04, 0x09, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mime_media_type");
+        }
         ItemULToItemName = Collections.unmodifiableMap(map);
     }
 
@@ -596,6 +616,10 @@ public final class StructuralMetadata
                     return Object.class; //Application Referenced Object
                 case 0x48 :
                     return WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO.class;
+                case 0x64 :
+                    return TimedTextDescriptor.TimedTextDescriptorBO.class;
+                case 0x65 :
+                    return TimeTextResourceSubDescriptor.TimeTextResourceSubdescriptorBO.class;
                 case 0x6b :
                     return AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class;
                 case 0x6c :

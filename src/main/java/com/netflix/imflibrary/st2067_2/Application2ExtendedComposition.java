@@ -6,6 +6,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.Colorimetry.*;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
 
 
 import javax.annotation.Nonnull;
@@ -51,27 +52,23 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
 
         try
         {
-            DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
-                    this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
+            CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = getCompositionImageEssenceDescriptorModel();
 
-            if (imageEssencedescriptorDOMNode != null)
+            if (imageEssenceDescriptorModel != null)
             {
                 IMFErrorLogger app2ErrorLogger = new IMFErrorLoggerImpl();
                 IMFErrorLogger app2ExtendedErrorLogger = new IMFErrorLoggerImpl();
 
-                UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
-                        .get();
-                CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel =
-                        new CompositionImageEssenceDescriptorModel( imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
-                        regXMLLibDictionary);
                 imfErrorLogger.addAllErrors(imageEssenceDescriptorModel.getErrors());
-                Application2Composition.validateGenericPictureEssenceDescriptor(imageEssenceDescriptorModel, imfErrorLogger);
-                Application2Composition.validateImageCharacteristics(imageEssenceDescriptorModel, app2ErrorLogger);
+                Application2Composition.validateGenericPictureEssenceDescriptor(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE,
+                        imfErrorLogger);
+                Application2Composition.validateImageCharacteristics(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_2_COMPOSITION_TYPE,
+                        app2ErrorLogger);
 
                 if(app2ErrorLogger.getNumberOfErrors() != 0) {
-                    Application2ExtendedComposition.validateImageCharacteristics(imageEssenceDescriptorModel, app2ExtendedErrorLogger);
+                    Application2ExtendedComposition.validateImageCharacteristics(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE,
+                            app2ExtendedErrorLogger);
                     if(app2ExtendedErrorLogger.getNumberOfErrors() != 0) {
-                        imfErrorLogger.addAllErrors(app2ErrorLogger.getErrors());
                         imfErrorLogger.addAllErrors(app2ExtendedErrorLogger.getErrors());
                     }
                 }
@@ -80,12 +77,13 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         catch (Exception e) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("Exception in validating EssenceDescriptors in Application2EComposition: %s ", e.getMessage()));
+                    String.format("Exception in validating EssenceDescriptors in APPLICATION_2E_COMPOSITION_TYPE: %s ", e.getMessage()));
         }
     }
 
-    public static void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel, IMFErrorLogger
-            imfErrorLogger)
+    public static void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel,
+                                                    ApplicationCompositionType applicationCompositionType,
+                                                    IMFErrorLogger imfErrorLogger)
     {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
 
@@ -93,8 +91,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         if( !colorModel.equals(ColorModel.RGB) && !colorModel.equals(ColorModel.YUV)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid Picture Essence Descriptor as per Application#2 Composition",
-                            imageEssenceDescriptorID.toString()));
+                    String.format("EssenceDescriptor with ID %s has Invalid color components as per %s",
+                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
             return;
         }
 
@@ -104,8 +102,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                 (colorModel.equals(ColorModel.YUV) && storedWidth > MAX_YUV_IMAGE_FRAME_WIDTH))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid StoredWidth(%d) for ColorModel(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), storedWidth, colorModel.name()));
+                    String.format("EssenceDescriptor with ID %s has invalid StoredWidth(%d) for ColorModel(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), storedWidth, colorModel.name(), applicationCompositionType.toString()));
         }
 
         //storedHeight
@@ -114,8 +112,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                         (colorModel.equals(ColorModel.YUV) && storedHeight > MAX_YUV_IMAGE_FRAME_HEIGHT))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid storedHeight(%d) for ColorModel(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), storedHeight, colorModel.name()));
+                    String.format("EssenceDescriptor with ID %s has invalid storedHeight(%d) for ColorModel(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), storedHeight, colorModel.name(), applicationCompositionType.toString()));
         }
 
         //PixelBitDepth
@@ -124,8 +122,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         if( !bitDepthsSupported.contains(pixelBitDepth) || !colorToBitDepthMap.get(color).contains(pixelBitDepth)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s invalid PixelBitDepth(%d) for Color(%s) in Application#2E Composition",
-                            imageEssenceDescriptorID.toString(), pixelBitDepth, color.name()));
+                    String.format("EssenceDescriptor with ID %s invalid PixelBitDepth(%d) for Color(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), pixelBitDepth, color.name(), applicationCompositionType.toString()));
         }
 
         //FrameLayout
@@ -133,8 +131,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         if (!frameLayoutType.equals(FrameLayoutType.FullFrame)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid FrameLayout(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), frameLayoutType.name()));
+                    String.format("EssenceDescriptor with ID %s has invalid FrameLayout(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), frameLayoutType.name(), applicationCompositionType.toString()));
         }
 
         //SampleRate
@@ -143,8 +141,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         if (!frameRateSupported.contains(sampleRate)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid SampleRate(%s) for ColorModel(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), sampleRate.toString(), colorModel.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid SampleRate(%s) for ColorModel(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), sampleRate.toString(), colorModel.name(), applicationCompositionType.toString()));
         }
 
         //Sampling
@@ -153,8 +151,8 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                 (colorModel.equals(ColorModel.YUV) && !sampling.equals(Sampling.Sampling422))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid Sampling(%s) for ColorModel(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), sampling.name(), colorModel.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid Sampling(%s) for ColorModel(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), sampling.name(), colorModel.name(), applicationCompositionType.toString()));
         }
 
         //Quantization
@@ -163,8 +161,13 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
                 (colorModel.equals(ColorModel.YUV) && !quantization.equals(Quantization.QE1))) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has Invalid Quantization(%s) for ColorModel(%s) as per Application#2E specification",
-                            imageEssenceDescriptorID.toString(), quantization.name(), colorModel.name()));
+                    String.format("EssenceDescriptor with ID %s has Invalid Quantization(%s) for ColorModel(%s) as per %s",
+                            imageEssenceDescriptorID.toString(), quantization.name(), colorModel.name(), applicationCompositionType.toString()));
         }
     }
+
+    public ApplicationCompositionType getApplicationCompositionType() {
+        return ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE;
+    }
+
 }
