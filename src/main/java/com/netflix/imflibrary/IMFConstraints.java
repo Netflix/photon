@@ -270,7 +270,7 @@ public final class IMFConstraints
                             }
 
                             //https://www.w3.org/TR/ttml-imsc1/ Section 6.1
-                            if (!timedTextDescriptor.getUCSEncoding().equals("UTF-8")) {
+                            if (!timedTextDescriptor.getUCSEncoding().equalsIgnoreCase("UTF-8")) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints
                                         .IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Invalid UCSEncoding(%s) in TimedTextDescriptor within trackFile represented by ID %s. Only UTF-8 is valid UCSEncoding. ",
                                         timedTextDescriptor

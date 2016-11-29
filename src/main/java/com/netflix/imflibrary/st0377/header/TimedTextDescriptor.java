@@ -43,6 +43,7 @@ public final class TimedTextDescriptor extends GenericDataEssenceDescriptor
     /**
      * Constructor for a TimedTextDescriptor object
      * @param timedTextDescriptorBO the parsed TimedTextDescriptor object
+     * @param subDescriptorList List containing TimeTextResourceSubDescriptor objects
      */
     public TimedTextDescriptor(TimedTextDescriptorBO timedTextDescriptorBO, List<TimeTextResourceSubDescriptor> subDescriptorList)
     {

@@ -27,20 +27,11 @@ import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -55,6 +46,8 @@ public class DOMNodeObjectModel {
     /*Node's Local Name*/
     @Nonnull
     private final String localName;
+    @Nonnull
+    private final String localNamespaceURI;
     /*List of child ElementDOMNodes*/
     private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
@@ -70,6 +63,7 @@ public class DOMNodeObjectModel {
         this.node = node;
         this.nodeType = node.getNodeType();
         this.localName = node.getLocalName();
+        this.localNamespaceURI = node.getNamespaceURI();
         if(this.localName == null){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
                             .IMFErrors.ErrorLevels.NON_FATAL,
@@ -130,9 +124,12 @@ public class DOMNodeObjectModel {
         }
     }
 
-    private DOMNodeObjectModel(Node node, String localName, short nodeType, Map<DOMNodeObjectModel, Integer> childrenDOMNodes, Map<DOMNodeElementTuple, Map<String, Integer>> fields, Map<String, Map<String, Integer>> fieldsLocalNamesMap){
+    private DOMNodeObjectModel(Node node, String localName, String localNamespaceURI, short nodeType, Map<DOMNodeObjectModel, Integer> childrenDOMNodes, Map<DOMNodeElementTuple, Map<String,
+            Integer>> fields,
+                               Map<String, Map<String, Integer>> fieldsLocalNamesMap){
         this.node = node;
         this.localName = localName;
+        this.localNamespaceURI = localNamespaceURI;
         this.nodeType = nodeType;
         this.childrenDOMNodes.putAll(childrenDOMNodes);
         this.fields.putAll(fields);
@@ -175,7 +172,8 @@ public class DOMNodeObjectModel {
                 }
             }
         }
-        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
+        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getLocalNamespaceURI(),
+                domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
     }
 
     /**
@@ -202,7 +200,8 @@ public class DOMNodeObjectModel {
             DOMNodeObjectModel child = DOMNodeObjectModel.createDOMNodeObjectModelWOFullyQualifiedFields(entry.getKey());
             childrenDOMNodes.put(child, entry.getValue());
         }
-        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(domNodeObjectModel.getFieldsLocalNameMap()));
+        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getLocalNamespaceURI(),
+                domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(domNodeObjectModel.getFieldsLocalNameMap()));
     }
 
     /**
@@ -224,6 +223,7 @@ public class DOMNodeObjectModel {
         }
         return null;
     }
+
 
     /**
      * A method to log errors related to NamespaceURI inconsistencies for DOMNode elements
@@ -308,6 +308,14 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A getter for the DOM Node namespace URI represented by this object model.
+     * @return a string representing the DOM Node's namespace URI field.
+     */
+    public String getLocalNamespaceURI(){
+        return this.localNamespaceURI;
+    }
+
+    /**
      * A getter for the Fields represented in the DOMNodeObjectModel
      * @return a map of Key, Value pairs corresponding to the fields on the DOM Node
      */
@@ -365,6 +373,106 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A method to remove nodes from a DOMNodeObjectNodel that are also present in another DOMNodeObjectModel.
+     * @param other DoMNodeObjectModel
+     * @return DOMNodeObjectModel this DOMNodeObjectModel without any common nodes from other DoMNodeObjectModel
+     */
+    public DOMNodeObjectModel removeNodes(Object other){
+
+        if(other == null
+                || this.getClass() != other.getClass()){
+            return createDOMNodeObjectModelIgnoreSet(this, new HashSet<>());
+        }
+
+
+        DOMNodeObjectModel otherDOMNodeObjectModel = (DOMNodeObjectModel) other;
+
+        if(!this.localName.equals(otherDOMNodeObjectModel.localName)) {
+            return createDOMNodeObjectModelIgnoreSet(this, new HashSet<>());
+        }
+
+        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
+        thisFields.putAll(this.fields);
+        thisFields.entrySet().removeAll(otherDOMNodeObjectModel.fields.entrySet());
+
+        Map<DOMNodeObjectModel, Integer> thisChildrenDOMNodes = new HashMap<>();
+        Map<DOMNodeObjectModel, Integer> outChildrenDOMNodes = new HashMap<>();
+        Map<DOMNodeObjectModel, Integer> otherChildrenDOMNodes = new HashMap<>();
+
+        thisChildrenDOMNodes.putAll(this.childrenDOMNodes);
+        thisChildrenDOMNodes.entrySet().removeAll(otherDOMNodeObjectModel.childrenDOMNodes.entrySet());
+
+        otherChildrenDOMNodes.putAll(otherDOMNodeObjectModel.childrenDOMNodes);
+        otherChildrenDOMNodes.entrySet().removeAll(this.childrenDOMNodes.entrySet());
+
+        while(!thisChildrenDOMNodes.isEmpty()) {
+            Map.Entry<DOMNodeObjectModel, Integer> entry = thisChildrenDOMNodes.entrySet().iterator().next();
+            Integer minDiffCount = entry.getKey().getFieldCount();
+            Map.Entry<DOMNodeObjectModel, Integer> matchingEntry = null;
+            for(Map.Entry<DOMNodeObjectModel, Integer> otherEntry: otherChildrenDOMNodes.entrySet()) {
+                DOMNodeObjectModel diffDOMNodeObjectModel = entry.getKey().removeNodes(otherEntry.getKey());
+                if(diffDOMNodeObjectModel.getFieldCount() < minDiffCount) {
+                    matchingEntry = otherEntry;
+                    minDiffCount = diffDOMNodeObjectModel.getFieldCount();
+                }
+            }
+            if(matchingEntry != null) {
+                Integer remaining = entry.getValue() - matchingEntry.getValue();
+                Integer count = remaining >= 0 ? matchingEntry.getValue() : entry.getValue();
+
+                if(remaining == 0) {
+                    otherChildrenDOMNodes.remove(matchingEntry.getKey());
+                    thisChildrenDOMNodes.remove(entry.getKey());
+                }
+                else if(remaining > 0) {
+                    otherChildrenDOMNodes.remove(matchingEntry.getKey());
+                    thisChildrenDOMNodes.put(entry.getKey(), remaining);
+                } else {
+                    otherChildrenDOMNodes.put(matchingEntry.getKey(), -remaining);
+                    thisChildrenDOMNodes.remove(entry.getKey());
+                }
+
+                if(!entry.getKey().equals(matchingEntry.getKey())) {
+                    DOMNodeObjectModel diffDOMNodeObjectModel = entry.getKey().removeNodes(matchingEntry.getKey());
+                    if(outChildrenDOMNodes.containsKey(diffDOMNodeObjectModel)) {
+                        count += outChildrenDOMNodes.get(diffDOMNodeObjectModel);
+                    }
+                    outChildrenDOMNodes.put(diffDOMNodeObjectModel, count);
+                }
+            } else {
+                Integer count = entry.getValue();
+                if(outChildrenDOMNodes.containsKey(entry.getKey())) {
+                    count += outChildrenDOMNodes.get(entry.getKey());
+                }
+                outChildrenDOMNodes.put(entry.getKey(), count);
+                thisChildrenDOMNodes.remove(entry.getKey());
+            }
+        }
+
+
+        return new DOMNodeObjectModel(this.getNode(), this.getLocalName(), this.getLocalNamespaceURI(),
+                this.getNodeType(), Collections.unmodifiableMap(outChildrenDOMNodes), Collections.unmodifiableMap
+                (thisFields), Collections.unmodifiableMap(this.fieldsLocalNameMap));
+    }
+
+
+    /**
+     * A method that returns total number of fields in a DOMNodeObjectModel.
+     * @return Integer total number of fields .
+     */
+    public Integer getFieldCount(){
+        Integer entryCount = 0;
+
+        entryCount += this.fields.size();
+
+        for(Map.Entry<DOMNodeObjectModel, Integer> entry: this.childrenDOMNodes.entrySet()) {
+            entryCount += entry.getKey().getFieldCount();
+        }
+
+        return entryCount;
+    }
+
+    /**
      * A Java compliant implementation of the hashCode() method
      * @return integer containing the hash code corresponding to this object
      */
@@ -383,50 +491,30 @@ public class DOMNodeObjectModel {
      *
      * @return string representing the object
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        /*
-        sb.append(String.format("%n%n====== DOM Node Object Model ======%n"));
-        sb.append(String.format("Node Type : %s%n", this.nodeType.toString()));
-        sb.append(String.format("Node Local Name : %s%n", this.localName));
-        for(Map.Entry entry : fields.entrySet()){
+        sb.append(String.format("<%s xmlns=\"%s\">", this.localName, this.localNamespaceURI)+"\n");
+        for(Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry : fields.entrySet()){
             Map<String, Integer> values = (Map<String, Integer>)entry.getValue();
             Iterator<Map.Entry<String, Integer>> iterator = values.entrySet().iterator();
-            StringBuilder fieldValueStringBuilder = new StringBuilder();
             while(iterator.hasNext()){
                 Map.Entry<String, Integer> fieldValuesEntry = iterator.next();
-                fieldValueStringBuilder.append(String.format("%nValue %s, appears %d times", fieldValuesEntry.getKey(), fieldValuesEntry.getValue()));
+                for(Integer i = 0; i< fieldValuesEntry.getValue(); i++) {
+                    sb.append(String.format("  <%s>%s</%s xmlns=\"%s\">", entry.getKey().getLocalName(), fieldValuesEntry.getKey(), entry.getKey().getLocalName(),
+                            entry.getKey().getNamespaceURI())+ "\n");
+                }
             }
-            sb.append(String.format("%n%nDOMNodeElement %s has the following values %s%n in the DOM Node", entry.getKey().toString(), fieldValueStringBuilder.toString()));
-            //sb.append(String.format("%s%n", entry.toString()));
         }
 
         for(Map.Entry<DOMNodeObjectModel, Integer> domEntry : this.childrenDOMNodes.entrySet()) {
             for(Integer i = 0; i < domEntry.getValue(); i++) {
-                sb.append(domEntry.getKey().toString());
+                String domNodeString = domEntry.getKey().toString();
+                sb.append(domNodeString.replaceAll("(?m)(^)", "  "));
             }
         }
-        */
-        try {
-            TransformerFactory tFactory =
-                    TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-            DOMSource source = new DOMSource(this.node);
-            Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-            File tempDir = tempPath.toFile();
-            File outputFile = new File(tempDir + "/XMLDom.xml");
-            StreamResult result = new StreamResult(outputFile);
-            transformer.transform(source, result);
-            sb.append(readFile(outputFile));
-            outputFile.deleteOnExit();
-        }
-        catch (TransformerException|IOException e){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, e.getMessage());
-        }
+        sb.append(String.format("</%s>", this.localName) + "\n");
         return sb.toString();
     }
 
