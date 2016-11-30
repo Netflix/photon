@@ -32,7 +32,13 @@ public class IMPAnalyzerTest
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
-                Assert.assertEquals(e.getValue().size(), 0)
+                {
+                    if (e.getKey().matches("CPL.*")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
         );
 
     }

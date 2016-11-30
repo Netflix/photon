@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
@@ -130,6 +131,19 @@ public class Application2Composition extends AbstractApplicationComposition {
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries(%s)-TransferCharacteristic(%s)-CodingEquation(%s) combination as per %s",
                             imageEssenceDescriptorID.toString(), colorPrimaries.name(), transferCharacteristic.name(), codingEquation.name(), applicationCompositionType.toString()));
+        }
+
+        FrameLayoutType frameLayoutType = imageEssenceDescriptorModel.getFrameLayoutType();
+        UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
+        if(essenceContainerFormatUL != null) {
+            Byte contentKind = essenceContainerFormatUL.getULAsBytes()[14];
+            if ((frameLayoutType.equals(FrameLayoutType.FullFrame) && contentKind != 6) ||
+                    (frameLayoutType.equals(FrameLayoutType.SeparateFields) && contentKind != 3)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s has invalid ContentKind(%d) indicated by the ContainerFormat as per %s",
+                                imageEssenceDescriptorID.toString(), contentKind, applicationCompositionType.toString()));
+            }
         }
    }
 

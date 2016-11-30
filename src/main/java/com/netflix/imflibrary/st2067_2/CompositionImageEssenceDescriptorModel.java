@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
@@ -43,6 +44,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final CodingEquation codingEquation;
     private final TransferCharacteristic transferCharacteristic;
     private final ColorPrimaries colorPrimaries;
+    private final UL essenceContainerFormatUL;
 
     public CompositionImageEssenceDescriptorModel(@Nonnull UUID imageEssencedescriptorID, @Nonnull DOMNodeObjectModel imageEssencedescriptorDOMNode, @Nonnull RegXMLLibDictionary regXMLLibDictionary)
     {
@@ -107,6 +109,8 @@ public final class CompositionImageEssenceDescriptorModel {
             this.color = Colorimetry.Unknown;
             this.sampling = Sampling.Unknown;
         }
+
+        this.essenceContainerFormatUL = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(containerFormatUL));
     }
 
 
@@ -179,6 +183,10 @@ public final class CompositionImageEssenceDescriptorModel {
         return transferCharacteristic;
     }
 
+    public @Nullable UL getEssenceContainerFormatUL() {
+        return essenceContainerFormatUL;
+    }
+
     private @Nullable String getFieldAsString(@Nonnull String urn) {
         return imageEssencedescriptorDOMNode.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
@@ -194,6 +202,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private @Nullable Fraction getFieldAsFraction(@Nonnull String urn) {
         return imageEssencedescriptorDOMNode.getFieldAsFraction(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
+
 
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {

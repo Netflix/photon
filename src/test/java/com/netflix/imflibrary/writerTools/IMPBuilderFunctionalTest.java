@@ -190,7 +190,7 @@ public class IMPBuilderFunctionalTest {
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertEquals(errors.size(), 0);
+        Assert.assertEquals(errors.size(), 1);
     }
 
     @Test
@@ -322,7 +322,7 @@ public class IMPBuilderFunctionalTest {
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertEquals(errors.size(), 0);
+        Assert.assertEquals(errors.size(), 1);
     }
 
     @Test
@@ -432,6 +432,6 @@ public class IMPBuilderFunctionalTest {
         documentBytes = fileByteRangeProvider.getByteRangeAsBytes(0, fileByteRangeProvider.getResourceSize()-1);
         payloadRecord = new PayloadRecord(documentBytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, 0L);
         errors = IMPValidator.validateCPL(payloadRecord);
-        Assert.assertEquals(errors.size(), 1);
+        Assert.assertEquals(errors.size(), 2);
     }
 }

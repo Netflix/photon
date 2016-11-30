@@ -176,6 +176,13 @@ public class IMPAnalyzer {
                                     continue;
                                 }
                                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                                if(!assetFile.exists()) {
+                                    packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString
+                                                    ()));
+                                    continue;
+                                }
+
                                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
 
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
