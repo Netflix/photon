@@ -151,7 +151,7 @@ public class Application2ExtendedCompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
 
-        /* Make sure its APP2#E Composition
+        /* Make sure its APP2#E Composition */
         Assert.assertEquals(applicationComposition.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE);
 
         /* Filter 4k YUV  error */
