@@ -48,7 +48,7 @@ public class CompositionTest
                 ("TestIMP/MERIDIAN_Netflix_Photon_161006/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 1);
     }
 
     @Test
