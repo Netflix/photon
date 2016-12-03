@@ -1161,6 +1161,9 @@ public final class HeaderPartition
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(RGBAPictureEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainImageEssence);
             }
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.SubtitlesEssence);
+            }
         }
 
         if (essenceTypes.size() == 0){
