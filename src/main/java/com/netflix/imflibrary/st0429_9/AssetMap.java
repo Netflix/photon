@@ -57,6 +57,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -67,6 +69,9 @@ import java.util.*;
 @Immutable
 public final class AssetMap
 {
+    private static final Integer MAX_NUMBER_OF_PATH_SEGMENTS = 10;
+    private static final Integer MAX_PATH_SEGMENT_LENGTH = 100;
+    private static final Integer MAX_PATH_ELEMENT_LENGTH = 100;
     private final UUID uuid;
     private final List<Asset> assetList = new ArrayList<>();
     private final List<Asset> packingListAssets = new ArrayList<>();
@@ -175,6 +180,7 @@ public final class AssetMap
                     try
                     {
                         Asset asset = new Asset(assetType.getId(), isPackingList, path);
+                        this.imfErrorLogger.addAllErrors(asset.getErrors());
                         this.assetList.add(asset);
                         this.uuidToPath.put(asset.getUUID(), asset.getPath());
                         if ((assetType.isPackingList() != null) && (assetType.isPackingList())) {
@@ -185,6 +191,10 @@ public final class AssetMap
                     {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                                 e.getMessage());
+                    }
+                    catch(IMFException e)
+                    {
+                        this.imfErrorLogger.addAllErrors(e.getErrors());
                     }
                 }
                 break;
@@ -422,6 +432,7 @@ public final class AssetMap
         private final UUID uuid;
         private final boolean isPackingList;
         private final URI path;
+        private final IMFErrorLogger imfErrorLogger;
 
         /**
          * Constructor for the wrapping {@link com.netflix.imflibrary.st0429_9.AssetMap.Asset Asset} object from the wrapped model version of XML type 'AssetType'. Construction
@@ -435,19 +446,61 @@ public final class AssetMap
         {
             this.uuid = UUIDHelper.fromUUIDAsURNStringToUUID(uuid);
             this.isPackingList = isPackingList;
+
+            this.imfErrorLogger = new IMFErrorLoggerImpl();
+
             String[] pathSegments = path.split("/");
-            List<String> invalidPathSegments = new ArrayList<>();
+            List<String> invalidURISyntaxPathSegments = new ArrayList<>();
+            List<String> invalidLengthPathSegments = new ArrayList<>();
+
+            if(pathSegments.length > MAX_NUMBER_OF_PATH_SEGMENTS) {
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("The Asset path %s has %d path segments which exceeds the limit %d", path, pathSegments.length, MAX_NUMBER_OF_PATH_SEGMENTS));
+            }
+
+            if(path.matches("^/.+")) {
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("The Asset path %s begins with '/' character", path));
+            }
+
             for(String pathSegment : pathSegments) {
                 if (pathSegment.matches("^[a-zA-Z0-9._-]+") == false) {
-                    invalidPathSegments.add(pathSegment);
+                    invalidURISyntaxPathSegments.add(pathSegment);
+                }
+                if (pathSegment.length() > MAX_PATH_SEGMENT_LENGTH) {
+                    invalidLengthPathSegments.add(pathSegment);
                 }
             }
-            if(invalidPathSegments.size() > 0){
-                throw new URISyntaxException(path,
-                        String.format("The Asset path %s does not conform to the specified URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -) for a path segment, the following path segments do not comply %s", path, Utilities.serializeObjectCollectionToString(invalidPathSegments)));
+
+            if(invalidURISyntaxPathSegments.size() > 0){
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("The Asset path %s has following path segments with invalid URI syntax in Annex-A of st429-9:2014 (a-z, A-Z, 0-9, ., _, -): %s",
+                                path, Utilities.serializeObjectCollectionToString(invalidURISyntaxPathSegments)));
             }
+
+            if(invalidLengthPathSegments.size() > 0){
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("The Asset path %s has following path segments with invalid length: %s",
+                                path, Utilities.serializeObjectCollectionToString(invalidLengthPathSegments)));
+            }
+            else if(path.length() > MAX_PATH_ELEMENT_LENGTH) {
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("The Asset path %s has length %d which exceeds the limit %d", path, path.length(), MAX_PATH_ELEMENT_LENGTH));
+            }
+
+            if(this.imfErrorLogger.hasFatalErrors()) {
+                throw new IMFException( String.format("Invalid asset path %s", path), imfErrorLogger);
+            }
+
+            if(Paths.get(path).normalize().startsWith("..")) {
+                this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("The Asset path %s is outside the tree rooted at the directory containing the Asset Map", path));
+            }
+
             this.path = new URI(path);
-        }
+
+
+}
 
         /**
          * Getter for the UUID associated with the {@link com.netflix.imflibrary.st0429_9.AssetMap.Asset Asset} object
@@ -475,6 +528,15 @@ public final class AssetMap
         public URI getPath()
         {
             return this.path;
+        }
+
+        /**
+         * Getter for the errors in Composition
+         *
+         * @return List of errors in Composition.
+         */
+        public List<ErrorLogger.ErrorObject> getErrors() {
+            return imfErrorLogger.getErrors();
         }
 
         @Override
