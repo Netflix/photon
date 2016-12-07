@@ -295,7 +295,7 @@ public class IMPFixer {
         sb.append(String.format("Usage:%n"));
         sb.append(String.format("%s input_package_directory output_package_directory [options]%n", IMPFixer.class.getName()));
         sb.append(String.format("options:            %n"));
-        sb.append(String.format("-cs, --cpl-schema=VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
+        sb.append(String.format("-cs, --cpl-schema VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
         sb.append(String.format("-nc, --no-copy                 don't copy track files     %n"));
         sb.append(String.format("-nh, --no-hash                 No update for trackfile hash in PKL %n"));
 
@@ -340,6 +340,7 @@ public class IMPFixer {
                     System.exit(-1);
                 }
                 versionCPLSchema = nextArg;
+                argIdx++;
             }
             else if(curArg.equalsIgnoreCase("--no-copy") || curArg.equalsIgnoreCase("-nc")) {
                 copyTrackFile = false;
