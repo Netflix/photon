@@ -20,7 +20,7 @@ public class IMFTrackFilePartitionsExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(IMFTrackFilePartitionsExtractor.class);
 
-    private static File extractHeaderPartition(File input, File workingDirectory) throws IOException {
+    public static File extractHeaderPartition(File input, File workingDirectory) throws IOException {
 
         //Code to extract the HeaderPartition and write to a file
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
