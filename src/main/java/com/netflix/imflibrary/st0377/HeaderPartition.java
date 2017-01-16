@@ -48,6 +48,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 
+import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.horizontalSubSamplingUL;
+import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.verticalSubSamplingUL;
+
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
  */
@@ -1008,18 +1011,24 @@ public final class HeaderPartition
     public Colorimetry.Quantization getImageQuantization() {
         Colorimetry.Quantization quantization = Colorimetry.Quantization.Unknown;
         Integer pixelBitDepth = getImagePixelBitDepth();
+        Long signalMin = null;
+        Long signalMax = null;
         if(hasCDCIPictureEssenceDescriptor()) {
             CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO cdciPictureEssenceDescriptorBO = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class.cast(this.getInterchangeObjectBOs
                     (CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class).get(0));
-            quantization =  Colorimetry.Quantization.valueOf(pixelBitDepth, cdciPictureEssenceDescriptorBO.getBlackRefLevel(),
-                    cdciPictureEssenceDescriptorBO.getWhiteRefLevel());
+            signalMin = cdciPictureEssenceDescriptorBO.getBlackRefLevel();
+            signalMax = cdciPictureEssenceDescriptorBO.getWhiteRefLevel();
         } else if(hasRGBAPictureEssenceDescriptor()) {
             RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO rgbaPictureEssenceDescriptorBO = RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class.cast(this
                     .getInterchangeObjectBOs
                     (RGBAPictureEssenceDescriptor.RGBAPictureEssenceDescriptorBO.class).get(0));
-                quantization = Colorimetry.Quantization.valueOf(pixelBitDepth, rgbaPictureEssenceDescriptorBO.getComponentMinRef(),
-                        rgbaPictureEssenceDescriptorBO.getComponentMaxRef());
+            signalMin = rgbaPictureEssenceDescriptorBO.getComponentMinRef();
+            signalMax = rgbaPictureEssenceDescriptorBO.getComponentMaxRef();
         }
+        if(pixelBitDepth != 0 && signalMax != null && signalMin != null) {
+            quantization = Colorimetry.Quantization.valueOf(pixelBitDepth, signalMin, signalMax);
+        }
+
         return quantization;
     }
 
@@ -1045,10 +1054,16 @@ public final class HeaderPartition
         if (hasRGBAPictureEssenceDescriptor()) {
             return Colorimetry.Sampling.Sampling444;
         } else if (hasCDCIPictureEssenceDescriptor()) {
+            Colorimetry.Sampling sampling = Colorimetry.Sampling.Unknown;
             CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO cdciPictureEssenceDescriptorBO = CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class.cast(this.getInterchangeObjectBOs
                     (CDCIPictureEssenceDescriptor.CDCIPictureEssenceDescriptorBO.class).get(0));
-            return Colorimetry.Sampling.valueOf(cdciPictureEssenceDescriptorBO.getHorizontal_subsampling().intValue(),
-                    cdciPictureEssenceDescriptorBO.getVertical_subsampling().intValue());
+            Long horizontalSubSampling   = cdciPictureEssenceDescriptorBO.getHorizontal_subsampling();
+            Long verticalSubSampling     = cdciPictureEssenceDescriptorBO.getVertical_subsampling();
+
+            if( horizontalSubSampling != null && verticalSubSampling != null) {
+                sampling = Colorimetry.Sampling.valueOf(horizontalSubSampling.intValue(), verticalSubSampling.intValue());
+            }
+            return sampling;
         }
         return Colorimetry.Sampling.Unknown;
     }
