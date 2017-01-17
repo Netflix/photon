@@ -47,7 +47,7 @@ public class DCPBuilder {
         int numErrors = imfErrorLogger.getNumberOfErrors();
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
 
-        File cplFile = DCPCompositionPlaylistBuilder.build(annotationText, issuer, cplUUID, trackFiles, workingDirectory);
+        File cplFile = new DCPCompositionPlaylistBuilder(annotationText, issuer, cplUUID, trackFiles, workingDirectory).build();
 
         UUID pklUUID = IMFUUIDGenerator.getInstance().generateUUID();
         /**

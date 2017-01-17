@@ -38,6 +38,16 @@
     </Match>
 
     <Match>
+        <Package name="org.smpte_ra.schemas.st429_7_2006" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st429_7_2006" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
         <Package name="org.smpte_ra.schemas.st0429_9_2007.AM" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
