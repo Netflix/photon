@@ -101,6 +101,9 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
             return this.transfer_characteristic;
         }
 
+        public CompoundDataTypes.Rational getAspect_ratio() {
+            return aspect_ratio;
+        }
     }
 
     public static enum RGBAComponentType {

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/429-7/2006/CPL" xmlns:cpl="http://www.smpte-ra.org/schemas/429-7/2006/CPL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xs:import namespace="http://www.w3.org/2000/09/xmldsig#"/>
+
+    <!-- CompositionPlaylist -->
+    <xs:element name="CompositionPlaylist" type="cpl:CompositionPlaylistType"/>
+    <xs:complexType name="CompositionPlaylistType">
+        <xs:sequence>
+            <xs:element name="Id" type="cpl:UUID"/>
+            <xs:element name="AnnotationText" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="IconId" type="cpl:UUID" minOccurs="0"/>
+            <xs:element name="IssueDate" type="xs:dateTime"/>
+            <xs:element name="Issuer" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="Creator" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="ContentTitleText" type="cpl:UserText"/>
+            <xs:element name="ContentKind" type="cpl:ContentKindType"/>
+            <xs:element name="ContentVersion" type="cpl:ContentVersionType"/>
+            <xs:element name="RatingList">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Rating" type="cpl:RatingType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ReelList">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Reel" type="cpl:ReelType" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="Signer" type="ds:KeyInfoType" minOccurs="0"/>
+            <xs:element ref="ds:Signature" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Marker -->
+    <xs:complexType name="MarkerType">
+        <xs:sequence>
+            <xs:element name="Label">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="scope" type="xs:anyURI" use="optional" default="http://www.smpte-ra.org/schemas/429-7/2006/CPL#standard-markers"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="AnnotationText" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="Offset">
+                <xs:simpleType>
+                    <xs:restriction base="xs:long">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Rating -->
+    <xs:complexType name="RatingType">
+        <xs:sequence>
+            <xs:element name="Agency" type="xs:anyURI"/>
+            <xs:element name="Label" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ContentKind -->
+    <xs:complexType name="ContentKindType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="scope" type="xs:anyURI" use="optional" default="http://www.smpte-ra.org/schemas/429-7/2006/CPL#standard-content"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- ContentVersion -->
+    <xs:complexType name="ContentVersionType">
+        <xs:sequence>
+            <xs:element name="Id" type="xs:anyURI"/>
+            <xs:element name="LabelText" type="cpl:UserText"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Reel -->
+    <xs:complexType name="ReelType">
+        <xs:sequence>
+            <xs:element name="Id" type="cpl:UUID"/>
+            <xs:element name="AnnotationText" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="AssetList">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="MainMarkers" type="cpl:MarkerAssetType" minOccurs="0"/>
+                        <xs:element name="MainPicture" type="cpl:PictureTrackFileAssetType" minOccurs="0"/>
+                        <xs:element name="MainSound" type="cpl:SoundTrackFileAssetType" minOccurs="0"/>
+                        <xs:element name="MainSubtitle" type="cpl:SubtitleTrackFileAssetType" minOccurs="0"/>
+                        <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- GenericAssetType -->
+    <xs:complexType name="GenericAssetType" abstract="1">
+        <xs:sequence>
+            <xs:element name="Id" type="cpl:UUID"/>
+            <xs:element name="AnnotationText" type="cpl:UserText" minOccurs="0"/>
+            <xs:element name="EditRate" type="cpl:Rational"/>
+            <xs:element name="IntrinsicDuration" type="xs:long"/>
+            <xs:element name="EntryPoint" type="xs:long" minOccurs="0"/>
+            <xs:element name="Duration" type="xs:long" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- TrackFileAssetType -->
+    <xs:complexType name="TrackFileAssetType" abstract="1">
+        <xs:complexContent>
+            <xs:extension base="cpl:GenericAssetType">
+                <xs:sequence>
+                    <xs:element name="KeyId" type="cpl:UUID" minOccurs="0"/>
+                    <xs:element name="Hash" type="xs:base64Binary" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- SoundTrackFileAssetType -->
+    <xs:complexType name="SoundTrackFileAssetType">
+        <xs:complexContent>
+            <xs:extension base="cpl:TrackFileAssetType">
+                <xs:sequence>
+                    <xs:element name="Language" type="xs:language" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- SubtitleTrackFileAssetType -->
+    <xs:complexType name="SubtitleTrackFileAssetType">
+        <xs:complexContent>
+            <xs:extension base="cpl:TrackFileAssetType">
+                <xs:sequence>
+                    <xs:element name="Language" type="xs:language" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- PictureTrackFileAssetType -->
+    <xs:complexType name="PictureTrackFileAssetType">
+        <xs:complexContent>
+            <xs:extension base="cpl:TrackFileAssetType">
+                <xs:sequence>
+                    <xs:element name="FrameRate" type="cpl:Rational"/>
+                    <xs:element name="ScreenAspectRatio" type="cpl:Rational"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- MarkerAssetType -->
+    <xs:complexType name="MarkerAssetType">
+        <xs:complexContent>
+            <xs:extension base="cpl:GenericAssetType">
+                <xs:sequence>
+                    <xs:element name="MarkerList">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="Marker" type="cpl:MarkerType" minOccurs="0" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Rational -->
+    <xs:simpleType name="Rational">
+        <xs:restriction>
+            <xs:simpleType>
+                <xs:list itemType="xs:long"/>
+            </xs:simpleType>
+            <xs:length value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- UUID -->
+    <xs:simpleType name="UUID">
+        <xs:restriction base="xs:anyURI">
+            <xs:pattern value="urn:uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- UserText -->
+    <xs:complexType name="UserText">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="language" type="xs:language" use="optional" default="en"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+</xs:schema>
