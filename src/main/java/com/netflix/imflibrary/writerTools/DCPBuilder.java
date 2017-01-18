@@ -6,14 +6,19 @@ import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.DCPAuthoringException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.IMFTrackFilePartitionsExtractor;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -77,11 +82,13 @@ public class DCPBuilder {
 
         for(File trackFile : trackFiles){
             byte[] hash = IMFUtils.generateSHA1HashAndBase64Encode(trackFile);
-            File headerPartitionFile = IMFTrackFilePartitionsExtractor.extractHeaderPartition(trackFile, workingDirectory);
-            HeaderPartition headerPartition = new HeaderPartition(new FileDataProvider(headerPartitionFile),
-                    0L,
-                    headerPartitionFile.length(),
-                    imfErrorLogger);
+
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(trackFile);
+
+            PayloadRecord headerPartitionPayloadRecord = DCPCompositionPlaylistBuilder.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, new IMFErrorLoggerImpl());
+            byte[] headerPartitionBytes = headerPartitionPayloadRecord.getPayload();
+            ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
+            HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long) headerPartitionBytes.length, imfErrorLogger);
             Preface preface = headerPartition.getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
             SourcePackage filePackage = (SourcePackage)genericPackage;
@@ -159,39 +166,35 @@ public class DCPBuilder {
     }
 
     private static void usage(){
-        logger.info(String.format("\\t DCPBuilder usage \\n"));
-        logger.info(String.format("\\t -a <annotationText> \\n"));
-        logger.info(String.format("\\t -i <issuer> \\n"));
-        logger.info(String.format("\\t -af <AudioTrackFile> \\n"));
-        logger.info(String.format("\\t -vf <VideoTrackFile> \\n"));
-        logger.info(String.format("\\t -w <WorkingFolder> \\n"));
+        logger.info(String.format("\t DCPBuilder usage \n"));
+        logger.info(String.format("<annotationText> <issuer> <AudioTrackFile> <VideoTrackFile> <WorkingFolder>"));
         System.exit(-1);
     }
     public static void main(String[] args) throws IOException, URISyntaxException{
-        if(args.length < 6){
+        if(args.length != 5){
             DCPBuilder.usage();
         }
         List<File> trackFiles = new ArrayList<>();
-        File audioFile = new File(args[3]);
+        File audioFile = new File(args[2]);
 
         if(!audioFile.exists()){
             throw new IOException(String.format("%s file does not exist", audioFile.toString()));
         }
 
-        File videoFile = new File(args[4]);
+        File videoFile = new File(args[3]);
         if(!videoFile.exists()){
             throw new IOException(String.format("%s file does not exist", videoFile.toString()));
         }
 
-        File workingFolder = new File(args[5]);
+        File workingFolder = new File(args[4]);
         if(!workingFolder.exists()){
             throw new IOException(String.format("Working Folder %s does not exist", workingFolder.toString()));
         }
 
         trackFiles.add(audioFile);
         trackFiles.add(videoFile);
-        DCPBuilder.buildDCPPackage(args[1],
-                args[2],
+        DCPBuilder.buildDCPPackage(args[0],
+                args[1],
                 trackFiles,
                 workingFolder);
     }
