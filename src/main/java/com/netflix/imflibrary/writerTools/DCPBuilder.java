@@ -166,7 +166,7 @@ public class DCPBuilder {
     }
 
     private static void usage(){
-        logger.info(String.format("\t DCPBuilder usage \n"));
+        logger.info(String.format("DCPBuilder usage %n"));
         logger.info(String.format("<annotationText> <issuer> <AudioTrackFile> <VideoTrackFile> <WorkingFolder>"));
         System.exit(-1);
     }
