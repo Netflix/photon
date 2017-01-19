@@ -337,7 +337,7 @@ public class DCPCompositionPlaylistBuilder {
     }
 
     @Nullable
-    private static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+    public static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
         long rangeEnd = archiveFileSize - 1;
         long rangeStart = archiveFileSize - 4;
