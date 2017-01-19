@@ -326,7 +326,7 @@ public class DCPCompositionPlaylistBuilder {
             Preface preface = headerPartition.getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
             SourcePackage filePackage = (SourcePackage)genericPackage;
-            UUID trackFileId = filePackage.getPackageMaterialNumberasUUID();
+            packageUUID = filePackage.getPackageMaterialNumberasUUID();
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
         } catch (MXFException e) {
