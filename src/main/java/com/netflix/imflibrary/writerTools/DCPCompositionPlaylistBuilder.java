@@ -323,12 +323,10 @@ public class DCPCompositionPlaylistBuilder {
              * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
              * are in fact from the constituent resources of the VirtualTack
              */
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+            Preface preface = headerPartition.getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            packageUUID = filePackage.getPackageMaterialNumberasUUID();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            UUID trackFileId = filePackage.getPackageMaterialNumberasUUID();
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
         } catch (MXFException e) {
