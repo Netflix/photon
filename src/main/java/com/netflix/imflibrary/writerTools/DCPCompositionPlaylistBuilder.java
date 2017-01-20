@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class DCPCompositionPlaylistBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(DCPCompositionPlaylistBuilder.class);
+    private static final Integer MAX_HEADER_PARTITION_SIZE = Integer.MAX_VALUE/10;
 
     private final String annotationText;
     private final UUID cplUUID;
@@ -361,6 +362,7 @@ public class DCPCompositionPlaylistBuilder {
         if (partitionByteOffsets.size() >= 2) {
             rangeStart = partitionByteOffsets.get(0);
             rangeEnd = partitionByteOffsets.get(1) - 1;
+            rangeEnd = Math.min(MAX_HEADER_PARTITION_SIZE, rangeEnd);
             byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
             PayloadRecord headerParitionPayload = new PayloadRecord(headerPartitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
             return headerParitionPayload;

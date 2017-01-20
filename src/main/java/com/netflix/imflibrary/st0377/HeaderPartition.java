@@ -135,6 +135,10 @@ public final class HeaderPartition
         while (numBytesRead < maxPartitionSize)
         {
             KLVPacket.Header header = new KLVPacket.Header(byteProvider, byteOffsetOfNextKLVPacket);
+            if(header.getByteOffset() + header.getKLSize() + header.getVSize() > maxPartitionSize) {
+                break;
+            }
+
             //logger.info(String.format("Found KLV item with key = %s, length field size = %d, length value = %d", new MXFUID(header.getKey()), header.getLSize(), header.getVSize()));
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
