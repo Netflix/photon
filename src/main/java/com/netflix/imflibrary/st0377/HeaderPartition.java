@@ -560,7 +560,9 @@ public final class HeaderPartition
             if(strongRefsCollection != null) {
                 List<InterchangeObject.InterchangeObjectBO.StrongRef> strongRefs = strongRefsCollection.getEntries();
                 for (InterchangeObject.InterchangeObjectBO.StrongRef strongRef : strongRefs) {
-                    subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+                    if(uidToBOs.get(strongRef.getInstanceUID()) != null) {
+                        subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+                    }
                 }
             }
         }
@@ -589,7 +591,9 @@ public final class HeaderPartition
         if(strongRefCollection != null) { /*There might be essences that have no SubDescriptors*/
             List<InterchangeObject.InterchangeObjectBO.StrongRef> strongRefList = strongRefCollection.getEntries();
             for (InterchangeObject.InterchangeObjectBO.StrongRef strongRef : strongRefList) {
-                subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+                if(uidToBOs.get(strongRef.getInstanceUID()) != null) {
+                    subDescriptors.add(uidToBOs.get(strongRef.getInstanceUID()));
+                }
             }
         }
         return subDescriptors;
