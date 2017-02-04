@@ -48,7 +48,8 @@ public class ApplicationCompositionFactory {
 
     public enum ApplicationCompositionType {
         APPLICATION_2_COMPOSITION_TYPE(Application2Composition.class,          namespacesApplication2Composition),
-        APPLICATION_2E_COMPOSITION_TYPE(Application2ExtendedComposition.class, namespacesApplication2EComposition);
+        APPLICATION_2E_COMPOSITION_TYPE(Application2ExtendedComposition.class, namespacesApplication2EComposition),
+        APPLICATION_UNSUPPORTED_COMPOSITION_TYPE(ApplicationUnsupportedComposition.class, Collections.unmodifiableSet(new HashSet<>()));
         private Set<String> nameSpaceSet;
         private Class<?> clazz;
 
@@ -67,13 +68,17 @@ public class ApplicationCompositionFactory {
 
         public static @Nullable ApplicationCompositionType fromApplicationID(String applicationIdentification) {
 
+            if(applicationIdentification == null || applicationIdentification.isEmpty()) {
+                return null;
+            }
+
             for(ApplicationCompositionType applicationCompositionType : ApplicationCompositionType.values()) {
                 if(applicationCompositionType.getNameSpaceSet().contains(applicationIdentification)) {
                     return applicationCompositionType;
                 }
             }
 
-            return null;
+            return APPLICATION_UNSUPPORTED_COMPOSITION_TYPE;
         }
     }
 
