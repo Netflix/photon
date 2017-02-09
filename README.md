@@ -58,9 +58,6 @@ java -cp ./build/libs/*: <fully qualified class name> <zero or more arguments>
 ```
 E.g.,
 ```
-java -cp ./build/libs/*: com.netflix.imflibrary.app.IMFTrackFileReader imf_track_file_path working_directory_path
-```
-```
 java -cp ./build/libs/*: com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
 ```
 ```
@@ -87,9 +84,6 @@ It will download all dependencies into build\libs directory, where Photon.*.jar 
 java -cp build\libs\*; <fully qualified class name> <zero or more arguments>
 ```
 E.g.,
-```
-java -cp build\libs\*; com.netflix.imflibrary.app.IMFTrackFileReader imf_track_file_path working_directory_path
-```
 ```
 java -cp build\libs\*; com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
 ```
