@@ -57,7 +57,6 @@ final class IMFCoreConstraintsChecker {
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
-            //TODO: Support for subtitle sequence needed
             if (!(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)

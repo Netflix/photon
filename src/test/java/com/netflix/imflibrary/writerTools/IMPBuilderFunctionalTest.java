@@ -143,7 +143,7 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
-                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEssenceVirtualTracks(),
                 applicationComposition.getEditRate(),
                 "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
@@ -275,7 +275,7 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",
-                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEssenceVirtualTracks(),
                 applicationComposition.getEditRate(),
                 "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
@@ -385,7 +385,7 @@ public class IMPBuilderFunctionalTest {
 
         IMPBuilder.buildIMP_2013("IMP",
                 "Netflix",
-                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEssenceVirtualTracks(),
                 applicationComposition.getEditRate(),
                 "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
