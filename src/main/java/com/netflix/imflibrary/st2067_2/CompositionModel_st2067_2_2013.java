@@ -75,7 +75,7 @@ final class CompositionModel_st2067_2_2013 {
                         }
 
                     } else {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type in Marker Sequence");
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "Unsupported Resource type in Marker Sequence");
                     }
 
                     if (baseResource != null) {
@@ -98,7 +98,7 @@ final class CompositionModel_st2067_2_2013 {
                         details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
                     }
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
-                            .IMFErrors.ErrorLevels.WARNING, String.format("Unsupported sequence type or schema %s",
+                            .IMFErrors.ErrorLevels.NON_FATAL, String.format("Unsupported sequence type or schema %s",
                             details));
                     continue;
                 }

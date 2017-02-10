@@ -474,7 +474,7 @@ public class IMPValidator {
         UUID referenceCPLUUID = applicationCompositions.get(0).getUUID();
         for (int i = 1; i < applicationCompositions.size(); i++) {
             if (!referenceVideoVirtualTrack.equivalent(applicationCompositions.get(i).getVideoVirtualTrack())) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
             }
         }
 
@@ -501,7 +501,7 @@ public class IMPValidator {
             Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
             for (int i = 1; i < audioVirtualTracksMapList.size(); i++) {
                 if (!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)), imfErrorLogger)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceCPLUUID));
                 }
             }
         }
@@ -513,8 +513,8 @@ public class IMPValidator {
         if (referenceMarkerVirtualTrack != null) {
             UUID referenceMarkerCPLUUID = applicationCompositions.get(0).getUUID();
             for (int i = 1; i < applicationCompositions.size(); i++) {
-                if (!referenceVideoVirtualTrack.equivalent(applicationCompositions.get(i).getMarkerVirtualTrack())) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceMarkerCPLUUID));
+                if (!referenceMarkerVirtualTrack.equivalent(applicationCompositions.get(i).getMarkerVirtualTrack())) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", applicationCompositions.get(i).getUUID(), referenceMarkerCPLUUID));
                 }
             }
         }

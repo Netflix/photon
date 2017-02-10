@@ -437,7 +437,7 @@ public class IMPValidatorFunctionalTests {
 
         IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
-                applicationComposition.getVirtualTracks(),
+                applicationComposition.getEssenceVirtualTracks(),
                 applicationComposition.getEditRate(),
                 "http://www.smpte-ra.org/schemas/2067-21/2016",
                 imfTrackFileMetadataMap,
@@ -519,7 +519,7 @@ public class IMPValidatorFunctionalTests {
             }}));
         }
 
-        Assert.assertEquals(errors.size(), 1);
+        Assert.assertEquals(errors.size(), 2);
     }
 
     @Test

@@ -277,163 +277,109 @@
       <Id>urn:uuid:e9e18479-6116-40f4-a891-9ef999c80f2a</Id>
       <Annotation>BLACKL_202_HD_REC709_178_ENG</Annotation>
       <SequenceList>
-        <!--
-        <cc:MarkerSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
-          <Id>urn:uuid:3fe86415-7d9c-49af-bb6b-97af2054c0d4</Id>
-          <TrackId>urn:uuid:19de6c38-d921-448c-b4e0-ecadc459b36b</TrackId>
+        <cc:MarkerSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-3/2013">
+          <Id>urn:uuid:8d803197-26db-41a8-a256-c25e5b2c0d13</Id>
+          <TrackId>urn:uuid:9b2b4b55-86ed-4e07-b5ba-7f8da05682e0</TrackId>
           <ResourceList>
             <Resource xsi:type="MarkerResourceType">
-			  <Id>urn:uuid:a2ddf23e-b87b-48fb-b1bc-0ce5f61346c0</Id>
-			  <IntrinsicDuration>7148</IntrinsicDuration>
+              <Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>
+              <IntrinsicDuration>7148</IntrinsicDuration>
               <Marker>
-                <Annotation/>
-                <Label>FFHS</Label>
-                <Offset>0</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>LFHS</Label>
-                <Offset>95</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>FFBT</Label>
-                <Offset>168</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>LFBT</Label>
-                <Offset>407</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>FFSP</Label>
-                <Offset>480</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
                 <Label>FFCL</Label>
-                <Offset>720</Offset>
+                <Offset>24</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FPCI</Label>
-                <Offset>720</Offset>
+                <Offset>24</Offset>
               </Marker>
               <Marker>
-                <Annotation/>
                 <Label>LFCL</Label>
-                <Offset>815</Offset>
+                <Offset>119</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFMC</Label>
-                <Offset>816</Offset>
+                <Offset>120</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFMC</Label>
-                <Offset>1332</Offset>
+                <Offset>636</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFCB</Label>
-                <Offset>1333</Offset>
+                <Offset>637</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFCB</Label>
-                <Offset>1386</Offset>
+                <Offset>690</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFMC</Label>
-                <Offset>1387</Offset>
+                <Offset>691</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFMC</Label>
-                <Offset>1943</Offset>
+                <Offset>1247</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FPCI</Label>
-                <Offset>1943</Offset>
+                <Offset>1247</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFOI</Label>
-                <Offset>1944</Offset>
+                <Offset>1248</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFOI</Label>
-                <Offset>2063</Offset>
+                <Offset>1367</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFEC</Label>
-                <Offset>2064</Offset>
+                <Offset>1368</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFEC</Label>
-                <Offset>3012</Offset>
+                <Offset>2316</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFMC</Label>
-                <Offset>3013</Offset>
+                <Offset>2317</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFMC</Label>
-                <Offset>6547</Offset>
+                <Offset>5851</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FPCI</Label>
-                <Offset>6547</Offset>
+                <Offset>5852</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>FFCL</Label>
-                <Offset>6548</Offset>
+                <Offset>5852</Offset>
               </Marker>
               <Marker>
                 <Annotation/>
                 <Label>LFCL</Label>
-                <Offset>6643</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>LFSP</Label>
-                <Offset>6883</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>FFTS</Label>
-                <Offset>6884</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>LFTS</Label>
-                <Offset>6979</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>FTXM</Label>
-                <Offset>6980</Offset>
-              </Marker>
-              <Marker>
-                <Annotation/>
-                <Label>LTXM</Label>
-                <Offset>7099</Offset>
+                <Offset>5947</Offset>
               </Marker>
             </Resource>
           </ResourceList>
         </cc:MarkerSequence>
-        -->
         <!--
         <cc:MainImageSequence xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2014">
         -->
