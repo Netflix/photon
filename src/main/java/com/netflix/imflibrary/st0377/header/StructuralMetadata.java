@@ -624,6 +624,8 @@ public final class StructuralMetadata
                     return AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class;
                 case 0x6c :
                     return SoundFieldGroupLabelSubDescriptor.SoundFieldGroupLabelSubDescriptorBO.class;
+                case 0x6d :
+                    return GroupOfSoundFieldGroupLabelSubDescriptor.GroupOfSoundFieldGroupLabelSubDescriptorBO.class;
                 case 0x5A :
                     return JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO.class;
                 default :
