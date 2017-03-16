@@ -131,11 +131,6 @@ public final class IndexTableSegment
                 MXFPropertyPopulator.populateField(byteProvider, this, itemName);
                 numBytesRead += itemSize;
             }
-            else if (itemTag == 0x3f09)
-            {
-                byteProvider.skipBytes(itemSize);
-                numBytesRead += itemSize;
-            }
             else if (itemTag == 0x3f0a)
             {
                 indexEntryArray = new IndexEntryArray(byteProvider);
@@ -143,7 +138,8 @@ public final class IndexTableSegment
             }
             else
             {
-                throw new MXFException(String.format("Found unexpected IndexTableSegment LocalTag = 0x%x", itemTag));
+                byteProvider.skipBytes(itemSize);
+                numBytesRead += itemSize;
             }
         }
         this.indexEntryArray = indexEntryArray;
