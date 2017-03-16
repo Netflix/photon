@@ -42,4 +42,18 @@ public final class Utilities {
         }
         return stringBuilder.toString();
     }
+
+    public static String getVersionString(Class<?> theClass)
+    {
+        String version = "0.0.0";
+        if(theClass.getPackage() != null && theClass.getPackage().getImplementationVersion() != null) {
+            return theClass.getPackage().getImplementationVersion();
+        }
+        return version;
+    }
+
+    public static String appendPhotonVersionString(String message)
+    {
+        return message + " [Photon version: " + Utilities.getVersionString(Utilities.class) + "]";
+    }
 }
