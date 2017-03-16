@@ -24,7 +24,6 @@ import java.util.List;
 
 public interface ErrorLogger
 {
-
     /**
      * Getter for the number of errors
      *
@@ -59,7 +58,8 @@ public interface ErrorLogger
         {
             this.errorCode = errorCode;
             this.errorLevel = errorLevel;
-            this.errorDescription = errorDescription;
+            this.errorDescription = Utilities.appendPhotonVersionString(errorDescription);
+            ;
         }
 
         /**
