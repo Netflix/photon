@@ -3,25 +3,28 @@ package com.netflix.imflibrary.RESTfulInterfaces;
 import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.IndexTableSegment;
+import com.netflix.imflibrary.st0377.PartitionPack;
+import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.st0377.HeaderPartition;
-import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
+import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -835,5 +838,52 @@ public class IMPValidator {
             logger.info("No errors were detected in the AssetMap Document");
         }
 
+    }
+
+    /**
+     * A stateless method that validates IndexTable segments within partitions
+     * @param essencesPartitionPayloads - a list of IMF Essence Component partition payloads
+     * @return a list of errors encountered while performing compliance checks on IndexTable segments within partition payloads
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> validateIndexTableSegments(List<PayloadRecord> essencesPartitionPayloads) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        for(PayloadRecord payloadRecord : essencesPartitionPayloads){
+            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format
+                                ("Payload asset type is %s, expected asset type %s",
+                                        payloadRecord
+                                                .getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                continue;
+            }
+            try {
+                PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(payloadRecord.getPayload()));
+                if (partitionPack.hasIndexTableSegments())
+                {//logic to provide as an input stream the portion of the archive that contains a Partition
+                    ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(payloadRecord.getPayload());
+
+                    long numBytesToRead = payloadRecord.getPayload().length;
+                    long numBytesRead = 0;
+                    while (numBytesRead < numBytesToRead) {
+                            KLVPacket.Header header = new KLVPacket.Header(imfEssenceComponentByteProvider, 0);
+                            numBytesRead += header.getKLSize();
+
+                            if (IndexTableSegment.isValidKey(header.getKey())) {
+                                new IndexTableSegment(imfEssenceComponentByteProvider, header);
+                            } else {
+                                imfEssenceComponentByteProvider.skipBytes(header.getVSize());
+                            }
+                            numBytesRead += header.getVSize();
+                    }
+
+                }
+            } catch (MXFException e) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, e.getMessage());
+            }
+
+        }
+        return imfErrorLogger.getErrors();
     }
 }
