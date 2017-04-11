@@ -93,6 +93,7 @@ public class CompositionPlaylistBuilder_2013 {
     private final String cplFileName;
 
     private final String applicationId;
+    Map<UUID, UUID> trackResourceSourceEncodingMap;
 
 
     /**
@@ -133,7 +134,16 @@ public class CompositionPlaylistBuilder_2013 {
         this.imfErrorLogger = new IMFErrorLoggerImpl();
         cplFileName = "CPL-" + this.uuid.toString() + ".xml";
         this.applicationId = applicationId;
-    }
+        this.trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
+
+        for(Composition.VirtualTrack virtualTrack : virtualTracks) {
+            for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
+                UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
+                if (sourceEncoding == null) {
+                    trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
+                }
+            }
+        }    }
 
     /**
      * A method to build a CompositionPlaylist document conforming to the st2067-2/3:2013 schema
@@ -221,18 +231,6 @@ public class CompositionPlaylistBuilder_2013 {
 
     private List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> buildEDLForVirtualTrack (Composition.VirtualTrack virtualTrack) throws IOException, ParserConfigurationException{
 
-        Map<UUID, UUID> trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
-        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)virtualTrack.getResourceList()){
-            UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
-            if(sourceEncoding != null
-                    && !sourceEncoding.equals(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()))){
-                throw new IMFAuthoringException(String.format("Error occurred while trying to build the EssenceDescriptorList for the CPL document. It seems like VirtualTrackId %s, has 2 resources with the same TrackFileId %s but different SourceEncodingElement %s and %s values. This is ambiguous and invalid.", virtualTrack.getTrackID(), trackResource.getTrackFileId(), trackResource.getSourceEncoding(), sourceEncoding));
-            }
-            else{
-                trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
-            }
-        }
-
         List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         Set<UUID> trackResourceIds = IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds();
         /**
@@ -270,7 +268,7 @@ public class CompositionPlaylistBuilder_2013 {
 
                 DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(regXMLLibHelper, document, essenceDescriptorHeader, subDescriptorHeaders,resourceByteRangeProvider);
                 Node node = documentFragment.getFirstChild();
-                UUID essenceDescriptorId = trackResourceSourceEncodingMap.get(uuid);
+                UUID essenceDescriptorId = this.trackResourceSourceEncodingMap.get(uuid);
                 org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = buildEssenceDescriptorBaseType(essenceDescriptorId, node);
                 essenceDescriptorList.add(essenceDescriptorBaseType);
             }
@@ -615,7 +613,7 @@ public class CompositionPlaylistBuilder_2013 {
         trackFileResource.setEntryPoint(trackResource.getEntryPoint());
         trackFileResource.setSourceDuration(trackResource.getSourceDuration());
         trackFileResource.setRepeatCount(trackResource.getRepeatCount());
-        trackFileResource.setSourceEncoding(trackResource.getSourceEncoding());
+        trackFileResource.setSourceEncoding(UUIDHelper.fromUUID(this.trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()))));
         trackFileResource.setHash(trackResource.getHash());
 
         return trackFileResource;
