@@ -7,6 +7,7 @@ import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
@@ -133,7 +134,7 @@ public class IMPAnalyzer {
 
     }
 
-    private static List<PayloadRecord> getPartitionPayloadRecords(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static List<PayloadRecord> getIndexTablePartitionPayloadRecords(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         List<PayloadRecord> payloadRecords = new ArrayList<>();
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
         long rangeEnd = archiveFileSize - 1;
@@ -160,9 +161,17 @@ public class IMPAnalyzer {
         for(int i =0; i < partitionByteOffsets.size() -1; i++) {
             rangeStart = partitionByteOffsets.get(i);
             rangeEnd = partitionByteOffsets.get(i+1) - 1;
-            byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-            PayloadRecord partitionPayloadRecord = new PayloadRecord(headerPartitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-            payloadRecords.add(partitionPayloadRecord);
+            byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+            PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(partitionBytes));
+            //2067-5 section 5.1.1
+            if (partitionPack.hasEssenceContainer() && partitionPack.hasIndexTableSegments()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Partition %d has both index table and essence", i));
+            }
+            else if (partitionPack.hasIndexTableSegments()) {
+                PayloadRecord partitionPayloadRecord = new PayloadRecord(partitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
+                payloadRecords.add(partitionPayloadRecord);
+            }
         }
         return payloadRecords;
 
@@ -233,7 +242,7 @@ public class IMPAnalyzer {
                                         trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
                                         headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
                                     }
-                                    List<PayloadRecord>  payloadRecords = getPartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+                                    List<PayloadRecord>  payloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
                                     trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(payloadRecords));
                                 } catch( MXFException e) {
                                     trackFileErrorLogger.addAllErrors(e.getErrors());
@@ -352,7 +361,7 @@ public class IMPAnalyzer {
             }
 
         // Validate index table segments
-        List<PayloadRecord>  payloadRecords = getPartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+        List<PayloadRecord>  payloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
         trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(payloadRecords));
 
         return trackFileErrorLogger.getErrors();
