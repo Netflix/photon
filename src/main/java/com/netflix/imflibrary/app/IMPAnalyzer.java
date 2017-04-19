@@ -2,6 +2,7 @@ package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
@@ -14,11 +15,15 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +31,17 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.*;
+import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateAssetMap;
+import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateCPL;
+import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validatePKL;
 
 /**
  * Created by svenkatrav on 9/2/16.
@@ -134,6 +147,32 @@ public class IMPAnalyzer {
 
     }
 
+    private static PartitionPack getPartitionPack(ResourceByteRangeProvider resourceByteRangeProvider, long resourceOffset) throws IOException
+    {
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        KLVPacket.Header header;
+        {//logic to provide as an input stream the portion of the archive that contains PartitionPack KLVPacker Header
+            long rangeStart = resourceOffset;
+            long rangeEnd = resourceOffset +
+                    (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
+            rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
+
+            byte[] bytesWithPartitionPackKLVPacketHeader = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+            ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(bytesWithPartitionPackKLVPacketHeader);
+            header = new KLVPacket.Header(imfEssenceComponentByteProvider, rangeStart);
+        }
+
+        PartitionPack partitionPack;
+        long rangeStart = resourceOffset;
+        long rangeEnd = resourceOffset + header.getKLSize() + header.getVSize() - 1;
+        rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
+
+        byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        partitionPack = new PartitionPack(new ByteArrayDataProvider(partitionBytes));
+
+        return partitionPack;
+    }
+
     private static List<PayloadRecord> getIndexTablePartitionPayloadRecords(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         List<PayloadRecord> payloadRecords = new ArrayList<>();
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
@@ -161,14 +200,14 @@ public class IMPAnalyzer {
         for(int i =0; i < partitionByteOffsets.size() -1; i++) {
             rangeStart = partitionByteOffsets.get(i);
             rangeEnd = partitionByteOffsets.get(i+1) - 1;
-            byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-            PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(partitionBytes));
+            PartitionPack partitionPack = getPartitionPack(resourceByteRangeProvider, rangeStart);
             //2067-5 section 5.1.1
             if (partitionPack.hasEssenceContainer() && partitionPack.hasIndexTableSegments()) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Partition %d has both index table and essence", i));
             }
             else if (partitionPack.hasIndexTableSegments()) {
+                byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
                 PayloadRecord partitionPayloadRecord = new PayloadRecord(partitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
                 payloadRecords.add(partitionPayloadRecord);
             }
