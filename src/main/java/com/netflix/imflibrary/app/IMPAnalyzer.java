@@ -26,9 +26,12 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -484,6 +487,42 @@ public class IMPAnalyzer {
 
     }
 
+    private static JSONObject format_json_errors(String file, List<ErrorLogger.ErrorObject> errors)
+    {
+        JSONObject report = new JSONObject();
+        report.put("filename", file);
+
+        JSONArray json_errors = new JSONArray();
+        JSONArray json_warnings = new JSONArray();
+        for (ErrorLogger.ErrorObject errorObject : errors) {
+            JSONObject error = new JSONObject();
+            error.put("code", errorObject.getErrorCode().toString());
+            error.put("description", errorObject.getErrorDescription());
+
+            if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                json_errors.add(error);
+            } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                json_warnings.add(error);
+            }
+        }
+
+        report.put("errors", json_errors);
+        report.put("warnings", json_warnings);
+        return report;
+    }
+
+    private static void write_json_result(JSONObject report, String inputFileName)
+    {
+        try {
+            FileWriter file = new FileWriter(inputFileName + "photon_report.json");
+            file.write(report.toJSONString());
+            file.flush();
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String args[]) throws IOException
     {
         if (args.length != 1)
@@ -492,8 +531,13 @@ public class IMPAnalyzer {
             System.exit(-1);
         }
 
+
+        JSONObject report = new JSONObject();
+
         String inputFileName = args[0];
         File inputFile = new File(inputFileName);
+        report.put("input_file", inputFile.getName());
+
         if(!inputFile.exists()){
             logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
             System.exit(-1);
@@ -503,13 +547,20 @@ public class IMPAnalyzer {
             logger.info("==========================================================================" );
             logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
             logger.info("==========================================================================");
-
+            report.put("kind", "imf_analysis");
+            JSONArray files_report = new JSONArray();
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
                     logErrors(entry.getKey(), entry.getValue());
+
+                    JSONObject errors = format_json_errors(entry.getKey(), entry.getValue());
+                    files_report.add(errors);
                 }
             }
+
+            report.put("files", files_report);
 
             logger.info("\n\n\n");
             logger.info("==========================================================================" );
@@ -528,8 +579,11 @@ public class IMPAnalyzer {
             logger.info("==========================================================================\n" );
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
             logger.info("==========================================================================\n");
+            report.put("kind", "file_analysis");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
             logErrors(inputFile.getName(), errors);
         }
+
+        write_json_result(report, inputFileName);
     }
 }
