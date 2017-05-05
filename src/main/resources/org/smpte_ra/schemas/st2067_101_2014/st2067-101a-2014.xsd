@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/2067-101/2014/lanczos"
+	xmlns:lanc="http://www.smpte-ra.org/schemas/2067-101/2014/lanczos"
+	xmlns:ism="http://www.smpte-ra.org/schemas/2067-101/2014/scale-macro"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.smpte-ra.org/schemas/2067-101/2014/scale-macro" schemaLocation="st2067-101d-2014.xsd"/>
+	<xs:complexType name="LanczosType">
+		<xs:complexContent>
+			<xs:extension base="ism:ScalingAlgorithmType">
+				<xs:attribute name="parameterA" type="xs:positiveInteger"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

@@ -54,6 +54,7 @@ public class PayloadRecord {
         TextPartition("TextPartition"),
         EssenceFooter4Bytes("EssenceFooter4Bytes"),
         EssencePartition("EssencePartition"),
+        OutputProfileList("OutputProfileList"),
         Unknown("Unknown");
 
         private final String assetType;

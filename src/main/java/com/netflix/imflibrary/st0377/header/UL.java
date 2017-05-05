@@ -80,6 +80,19 @@ public class UL {
     }
 
     /**
+     * toStringBytes() method
+     * @return string representation of the UL object with a "." separation between bytes
+     */
+    public String toStringBytes(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(String.format("%02x", this.ul[0]));
+        for(int i = 1; i < this.ul.length; i++) {
+            stringBuilder.append(String.format(".%02x", this.ul[i]));
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
      * A helper method to return the UUID without the "urn:uuid:" prefix
      * @param ULasURN a urn:uuid type
      * @return a UL without the "urn:smpte:ul:" prefix

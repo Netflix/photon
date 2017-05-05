@@ -136,7 +136,12 @@ public interface IMFErrorLogger extends ErrorLogger
             /**
              * SMPTE_REGISTER_PARSING_ERROR.
              */
-            SMPTE_REGISTER_PARSING_ERROR("SMPTE Register parsing error");
+            SMPTE_REGISTER_PARSING_ERROR("SMPTE Register parsing error"),
+
+            /**
+             * The IMF_OPL_ERROR.
+             */
+            IMF_OPL_ERROR("IMF OPL Error");
 
             private final String error;
 
