@@ -43,6 +43,7 @@ import java.util.UUID;
 
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateAssetMap;
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateCPL;
+import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateOPL;
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validatePKL;
 
 /**
@@ -515,6 +516,9 @@ public class IMPAnalyzer {
                 break;
             case CompositionPlaylist:
                 errorLogger.addAllErrors(validateCPL(payloadRecord));
+                break;
+            case OutputProfileList:
+                errorLogger.addAllErrors(validateOPL(payloadRecord));
                 break;
             default:
                 errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,

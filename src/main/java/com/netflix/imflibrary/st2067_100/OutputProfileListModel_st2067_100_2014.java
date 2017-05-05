@@ -52,6 +52,10 @@ class OutputProfileListModel_st2067_100_2014 {
         this.normalizedOutputProfileList = createNormalizedOutputProfileList();
     }
 
+    public OutputProfileList getNormalizedOutputProfileList() {
+        return normalizedOutputProfileList;
+    }
+
     /**
      * A stateless method that reads and parses OPL as per st 2067-100:2014 schema and returns normalized(schema agnostic) OutputProfileList object.
      * @return Normalized object model for OutputProfileList
@@ -73,6 +77,8 @@ class OutputProfileListModel_st2067_100_2014 {
 
         OutputProfileList normalizedOutputProfileList = new OutputProfileList( outputProfileListType.getId(), outputProfileListType.getAnnotation().getValue(),
                 outputProfileListType.getCompositionPlaylistId(), aliasMap, macroMap);
+
+        this.imfErrorLogger.addAllErrors(normalizedOutputProfileList.getErrors());
 
         return normalizedOutputProfileList;
     }
@@ -217,9 +223,5 @@ class OutputProfileListModel_st2067_100_2014 {
         }
 
         return new AudioRoutingMixingMacro(audioRoutingMixingMacroType.getName(), audioRoutingMixingMacroType.getAnnotation().getValue(), outputAudioChannels);
-    }
-
-    public OutputProfileList getNormalizedOutputProfileList() {
-        return normalizedOutputProfileList;
     }
 }

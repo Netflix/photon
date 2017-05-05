@@ -47,6 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -72,6 +73,7 @@ import java.util.UUID;
 /**
  * A class that models an IMF OutputProfileList structure.
  */
+@Immutable
 public final class OutputProfileList {
     private final static QName  outputProfileList_QNAME             = new QName("http://www.smpte-ra.org/schemas/2067-100/2014", "OutputProfileList");
     private final static String outputProfileList_context_path      = "org.w3._2000._09.xmldsig_:" +
@@ -106,10 +108,6 @@ public final class OutputProfileList {
     private final IMFErrorLogger            imfErrorLogger;
     private final Map<String, Macro>        macroMap;
     private final Map<String, String>       aliasMap;
-    private final Map<String, Handle>       handleMap;
-    private Map<String, Handle>             handleMapConformed;
-
-
 
     public OutputProfileList(String id,
                              String annotation,
@@ -129,19 +127,20 @@ public final class OutputProfileList {
         for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
             Macro macro = entry.getValue();
             if (macro != null) {
-                for (Sequence output : macro.getOutputs()) {
-                    handleMap.put(output.getHandle(), new MacroHandle(output.getHandle(), macro));
+                for (Sequence input : macro.getInputs()) {
+                    if(input.getHandle().startsWith("cpl/")) {
+                        handleMap.put(input.getHandle(), new VirtualTrackHandle(input.getHandle(), null));
+                    }
                 }
             }
         }
 
-        this.handleMap = Collections.unmodifiableMap(handleMap);
-        this.handleMapConformed = new HashMap<>();
+        populateMacroHandles( handleMap);
 
 
         if(imfErrorLogger.hasFatalErrors())
         {
-            throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
+            throw new IMFException("Failed to create OutputProfileList", imfErrorLogger);
         }
     }
 
@@ -249,9 +248,60 @@ public final class OutputProfileList {
      */
     public List<ErrorLogger.ErrorObject> applyOutputProfileOnComposition(ApplicationComposition applicationComposition) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<? extends Composition.VirtualTrack> virtualTrackList = applicationComposition.getVirtualTracks();
+        Map<String, Handle> handleMapConformed = getHandleMapWithApplicationComposition(applicationComposition, imfErrorLogger);
+
+        /**
+         * Validate alias handles
+         */
+        for(String handle: this.aliasMap.values()) {
+            Handle handleType = handleMapConformed.get(handle);
+            if (handleType == null) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("Invalid handle %s in alias", handle));
+            }
+        }
+
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A method to get handle map with Application Composition applied on output profile
+     * @param applicationComposition ApplicationComposition related to this output profile
+     * @return Map containing a string handle to object representation of the handle
+     */
+    public Map<String, Handle> getHandleMapWithApplicationComposition(ApplicationComposition applicationComposition, IMFErrorLogger imfErrorLogger) {
         Map<String, Handle> handleMapConformed = new HashMap<>();
 
+        /**
+         * Add handles for CPL tracks
+         */
+        populateCPLVirtualTrackHandles(applicationComposition, handleMapConformed);
+
+        /**
+         * Add handles for OPL macros
+         */
+        populateMacroHandles(handleMapConformed);
+
+        /**
+         * Verify that input dependencies for all the macros are resolved
+         */
+        for(Map.Entry<String, Macro> entry: this.macroMap.entrySet()) {
+            Macro macro = entry.getValue();
+            for(Sequence input: macro.getInputs()) {
+                Handle handleType = handleMapConformed.get(input.getHandle());
+                if (handleType == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("Invalid handle %s in %s macro", input.getHandle(), macro.getName()));
+                }
+            }
+        }
+
+        return handleMapConformed;
+    }
+
+
+    private static Map<String, Handle> populateCPLVirtualTrackHandles(ApplicationComposition applicationComposition, Map<String, Handle> handleMap) {
+        List<? extends Composition.VirtualTrack> virtualTrackList = applicationComposition.getVirtualTracks();
         for(Composition.VirtualTrack virtualTrack: virtualTrackList) {
             switch(virtualTrack.getSequenceTypeEnum()) {
 
@@ -259,7 +309,7 @@ public final class OutputProfileList {
                     StringBuilder handleBuilder = new StringBuilder();
                     handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                     Handle handleType = new VirtualTrackHandle(handleBuilder.toString(), virtualTrack);
-                    handleMapConformed.put(handleBuilder.toString(), handleType);
+                    handleMap.put(handleBuilder.toString(), handleType);
                 }
                 break;
 
@@ -274,7 +324,7 @@ public final class OutputProfileList {
                                 handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                                 handleBuilder.append("/MCADictionaryLabelID=" + mcaLabelDictionaryID.toStringBytes());
                                 Handle handleType = new MCADictionaryIdHandle(handleBuilder.toString(), virtualTrack, mcaLabelDictionaryID);
-                                handleMapConformed.put(handleBuilder.toString(), handleType);
+                                handleMap.put(handleBuilder.toString(), handleType);
                             }
 
                             Set<UUID> mcaLinkIDs = domNodeObjectModel.getFieldsAsUUID("MCALinkID");
@@ -283,7 +333,7 @@ public final class OutputProfileList {
                                 handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                                 handleBuilder.append("/MCALinkID=" + mcaLinkID.toString());
                                 Handle handleType = new MCALinkIdHandle(handleBuilder.toString(), virtualTrack, mcaLinkID);
-                                handleMapConformed.put(handleBuilder.toString(), handleType);
+                                handleMap.put(handleBuilder.toString(), handleType);
                             }
 
                             Set<String> mcaTagSymbols = domNodeObjectModel.getFieldsAsStringRecursive("MCATagSymbol");
@@ -292,7 +342,7 @@ public final class OutputProfileList {
                                 handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                                 handleBuilder.append("/MCATagSymbol=" + mcaTagSymbol);
                                 Handle handleType = new MCATagSymbolHandle(handleBuilder.toString(), virtualTrack, mcaTagSymbol);
-                                handleMapConformed.put(handleBuilder.toString(), handleType);
+                                handleMap.put(handleBuilder.toString(), handleType);
                             }
                         }
                     }
@@ -300,24 +350,32 @@ public final class OutputProfileList {
                 break;
             }
         }
+        return handleMap;
+    }
 
+    private void populateMacroHandles(Map<String, Handle> handleMap) {
+        /**
+         * Add handles for OPL macros
+         */
         for( int iteration = 0; iteration < this.macroMap.size(); iteration++) {
             Boolean bAllDependencyMet = true;
             for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
                 Macro macro = entry.getValue();
-                if (macro != null) {
+                /* Check for all the input dependencies for the macro */
+                if (macro != null && !handleMap.containsKey(macro.getOutputs().get(0).getHandle())) {
                     boolean bDependencyMet = true;
                     for (Sequence input : macro.getInputs()) {
-                        Handle handleType = handleMapConformed.get(input.getHandle());
+                        Handle handleType = handleMap.get(input.getHandle());
                         if (handleType == null) {
                             bDependencyMet = false;
                         }
                     }
 
                     bAllDependencyMet &= bDependencyMet;
+                    /* If input dependencies are met create output handles */
                     if (bDependencyMet) {
                         for (Sequence output : macro.getOutputs()) {
-                            handleMapConformed.put(output.getHandle(), new MacroHandle(output.getHandle(), macro));
+                            handleMap.put(output.getHandle(), new MacroHandle(output.getHandle(), macro));
                         }
                     }
                 }
@@ -326,31 +384,29 @@ public final class OutputProfileList {
                 break;
             }
         }
-
+        /**
+         * Verify that input dependencies for all the macros are resolved
+         */
         for(Map.Entry<String, Macro> entry: this.macroMap.entrySet()) {
             Macro macro = entry.getValue();
             for(Sequence input: macro.getInputs()) {
-                Handle handleType = handleMapConformed.get(input.getHandle());
+                Handle handleType = handleMap.get(input.getHandle());
                 if (handleType == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Invalid handle %s in %s macro", input.getHandle(), macro.getName()));
                 }
             }
         }
-
-
+        /**
+         * Validate alias handles
+         */
         for(String handle: this.aliasMap.values()) {
-            Handle handleType = handleMapConformed.get(handle);
+            Handle handleType = handleMap.get(handle);
             if (handleType == null) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("Invalid handle %s in alias", handle));
             }
         }
-
-        this.handleMapConformed = Collections.unmodifiableMap(handleMapConformed);
-
-
-        return imfErrorLogger.getErrors();
     }
 
     /**
@@ -373,10 +429,6 @@ public final class OutputProfileList {
         return aliasMap;
     }
 
-    public Map<String, Handle> getHandleMap() {
-        return handleMap;
-    }
-
     public Map<String, Macro> getMacroMap() {
         return macroMap;
     }
@@ -385,13 +437,8 @@ public final class OutputProfileList {
         return compositionPlaylistId;
     }
 
-    public IMFErrorLogger getImfErrorLogger() {
-        return imfErrorLogger;
-    }
-
-
-    public Map<String, Handle> getHandleMapConformed() {
-        return handleMapConformed;
+    public List<ErrorLogger.ErrorObject> getErrors() {
+        return imfErrorLogger.getErrors();
     }
 
     private static String usage()

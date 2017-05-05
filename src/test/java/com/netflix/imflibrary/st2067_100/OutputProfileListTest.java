@@ -24,12 +24,10 @@ public class OutputProfileListTest
         Assert.assertEquals(outputProfileList.getCompositionPlaylistId().toString(), "0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85");
         Assert.assertEquals(outputProfileList.getAliasMap().size(), 3);
         Assert.assertEquals(outputProfileList.getAnnotation().toString(), "OPL Example");
-        Assert.assertEquals(outputProfileList.getHandleMap().size(), 6);
         Assert.assertEquals(outputProfileList.getId().toString(), "8cf83c32-4949-4f00-b081-01e12b18932f");
-        Assert.assertEquals(outputProfileList.getImfErrorLogger().getErrors().size(), 0);
+        Assert.assertEquals(outputProfileList.getErrors().size(), 0);
 
         Assert.assertEquals(outputProfileList.getMacroMap().size(), 5);
-        Assert.assertEquals(outputProfileList.getHandleMapConformed().size(), 0);
     }
 
     @Test
@@ -46,12 +44,11 @@ public class OutputProfileListTest
         Assert.assertEquals(outputProfileList.getCompositionPlaylistId().toString(), "0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85");
         Assert.assertEquals(outputProfileList.getAliasMap().size(), 3);
         Assert.assertEquals(outputProfileList.getAnnotation().toString(), "OPL Example");
-        Assert.assertEquals(outputProfileList.getHandleMap().size(), 6);
         Assert.assertEquals(outputProfileList.getId().toString(), "8cf83c32-4949-4f00-b081-01e12b18932f");
-        Assert.assertEquals(outputProfileList.getImfErrorLogger().getErrors().size(), 0);
 
         Assert.assertEquals(outputProfileList.getMacroMap().size(), 5);
 
-        Assert.assertEquals(outputProfileList.getHandleMapConformed().size(), 28);
+        Assert.assertEquals(outputProfileList.getHandleMapWithApplicationComposition(applicationComposition, imfErrorLogger).size(), 28);
+        Assert.assertEquals(outputProfileList.getErrors().size(), 0);
     }
 }

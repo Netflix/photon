@@ -76,6 +76,9 @@ public class IMPValidator {
         else if(ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
         }
+        else if(OutputProfileList.isOutputProfileList(resourceByteRangeProvider)){
+            return PayloadRecord.PayloadAssetType.OutputProfileList;
+        }
         return PayloadRecord.PayloadAssetType.Unknown;
     }
 
