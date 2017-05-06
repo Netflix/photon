@@ -27,17 +27,23 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
+import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.RegXMLLibHelper;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import com.sandflow.smpte.klv.Triplet;
-import org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2016.CompositionTimecodeType;
 import org.smpte_ra.schemas.st2067_2_2016.ContentVersionType;
+import org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas.st2067_2_2016.SegmentType;
 import org.smpte_ra.schemas.st2067_2_2016.SequenceType;
 import org.w3c.dom.Document;
@@ -60,10 +66,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -182,7 +192,7 @@ public class CompositionPlaylistBuilder_2016 {
         cplRoot.setCompositionTimecode(buildCompositionTimeCode(BigInteger.valueOf(compositionEditRate)));
         */
         cplRoot.setCompositionTimecode(null);
-        cplRoot.setTotalRunningTime(LocalTime.MIN.plusSeconds(totalRunningTime).toString());
+        cplRoot.setTotalRunningTime(String.format("%02d:%02d:%02d", totalRunningTime / 3600, (totalRunningTime % 3600) / 60, (totalRunningTime % 60)));
 
         /**
          * Process each VirtualTrack that is a part of this Composition
