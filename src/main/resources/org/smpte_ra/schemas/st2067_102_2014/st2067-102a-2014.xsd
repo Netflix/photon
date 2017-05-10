@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/2067-102/2014"
+	xmlns:oplcs="http://www.smpte-ra.org/schemas/2067-101/2014/color-schemes"
+xmlns:oplc="http://www.smpte-ra.org/schemas/2067-102/2014"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"> 
+  <xs:import namespace="http://www.smpte-ra.org/schemas/2067-101/2014/color-schemes" schemaLocation="../st2067_101_2014/st2067-101e-2014.xsd"/>
+<xs:simpleType name="Integer1024TripletType">
+	<xs:restriction>
+	   <xs:simpleType>
+		  <xs:list>
+			 <xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="0"/>
+					<xs:maxInclusive value="1023"/>
+				</xs:restriction>
+			 </xs:simpleType>
+		  </xs:list>
+	   </xs:simpleType>
+	   <xs:length value="3"/>
+	</xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="Integer256TripletType">
+	<xs:restriction>
+	   <xs:simpleType>
+		  <xs:list>
+			 <xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="0"/>
+					<xs:maxInclusive value="255"/>
+				</xs:restriction>
+			 </xs:simpleType>
+		  </xs:list>
+	   </xs:simpleType>
+	   <xs:length value="3"/>
+	</xs:restriction>
+</xs:simpleType>
+<xs:complexType name="REC709-RGB-8-ColorEncodingType">
+	<xs:simpleContent>
+	   <xs:restriction base="oplcs:ColorEncodingType">
+		  <xs:simpleType>
+			 <xs:restriction base="oplc:Integer256TripletType"/>
+		  </xs:simpleType>
+	   </xs:restriction>
+	</xs:simpleContent>
+</xs:complexType>
+<xs:complexType name="REC709-RGB-10-ColorEncodingType">
+	<xs:simpleContent>
+	   <xs:restriction base="oplcs:ColorEncodingType">
+		  <xs:simpleType>
+			 <xs:restriction base="oplc:Integer1024TripletType"/>
+		  </xs:simpleType>
+	   </xs:restriction>
+	</xs:simpleContent>
+</xs:complexType>
+<xs:complexType name="REC709-Full-RGB-10-ColorEncodingType">
+	<xs:simpleContent>
+	   <xs:restriction base="oplcs:ColorEncodingType">
+		  <xs:simpleType>
+			 <xs:restriction base="oplc:Integer1024TripletType"/>
+		  </xs:simpleType>
+	   </xs:restriction>
+	</xs:simpleContent>
+</xs:complexType>
+<xs:complexType name="REC709-YCrCb-8-ColorEncodingType">
+	<xs:simpleContent>
+	   <xs:restriction base="oplcs:ColorEncodingType">
+		  <xs:simpleType>
+			 <xs:restriction base="oplc:Integer256TripletType"/>
+		  </xs:simpleType>
+	   </xs:restriction>
+	</xs:simpleContent>
+</xs:complexType>
+
+</xs:schema>

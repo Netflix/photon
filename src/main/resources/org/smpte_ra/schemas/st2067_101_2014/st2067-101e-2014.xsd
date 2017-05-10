@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/2067-101/2014/color-schemes"
+	xmlns:oplc="http://www.smpte-ra.org/schemas/2067-101/2014/color-schemes" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType abstract="true" name="ColorEncodingType">
+		<xs:complexContent>
+	  	 <xs:extension base="xs:anyType"/>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

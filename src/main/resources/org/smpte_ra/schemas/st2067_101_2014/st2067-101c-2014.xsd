@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/2067-101/2014/pixel-encoder"
+	xmlns:penc="http://www.smpte-ra.org/schemas/2067-101/2014/pixel-encoder" 
+xmlns:opl="http://www.smpte-ra.org/schemas/2067-100/2014"
+xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" 
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.smpte-ra.org/schemas/2067-100/2014" schemaLocation="../st2067_100_2014/st2067-100a-2014.xsd"/>
+	<xs:import namespace="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" schemaLocation="../st0433_2008/dcmlTypes/dcmlTypes.xsd"/>
+	<xs:complexType name="PixelEncoderType">
+		<xs:complexContent>
+			<xs:extension base="opl:MacroType">
+				<xs:sequence>
+					<xs:element name="InputReferenceImageSequence">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element minOccurs="0" name="Annotation" type="dcml:UserTextType"/>
+								<xs:element name="Handle" type="opl:HandleType"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="OutputImageSequence">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element minOccurs="0" name="Annotation" type="dcml:UserTextType"/>
+								<xs:element name="ColorEncoding" type="xs:anyURI"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

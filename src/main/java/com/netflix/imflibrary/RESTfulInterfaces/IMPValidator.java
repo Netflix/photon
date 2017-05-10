@@ -16,6 +16,7 @@ import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
+import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
@@ -74,6 +75,9 @@ public class IMPValidator {
         }
         else if(ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)){
             return PayloadRecord.PayloadAssetType.CompositionPlaylist;
+        }
+        else if(OutputProfileList.isOutputProfileList(resourceByteRangeProvider)){
+            return PayloadRecord.PayloadAssetType.OutputProfileList;
         }
         return PayloadRecord.PayloadAssetType.Unknown;
     }
@@ -883,6 +887,29 @@ public class IMPValidator {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, e.getMessage());
             }
 
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * A stateless method that will validate an IMF OutputProfileList document
+     * @param opl - a payload record for a OutputProfileList document
+     * @return list of error messages encountered while validating an OutputProfileList document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> validateOPL(PayloadRecord opl) throws IOException{
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        if(opl.getPayloadAssetType() != PayloadRecord.PayloadAssetType.OutputProfileList){
+            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s", opl
+                    .getPayloadAssetType(), PayloadRecord.PayloadAssetType.OutputProfileList.toString()));
+        }
+
+        try {
+            OutputProfileList.getOutputProfileListType(new ByteArrayByteRangeProvider(opl.getPayload()), imfErrorLogger);
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
         }
         return imfErrorLogger.getErrors();
     }

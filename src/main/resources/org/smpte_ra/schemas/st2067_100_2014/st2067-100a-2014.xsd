@@ -1,0 +1,74 @@
+<xs:schema targetNamespace="http://www.smpte-ra.org/schemas/2067-100/2014"
+	xmlns:opl="http://www.smpte-ra.org/schemas/2067-100/2014"
+	xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" schemaLocation="../st0433_2008/dcmlTypes/dcmlTypes.xsd"/>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="../../../w3/_2000_09/xmldsig/xmldsig-core-schema.xsd"/>
+	<xs:element name="OutputProfileList" type="opl:OutputProfileListType"/>
+	<xs:complexType name="OutputProfileListType">
+		<xs:sequence>
+			<xs:element name="Id" type="dcml:UUIDType"/>
+			<xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+			<xs:element name="IssueDate" type="xs:dateTime"/>
+			<xs:element name="Issuer" type="dcml:UserTextType" minOccurs="0"/>
+			<xs:element name="Creator" type="dcml:UserTextType" minOccurs="0"/>
+			<xs:element name="CompositionPlaylistId" type="dcml:UUIDType"/>
+			<xs:element name="ExtensionProperties" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:any namespace="##other" processContents="lax" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="AliasList">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="Alias">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="opl:HandleType">
+										<xs:attribute name="handle" type="opl:HandleType"
+											use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="MacroList">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Macro" type="opl:MacroType" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Signer" type="ds:KeyInfoType" minOccurs="0"/>
+			<xs:element ref="ds:Signature" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MacroType" abstract="true">
+		<xs:sequence>
+			<xs:element name="Name" type="opl:MacroNameType"/>
+			<xs:element name="Annotation" type="dcml:UserTextType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PresetMacroType">
+		<xs:complexContent>
+			<xs:extension base="opl:MacroType">
+				<xs:sequence>
+					<xs:element name="Preset" type="xs:anyURI"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="MacroNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z][a-zA-Z0-9-]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="HandleType">
+		<xs:restriction base="xs:anyURI"/>
+	</xs:simpleType>
+</xs:schema>

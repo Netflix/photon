@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A class that implements the logic of representing a DOM Node into a Hierarchical Hash Map
@@ -661,6 +662,80 @@ public class DOMNodeObjectModel {
         }
         return null;
     }
+
+    /**
+     * A method to obtain set of String values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns a set of field values
+     */
+    @Nullable
+    public Set<String> getFieldsAsStringRecursive(String name) {
+        Set<String> values = new HashSet<>();
+        getFieldsAsStringRecursive(values, name);
+        return values;
+    }
+
+    /**
+     * A method to obtain set of String values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns a set of field values
+     */
+    @Nullable
+    void getFieldsAsStringRecursive(Set<String> values, String name) {
+        try {
+            Set<String> matchingValues = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).map(Map.Entry::getValue).map(Map::keySet).flatMap(Set::stream).collect(Collectors.toSet());
+            values.addAll(matchingValues);
+            for(DOMNodeObjectModel domNodeObjectModel:  this.getChildrenDOMNodes().keySet()) {
+                domNodeObjectModel.getFieldsAsStringRecursive(values, name);
+            }
+            return;
+        }
+        catch(Exception e) {
+            return;
+        }
+    }
+
+    /**
+     * A method to obtain set of Ul values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns set of UL values
+     */
+    @Nullable
+    public Set<UL> getFieldsAsUL(String name) {
+        Set<String> values = getFieldsAsStringRecursive(name);
+        try {
+            Set<UL> uls = new HashSet<>();
+            for(String value: values) {
+                uls.add(UL.fromULAsURNStringToUL(value));
+            }
+            return uls;
+        }
+        catch(Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * A method to obtain set of UUID values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns set of UUID values
+     */
+    @Nullable
+    public Set<UUID> getFieldsAsUUID(String name) {
+        Set<String> values = getFieldsAsStringRecursive(name);
+        try {
+            Set<UUID> uuids = new HashSet<>();
+            for(String value: values) {
+                uuids.add(UUIDHelper.fromUUIDAsURNStringToUUID(value));
+            }
+            return uuids;
+        }
+        catch(Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * A thin class modeling a DOM Node Element Key

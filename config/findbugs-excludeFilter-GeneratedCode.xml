@@ -64,6 +64,66 @@
         <Bug pattern="NP_ALWAYS_NULL" />
     </Match>
 
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_101_2014" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_101_2014" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_100_2014" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_100_2014" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_102_2014" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_102_2014" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_103_2014" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas.st2067_103_2014" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas._433._2008.dcmltypes" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.smpte_ra.schemas._433._2008.dcmltypes" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
+    <Match>
+        <Package name="org.w3._2000._09.xmldsig_" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+
+    <Match>
+        <Package name="org.w3._2000._09.xmldsig_" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
     <Match>
         <Source name="Sequence.java" />
