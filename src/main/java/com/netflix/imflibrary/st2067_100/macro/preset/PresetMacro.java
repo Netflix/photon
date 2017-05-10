@@ -16,16 +16,24 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_100.macro.pixel_decoder;
+package com.netflix.imflibrary.st2067_100.macro.preset;
 
+import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
 
 @Immutable
-public class PixelDecoderOutputImageSequence extends Sequence {
+public class PresetMacro extends Macro {
+    private final String preset;
 
-    public PixelDecoderOutputImageSequence(String annotation, String handle) {
-        super(annotation, handle);
+    public PresetMacro(String name, String annotaion, String preset) {
+        super(name, annotaion, new ArrayList<Sequence>(), new ArrayList<Sequence>());
+        this.preset = preset;
+    }
+
+    public String getPreset() {
+        return preset;
     }
 }

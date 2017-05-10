@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_100.macro.AudioRoutingMixing;
+package com.netflix.imflibrary.st2067_100.macro.audioRoutingMixing;
 
 import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.Sequence;

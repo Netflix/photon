@@ -32,6 +32,7 @@ import com.netflix.imflibrary.st2067_100.handle.MacroHandle;
 import com.netflix.imflibrary.st2067_100.handle.VirtualTrackHandle;
 import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
+import com.netflix.imflibrary.st2067_100.macro.preset.PresetMacro;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
@@ -127,6 +128,11 @@ public final class OutputProfileList {
         for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
             Macro macro = entry.getValue();
             if (macro != null) {
+                if(macro instanceof PresetMacro && this.macroMap.size() != 1) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger
+                                    .IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("OPL with id %s contains Preset Macro with other macro types", id));
+                }
                 for (Sequence input : macro.getInputs()) {
                     if(input.getHandle().startsWith("cpl/")) {
                         handleMap.put(input.getHandle(), new VirtualTrackHandle(input.getHandle(), null));
@@ -362,7 +368,7 @@ public final class OutputProfileList {
             for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
                 Macro macro = entry.getValue();
                 /* Check for all the input dependencies for the macro */
-                if (macro != null && !handleMap.containsKey(macro.getOutputs().get(0).getHandle())) {
+                if (macro != null && !macro.getOutputs().isEmpty() && !handleMap.containsKey(macro.getOutputs().get(0).getHandle())) {
                     boolean bDependencyMet = true;
                     for (Sequence input : macro.getInputs()) {
                         Handle handleType = handleMap.get(input.getHandle());
