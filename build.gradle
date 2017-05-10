@@ -52,6 +52,7 @@ javadoc {
      * Following suppresses creation of javadoc for auto-generated code
      */
     exclude "**/org/smpte_ra/schemas/**"
+    exclude "**/org/w3/_2000/_09/xmldsig_/**"
 }
 
 dependencies {
