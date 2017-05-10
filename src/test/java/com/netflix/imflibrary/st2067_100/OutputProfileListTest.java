@@ -2,6 +2,7 @@ package com.netflix.imflibrary.st2067_100;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st2067_100.macro.preset.PresetMacro;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -14,6 +15,22 @@ import java.io.File;
 @Test(groups = "unit")
 public class OutputProfileListTest
 {
+    @Test
+    public void testSimpleOutputProfileList() throws Exception
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        OutputProfileList outputProfileList = OutputProfileList.getOutputProfileListType(new FileByteRangeProvider(inputFile), imfErrorLogger);
+
+        Assert.assertEquals(outputProfileList.getCompositionPlaylistId().toString(), "0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85");
+        Assert.assertEquals(outputProfileList.getAnnotation().toString(), "OPL Example");
+        Assert.assertEquals(outputProfileList.getId().toString(), "8cf83c32-4949-4f00-b081-01e12b18932f");
+        Assert.assertEquals(((PresetMacro)outputProfileList.getMacroMap().entrySet().iterator().next().getValue()).getPreset(), "playback_cpl");
+        Assert.assertEquals(outputProfileList.getErrors().size(), 0);
+
+        Assert.assertEquals(outputProfileList.getMacroMap().size(), 1);
+    }
+
     @Test
     public void testOutputProfileList() throws Exception
     {

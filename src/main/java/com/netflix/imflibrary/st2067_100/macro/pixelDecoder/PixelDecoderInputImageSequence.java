@@ -16,24 +16,16 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_100.macro.audioRoutingMixing;
+package com.netflix.imflibrary.st2067_100.macro.pixelDecoder;
 
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Collections;
-import java.util.List;
 
 @Immutable
-public class OutputAudioChannel extends Sequence {
-    private final List<InputEntity> inputEntityList;
+public class PixelDecoderInputImageSequence extends Sequence {
 
-    public OutputAudioChannel(String annotation, String handle, List<InputEntity> inputEntityList) {
-        super(annotation, handle);
-        this.inputEntityList = Collections.unmodifiableList(inputEntityList);
-    }
-
-    public List<InputEntity> getInputEntityList() {
-        return inputEntityList;
+    public PixelDecoderInputImageSequence(String annotaion, String handle) {
+        super(annotaion, handle);
     }
 }

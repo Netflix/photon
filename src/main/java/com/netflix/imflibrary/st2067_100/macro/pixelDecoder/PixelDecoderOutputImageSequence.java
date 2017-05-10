@@ -16,23 +16,16 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_100.macro.pixel_decoder;
+package com.netflix.imflibrary.st2067_100.macro.pixelDecoder;
 
-import com.netflix.imflibrary.st2067_100.macro.Macro;
+import com.netflix.imflibrary.st2067_100.macro.Sequence;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class PixelDecoderMacro extends Macro {
-    public PixelDecoderMacro(String name, String annotaion, PixelDecoderInputImageSequence input, PixelDecoderOutputImageSequence output) {
-        super(name, annotaion, input, output);
-    }
+public class PixelDecoderOutputImageSequence extends Sequence {
 
-    public PixelDecoderInputImageSequence getPixelDecoderInputImageSequence() {
-        return (PixelDecoderInputImageSequence)this.getInputs().get(0);
-    }
-
-    public PixelDecoderOutputImageSequence getPixelDecoderOutputImageSequence() {
-        return (PixelDecoderOutputImageSequence)this.getOutputs().get(0);
+    public PixelDecoderOutputImageSequence(String annotation, String handle) {
+        super(annotation, handle);
     }
 }

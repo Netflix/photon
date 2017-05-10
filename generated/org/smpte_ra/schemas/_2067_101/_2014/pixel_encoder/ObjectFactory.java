@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRegistry;
 /**
  * This object contains factory methods for each 
  * Java content interface and Java element interface 
- * generated in the org.smpte_ra.schemas._2067_101._2014.pixel_encoder package. 
+ * generated in the org.smpte_ra.schemas._2067_101._2014.pixelEncoder package.
  * <p>An ObjectFactory allows you to programatically 
  * construct new instances of the Java representation 
  * for XML content. The Java representation of XML 
@@ -30,7 +30,7 @@ public class ObjectFactory {
 
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.smpte_ra.schemas._2067_101._2014.pixel_encoder
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.smpte_ra.schemas._2067_101._2014.pixelEncoder
      * 
      */
     public ObjectFactory() {

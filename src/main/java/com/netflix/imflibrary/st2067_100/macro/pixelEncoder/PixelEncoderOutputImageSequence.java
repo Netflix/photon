@@ -16,7 +16,7 @@
  *
  */
 
-package com.netflix.imflibrary.st2067_100.macro.pixel_encoder;
+package com.netflix.imflibrary.st2067_100.macro.pixelEncoder;
 
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
 
