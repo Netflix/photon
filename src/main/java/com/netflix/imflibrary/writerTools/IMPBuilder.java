@@ -4,12 +4,14 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
+import org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A stateless class that will create the AssetMap, Packing List and CompositionPlaylist that represent a complete IMF Master Package by utilizing the relevant builders
@@ -39,6 +42,38 @@ public class IMPBuilder {
 
     /**
      * A method to generate the AssetMap, PackingList and CompositionPlaylist documents conforming to the
+     * st0429-9:2007, st2067-2:2013 and st2067-2/3:2013 schemas respectively
+     * @param annotationText a human readable text that will be used to annotate the corresponding elements of the XML documents
+     * @param issuer a human readable text indicating the issuer of the XML documents
+     * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
+     * @param compositionEditRate the EditRate of the composition
+     * @param applicationId ApplicationId for the composition
+     * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
+     * @param workingDirectory a folder location for the generated documents
+     * @return a list of errors that occurred while building an IMP
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws ParserConfigurationException if a DocumentBuilder
+     *   cannot be created which satisfies the configuration requested by the underlying builder implementation
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public static List<ErrorLogger.ErrorObject> buildIMP_2013(@Nonnull String annotationText,
+                                                              @Nonnull String issuer,
+                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull String applicationId,
+                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                              @Nonnull File workingDirectory) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
+            throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
+        }
+
+        return buildIMP_2013(annotationText, issuer, virtualTracks, compositionEditRate, applicationId, trackFileHeaderPartitionMap, workingDirectory, new ArrayList<>());
+    }
+
+    /**
+     * A method to generate the AssetMap, PackingList and CompositionPlaylist documents conforming to the
      * st0429-9:2007, st0429-8:2007 and st2067-2/3:2013 schemas respectively
      * @param annotationText a human readable text that will be used to annotate the corresponding elements of the XML documents
      * @param issuer a human readable text indicating the issuer of the XML documents
@@ -47,6 +82,7 @@ public class IMPBuilder {
      * @param applicationId ApplicationId for the composition
      * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
      * @param workingDirectory a folder location for the generated documents
+     * @param imfEssenceDescriptorBaseTypeList a list of IMF essence descriptor base type
      * @return a list of errors that occurred while building an IMP
      * @throws IOException - any I/O related error will be exposed through an IOException
      * @throws ParserConfigurationException if a DocumentBuilder
@@ -59,7 +95,8 @@ public class IMPBuilder {
                                                               @Nonnull Composition.EditRate compositionEditRate,
                                                               @Nonnull String applicationId,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory)
+                                                              @Nonnull File workingDirectory,
+                                                               @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList)
             throws IOException, ParserConfigurationException, URISyntaxException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -88,6 +125,15 @@ public class IMPBuilder {
         }
         totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
 
+        List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorBaseTypeList = new ArrayList<>();
+
+        for(IMFEssenceDescriptorBaseType imfEssenceDescriptorBaseType : imfEssenceDescriptorBaseTypeList) {
+            org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType();
+            essenceDescriptorBaseType.setId(UUIDHelper.fromUUID(imfEssenceDescriptorBaseType.getId()));
+            essenceDescriptorBaseType.getAny().addAll(imfEssenceDescriptorBaseType.getAny());
+            essenceDescriptorBaseTypeList.add(essenceDescriptorBaseType);
+        }
+
         CompositionPlaylistBuilder_2013 compositionPlaylistBuilder_2013 = new CompositionPlaylistBuilder_2013(cplUUID,
                                                                                                                 CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(annotationText, "en"),
                                                                                                                 CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013(issuer, "en"),
@@ -97,7 +143,8 @@ public class IMPBuilder {
                                                                                                                 applicationId,
                                                                                                                 totalRunningTime,
                                                                                                                 trackFileHeaderPartitionMap,
-                                                                                                                workingDirectory);
+                                                                                                                workingDirectory,
+                                                                                                                essenceDescriptorBaseTypeList);
 
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2013.build());
 
@@ -138,7 +185,7 @@ public class IMPBuilder {
                                                                     PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
                                                                     PackingListBuilder.buildPKLUserTextType_2007(compositionPlaylistBuilder_2013.getCPLFileName(), "en"));
         packingListBuilderAssets.add(cplAsset);
-        Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet();
+        Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet().stream().filter( e -> !(e.getValue().isExcludeFromPackage())).collect(Collectors.toSet());
         for(Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileMetadataEntriesSet){
             PackingListBuilder.PackingListBuilderAsset_2007 asset =
                     new PackingListBuilder.PackingListBuilderAsset_2007(entry.getKey(),
@@ -238,7 +285,41 @@ public class IMPBuilder {
                                                               @Nonnull Composition.EditRate compositionEditRate,
                                                               @Nonnull String applicationId,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory)
+                                                              @Nonnull File workingDirectory) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
+            throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
+        }
+
+        return buildIMP_2016(annotationText, issuer, virtualTracks, compositionEditRate, applicationId, trackFileHeaderPartitionMap, workingDirectory, new ArrayList<>());
+    }
+
+    /**
+     * A method to generate the AssetMap, PackingList and CompositionPlaylist documents conforming to the
+     * st0429-9:2007, st2067-2:2016 and st2067-2/3:2016 schemas respectively
+     * @param annotationText a human readable text that will be used to annotate the corresponding elements of the XML documents
+     * @param issuer a human readable text indicating the issuer of the XML documents
+     * @param virtualTracks a list of all VirtualTracks that are a part of the Composition
+     * @param compositionEditRate the EditRate of the composition
+     * @param applicationId ApplicationId for the composition
+     * @param trackFileHeaderPartitionMap a Map of IMFTrackFileId to the HeaderPartition metadata of the track file
+     * @param workingDirectory a folder location for the generated documents
+     * @param imfEssenceDescriptorBaseTypeList a list of IMF essence descriptor base type
+     * @return a list of errors that occurred while building an IMP
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     * @throws ParserConfigurationException if a DocumentBuilder
+     *   cannot be created which satisfies the configuration requested by the underlying builder implementation
+     * @throws SAXException - exposes any issues with instantiating a {@link javax.xml.validation.Schema Schema} object
+     * @throws JAXBException - any issues in serializing the XML document using JAXB are exposed through a JAXBException
+     * @throws URISyntaxException exposes any issues instantiating a {@link java.net.URI URI} object
+     */
+    public static List<ErrorLogger.ErrorObject> buildIMP_2016(@Nonnull String annotationText,
+                                                              @Nonnull String issuer,
+                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull Composition.EditRate compositionEditRate,
+                                                              @Nonnull String applicationId,
+                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                              @Nonnull File workingDirectory,
+                                                               @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -267,6 +348,17 @@ public class IMPBuilder {
         }
         totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
 
+        List<EssenceDescriptorBaseType> essenceDescriptorBaseTypeList = new ArrayList<>();
+
+        if(!imfEssenceDescriptorBaseTypeList.isEmpty()) {
+            for (IMFEssenceDescriptorBaseType imfEssenceDescriptorBaseType : imfEssenceDescriptorBaseTypeList) {
+                EssenceDescriptorBaseType essenceDescriptorBaseType = new EssenceDescriptorBaseType();
+                essenceDescriptorBaseType.setId(UUIDHelper.fromUUID(imfEssenceDescriptorBaseType.getId()));
+                essenceDescriptorBaseType.getAny().addAll(imfEssenceDescriptorBaseType.getAny());
+                essenceDescriptorBaseTypeList.add(essenceDescriptorBaseType);
+            }
+        }
+
         CompositionPlaylistBuilder_2016 compositionPlaylistBuilder_2016 = new CompositionPlaylistBuilder_2016(cplUUID,
                 CompositionPlaylistBuilder_2016.buildCPLUserTextType_2016(annotationText, "en"),
                 CompositionPlaylistBuilder_2016.buildCPLUserTextType_2016(issuer, "en"),
@@ -276,7 +368,8 @@ public class IMPBuilder {
                 applicationId,
                 totalRunningTime,
                 trackFileHeaderPartitionMap,
-                workingDirectory);
+                workingDirectory,
+                essenceDescriptorBaseTypeList);
 
         compositionPlaylistBuilder_2016.build();
 
@@ -317,7 +410,7 @@ public class IMPBuilder {
                         PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
                         PackingListBuilder.buildPKLUserTextType_2016(compositionPlaylistBuilder_2016.getCPLFileName(), "en"));
         packingListBuilderAssets.add(cplAsset);
-        Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet();
+        Set<Map.Entry<UUID, IMFTrackFileMetadata>> trackFileMetadataEntriesSet = trackFileHeaderPartitionMap.entrySet().stream().filter( e -> !(e.getValue().isExcludeFromPackage())).collect(Collectors.toSet());
         for(Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileMetadataEntriesSet){
             PackingListBuilder.PackingListBuilderAsset_2016 asset =
                     new PackingListBuilder.PackingListBuilderAsset_2016(entry.getKey(),
@@ -398,6 +491,7 @@ public class IMPBuilder {
         private final String hashAlgorithm;
         private final String originalFileName;
         private final long length;
+        private final boolean excludeFromPackage;
 
         /**
          * A constructor for the EssenceMetadata required to construct a CPL document
@@ -406,13 +500,20 @@ public class IMPBuilder {
          * @param hashAlgorithm a string representing the Hash Algorithm used to generate the Hash of the IMFTrack file
          * @param originalFileName a string representing the FileName of the IMFTrack file
          * @param length a long integer represeting the length of the IMFTrack file
+         * @param excludeFromPackage a boolean indicating if this track file needs to be excluded from package.
+         *                           If excluded this file will not be referenced in asset map and packing list but may be referenced in CPL.
          */
-        public IMFTrackFileMetadata(byte[] headerPartition, byte[] hash, String hashAlgorithm, String originalFileName, long length){
-            this.headerPartition = Arrays.copyOf(headerPartition, headerPartition.length);
+        public IMFTrackFileMetadata(byte[] headerPartition, byte[] hash, String hashAlgorithm, String originalFileName, long length, boolean excludeFromPackage){
+            this.headerPartition = headerPartition != null ? Arrays.copyOf(headerPartition, headerPartition.length) : null;
             this.hash = Arrays.copyOf(hash, hash.length);
             this.hashAlgorithm = hashAlgorithm;
             this.originalFileName = originalFileName;
             this.length = length;
+            this.excludeFromPackage = excludeFromPackage;
+        }
+
+        public IMFTrackFileMetadata(byte[] headerPartition, byte[] hash, String hashAlgorithm, String originalFileName, long length){
+            this( headerPartition, hash, hashAlgorithm, originalFileName, length, false);
         }
 
         /**
@@ -420,7 +521,7 @@ public class IMPBuilder {
          * @return a byte[] containing the HeaderParition metadata
          */
         public byte[] getHeaderPartition(){
-            return Arrays.copyOf(this.headerPartition, this.headerPartition.length);
+            return this.headerPartition != null ? Arrays.copyOf(headerPartition, headerPartition.length) : null;
         }
 
         /**
@@ -453,6 +554,14 @@ public class IMPBuilder {
          */
         public long getLength() {
             return this.length;
+        }
+
+        /**
+         * Getter for the excludedFromPackage boolean flag
+         * @return a boolean indicating of this file is excluded from the package
+         */
+        public boolean isExcludeFromPackage() {
+            return excludeFromPackage;
         }
     }
 }

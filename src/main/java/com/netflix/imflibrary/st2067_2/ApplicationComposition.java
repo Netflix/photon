@@ -18,14 +18,18 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This interface represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -208,6 +212,14 @@ public interface ApplicationComposition {
      * @return Application CompositionImageEssenceDescriptorModel
      */
     @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel();
+
+    /**
+     * A method to get list of essence descriptors
+     *
+     * @return List containing EssenceDescriptorBaseTypes
+     */
+    public List<IMFEssenceDescriptorBaseType> getEssenceDescriptorBaseList();
+
 
     /**
      * A method that confirms if the inputStream corresponds to a Composition document instance.

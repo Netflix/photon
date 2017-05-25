@@ -21,7 +21,6 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAnyElement;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +28,7 @@ import java.util.UUID;
  * A class that models a Composition's Essence Descriptor.
  */
 @Immutable
-final class IMFEssenceDescriptorBaseType {
+public final class IMFEssenceDescriptorBaseType {
     protected final UUID id;
     protected final List<Object> any;
 

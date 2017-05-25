@@ -95,12 +95,13 @@ public class CompositionPlaylistBuilder_2016 {
     private final List<? extends Composition.VirtualTrack> virtualTracks;
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
-    private final Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap;
+    private final Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileMetatdataMap;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas.st2067_2_2016.SegmentType> segments = new ArrayList<>();
     private final List<List<org.smpte_ra.schemas.st2067_2_2016.SequenceType>> sequenceList = new ArrayList<>();
+    private final List<EssenceDescriptorBaseType> essenceDescriptorBaseTypeList;
 
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final static String defaultContentKindScope = "http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind";
@@ -119,8 +120,9 @@ public class CompositionPlaylistBuilder_2016 {
      * @param compositionEditRate the edit rate of the Composition
      * @param applicationId ApplicationId for the composition
      * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
+     * @param trackFileMetatdataMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
      * @param workingDirectory a folder location where the constructed CPL document can be written to
+     * @param essenceDescriptorBaseTypeList a
      */
     public CompositionPlaylistBuilder_2016(@Nonnull UUID uuid,
                                            @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType annotationText,
@@ -130,8 +132,9 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                           @Nonnull File workingDirectory){
+                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileMetatdataMap,
+                                           @Nonnull File workingDirectory,
+                                           @Nonnull List<EssenceDescriptorBaseType> essenceDescriptorBaseTypeList){
         this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -142,12 +145,13 @@ public class CompositionPlaylistBuilder_2016 {
                                                     add(compositionEditRate.getDenominator());}};
         this.compositionEditRate = Collections.unmodifiableList(editRate);
         this.totalRunningTime = totalRunningTime;
-        this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
+        this.trackFileMetatdataMap = Collections.unmodifiableMap(trackFileMetatdataMap);
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = new IMFErrorLoggerImpl();
         cplFileName = "CPL-" + this.uuid.toString() + ".xml";
         this.applicationId = applicationId;
         this.trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
+        this.essenceDescriptorBaseTypeList = Collections.unmodifiableList(essenceDescriptorBaseTypeList);
 
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
             for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
@@ -158,6 +162,33 @@ public class CompositionPlaylistBuilder_2016 {
             }
         }
 
+    }
+
+
+    /**
+     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
+     * @param uuid identifying the CompositionPlaylist document
+     * @param annotationText a free form human readable text
+     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
+     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
+     * @param virtualTracks a list of VirtualTracks of the Composition
+     * @param compositionEditRate the edit rate of the Composition
+     * @param applicationId ApplicationId for the composition
+     * @param totalRunningTime a long value representing in seconds the total running time of this composition
+     * @param trackFileMetatdataMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
+     * @param workingDirectory a folder location where the constructed CPL document can be written to
+     */
+    public CompositionPlaylistBuilder_2016(@Nonnull UUID uuid,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2016.UserTextType creator,
+                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                           @Nonnull Composition.EditRate compositionEditRate,
+                                           @Nonnull String applicationId,
+                                           long totalRunningTime,
+                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileMetatdataMap,
+                                           @Nonnull File workingDirectory){
+        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileMetatdataMap, workingDirectory, new ArrayList<>());
     }
 
     /**
@@ -199,11 +230,20 @@ public class CompositionPlaylistBuilder_2016 {
          */
         List<org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         List<CompositionPlaylistBuilder_2016.SequenceTypeTuple> sequenceTypeTuples = new ArrayList<>();
+
+        /**
+         * Build the EssenceDescriptorList
+         */
+        if(essenceDescriptorBaseTypeList.isEmpty()) {
+            for (Composition.VirtualTrack virtualTrack : virtualTracks) {
+                essenceDescriptorList.addAll(buildEDLForVirtualTrack(virtualTrack));
+            }
+        } else {
+            essenceDescriptorList.addAll(this.essenceDescriptorBaseTypeList);
+        }
+
+
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
-            /**
-             * Build the EssenceDescriptorList
-             */
-            essenceDescriptorList.addAll(buildEDLForVirtualTrack(virtualTrack));
             /**
              * Build TrackResourceList
              */
@@ -254,7 +294,7 @@ public class CompositionPlaylistBuilder_2016 {
          * of the Composition
          */
         for(UUID uuid : trackResourceIds){
-            IMPBuilder.IMFTrackFileMetadata imfTrackFileMetadata = this.trackFileHeaderPartitionMap.get(uuid);
+            IMPBuilder.IMFTrackFileMetadata imfTrackFileMetadata = this.trackFileMetatdataMap.get(uuid);
             if(imfTrackFileMetadata == null){
                 throw new IMFAuthoringException(String.format("TrackFileHeaderMetadata for Track Resource Id %s within VirtualTrack Id %s is absent", uuid.toString(), virtualTrack.getTrackID()));
             }

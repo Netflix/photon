@@ -45,6 +45,7 @@ import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType;
 import org.smpte_ra.schemas.st2067_2_2013.ContentVersionType;
 import org.smpte_ra.schemas.st2067_2_2013.SequenceType;
+import org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -100,6 +101,7 @@ public class CompositionPlaylistBuilder_2013 {
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas.st2067_2_2013.SegmentType> segments = new ArrayList<>();
     private final List<List<org.smpte_ra.schemas.st2067_2_2013.SequenceType>> sequenceList = new ArrayList<>();
+    private final List<EssenceDescriptorBaseType> essenceDescriptorBaseTypeList;
 
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final static String defaultContentKindScope = "http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind";
@@ -131,7 +133,8 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                           @Nonnull File workingDirectory){
+                                           @Nonnull File workingDirectory,
+                                           @Nonnull List<EssenceDescriptorBaseType> essenceDescriptorBaseTypeList){
         this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -148,6 +151,7 @@ public class CompositionPlaylistBuilder_2013 {
         cplFileName = "CPL-" + this.uuid.toString() + ".xml";
         this.applicationId = applicationId;
         this.trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
+        this.essenceDescriptorBaseTypeList = Collections.unmodifiableList(essenceDescriptorBaseTypeList);
 
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
             for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
@@ -156,7 +160,36 @@ public class CompositionPlaylistBuilder_2013 {
                     trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
                 }
             }
-        }    }
+        }
+    }
+
+
+    /**
+     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
+     * @param uuid identifying the CompositionPlaylist document
+     * @param annotationText a free form human readable text
+     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
+     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
+     * @param virtualTracks a list of VirtualTracks of the Composition
+     * @param compositionEditRate the edit rate of the Composition
+     * @param applicationId ApplicationId for the composition
+     * @param totalRunningTime a long value representing in seconds the total running time of this composition
+     * @param trackFileMetatdataMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
+     * @param workingDirectory a folder location where the constructed CPL document can be written to
+     */
+    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                           @Nonnull Composition.EditRate compositionEditRate,
+                                           @Nonnull String applicationId,
+                                           long totalRunningTime,
+                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileMetatdataMap,
+                                           @Nonnull File workingDirectory){
+        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileMetatdataMap, workingDirectory, new ArrayList<>());
+    }
+    
 
     /**
      * A method to build a CompositionPlaylist document conforming to the st2067-2/3:2013 schema
@@ -193,11 +226,18 @@ public class CompositionPlaylistBuilder_2013 {
         List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         List<CompositionPlaylistBuilder_2013.SequenceTypeTuple> sequenceTypeTuples = new ArrayList<>();
 
+        /**
+         * Build the EssenceDescriptorList
+         */
+        if(essenceDescriptorBaseTypeList.isEmpty()) {
+            for (Composition.VirtualTrack virtualTrack : virtualTracks) {
+                essenceDescriptorList.addAll(buildEDLForVirtualTrack(virtualTrack));
+            }
+        } else {
+            essenceDescriptorList.addAll(this.essenceDescriptorBaseTypeList);
+        }
+
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
-            /**
-             * Build the EssenceDescriptorList
-             */
-            essenceDescriptorList.addAll(buildEDLForVirtualTrack(virtualTrack));
             /**
              * Build TrackResourceList
              */
