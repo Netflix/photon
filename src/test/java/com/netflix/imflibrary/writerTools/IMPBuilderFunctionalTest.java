@@ -67,8 +67,8 @@ public class IMPBuilderFunctionalTest {
     @DataProvider(name = "cplList")
     private Object[][] getCplList() {
         return new Object[][] {
-                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2016", true, 1},
-                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2016", true, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2013", true, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2013", true, 1},
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2013", false, 0},
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2013", false, 0}
         };
@@ -82,12 +82,11 @@ public class IMPBuilderFunctionalTest {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
-        Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = buildTrackFileMetadataMap(imfErrorLogger, useHeaderPartition);
-        buildIMPAndValidate(applicationComposition, schemaVersion, imfTrackFileMetadataMap, expectedCPLErrors, useHeaderPartition);
+        buildIMPAndValidate(applicationComposition, schemaVersion, expectedCPLErrors, useHeaderPartition, imfErrorLogger);
     }
 
 
-    private void buildIMPAndValidate(ApplicationComposition applicationComposition, String schemaVersion, Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap, int cplErrorsExpected, boolean useHeaderPartition)
+    private void buildIMPAndValidate(ApplicationComposition applicationComposition, String schemaVersion, int cplErrorsExpected, boolean useHeaderPartition, IMFErrorLogger imfErrorLogger)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         /**
          * Create a temporary working directory under home
@@ -95,43 +94,44 @@ public class IMPBuilderFunctionalTest {
         Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
         File tempDir = tempPath.toFile();
 
-        if(schemaVersion.equals("2016") && useHeaderPartition) {
-            IMPBuilder.buildIMP_2016("IMP",
-                    "Netflix",
-                    applicationComposition.getEssenceVirtualTracks(),
-                    applicationComposition.getEditRate(),
-                    "http://www.smpte-ra.org/schemas/2067-21/2016",
-                    imfTrackFileMetadataMap,
-                    tempDir);
-        }
-        else if(schemaVersion.equals("2013") && useHeaderPartition) {
-            IMPBuilder.buildIMP_2013("IMP",
-                    "Netflix",
-                    applicationComposition.getEssenceVirtualTracks(),
-                    applicationComposition.getEditRate(),
-                    "http://www.smpte-ra.org/schemas/2067-21/2016",
-                    imfTrackFileMetadataMap,
-                    tempDir);
-        }
-        if(schemaVersion.equals("2016") && !useHeaderPartition) {
-            IMPBuilder.buildIMP_2016("IMP",
-                    "Netflix",
-                    applicationComposition.getEssenceVirtualTracks(),
-                    applicationComposition.getEditRate(),
-                    "http://www.smpte-ra.org/schemas/2067-21/2016",
-                    imfTrackFileMetadataMap,
-                    tempDir,
-                    applicationComposition.getEssenceDescriptorBaseList());
-        }
-        if(schemaVersion.equals("2013") && !useHeaderPartition) {
-            IMPBuilder.buildIMP_2013("IMP",
-                    "Netflix",
-                    applicationComposition.getEssenceVirtualTracks(),
-                    applicationComposition.getEditRate(),
-                    "http://www.smpte-ra.org/schemas/2067-21/2016",
-                    imfTrackFileMetadataMap,
-                    tempDir,
-                    applicationComposition.getEssenceDescriptorBaseList());
+        if(useHeaderPartition) {
+            if (schemaVersion.equals("2016")) {
+                IMPBuilder.buildIMP_2016("IMP",
+                        "Netflix",
+                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        buildTrackFileMetadataMap(imfErrorLogger),
+                        tempDir);
+            } else if (schemaVersion.equals("2013")) {
+                IMPBuilder.buildIMP_2013("IMP",
+                        "Netflix",
+                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        buildTrackFileMetadataMap(imfErrorLogger),
+                        tempDir);
+            }
+        } else {
+            if (schemaVersion.equals("2016")) {
+                IMPBuilder.buildIMP_2016("IMP",
+                        "Netflix",
+                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        buildTrackFileInfoMap(imfErrorLogger),
+                        tempDir,
+                        applicationComposition.getEssenceDescriptorDomNodeMap());
+            } else if (schemaVersion.equals("2013")) {
+                IMPBuilder.buildIMP_2013("IMP",
+                        "Netflix",
+                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        buildTrackFileInfoMap(imfErrorLogger),
+                        tempDir,
+                        applicationComposition.getEssenceDescriptorDomNodeMap());
+            }
         }
 
         boolean assetMapFound = false;
@@ -179,59 +179,58 @@ public class IMPBuilderFunctionalTest {
         Assert.assertEquals(errors.size(), cplErrorsExpected);
     }
 
-    private Map<UUID, IMPBuilder.IMFTrackFileMetadata> buildTrackFileMetadataMap(IMFErrorLogger imfErrorLogger, boolean needsHeaderPartition) throws IOException, NoSuchAlgorithmException {
+    private Map<UUID, IMPBuilder.IMFTrackFileMetadata> buildTrackFileMetadataMap(IMFErrorLogger imfErrorLogger) throws IOException, NoSuchAlgorithmException {
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         ResourceByteRangeProvider resourceByteRangeProvider;
-        if(!needsHeaderPartition) {
-            String hash1 = "yCsxE1M6xmEGkVoXAWWjvfq2VHM=";
-            imfTrackFileMetadataMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:ec9f8003-655e-438a-b30a-d7700ec4cb6f"), new IMPBuilder.IMFTrackFileMetadata(null,
-                    hash1.getBytes(),
+        List<String> fileNames = Arrays.asList("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
+        for(String fileName: fileNames) {
+            File headerPartition1 = TestHelper.findResourceByPath(fileName);
+            resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
+            byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+            ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
+            HeaderPartition headerPartition = new HeaderPartition(byteProvider,
+                    0L,
+                    bytes.length,
+                    imfErrorLogger);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage) genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+            imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes,
+                    IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes)),
+                    CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                    fileName,
+                    bytes.length));
+        }
+        return imfTrackFileMetadataMap;
+    }
+
+    private Map<UUID, IMPBuilder.IMFTrackFileInfo> buildTrackFileInfoMap(IMFErrorLogger imfErrorLogger) throws IOException, NoSuchAlgorithmException {
+        Map<UUID, IMPBuilder.IMFTrackFileInfo> uuidimfTrackFileInfoMap = new HashMap<>();
+        String hash1 = "yCsxE1M6xmEGkVoXAWWjvfq2VHM=";
+        uuidimfTrackFileInfoMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:ec9f8003-655e-438a-b30a-d7700ec4cb6f"),
+                new IMPBuilder.IMFTrackFileInfo(hash1.getBytes(),
                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                     "Netflix_Plugfest_Oct2015.mxf",
-                    10517511198L));
+                    10517511198L, false));
 
             String hash2 = "9zit4G2zsmwpLqwXwFEJTu7UG50=";
-            imfTrackFileMetadataMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34"), new IMPBuilder.IMFTrackFileMetadata(null,
-                    hash2.getBytes(),
+        uuidimfTrackFileInfoMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:7be07495-1aaa-4a69-8b92-3ec162122b34"),
+                new IMPBuilder.IMFTrackFileInfo(hash2.getBytes(),
                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                     "Netflix_Plugfest_Oct2015_ENG20.mxf",
-                    94532279L));
+                    94532279L, false));
 
             String hash3 = "9zit4G2zsmwpLqwXwFEJTu7UG50=";
-            imfTrackFileMetadataMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:c808001c-da54-4295-a721-dcaa00659699"), new IMPBuilder.IMFTrackFileMetadata(null,
-                    hash3.getBytes(),
+        uuidimfTrackFileInfoMap.put(UUIDHelper.fromUUIDAsURNStringToUUID("urn:uuid:c808001c-da54-4295-a721-dcaa00659699"),
+                new IMPBuilder.IMFTrackFileInfo(hash3.getBytes(),
                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                     "Netflix_Plugfest_Oct2015_ENG51.mxf",
-                    94532279L));
-
-        } else {
-
-            List<String> fileNames = Arrays.asList("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
-            for(String fileName: fileNames) {
-                File headerPartition1 = TestHelper.findResourceByPath(fileName);
-                resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
-                byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
-                ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
-                HeaderPartition headerPartition = new HeaderPartition(byteProvider,
-                        0L,
-                        bytes.length,
-                        imfErrorLogger);
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage) genericPackage;
-                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-
-                imfTrackFileMetadataMap.put(packageUUID, new IMPBuilder.IMFTrackFileMetadata(bytes,
-                        IMFUtils.generateSHA1Hash(new ByteArrayByteRangeProvider(bytes)),
-                        CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                        fileName,
-                        bytes.length));
-            }
-        }
-
-        return imfTrackFileMetadataMap;
+                    94532279L, false));
+        return uuidimfTrackFileInfoMap;
     }
 
 }

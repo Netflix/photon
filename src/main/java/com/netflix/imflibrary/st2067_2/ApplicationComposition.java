@@ -22,6 +22,7 @@ import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.Application
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -214,12 +215,11 @@ public interface ApplicationComposition {
     @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel();
 
     /**
-     * A method to get list of essence descriptors
+     * A method to get map of essence descriptor dom nodes
      *
-     * @return List containing EssenceDescriptorBaseTypes
+     * @return Map containing mapping between Track file ID to essence descriptor DOM node list
      */
-    public List<IMFEssenceDescriptorBaseType> getEssenceDescriptorBaseList();
-
+    public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap();
 
     /**
      * A method that confirms if the inputStream corresponds to a Composition document instance.

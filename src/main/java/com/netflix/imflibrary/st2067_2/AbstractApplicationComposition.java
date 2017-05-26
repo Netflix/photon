@@ -86,8 +86,9 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     private final String coreConstraintsVersion;
     private final Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
-    protected final IMFErrorLogger imfErrorLogger;
+    private final Map<UUID, List<Node>> essenceDescriptorDomNodeMap;
 
+    protected final IMFErrorLogger imfErrorLogger;
     protected final RegXMLLibDictionary regXMLLibDictionary;
 
     /**
@@ -141,6 +142,8 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty.");
         }
+
+        this.essenceDescriptorDomNodeMap = Collections.unmodifiableMap(createEssenceDescriptorDomNodeMap());
 
         if (imfErrorLogger.hasFatalErrors()) {
             throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file."), imfErrorLogger);
@@ -759,6 +762,14 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return resourceSourceEncodingElementsSet;
     }
 
+    public static List<AbstractApplicationComposition.ResourceIdTuple> getResourceIdTuples(List<? extends Composition.VirtualTrack> virtualTracks) {
+        List<AbstractApplicationComposition.ResourceIdTuple>  resourceIdTupleList = new ArrayList<>();
+        for (Composition.VirtualTrack virtualTrack : virtualTracks) {
+            resourceIdTupleList.addAll(getVirtualTrackResourceIDs(virtualTrack));
+        }
+        return resourceIdTupleList;
+    }
+
     private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition
             .HeaderPartitionTuple> headerPartitionTuples) throws IOException {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
@@ -1010,8 +1021,25 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return imageEssenceDescriptorModel;
     }
 
-    public List<IMFEssenceDescriptorBaseType> getEssenceDescriptorBaseList() {
-        return Collections.unmodifiableList(getCompositionPlaylistType().getEssenceDescriptorList());
+    private  Map<UUID, List<Node>> createEssenceDescriptorDomNodeMap() {
+        final Map<UUID, List<Node>> essenceDescriptorDomNodeMap = new HashMap<>();
+        if (compositionPlaylistType.getEssenceDescriptorList() != null) {
+            Map<UUID, UUID> essenceDescriptorIdToTrackFileIdMap = new HashMap<>();
+            for(ResourceIdTuple resourceIdTuple : getResourceIdTuples(this.getVirtualTracks())) {
+                essenceDescriptorIdToTrackFileIdMap.put(resourceIdTuple.getSourceEncoding(), resourceIdTuple.getTrackFileId());
+            }
+            for(IMFEssenceDescriptorBaseType imfEssenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList()) {
+                if(essenceDescriptorIdToTrackFileIdMap.containsKey(imfEssenceDescriptorBaseType.getId())) {
+                    essenceDescriptorDomNodeMap.put(essenceDescriptorIdToTrackFileIdMap.get(imfEssenceDescriptorBaseType.getId()), imfEssenceDescriptorBaseType.getAny().stream().map(e -> (Node) e).collect(Collectors.toList()));
+                }
+            }
+        }
+        return essenceDescriptorDomNodeMap;
+    }
+
+
+    public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap() {
+        return this.essenceDescriptorDomNodeMap;
     }
 
 
