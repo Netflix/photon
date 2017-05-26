@@ -18,14 +18,29 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.*;
+import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
-import com.netflix.imflibrary.st0377.header.*;
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.RegXMLLibHelper;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.Utilities;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +57,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -61,8 +86,9 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     private final String coreConstraintsVersion;
     private final Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
-    protected final IMFErrorLogger imfErrorLogger;
+    private final Map<UUID, List<Node>> essenceDescriptorDomNodeMap;
 
+    protected final IMFErrorLogger imfErrorLogger;
     protected final RegXMLLibDictionary regXMLLibDictionary;
 
     /**
@@ -116,6 +142,8 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty.");
         }
+
+        this.essenceDescriptorDomNodeMap = Collections.unmodifiableMap(createEssenceDescriptorDomNodeMap());
 
         if (imfErrorLogger.hasFatalErrors()) {
             throw new IMFException(String.format("Found fatal errors in CompositionPlaylist XML file."), imfErrorLogger);
@@ -734,6 +762,14 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return resourceSourceEncodingElementsSet;
     }
 
+    public static List<AbstractApplicationComposition.ResourceIdTuple> getResourceIdTuples(List<? extends Composition.VirtualTrack> virtualTracks) {
+        List<AbstractApplicationComposition.ResourceIdTuple>  resourceIdTupleList = new ArrayList<>();
+        for (Composition.VirtualTrack virtualTrack : virtualTracks) {
+            resourceIdTupleList.addAll(getVirtualTrackResourceIDs(virtualTrack));
+        }
+        return resourceIdTupleList;
+    }
+
     private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition
             .HeaderPartitionTuple> headerPartitionTuples) throws IOException {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
@@ -983,6 +1019,27 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         }
 
         return imageEssenceDescriptorModel;
+    }
+
+    private  Map<UUID, List<Node>> createEssenceDescriptorDomNodeMap() {
+        final Map<UUID, List<Node>> essenceDescriptorDomNodeMap = new HashMap<>();
+        if (compositionPlaylistType.getEssenceDescriptorList() != null) {
+            Map<UUID, UUID> essenceDescriptorIdToTrackFileIdMap = new HashMap<>();
+            for(ResourceIdTuple resourceIdTuple : getResourceIdTuples(this.getVirtualTracks())) {
+                essenceDescriptorIdToTrackFileIdMap.put(resourceIdTuple.getSourceEncoding(), resourceIdTuple.getTrackFileId());
+            }
+            for(IMFEssenceDescriptorBaseType imfEssenceDescriptorBaseType : compositionPlaylistType.getEssenceDescriptorList()) {
+                if(essenceDescriptorIdToTrackFileIdMap.containsKey(imfEssenceDescriptorBaseType.getId())) {
+                    essenceDescriptorDomNodeMap.put(essenceDescriptorIdToTrackFileIdMap.get(imfEssenceDescriptorBaseType.getId()), imfEssenceDescriptorBaseType.getAny().stream().map(e -> (Node) e).collect(Collectors.toList()));
+                }
+            }
+        }
+        return essenceDescriptorDomNodeMap;
+    }
+
+
+    public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap() {
+        return this.essenceDescriptorDomNodeMap;
     }
 
 

@@ -18,14 +18,19 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import org.w3c.dom.Node;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This interface represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -208,6 +213,13 @@ public interface ApplicationComposition {
      * @return Application CompositionImageEssenceDescriptorModel
      */
     @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel();
+
+    /**
+     * A method to get map of essence descriptor dom nodes
+     *
+     * @return Map containing mapping between Track file ID to essence descriptor DOM node list
+     */
+    public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap();
 
     /**
      * A method that confirms if the inputStream corresponds to a Composition document instance.

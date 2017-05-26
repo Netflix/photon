@@ -18,35 +18,21 @@
 
 package com.netflix.imflibrary.writerTools;
 
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
-import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
-import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
+import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
-import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.RegXMLLibHelper;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import com.sandflow.smpte.klv.Triplet;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType;
 import org.smpte_ra.schemas.st2067_2_2013.ContentVersionType;
 import org.smpte_ra.schemas.st2067_2_2013.SequenceType;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -59,7 +45,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
@@ -78,8 +63,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A class that implements the logic to build a SMPTE st2067-2:2013 schema compliant CompositionPlaylist document.
@@ -94,12 +79,13 @@ public class CompositionPlaylistBuilder_2013 {
     private final List<? extends Composition.VirtualTrack> virtualTracks;
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
-    private final Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap;
+    private final Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas.st2067_2_2013.SegmentType> segments = new ArrayList<>();
     private final List<List<org.smpte_ra.schemas.st2067_2_2013.SequenceType>> sequenceList = new ArrayList<>();
+    private final List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList;
 
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final static String defaultContentKindScope = "http://www.smpte-ra.org/schemas/2067-3/XXXX#content-kind";
@@ -119,8 +105,9 @@ public class CompositionPlaylistBuilder_2013 {
      * @param compositionEditRate the edit rate of the Composition
      * @param applicationId ApplicationId for the composition
      * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileHeaderPartitionMap a map of the IMFTrackFile's UUID to the EssenceHeaderPartition metadata
+     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
      * @param workingDirectory a folder location where the constructed CPL document can be written to
+     * @param imfEssenceDescriptorBaseTypeList List of IMFEssenceDescriptorBaseType
      */
     public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
                                            @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
@@ -130,8 +117,9 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                           @Nonnull File workingDirectory){
+                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
+                                           @Nonnull File workingDirectory,
+                                           @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
         this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -142,12 +130,13 @@ public class CompositionPlaylistBuilder_2013 {
             add(compositionEditRate.getDenominator());}};
         this.compositionEditRate = Collections.unmodifiableList(editRate);
         this.totalRunningTime = totalRunningTime;
-        this.trackFileHeaderPartitionMap = Collections.unmodifiableMap(trackFileHeaderPartitionMap);
+        this.trackFileInfoMap = Collections.unmodifiableMap(trackFileInfoMap);
         this.workingDirectory = workingDirectory;
         this.imfErrorLogger = new IMFErrorLoggerImpl();
         cplFileName = "CPL-" + this.uuid.toString() + ".xml";
         this.applicationId = applicationId;
         this.trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
+        this.imfEssenceDescriptorBaseTypeList = Collections.unmodifiableList(imfEssenceDescriptorBaseTypeList);
 
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
             for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
@@ -156,7 +145,37 @@ public class CompositionPlaylistBuilder_2013 {
                     trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
                 }
             }
-        }    }
+        }
+
+    }
+
+
+    /**
+     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
+     * @param uuid identifying the CompositionPlaylist document
+     * @param annotationText a free form human readable text
+     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
+     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
+     * @param virtualTracks a list of VirtualTracks of the Composition
+     * @param compositionEditRate the edit rate of the Composition
+     * @param applicationId ApplicationId for the composition
+     * @param totalRunningTime a long value representing in seconds the total running time of this composition
+     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
+     * @param workingDirectory a folder location where the constructed CPL document can be written to
+     */
+    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                           @Nonnull Composition.EditRate compositionEditRate,
+                                           @Nonnull String applicationId,
+                                           long totalRunningTime,
+                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
+                                           @Nonnull File workingDirectory){
+        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileInfoMap, workingDirectory, new ArrayList<>());
+    }
+    
 
     /**
      * A method to build a CompositionPlaylist document conforming to the st2067-2/3:2013 schema
@@ -190,14 +209,9 @@ public class CompositionPlaylistBuilder_2013 {
         /**
          * Process each VirtualTrack that is a part of this Composition
          */
-        List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
         List<CompositionPlaylistBuilder_2013.SequenceTypeTuple> sequenceTypeTuples = new ArrayList<>();
 
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
-            /**
-             * Build the EssenceDescriptorList
-             */
-            essenceDescriptorList.addAll(buildEDLForVirtualTrack(virtualTrack));
             /**
              * Build TrackResourceList
              */
@@ -210,7 +224,7 @@ public class CompositionPlaylistBuilder_2013 {
             SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(essenceDescriptorList);
+        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
         cplRoot.setEssenceDescriptorList(essenceDescriptorListType);
         UUID segmentId = IMFUUIDGenerator.getInstance().generateUUID();
         org.smpte_ra.schemas.st2067_2_2013.SegmentType segmentType = buildSegment(segmentId, buildCPLUserTextType_2013("Segment-1", "en"));
@@ -241,75 +255,6 @@ public class CompositionPlaylistBuilder_2013 {
         List errors = serializeCPLToXML(cplRoot, outputFile);
         imfErrorLogger.addAllErrors(errors);
         return imfErrorLogger.getErrors();
-    }
-
-    private List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> buildEDLForVirtualTrack (Composition.VirtualTrack virtualTrack) throws IOException, ParserConfigurationException{
-
-        List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<>();
-        Set<UUID> trackResourceIds = IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds();
-        /**
-         * Create the RegXML representation of the EssenceDescriptor metadata for every Resource of every VirtualTrack
-         * of the Composition
-         */
-        for(UUID uuid : trackResourceIds){
-            IMPBuilder.IMFTrackFileMetadata imfTrackFileMetadata = this.trackFileHeaderPartitionMap.get(uuid);
-            if(imfTrackFileMetadata == null){
-                throw new IMFAuthoringException(String.format("TrackFileHeaderMetadata for Track Resource Id %s within VirtualTrack Id %s is absent", uuid.toString(), virtualTrack.getTrackID()));
-            }
-            ByteProvider byteProvider = new ByteArrayDataProvider(imfTrackFileMetadata.getHeaderPartition());
-            ResourceByteRangeProvider resourceByteRangeProvider = new ByteArrayByteRangeProvider(imfTrackFileMetadata.getHeaderPartition());
-            //Create the HeaderPartition
-            HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long)imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger);
-
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-            List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartition.getEssenceDescriptors();
-            for(InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
-                KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
-                List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-                List<InterchangeObject.InterchangeObjectBO>subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
-                for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
-                    if(subDescriptorBO != null) {
-                        subDescriptorHeaders.add(subDescriptorBO.getHeader());
-                    }
-                }
-                    /*Create a dom*/
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                Document document = docBuilder.newDocument();
-
-                RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(headerPartition.getPrimerPack().getHeader(), getByteProvider(resourceByteRangeProvider, headerPartition.getPrimerPack().getHeader()));
-
-                DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(regXMLLibHelper, document, essenceDescriptorHeader, subDescriptorHeaders,resourceByteRangeProvider);
-                Node node = documentFragment.getFirstChild();
-                UUID essenceDescriptorId = this.trackResourceSourceEncodingMap.get(uuid);
-                org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = buildEssenceDescriptorBaseType(essenceDescriptorId, node);
-                essenceDescriptorList.add(essenceDescriptorBaseType);
-            }
-        }
-        return essenceDescriptorList;
-    }
-
-    private DocumentFragment getEssenceDescriptorAsDocumentFragment(RegXMLLibHelper regXMLLibHelper,
-                                                                    Document document,
-                                                                    KLVPacket.Header essenceDescriptor,
-                                                                    List<KLVPacket.Header>subDescriptors,
-                                                                    ResourceByteRangeProvider resourceByteRangeProvider) throws MXFException, IOException {
-        document.setXmlStandalone(true);
-
-        Triplet essenceDescriptorTriplet = regXMLLibHelper.getTripletFromKLVHeader(essenceDescriptor, this.getByteProvider(resourceByteRangeProvider, essenceDescriptor));
-        //DocumentFragment documentFragment = this.regXMLLibHelper.getDocumentFragment(essenceDescriptorTriplet, document);
-        /*Get the Triplets corresponding to the SubDescriptors*/
-        List<Triplet> subDescriptorTriplets = new ArrayList<>();
-        for(KLVPacket.Header subDescriptorHeader : subDescriptors){
-            subDescriptorTriplets.add(regXMLLibHelper.getTripletFromKLVHeader(subDescriptorHeader, this.getByteProvider(resourceByteRangeProvider, subDescriptorHeader)));
-        }
-        return regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, this.imfErrorLogger);
-    }
-
-    private ByteProvider getByteProvider(ResourceByteRangeProvider resourceByteRangeProvider, KLVPacket.Header header) throws IOException {
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize());
-        return new ByteArrayDataProvider(bytes);
     }
 
     private List<org.smpte_ra.schemas.st2067_2_2013.BaseResourceType> buildTrackResourceList(Composition.VirtualTrack virtualTrack){
@@ -453,12 +398,17 @@ public class CompositionPlaylistBuilder_2013 {
 
     /**
      * A method to construct an EssenceDescriptorList conforming to the 2013 schema
-     * @param essenceDescriptorBaseTypes a list of EssenceDescritorBaseType objects conforming to the 2013 schema
+     * @param imfEssenceDescriptorBaseTypeList a list of IMFEssenceDescriptorBaseType objects
      * @return EssenceDescriptorList type object
      */
-    public org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList buildEssenceDescriptorList(List<org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType> essenceDescriptorBaseTypes){
+    public org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList buildEssenceDescriptorList(List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
         org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorList = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList();
-        essenceDescriptorList.getEssenceDescriptor().addAll(essenceDescriptorBaseTypes);
+        essenceDescriptorList.getEssenceDescriptor().addAll(imfEssenceDescriptorBaseTypeList.stream().map(e -> {
+            org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType();
+            essenceDescriptorBaseType.setId(UUIDHelper.fromUUID(e.getId()));
+            essenceDescriptorBaseType.getAny().addAll(e.getAny());
+            return essenceDescriptorBaseType;
+        }).collect(Collectors.toList()));
         return essenceDescriptorList;
     }
 
