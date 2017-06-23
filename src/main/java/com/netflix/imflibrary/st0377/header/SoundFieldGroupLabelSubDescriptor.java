@@ -19,10 +19,9 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.annotations.MXFProperty;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.utils.ByteProvider;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
@@ -73,6 +72,14 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
      */
     public String getRFC5646SpokenLanguage(){
         return this.soundFieldGroupLabelSubDescriptorBO.rfc_5646_spoken_language;
+    }
+
+    /**
+     * A getter for the audio content kind
+     * @return string representing the audio content kind
+     */
+    public String getAudioContentKind(){
+        return this.soundFieldGroupLabelSubDescriptorBO.getMCAAudioContentKind();
     }
 
     /**

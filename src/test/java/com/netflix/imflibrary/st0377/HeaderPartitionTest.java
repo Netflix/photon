@@ -23,7 +23,20 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.header.*;
+import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
+import com.netflix.imflibrary.st0377.header.ContentStorage;
+import com.netflix.imflibrary.st0377.header.EssenceContainerData;
+import com.netflix.imflibrary.st0377.header.GenericTrack;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.MaterialPackage;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.Sequence;
+import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st0377.header.SourceClip;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.TimelineTrack;
+import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
@@ -137,6 +150,7 @@ public class HeaderPartitionTest
         Assert.assertFalse(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
         Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
         Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertEquals(headerPartition.getAudioContentKind(), AudioContentKind.Unknown);
 
         MXFUID essenceContainerDataInstanceUID = new MXFUID(new byte[]{
                 0x46, 0x31, (byte)0x9f, 0x11, (byte)0xc9, (byte)0xb1, 0x40, (byte)0xa5, (byte)0xb9, (byte)0xb1, (byte)0x9e, 0x69, (byte)0xda, (byte)0x89, (byte)0xbe, 0x52
@@ -263,6 +277,8 @@ public class HeaderPartitionTest
         if(headerPartition.getAudioChannelLabelSubDescriptors().size() == 0){
             throw new MXFException(String.format("Asset seems to be invalid since it does not contain any AudioChannelLabelSubDescriptors"));
         }
+        Assert.assertEquals(headerPartition.getAudioContentKind(), AudioContentKind.Unknown);
+
         AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor)headerPartition.getAudioChannelLabelSubDescriptors().get(0);
         Assert.assertEquals(audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId(), soundFieldGroupMCALinkId);
         Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALabelDictionaryId(), new MXFUID(new byte[]{
@@ -271,6 +287,5 @@ public class HeaderPartitionTest
         Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALinkId(), new MXFUID(new byte[]{
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     }));
-
     }
 }
