@@ -18,15 +18,39 @@
 
 package com.netflix.imflibrary.st0377;
 
-import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.MXFUID;
-import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFPropertyPopulator;
+import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
+import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.ContentStorage;
+import com.netflix.imflibrary.st0377.header.EssenceContainerData;
+import com.netflix.imflibrary.st0377.header.GenericDescriptor;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.GenericTrack;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
+import com.netflix.imflibrary.st0377.header.MaterialPackage;
+import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.RGBAPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.Sequence;
+import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st0377.header.SourceClip;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.StructuralComponent;
+import com.netflix.imflibrary.st0377.header.StructuralMetadata;
+import com.netflix.imflibrary.st0377.header.TimeTextResourceSubDescriptor;
+import com.netflix.imflibrary.st0377.header.TimedTextDescriptor;
+import com.netflix.imflibrary.st0377.header.TimelineTrack;
+import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.MXFPropertyPopulator;
-import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +64,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
-
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.horizontalSubSamplingUL;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.verticalSubSamplingUL;
 
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
@@ -660,6 +681,27 @@ public final class HeaderPartition
             }*/
         }
         return rfc5646SpokenLanguage;
+    }
+
+    /**
+     * A method that returns the audio content kind for this Essence
+     * @return AudioContentKind enumeration
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public AudioContentKind getAudioContentKind() throws IOException {
+        String audioContentKind = null;
+        if(this.hasWaveAudioEssenceDescriptor()){
+            List<InterchangeObject> soundfieldGroupLabelSubDescriptors = this.getSoundFieldGroupLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : soundfieldGroupLabelSubDescriptors) {
+                SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) subDescriptor;
+                if (audioContentKind == null) {
+                    audioContentKind = soundFieldGroupLabelSubDescriptor.getAudioContentKind();
+                } else if (!audioContentKind.equals(soundFieldGroupLabelSubDescriptor.getAudioContentKind())) {
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("AudioContentKind (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", audioContentKind, soundFieldGroupLabelSubDescriptor.getAudioContentKind()));
+                }
+            }
+        }
+        return AudioContentKind.getAudioContentKindFromSymbol(audioContentKind);
     }
 
     /**
