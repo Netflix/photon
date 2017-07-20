@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateAssetMap;
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateCPL;
@@ -467,7 +468,13 @@ public class IMPAnalyzer {
                                     }
                                 }
                             } else {
-                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, headerPartitionPayloadRecords));
+                                List<PayloadRecord> cplHeaderPartitionPayloads = applicationComposition.getEssenceVirtualTracks()
+                                        .stream()
+                                        .map(IMFEssenceComponentVirtualTrack::getTrackResourceIds)
+                                        .flatMap(Set::stream)
+                                        .map( e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
+                                        .collect(Collectors.toList());
+                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, cplHeaderPartitionPayloads));
                             }
                         } catch (IMFException e) {
                             compositionConformanceErrorLogger.addAllErrors(e.getErrors());
