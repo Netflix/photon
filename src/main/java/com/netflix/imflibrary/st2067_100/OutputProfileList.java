@@ -316,8 +316,7 @@ public final class OutputProfileList {
                     StringBuilder handleBuilder = new StringBuilder();
                     handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                     Handle handleType = new VirtualTrackHandle(handleBuilder.toString(), virtualTrack);
-                    handleMap.put(handleBuilder.toString(), handleType);
-                }
+                    handleMap.put(handleBuilder.toString(), handleType);                }
                 break;
 
                 case MainAudioSequence: {
@@ -410,10 +409,13 @@ public final class OutputProfileList {
          */
         for(String handle: this.aliasMap.values()) {
             Handle handleType = handleMap.get(handle);
-            if (handleType == null && !handle.contains("/inputs/")) {
+            // Ignore input aliases as they are not needed for dependency resolution
+            // Ignore cpl/virtual track aliases too. All track IDs are not available for OPL and hence cannot validate.
+            if (handleType == null && !handle.contains("/inputs/") && !handle.startsWith("cpl/virtual-tracks/")) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("Invalid handle %s in alias", handle));
             }
+
         }
     }
 
