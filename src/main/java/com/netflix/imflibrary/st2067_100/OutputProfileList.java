@@ -134,8 +134,9 @@ public final class OutputProfileList {
                             String.format("OPL with id %s contains Preset Macro with other macro types", id));
                 }
                 for (Sequence input : macro.getInputs()) {
-                    if(input.getHandle().startsWith("cpl/")) {
-                        handleMap.put(input.getHandle(), new VirtualTrackHandle(input.getHandle(), null));
+                    String inputHandle = getHandle(input.getHandle());
+                    if(inputHandle.startsWith("cpl/")) {
+                        handleMap.put(inputHandle, new VirtualTrackHandle(inputHandle, null));
                     }
                 }
             }
@@ -294,7 +295,7 @@ public final class OutputProfileList {
         for(Map.Entry<String, Macro> entry: this.macroMap.entrySet()) {
             Macro macro = entry.getValue();
             for(Sequence input: macro.getInputs()) {
-                Handle handleType = handleMapConformed.get(input.getHandle());
+                Handle handleType = handleMapConformed.get(getHandle(input.getHandle()));
                 if (handleType == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Invalid handle %s in %s macro", input.getHandle(), macro.getName()));
@@ -368,10 +369,10 @@ public final class OutputProfileList {
             for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
                 Macro macro = entry.getValue();
                 /* Check for all the input dependencies for the macro */
-                if (macro != null && !macro.getOutputs().isEmpty() && !handleMap.containsKey(macro.getOutputs().get(0).getHandle())) {
+                if (macro != null && !macro.getOutputs().isEmpty() && !handleMap.containsKey(getHandle(macro.getOutputs().get(0).getHandle()))) {
                     boolean bDependencyMet = true;
                     for (Sequence input : macro.getInputs()) {
-                        Handle handleType = handleMap.get(input.getHandle());
+                        Handle handleType = handleMap.get(getHandle(input.getHandle()));
                         if (handleType == null) {
                             bDependencyMet = false;
                         }
@@ -381,7 +382,8 @@ public final class OutputProfileList {
                     /* If input dependencies are met create output handles */
                     if (bDependencyMet) {
                         for (Sequence output : macro.getOutputs()) {
-                            handleMap.put(output.getHandle(), new MacroHandle(output.getHandle(), macro));
+                            String outputHandle = getHandle(output.getHandle());
+                            handleMap.put(outputHandle, new MacroHandle(outputHandle, macro));
                         }
                     }
                 }
@@ -396,7 +398,7 @@ public final class OutputProfileList {
         for(Map.Entry<String, Macro> entry: this.macroMap.entrySet()) {
             Macro macro = entry.getValue();
             for(Sequence input: macro.getInputs()) {
-                Handle handleType = handleMap.get(input.getHandle());
+                Handle handleType = handleMap.get(getHandle(input.getHandle()));
                 if (handleType == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Invalid handle %s in %s macro", input.getHandle(), macro.getName()));
@@ -408,11 +410,21 @@ public final class OutputProfileList {
          */
         for(String handle: this.aliasMap.values()) {
             Handle handleType = handleMap.get(handle);
-            if (handleType == null) {
+            if (handleType == null && !handle.contains("/inputs/")) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("Invalid handle %s in alias", handle));
             }
         }
+    }
+
+    private String getHandle(String handle) {
+        if(handle.startsWith("alias/")) {
+            handle = handle.replace("alias/", "");
+        }
+        if(this.aliasMap.containsKey(handle)) {
+            handle = this.aliasMap.get(handle);
+        }
+        return handle;
     }
 
     /**
@@ -491,5 +503,4 @@ public final class OutputProfileList {
             logger.info("No errors were detected in the OutputProfileList Document.");
         }
     }
-
 }
