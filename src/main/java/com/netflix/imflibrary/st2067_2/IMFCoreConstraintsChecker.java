@@ -117,45 +117,37 @@ final class IMFCoreConstraintsChecker {
                                 essenceDescriptorField = "SampleRate";
                                 otherEssenceDescriptorField = "AudioSampleRate";
                             }
-                            Map<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>> fields = domNodeObjectModel.getFields();
-                            Iterator<Map.Entry<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>>> entryIterator = fields.entrySet().iterator();
-                            while (entryIterator.hasNext()) {
-                                Map.Entry<DOMNodeObjectModel.DOMNodeElementTuple, Map<String, Integer>> entry = entryIterator.next();
-                                if (entry.getKey().getLocalName().equals(essenceDescriptorField)
-                                        || entry.getKey().getLocalName().equals(otherEssenceDescriptorField)) {
-                                    if (entry.getValue().size() > 1) {
-                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                                String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s" +
-                                                                " with more than 1 value for the %s field"
-                                                        , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField));
-                                    } else {
-                                        String sampleRate = entry.getValue().keySet().iterator().next();
-                                        Long numerator = 0L;
-                                        Long denominator = 0L;
-                                        String[] sampleRateElements = (sampleRate.contains(" ")) ? sampleRate.split(" ") : sampleRate.contains("/") ? sampleRate.split("/") : new String[2];
-                                        if (sampleRateElements.length == 2) {
-                                            numerator = Long.valueOf(sampleRateElements[0]);
-                                            denominator = Long.valueOf(sampleRateElements[1]);
-                                        } else if (sampleRateElements.length == 1) {
-                                            numerator = Long.valueOf(sampleRateElements[0]);
-                                            denominator = 1L;
-                                        }
-                                        List<Long> editRate = new ArrayList<>();
-                                        Integer sampleRateToEditRateScale = 1;
 
-                                        if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
-                                            CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
-                                                    (imfTrackFileResourceType.getSourceEncoding()),
-                                                    domNodeObjectModel,
-                                                    new RegXMLLibDictionary());
-                                            sampleRateToEditRateScale = imageEssenceDescriptorModel.getFrameLayoutType().equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) ? 2 : 1;
-                                        }
-                                        editRate.add(numerator / sampleRateToEditRateScale);
-                                        editRate.add(denominator);
+                            String sampleRate = domNodeObjectModel.getFieldAsString(essenceDescriptorField);
+                            if(sampleRate == null && !otherEssenceDescriptorField.isEmpty()) {
+                                sampleRate = domNodeObjectModel.getFieldAsString(otherEssenceDescriptorField);
+                            }
 
-                                        essenceEditRate = new Composition.EditRate(editRate);
-                                    }
+                            if (sampleRate != null) {
+                                Long numerator = 0L;
+                                Long denominator = 0L;
+                                String[] sampleRateElements = (sampleRate.contains(" ")) ? sampleRate.split(" ") : sampleRate.contains("/") ? sampleRate.split("/") : new String[2];
+                                if (sampleRateElements.length == 2) {
+                                    numerator = Long.valueOf(sampleRateElements[0]);
+                                    denominator = Long.valueOf(sampleRateElements[1]);
+                                } else if (sampleRateElements.length == 1) {
+                                    numerator = Long.valueOf(sampleRateElements[0]);
+                                    denominator = 1L;
                                 }
+                                List<Long> editRate = new ArrayList<>();
+                                Integer sampleRateToEditRateScale = 1;
+
+                                if(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                                    CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
+                                            (imfTrackFileResourceType.getSourceEncoding()),
+                                            domNodeObjectModel,
+                                            new RegXMLLibDictionary());
+                                    sampleRateToEditRateScale = imageEssenceDescriptorModel.getFrameLayoutType().equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) ? 2 : 1;
+                                }
+                                editRate.add(numerator / sampleRateToEditRateScale);
+                                editRate.add(denominator);
+
+                                essenceEditRate = new Composition.EditRate(editRate);
                             }
                         }
                         if (essenceEditRate == null) {
