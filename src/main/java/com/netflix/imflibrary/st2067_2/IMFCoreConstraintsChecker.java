@@ -43,7 +43,15 @@ final class IMFCoreConstraintsChecker {
 
     public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
                                           Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
-                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap){
+                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
+        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
+        return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary);
+    }
+
+    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
+                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
+                                          RegXMLLibDictionary regXMLLibDictionary){
 
         boolean foundMainImageEssence = false;
         int numberOfMainImageEssences = 0;
@@ -141,7 +149,7 @@ final class IMFCoreConstraintsChecker {
                                     CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
                                             (imfTrackFileResourceType.getSourceEncoding()),
                                             domNodeObjectModel,
-                                            new RegXMLLibDictionary());
+                                            regXMLLibDictionary);
                                     sampleRateToEditRateScale = imageEssenceDescriptorModel.getFrameLayoutType().equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) ? 2 : 1;
                                 }
                                 editRate.add(numerator / sampleRateToEditRateScale);

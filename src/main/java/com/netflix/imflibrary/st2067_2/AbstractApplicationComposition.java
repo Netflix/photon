@@ -135,7 +135,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap= this.getEssenceDescriptorListMap(ignoreSet);
 
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
-                .virtualTrackMap, essenceDescriptorListMap));
+                .virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary));
 
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
