@@ -106,7 +106,6 @@ public final class IMFTrackFileResourceType extends IMFBaseResourceType {
         //for the 2 resources to be considered equivalent/representing the same timeline.
         result &= super.equivalent( otherTrackFileResource );
         result &= trackFileId.equals(otherTrackFileResource.getTrackFileId());
-        result &= sourceEncoding.equals(otherTrackFileResource.getSourceEncoding());
 
         return  result;
     }
