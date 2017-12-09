@@ -97,6 +97,12 @@
  <r1:MasteringDisplayMaximumLuminance>40000000</r1:MasteringDisplayMaximumLuminance>
  <r1:MasteringDisplayMinimumLuminance>50</r1:MasteringDisplayMinimumLuminance>
  <r1:SubDescriptors>
+  <r2:PHDRMetadataTrackSubDescriptor>
+   <r2:PHDRMetadataTrackSubDescriptor_DataDefinition>urn:smpte:ul:060e2b34.04010105.0e090607.01010101</r2:PHDRMetadataTrackSubDescriptor_DataDefinition>
+   <r2:PHDRMetadataTrackSubDescriptor_SimplePayloadSID>2</r2:PHDRMetadataTrackSubDescriptor_SimplePayloadSID>
+   <r1:InstanceID>urn:uuid:d318951d-8943-4af7-a398-7bf53091f14a</r1:InstanceID>
+   <r2:PHDRMetadataTrackSubDescriptor_SourceTrackID>3</r2:PHDRMetadataTrackSubDescriptor_SourceTrackID>
+  </r2:PHDRMetadataTrackSubDescriptor>
   <r0:JPEG2000SubDescriptor>
    <r1:Rsiz>1367</r1:Rsiz>
    <r1:Xsiz>3840</r1:Xsiz>
