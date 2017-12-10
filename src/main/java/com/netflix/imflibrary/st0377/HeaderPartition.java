@@ -623,10 +623,10 @@ public final class HeaderPartition
      */
     public BigInteger getEssenceDuration(){
         MaterialPackage materialPackage = (MaterialPackage)this.getMaterialPackages().get(0);
-        Long duration = 0L;
-        Long maxDuration = duration;
+        Long maxDuration = 0L;
         for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
         {
+            Long duration = 0L;
             List<MXFUID> uids = timelineTrack.getSequence().getStructuralComponentInstanceUIDs();
             List<InterchangeObject.InterchangeObjectBO> structuralComponentBOs = new ArrayList<>();
             for(MXFUID uid : uids){
