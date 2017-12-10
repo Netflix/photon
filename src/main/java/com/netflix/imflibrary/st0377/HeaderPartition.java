@@ -637,7 +637,7 @@ public final class HeaderPartition
 
             for(InterchangeObject.InterchangeObjectBO interchangeObjectBO : structuralComponentBOs){
                 StructuralComponent.StructuralComponentBO structuralComponentBO = (StructuralComponent.StructuralComponentBO) interchangeObjectBO;
-                duration += structuralComponentBO.getDuration();
+                duration = structuralComponentBO.getDuration();
             }
 
             if(duration > maxDuration){
