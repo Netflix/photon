@@ -34,6 +34,21 @@ final class IMFCoreConstraintsChecker {
         add("LinkedGenerationID");
         add("MCATitle");
         add("MCATitleVersion");
+        add("PixelLayout");
+        add("VideoLineMap");
+        add("CodingStyleDefault");
+        add("PictureComponentSizing");
+        add("QuantizationDefault");
+        add("Rsiz");
+        add("Xsiz");
+        add("Ysiz");
+        add("XOsiz");
+        add("YOsiz");
+        add("XTsiz");
+        add("YTsiz");
+        add("XTOsiz");
+        add("YTOsiz");
+        add("Csiz");
     }};
 
     //To prevent instantiation
