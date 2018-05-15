@@ -1,19 +1,12 @@
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
-import com.netflix.imflibrary.utils.Fraction;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
-
-import static com.netflix.imflibrary.Colorimetry.*;
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 
 /**
  * A class that models Composition with Application 2 constraints from 2067-20 specification
@@ -25,6 +18,10 @@ public class ApplicationUnsupportedComposition extends AbstractApplicationCompos
         add("VideoLineMap");
         add("AlphaTransparency");
         add("PixelLayout");
+        add("ActiveHeight");
+        add("ActiveWidth");
+        add("ActiveXOffset");
+        add("ActiveYOffset");
     }});
 
     public ApplicationUnsupportedComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {

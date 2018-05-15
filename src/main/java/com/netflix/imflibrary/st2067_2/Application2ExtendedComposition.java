@@ -1,18 +1,23 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.Colorimetry.ColorModel;
+import com.netflix.imflibrary.Colorimetry.Quantization;
+import com.netflix.imflibrary.Colorimetry.Sampling;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.Fraction;
-import com.netflix.imflibrary.Colorimetry.*;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
-
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
+import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 
 /**
  * A class that models Composition with Application 2Extended constraints from 2067-21 specification
@@ -45,6 +50,10 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         add("VideoLineMap");
         add("AlphaTransparency");
         add("PixelLayout");
+        add("ActiveHeight");
+        add("ActiveWidth");
+        add("ActiveXOffset");
+        add("ActiveYOffset");
     }});
 
     public Application2ExtendedComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {
