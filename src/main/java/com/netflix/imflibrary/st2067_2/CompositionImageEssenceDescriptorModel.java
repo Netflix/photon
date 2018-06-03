@@ -45,6 +45,25 @@ public final class CompositionImageEssenceDescriptorModel {
     private final TransferCharacteristic transferCharacteristic;
     private final ColorPrimaries colorPrimaries;
     private final UL essenceContainerFormatUL;
+    // items specified in 2065-5
+    private final Integer signalStandard;
+    private final Integer sampledXOffset;
+    private final Integer sampledYOffset;
+    private final Integer displayWidth;
+    private final Integer displayHeight;
+    private final Integer displayXOffset;
+    private final Integer displayYOffset;
+    private final Integer displayF2Offset;
+    private final Fraction aspectRatio;
+    private final Integer activeFormatDescriptor;
+    private final String videoLineMap;
+    private final Integer alphaTransparency;
+    private final Integer imageAlignmentOffset;
+    private final Integer imageStartOffset;
+    private final Integer imageEndOffset;
+    private final Integer fieldDominance;
+    private final UL codingEquations;
+
 
     public CompositionImageEssenceDescriptorModel(@Nonnull UUID imageEssencedescriptorID, @Nonnull DOMNodeObjectModel imageEssencedescriptorDOMNode, @Nonnull RegXMLLibDictionary regXMLLibDictionary)
     {
@@ -91,17 +110,57 @@ public final class CompositionImageEssenceDescriptorModel {
             this.codingEquation = CodingEquation.None;
         }
 
+        this.essenceContainerFormatUL = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(containerFormatUL));
+        
+        // begin Items constrained in ST2065-5
+        this.signalStandard = getFieldAsInteger(signalStandardUL);
+        this.sampledXOffset = getFieldAsInteger(sampledXOffsetUL);
+        this.sampledYOffset = getFieldAsInteger(sampledYOffsetUL);
+        Integer displayWidth = getFieldAsInteger(displayWidthUL);
+        this.displayWidth = displayWidth != null ? displayWidth : -1;
+        Integer displayHeight = getFieldAsInteger(displayHeightUL);
+        this.displayHeight = displayHeight != null ? displayHeight : -1;
+        this.displayXOffset = getFieldAsInteger(displayXOffsetUL);
+        this.displayYOffset = getFieldAsInteger(displayYOffsetUL);
+        this.displayF2Offset = getFieldAsInteger(displayF2OffsetUL);
+        this.aspectRatio = getFieldAsFraction(aspectRatioUL);
+        this.activeFormatDescriptor = getFieldAsInteger(activeFormatDescriptorUL);
+        this.videoLineMap =		getFieldAsString(videoLineMapUL);
+        this.alphaTransparency = getFieldAsInteger(alphaTransparencyUL);
+        this.imageAlignmentOffset = getFieldAsInteger(imageAlignmentOffsetUL);
+        this.imageStartOffset = getFieldAsInteger(imageStartOffsetUL);
+        this.imageEndOffset = getFieldAsInteger(imageEndOffsetUL);
+        this.fieldDominance = getFieldAsInteger(fieldDominanceUL);
+        this.codingEquations = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(codingEquationsUL));
+        // end Items constrained in ST2065-5
+
+        UL MXFGCFrameWrappedACESPictures = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.0d010301.02190100"); // MXF-GC Frame-wrapped ACES Pictures per 2065-5
         if(!this.colorModel.equals(ColorModel.Unknown)) {
-            this.pixelBitDepth = parsePixelBitDepth(this.colorModel);
-            this.quantization = parseQuantization(this.colorModel, this.pixelBitDepth);
-
-            Colorimetry color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
-            if((colorModel.equals(ColorModel.YUV) && !color.getCodingEquation().equals(this.codingEquation))) {
-                color = Colorimetry.Unknown;
-            }
-            this.color = color;
-
-            this.sampling = parseSampling(this.colorModel);
+        	if ((this.essenceContainerFormatUL != null) && getEssenceContainerFormatUL().equals(MXFGCFrameWrappedACESPictures) ) { // App #5
+        		if(colorModel.equals(ColorModel.RGB)) {
+                    this.pixelBitDepth = null;
+                    this.quantization = Quantization.Unknown;
+    	            this.color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
+                    this.sampling = Sampling.Unknown;
+                    parseApp5SubDescriptors();
+        		} else {
+                    this.pixelBitDepth = null;
+                    this.quantization = Quantization.Unknown;
+                    this.color = Colorimetry.Unknown;
+                    this.sampling = Sampling.Unknown;
+        		}
+        	} else  { // App #2/#2E
+	            this.pixelBitDepth = parsePixelBitDepth(this.colorModel);
+	            this.quantization = parseQuantization(this.colorModel, this.pixelBitDepth);
+	
+	            Colorimetry color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
+	            if((colorModel.equals(ColorModel.YUV) && !color.getCodingEquation().equals(this.codingEquation))) {
+	                color = Colorimetry.Unknown;
+	            }
+	            this.color = color;
+	
+	            this.sampling = parseSampling(this.colorModel);
+        	}  
         }
         else {
             this.pixelBitDepth = null;
@@ -110,7 +169,6 @@ public final class CompositionImageEssenceDescriptorModel {
             this.sampling = Sampling.Unknown;
         }
 
-        this.essenceContainerFormatUL = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(containerFormatUL));
     }
 
 
@@ -202,6 +260,74 @@ public final class CompositionImageEssenceDescriptorModel {
     private @Nullable Fraction getFieldAsFraction(@Nonnull String urn) {
         return imageEssencedescriptorDOMNode.getFieldAsFraction(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
+
+    public @Nullable Integer getSignalStandard() {
+        return signalStandard;
+    }
+        
+    public @Nullable Integer getSampledXOffset() {
+        return sampledXOffset;
+    }
+    
+    public @Nullable Integer getSampledYOffset() {
+        return sampledYOffset;
+    }
+    
+    public @Nonnull Integer getDisplayWidth() {
+    	return displayWidth;
+    }
+    
+    public @Nonnull Integer getDisplayHeight() {
+        return displayHeight;
+    }
+    
+    public @Nullable Integer getDisplayXOffset() {
+        return displayXOffset;
+    }
+    
+	public @Nullable Integer getDisplayYOffset() {
+	    return displayYOffset;
+	}
+	
+	public @Nullable Integer getDisplayF2Offset() {
+	    return displayF2Offset;
+	}
+	
+	public @Nullable Fraction getAspectRatio() {
+	    return aspectRatio;
+	}
+	
+	public @Nullable Integer getActiveFormatDescriptor() {
+	    return activeFormatDescriptor;
+	}
+	
+	public @Nullable String getVideoLineMap() {
+	    return videoLineMap;
+	}
+	
+	public @Nullable Integer getAlphaTransparency() {
+	    return alphaTransparency;
+	}
+	
+	public @Nullable Integer getImageAlignmentOffset() {
+	    return imageAlignmentOffset;
+	}
+	
+	public @Nullable Integer getImageStartOffset() {
+	    return imageStartOffset;
+	}
+	
+	public @Nullable Integer getImageEndOffset() {
+	    return imageEndOffset;
+	}
+	
+	public @Nullable Integer getFieldDominance() {
+	    return fieldDominance;
+	}
+	
+	public @Nullable UL getCodingEquations() {
+	    return codingEquations;
+	}
 
 
 
@@ -368,5 +494,44 @@ public final class CompositionImageEssenceDescriptorModel {
             }
         }
         return sampling;
+    }
+
+    private void parseApp5SubDescriptors() {
+        DOMNodeObjectModel subDescriptors = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
+        if (subDescriptors != null) {
+            List<DOMNodeObjectModel> acesPictureSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
+            List<DOMNodeObjectModel> targetFrameSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(targetFrameSubDescriptorUL));
+            if (!acesPictureSubDescriptors.isEmpty()) {
+                for (DOMNodeObjectModel domNodeObjectModel : acesPictureSubDescriptors) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            String.format("Found ACESPictureSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
+                    String acesAuthoringInformation = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(acesAuthoringInformationUL));
+                	if (!acesAuthoringInformation.isEmpty()) System.err.println(acesAuthoringInformation.toString());
+                }
+            } else {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("INFO (can be ignored): No ACESPictureSubDescriptor found"));
+            }
+            if (!targetFrameSubDescriptors.isEmpty()) {
+                for (DOMNodeObjectModel domNodeObjectModel : targetFrameSubDescriptors) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            String.format("Found TargetFrameSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
+                    String targetFrameAncillaryResourceID = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(targetFrameAncillaryResourceIDUL));
+                	if (!targetFrameAncillaryResourceID.isEmpty()) System.err.println(targetFrameAncillaryResourceID.toString());
+                }
+            } else {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("INFO (can be ignored): No TargetFrameSubDescriptor found"));
+            }
+        } else {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                    String.format("INFO (can be ignored): No ACESPictureSubDescriptor and no TargetFrameSubDescriptor found"));
+        }
+        return;
     }
 }
