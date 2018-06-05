@@ -238,7 +238,7 @@ public class Application5Composition extends AbstractApplicationComposition {
                             imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
         }
         
-        if(imageEssenceDescriptorModel.getCodingEquation() != null) {
+        if(imageEssenceDescriptorModel.getCodingEquations() != null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s shall not contain a Coding Equations item as per %s",
