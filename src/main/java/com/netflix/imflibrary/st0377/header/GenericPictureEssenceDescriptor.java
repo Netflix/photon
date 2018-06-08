@@ -55,6 +55,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String containerFormatUL = "urn:smpte:ul:060e2b34.01010102.06010104.01020000";
     public static final String pictureEssenceCodingUL = "urn:smpte:ul:060e2b34.01010102.04010601.00000000";
     //begin items constrained in 2065-5 or 2067-50
+    //Generic Picture Essence Descriptor constraints
     public static final String signalStandardUL = "urn:smpte:ul:060e2b34.01010105.04050113.00000000";
     public static final String sampledXOffsetUL = "urn:smpte:ul:060e2b34.01010101.04010501.09000000";
     public static final String sampledYOffsetUL = "urn:smpte:ul:060e2b34.01010101.04010501.0a000000";
@@ -63,7 +64,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String displayXOffsetUL = "urn:smpte:ul:060e2b34.01010101.04010501.0d000000";
     public static final String displayYOffsetUL = "urn:smpte:ul:060e2b34.01010101.04010501.0e000000";
     public static final String displayF2OffsetUL = "urn:smpte:ul:060e2b34.01010105.04010302.07000000";
-    public static final String aspectRatioUL = "urn:smpte:ul:060e2b34.01010101.0d020140.00000000";
+    public static final String imageAspectRatioUL = "urn:smpte:ul:060e2b34.01010101.04010101.01000000";
     public static final String activeFormatDescriptorUL = "urn:smpte:ul:060e2b34.01010105.04010302.09000000";
     public static final String videoLineMapUL = "urn:smpte:ul:060e2b34.01010102.04010302.05000000";
     public static final String alphaTransparencyUL = "urn:smpte:ul:060e2b34.01010102.05200102.00000000";
@@ -71,6 +72,13 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String imageStartOffsetUL = "urn:smpte:ul:060e2b34.01010102.04180102.00000000";
     public static final String imageEndOffsetUL = "urn:smpte:ul:060e2b34.01010102.04180103.00000000";
     public static final String fieldDominanceUL = "urn:smpte:ul:060e2b34.01010102.04010301.06000000";
+    //RGBA Picture Essence Descriptor constraints
+    public static final String alphaMinRefUL = "urn:smpte:ul:060e2b34.01010105.04010503.0e000000";
+    public static final String alphaMaxRefUL = "urn:smpte:ul:060e2b34.01010105.04010503.0d000000";
+    public static final String scanningDirectionUL = "urn:smpte:ul:060e2b34.01010105.04010404.01000000";
+    public static final String pixelLayoutUL = "urn:smpte:ul:060e2b34.01010102.04010503.06000000";
+    public static final String paletteUL = "urn:smpte:ul:060e2b34.01010102.04010503.08000000";
+    public static final String paletteLayoutUL = "urn:smpte:ul:060e2b34.01010102.04010503.09000000";
     //end items constrained in 2065-5 or 2067-50
     //begin items defined in 2067-50
     public static final String acesPictureSubDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01017900";
@@ -151,6 +159,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
         Luma(0x59),
         ChromaU(0x55),
         ChromaV(0x56),
+        Alpha(0x41),
         Unknown(-1);
         private final Integer code;
 

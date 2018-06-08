@@ -4,6 +4,7 @@ import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
@@ -11,7 +12,10 @@ import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,7 +49,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final TransferCharacteristic transferCharacteristic;
     private final ColorPrimaries colorPrimaries;
     private final UL essenceContainerFormatUL;
-    // items specified in 2065-5
+    // items constrained in 2065-5
     private final Integer signalStandard;
     private final Integer sampledXOffset;
     private final Integer sampledYOffset;
@@ -54,7 +58,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer displayXOffset;
     private final Integer displayYOffset;
     private final Integer displayF2Offset;
-    private final Fraction aspectRatio;
+    private final Fraction imageAspectRatio;
     private final Integer activeFormatDescriptor;
     private final String videoLineMap;
     private final Integer alphaTransparency;
@@ -63,6 +67,14 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer imageEndOffset;
     private final Integer fieldDominance;
     private final UL codingEquations;
+    private final Integer componentMinRef;
+    private final Integer componentMaxRef;
+    private final Integer alphaMinRef;
+    private final Integer alphaMaxRef;
+    private final Integer scanningDirection;
+    private final DOMNodeObjectModel pixelLayout;
+    private final String palette;
+    private final String paletteLayout;
 
 
     public CompositionImageEssenceDescriptorModel(@Nonnull UUID imageEssencedescriptorID, @Nonnull DOMNodeObjectModel imageEssencedescriptorDOMNode, @Nonnull RegXMLLibDictionary regXMLLibDictionary)
@@ -123,44 +135,54 @@ public final class CompositionImageEssenceDescriptorModel {
         this.displayXOffset = getFieldAsInteger(displayXOffsetUL);
         this.displayYOffset = getFieldAsInteger(displayYOffsetUL);
         this.displayF2Offset = getFieldAsInteger(displayF2OffsetUL);
-        this.aspectRatio = getFieldAsFraction(aspectRatioUL);
+        this.imageAspectRatio = getFieldAsFraction(imageAspectRatioUL);
         this.activeFormatDescriptor = getFieldAsInteger(activeFormatDescriptorUL);
-        this.videoLineMap =		getFieldAsString(videoLineMapUL);
+        this.videoLineMap =	getFieldAsString(videoLineMapUL);
         this.alphaTransparency = getFieldAsInteger(alphaTransparencyUL);
         this.imageAlignmentOffset = getFieldAsInteger(imageAlignmentOffsetUL);
         this.imageStartOffset = getFieldAsInteger(imageStartOffsetUL);
         this.imageEndOffset = getFieldAsInteger(imageEndOffsetUL);
         this.fieldDominance = getFieldAsInteger(fieldDominanceUL);
         this.codingEquations = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(codingEquationsUL));
+        this.componentMinRef = getFieldAsInteger(componentMinRefUL);
+        this.componentMaxRef = getFieldAsInteger(componentMaxRefUL);
+        this.alphaMinRef = getFieldAsInteger(alphaMinRefUL);
+        this.alphaMaxRef = getFieldAsInteger(alphaMaxRefUL);
+        this.scanningDirection = getFieldAsInteger(scanningDirectionUL);
+        this.pixelLayout = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(pixelLayoutUL));
+
+        this.palette = getFieldAsString(paletteUL);
+        this.paletteLayout = getFieldAsString(paletteLayoutUL);
         // end Items constrained in ST2065-5
 
         UL MXFGCFrameWrappedACESPictures = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.0d010301.02190100"); // MXF-GC Frame-wrapped ACES Pictures per 2065-5
         if(!this.colorModel.equals(ColorModel.Unknown)) {
-        	if ((this.essenceContainerFormatUL != null) && getEssenceContainerFormatUL().equals(MXFGCFrameWrappedACESPictures) ) { // App #5
-        		if(colorModel.equals(ColorModel.RGB)) {
+            if ((this.essenceContainerFormatUL != null) && getEssenceContainerFormatUL().equals(MXFGCFrameWrappedACESPictures) ) { // App #5
+                if(colorModel.equals(ColorModel.RGB)) {
                     this.pixelBitDepth = null;
                     this.quantization = Quantization.Unknown;
-    	            this.color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
+                    this.color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
                     this.sampling = Sampling.Unknown;
                     parseApp5SubDescriptors();
-        		} else {
+                    parseApp5PixelLayout();
+                } else {
                     this.pixelBitDepth = null;
                     this.quantization = Quantization.Unknown;
                     this.color = Colorimetry.Unknown;
                     this.sampling = Sampling.Unknown;
-        		}
-        	} else  { // App #2/#2E
-	            this.pixelBitDepth = parsePixelBitDepth(this.colorModel);
-	            this.quantization = parseQuantization(this.colorModel, this.pixelBitDepth);
-	
-	            Colorimetry color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
-	            if((colorModel.equals(ColorModel.YUV) && !color.getCodingEquation().equals(this.codingEquation))) {
-	                color = Colorimetry.Unknown;
-	            }
-	            this.color = color;
-	
-	            this.sampling = parseSampling(this.colorModel);
-        	}  
+                }
+            } else  { // App #2/#2E
+                this.pixelBitDepth = parsePixelBitDepth(this.colorModel);
+                this.quantization = parseQuantization(this.colorModel, this.pixelBitDepth);
+
+                Colorimetry color = Colorimetry.valueOf(this.colorPrimaries, this.transferCharacteristic);
+                if((colorModel.equals(ColorModel.YUV) && !color.getCodingEquation().equals(this.codingEquation))) {
+                    color = Colorimetry.Unknown;
+                }
+                this.color = color;
+
+                this.sampling = parseSampling(this.colorModel);
+            }
         }
         else {
             this.pixelBitDepth = null;
@@ -284,52 +306,82 @@ public final class CompositionImageEssenceDescriptorModel {
     public @Nullable Integer getDisplayXOffset() {
         return displayXOffset;
     }
-    
+
 	public @Nullable Integer getDisplayYOffset() {
 	    return displayYOffset;
 	}
-	
+
 	public @Nullable Integer getDisplayF2Offset() {
 	    return displayF2Offset;
 	}
-	
-	public @Nullable Fraction getAspectRatio() {
-	    return aspectRatio;
+
+	public @Nullable Fraction getImageAspectRatio() {
+	    return imageAspectRatio;
 	}
-	
+
 	public @Nullable Integer getActiveFormatDescriptor() {
 	    return activeFormatDescriptor;
 	}
-	
+
 	public @Nullable String getVideoLineMap() {
 	    return videoLineMap;
 	}
-	
+
 	public @Nullable Integer getAlphaTransparency() {
 	    return alphaTransparency;
 	}
-	
+
 	public @Nullable Integer getImageAlignmentOffset() {
 	    return imageAlignmentOffset;
 	}
-	
+
 	public @Nullable Integer getImageStartOffset() {
 	    return imageStartOffset;
 	}
-	
+
 	public @Nullable Integer getImageEndOffset() {
 	    return imageEndOffset;
 	}
-	
+
 	public @Nullable Integer getFieldDominance() {
 	    return fieldDominance;
 	}
-	
+
 	public @Nullable UL getCodingEquations() {
 	    return codingEquations;
 	}
 
+	public @Nullable Integer getComponentMinRef() {
+	    return componentMinRef;
+	}
 
+	public @Nullable Integer getComponentMaxRef() {
+	    return componentMaxRef;
+	}
+
+	public @Nullable Integer getAlphaMinRef() {
+	    return alphaMinRef;
+	}
+
+	public @Nullable Integer getAlphaMaxRef() {
+	    return alphaMaxRef;
+	}
+
+	public @Nullable Integer getScanningDirection() {
+	    return scanningDirection;
+	}
+
+	public @Nullable DOMNodeObjectModel getPixelLayout() {
+	    return pixelLayout;
+	}
+
+	public @Nullable String getPalette() {
+	    return palette;
+	}
+
+	public @Nullable String getPaletteLayout() {
+	    return paletteLayout;
+	}
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;
@@ -504,34 +556,122 @@ public final class CompositionImageEssenceDescriptorModel {
             if (!acesPictureSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : acesPictureSubDescriptors) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                             String.format("Found ACESPictureSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
                     String acesAuthoringInformation = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(acesAuthoringInformationUL));
-                	if (!acesAuthoringInformation.isEmpty()) System.err.println(acesAuthoringInformation.toString());
+                    if (!acesAuthoringInformation.isEmpty()) System.err.println(acesAuthoringInformation.toString());
                 }
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("INFO (can be ignored): No ACESPictureSubDescriptor found"));
             }
             if (!targetFrameSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : targetFrameSubDescriptors) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                             String.format("Found TargetFrameSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
                     String targetFrameAncillaryResourceID = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(targetFrameAncillaryResourceIDUL));
-                	if (!targetFrameAncillaryResourceID.isEmpty()) System.err.println(targetFrameAncillaryResourceID.toString());
+                    if (!targetFrameAncillaryResourceID.isEmpty()) System.err.println(targetFrameAncillaryResourceID.toString());
                 }
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("INFO (can be ignored): No TargetFrameSubDescriptor found"));
             }
         } else {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                	IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                     String.format("INFO (can be ignored): No ACESPictureSubDescriptor and no TargetFrameSubDescriptor found"));
         }
         return;
+    }
+    private void parseApp5PixelLayout() {
+        DOMNodeObjectModel pixelLayout = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(pixelLayoutUL));
+        if (pixelLayout == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s shall have a Pixel Layout item",
+                            imageEssencedescriptorID.toString()));
+        } else {
+            List<DOMNodeObjectModel> rgbaComponents = pixelLayout.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(rgbaComponentUL));
+            if (rgbaComponents.size() == 0) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s is missing RGBAComponent in Pixel Layout",
+                                imageEssencedescriptorID.toString()));
+            } else {
+                Map<RGBAComponentType, Integer> componentMap = new LinkedHashMap<>();
+                List<RGBAComponentType> componentList = new ArrayList<>();
+                for (DOMNodeObjectModel domNodeObjectModel : rgbaComponents) {
+                    String code = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, codeUL));
+                    if (code == null) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("EssenceDescriptor with ID %s has a Pixel Layout item with an RGBAComponent with missing Code",
+                                        imageEssencedescriptorID.toString()));
+                    } else {
+                        RGBAComponentType codeValue = RGBAComponentType.valueOf(regXMLLibDictionary.getEnumerationValueFromName(rgbaComponentKindUL, code));
+                        Integer pixelBitDepth = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getTypeFieldNameFromURN(rgbaComponentUL, componentSizeUL));
+                        if (pixelBitDepth == null) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("EssenceDescriptor with ID %s has a Pixel Layout item with an RGBAComponent %s with missing Depth",
+                                            imageEssencedescriptorID.toString(), code));
+                        } else {
+                            if ((codeValue.equals(Null) && pixelBitDepth != 0) ||
+                                    (!codeValue.equals(Null) && (!pixelBitDepth.equals(253)))) { // In App#5, all components are of type HALF FLOAT
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                        String.format("EssenceDescriptor with ID %s has a Pixel Layout item %s with invalid Depth value %d (expected depth value: 253)",
+                                                imageEssencedescriptorID.toString(), code, pixelBitDepth));
+                            }
+                        }
+                        if (componentMap.containsKey(codeValue)) {
+                            Integer count = componentMap.get(codeValue);
+                            componentMap.put(codeValue, count + 1);
+                        } else {
+                            componentMap.put(codeValue, 1);
+                            componentList.add(codeValue);
+                        }
+
+                    }
+                }
+                boolean error = true;
+                if (componentList.size() >= 4) { // ABGR or BGR per 2067-50 plus Null
+                    if (componentList.get(0).toString().equals("Alpha")) { // ABGR per 2067-50
+                        if (componentList.get(1).toString().equals("Blue") || componentList.get(2).toString().equals("Green") || componentList.get(3).toString().equals("Red") )
+                            error = false;
+                    } else if (componentList.get(0).toString().equals("Blue")) { // BGR per 2067-50
+                        if (componentList.get(1).toString().equals("Green") || componentList.get(2).toString().equals("Red"))
+                            error = false;
+                    }
+                }
+                if (error) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("EssenceDescriptor with ID %s has incorrect PixelLayout %s",
+                                    imageEssencedescriptorID.toString(), componentList.toString()));
+                }
+                componentMap.entrySet().stream().forEach(
+                        e -> {
+                            if (e.getKey().equals(RGBAComponentType.Null)) {
+                                if (!(e.getValue().equals(5) || e.getValue().equals(4))) { // ABGR or BGR per 2067-50
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                            String.format("EssenceDescriptor with ID %s and ColorModel %s has invalid number of RGBAComponent %s in J2CLayout",
+                                                    imageEssencedescriptorID.toString(), colorModel.name(), e.getKey()));
+                                }
+                            } else if (!e.getValue().equals(1)) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                        String.format("EssenceDescriptor with ID %s has more than one RGBAComponent %s in Pixel Layout",
+                                                imageEssencedescriptorID.toString(), e.getKey()));
+                            }
+
+                        }
+                        );
+            }
+        }
     }
 }
