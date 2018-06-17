@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
@@ -60,7 +61,6 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer displayF2Offset;
     private final Fraction imageAspectRatio;
     private final Integer activeFormatDescriptor;
-    private final String videoLineMap;
     private final Integer alphaTransparency;
     private final Integer imageAlignmentOffset;
     private final Integer imageStartOffset;
@@ -72,7 +72,6 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer alphaMinRef;
     private final Integer alphaMaxRef;
     private final Integer scanningDirection;
-    private final DOMNodeObjectModel pixelLayout;
     private final String palette;
     private final String paletteLayout;
 
@@ -137,7 +136,6 @@ public final class CompositionImageEssenceDescriptorModel {
         this.displayF2Offset = getFieldAsInteger(displayF2OffsetUL);
         this.imageAspectRatio = getFieldAsFraction(imageAspectRatioUL);
         this.activeFormatDescriptor = getFieldAsInteger(activeFormatDescriptorUL);
-        this.videoLineMap =	getFieldAsString(videoLineMapUL);
         this.alphaTransparency = getFieldAsInteger(alphaTransparencyUL);
         this.imageAlignmentOffset = getFieldAsInteger(imageAlignmentOffsetUL);
         this.imageStartOffset = getFieldAsInteger(imageStartOffsetUL);
@@ -149,7 +147,6 @@ public final class CompositionImageEssenceDescriptorModel {
         this.alphaMinRef = getFieldAsInteger(alphaMinRefUL);
         this.alphaMaxRef = getFieldAsInteger(alphaMaxRefUL);
         this.scanningDirection = getFieldAsInteger(scanningDirectionUL);
-        this.pixelLayout = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(pixelLayoutUL));
 
         this.palette = getFieldAsString(paletteUL);
         this.paletteLayout = getFieldAsString(paletteLayoutUL);
@@ -165,6 +162,7 @@ public final class CompositionImageEssenceDescriptorModel {
                     this.sampling = Sampling.Unknown;
                     parseApp5SubDescriptors();
                     parseApp5PixelLayout();
+                    parseApp5VideoLineMap();
                 } else {
                     this.pixelBitDepth = null;
                     this.quantization = Quantization.Unknown;
@@ -323,10 +321,6 @@ public final class CompositionImageEssenceDescriptorModel {
 	    return activeFormatDescriptor;
 	}
 
-	public @Nullable String getVideoLineMap() {
-	    return videoLineMap;
-	}
-
 	public @Nullable Integer getAlphaTransparency() {
 	    return alphaTransparency;
 	}
@@ -369,10 +363,6 @@ public final class CompositionImageEssenceDescriptorModel {
 
 	public @Nullable Integer getScanningDirection() {
 	    return scanningDirection;
-	}
-
-	public @Nullable DOMNodeObjectModel getPixelLayout() {
-	    return pixelLayout;
 	}
 
 	public @Nullable String getPalette() {
@@ -555,11 +545,22 @@ public final class CompositionImageEssenceDescriptorModel {
             List<DOMNodeObjectModel> targetFrameSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(targetFrameSubDescriptorUL));
             if (!acesPictureSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : acesPictureSubDescriptors) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                            String.format("Found ACESPictureSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
-                    String acesAuthoringInformation = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(acesAuthoringInformationUL));
-                    if (!acesAuthoringInformation.isEmpty()) System.err.println(acesAuthoringInformation.toString());
+                    String authoring_information = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(acesAuthoringInformationUL));
+                    if ((authoring_information == null) || authoring_information.isEmpty()) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                String.format("ACES Picture SubDescriptor (ID %s): Optional item ACES Authoring Information is not present or empty", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString()));
+                    }
+                    DOMNodeObjectModel  primaries = domNodeObjectModel.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(acesMasteringDisplayPrimariesUL));
+                    DOMNodeObjectModel  whitePoint = domNodeObjectModel.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(acesMasteringDisplayWhitePointChromaticityUL));
+                    Integer maxLum = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getSymbolNameFromURN(acesMasteringDisplayDisplayMaximumLuminanceUL));
+                    Integer minLum = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getSymbolNameFromURN(acesMasteringDisplayDisplayMinimumLuminanceUL));
+                    if (!(((primaries == null) && (whitePoint == null) && (maxLum == null) && (minLum == null))
+                            || ((primaries != null) && (whitePoint != null) && (maxLum != null) && (minLum != null)))) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("ACES Picture SubDescriptor (ID %s) shall have either all or none of the following elements: Mastering Display Primaries, White Point, Maximum Luminance, Minimum Luminance", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString()));
+                    }
                 }
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -568,11 +569,51 @@ public final class CompositionImageEssenceDescriptorModel {
             }
             if (!targetFrameSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : targetFrameSubDescriptors) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                            String.format("Found TargetFrameSubDescriptor (validation not implemented yet): %n%s ", domNodeObjectModel.toString()));
-                    String targetFrameAncillaryResourceID = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(targetFrameAncillaryResourceIDUL));
-                    if (!targetFrameAncillaryResourceID.isEmpty()) System.err.println(targetFrameAncillaryResourceID.toString());
+                    String missing_items = "";
+                    Set<UUID> targetFrameAncillaryResourceID = domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(targetFrameAncillaryResourceIDUL));
+                    if (targetFrameAncillaryResourceID.isEmpty()) {
+                        missing_items += "TargetFrameAncillaryResourceID, ";
+                    }
+                    String media_type = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(mediaTypeUL));
+                    if (media_type == null) {
+                        missing_items += "MediaType, ";
+                    }
+                    Long index = domNodeObjectModel.getFieldAsLong(regXMLLibDictionary.getSymbolNameFromURN(targetFrameIndexUL));
+                    if (index == null) {
+                        missing_items += "TargetFrameIndex, ";
+                    }
+                    UL transfer = domNodeObjectModel.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(targetFrameTransferCharacteristicUL));
+                    if (transfer == null) {
+                        missing_items += "TargetFrameTransferCharacteristic, ";
+                    }
+                    UL color = domNodeObjectModel.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(targetFrameColorPrimariesUL));
+                    if (color == null) {
+                        missing_items += "TargetFrameColorPrimaries, ";
+                    }
+                    Integer max_ref = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getSymbolNameFromURN(targetFrameComponentMaxRefUL));
+                    if (max_ref == null) {
+                        missing_items += "TargetFrameComponentMaxRef, ";
+                    }
+                    Integer min_ref = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getSymbolNameFromURN(targetFrameComponentMinRefUL));
+                    if (min_ref == null) {
+                        missing_items += "TargetFrameComponentMinRef, ";
+                    }
+                    Integer stream_id = domNodeObjectModel.getFieldAsInteger(regXMLLibDictionary.getSymbolNameFromURN(targetFrameEssenceStreamIDUL));
+                    if (stream_id == null) {
+                        missing_items += "TargetFrameEssenceStreamID";
+                    }
+                    if (!missing_items.isEmpty()) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("Target FrameSubDescriptor (ID %s): is missing required item(s): %s", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), missing_items));
+                    }
+                    if ((max_ref != null) && (min_ref != null)) {
+                        if (max_ref <= min_ref) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("Target FrameSubDescriptor (ID %s): TargetFrameComponentMaxRef (%d) is less or equal to TargetFrameComponentMaxRef (%d)", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), max_ref, min_ref));
+                        }
+                    }
                 }
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -586,6 +627,19 @@ public final class CompositionImageEssenceDescriptorModel {
         }
         return;
     }
+
+    private void parseApp5VideoLineMap() {
+        DOMNodeObjectModel videoLineMap = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(videoLineMapUL));
+        if (videoLineMap == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s shall have a Video Line Map item",
+                            imageEssencedescriptorID.toString()));
+        }
+    }
+
+
+
     private void parseApp5PixelLayout() {
         DOMNodeObjectModel pixelLayout = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(pixelLayoutUL));
         if (pixelLayout == null) {

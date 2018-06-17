@@ -62,13 +62,14 @@ dependencies {
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
      */
-    compile "com.sandflow:regxmllib:1.1.1"
+    /*compile "com.sandflow:regxmllib:1.1.1"*/
     /**
      * Following should be enabled and the above should be disabled
      * when necessary to verify changes to the RegXMLLib library that are
      * not yet committed to Maven Central.
      */
     /*compile "com.sandflow:regxmllib:${revRegXMLSNAPSHOT}"*/
+    compile files('libs/regxmllib-SNAPSHOT.jar')
     testCompile "org.mockito:mockito-all:1.9+"
     testCompile "org.testng:testng:6.+"
 }

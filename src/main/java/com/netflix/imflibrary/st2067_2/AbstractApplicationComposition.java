@@ -1013,7 +1013,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
         DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
                 this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
-
         if (imageEssencedescriptorDOMNode != null) {
             UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
                     .get();
