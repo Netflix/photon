@@ -57,7 +57,12 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
     }});
 
     public Application2ExtendedComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {
-        super(imfCompositionPlaylistType, ignoreSet);
+        this(imfCompositionPlaylistType, new HashSet<>());
+    }
+
+    public Application2ExtendedComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, Set<String> homogeneitySelectionSet) {
+
+        super(imfCompositionPlaylistType, ignoreSet, homogeneitySelectionSet);
 
         try
         {

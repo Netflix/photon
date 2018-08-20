@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Test(groups = "unit")
@@ -16,7 +17,9 @@ public class IMFEssenceComponentVirtualTrackTest
     public void testEssenceComponentVirtualTrack_2013() throws Exception
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl());
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
+                new HashSet<String>() {{ add("MCALinkID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
+        add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");}});
         Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(applicationComposition.toString().length() > 0);
         Assert.assertEquals(applicationComposition.getEditRate().getNumerator().longValue(), 24000);
@@ -29,6 +32,8 @@ public class IMFEssenceComponentVirtualTrackTest
 
         Assert.assertEquals(virtualTrack.getTrackFileResourceList().size(), 7);
     }
+
+
 
     @Test
     public void testEssenceComponentVirtualTrackEquivalent_2013() throws Exception
@@ -107,5 +112,27 @@ public class IMFEssenceComponentVirtualTrackTest
         {
             Assert.assertTrue(resource.getSourceDuration().longValue() > 0);
         }
+    }
+
+    @Test
+    public void testEssenceComponentVirtualTrackAudioHomogeneityFail_2013() throws Exception
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_audio_homogeneity_fail.xml");
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
+                new HashSet<String>() {{ add("MCAChannelID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
+                    add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");
+        add("MCAAudioContentKind");}});
+        Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
+        Assert.assertTrue(applicationComposition.toString().length() > 0);
+        Assert.assertEquals(applicationComposition.getEditRate().getNumerator().longValue(), 24000);
+        Assert.assertEquals(applicationComposition.getEditRate().getDenominator().longValue(), 1001);
+        Assert.assertEquals(applicationComposition.getUUID(), UUID.fromString("8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4"));
+        Assert.assertEquals(applicationComposition.getErrors().size(), 1);
+
+        Assert.assertEquals(applicationComposition.getVirtualTracks().size(), 4);
+
+        IMFEssenceComponentVirtualTrack virtualTrack = applicationComposition.getVideoVirtualTrack();
+
+        Assert.assertEquals(virtualTrack.getTrackFileResourceList().size(), 7);
     }
 }

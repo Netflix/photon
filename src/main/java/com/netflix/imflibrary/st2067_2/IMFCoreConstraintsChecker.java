@@ -22,7 +22,7 @@ import java.util.UUID;
  */
 final class IMFCoreConstraintsChecker {
 
-    private static final Set<String> VirtualTrackHomogeneitySelectionSet = new HashSet<String>(){{
+    private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
         add("CDCIDescriptor");
         add("RGBADescriptor");
         add("SubDescriptors");
@@ -76,12 +76,19 @@ final class IMFCoreConstraintsChecker {
     public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
                                           Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                           Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                          RegXMLLibDictionary regXMLLibDictionary){
+                                          RegXMLLibDictionary regXMLLibDictionary) {
+        return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary, new HashSet<>());
+    }
+
+    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
+                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
+                                          RegXMLLibDictionary regXMLLibDictionary,
+                                          Set<String> homogeneitySelectionSet){
 
         boolean foundMainImageEssence = false;
         int numberOfMainImageEssences = 0;
         boolean foundMainAudioEssence = false;
-        int numberOfMarkerSequences = 0;
         IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
@@ -206,14 +213,17 @@ final class IMFCoreConstraintsChecker {
                 else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                         || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
                     boolean isVirtualTrackHomogeneous = true;
-                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(0), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet);
+                    Set<String> homogeneitySelectionSetAll = new HashSet<>(homogeneitySelectionSet);
+                    homogeneitySelectionSetAll.addAll(IMFCoreConstraintsChecker.homogeneitySelectionSet);
+                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(0), homogeneitySelectionSetAll);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
-                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet));
+                        DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), homogeneitySelectionSetAll);
+                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(other);
                     }
                     List<DOMNodeObjectModel> modelsIgnoreSet = new ArrayList<>();
                     if (!isVirtualTrackHomogeneous) {
                         for(int i = 1; i< virtualTrackEssenceDescriptors.size(); i++){
-                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet);
+                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), homogeneitySelectionSetAll);
                             modelsIgnoreSet.add(other);
                             imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(refDOMNodeObjectModel, other));
                         }
