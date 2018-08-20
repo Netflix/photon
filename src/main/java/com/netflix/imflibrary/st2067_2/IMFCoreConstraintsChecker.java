@@ -22,33 +22,43 @@ import java.util.UUID;
  */
 final class IMFCoreConstraintsChecker {
 
-    private static final Set<String> VirtualTrackHomogeneityIgnoreSet = new HashSet<String>(){{
-        add("InstanceUID");
-        add("InstanceID");
-        add("EssenceLength");
-        add("AlternativeCenterCuts");
-        add("MCALinkID");
-        add("LinkedTrackID");
-        add("SoundfieldGroupLinkID");
-        add("MCAChannelID");
-        add("LinkedGenerationID");
-        add("MCATitle");
-        add("MCATitleVersion");
+    private static final Set<String> VirtualTrackHomogeneitySelectionSet = new HashSet<String>(){{
+        add("CDCIDescriptor");
+        add("RGBADescriptor");
+        add("SubDescriptors");
+        add("JPEG2000SubDescriptor");
+        add("WAVEPCMDescriptor");
+        add("StoredWidth");
+        add("StoredHeight");
+        add("FrameLayout");
+        add("SampleRate");
         add("PixelLayout");
-        add("VideoLineMap");
-        add("CodingStyleDefault");
-        add("PictureComponentSizing");
-        add("QuantizationDefault");
-        add("Rsiz");
+        add("ColorPrimaries");
+        add("TransferCharacteristic");
+        add("PictureCompression");
+        add("ComponentMaxRef");
+        add("ComponentMinRef");
+        add("CodingEquations");
+        add("BlackRefLevel");
+        add("WhiteRefLevel");
+        add("ColorRange");
+        add("ColorSiting");
+        add("ComponentDepth");
+        add("HorizontalSubsampling");
+        add("VerticalSubsampling");
         add("Xsiz");
         add("Ysiz");
-        add("XOsiz");
-        add("YOsiz");
-        add("XTsiz");
-        add("YTsiz");
-        add("XTOsiz");
-        add("YTOsiz");
         add("Csiz");
+        add("J2CLayout");
+        add("RGBAComponent");
+        add("Code");
+        add("ComponentSize");
+        add("PictureComponentSizing");
+        add("Ssiz");
+        add("XRSiz");
+        add("YRSiz");
+        add("AudioSampleRate");
+        add("QuantizationBits");
     }};
 
     //To prevent instantiation
@@ -196,14 +206,14 @@ final class IMFCoreConstraintsChecker {
                 else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                         || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
                     boolean isVirtualTrackHomogeneous = true;
-                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(0), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet);
+                    DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(0), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
-                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet));
+                        isVirtualTrackHomogeneous &= refDOMNodeObjectModel.equals(virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet));
                     }
                     List<DOMNodeObjectModel> modelsIgnoreSet = new ArrayList<>();
                     if (!isVirtualTrackHomogeneous) {
                         for(int i = 1; i< virtualTrackEssenceDescriptors.size(); i++){
-                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelIgnoreSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneityIgnoreSet);
+                            DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), IMFCoreConstraintsChecker.VirtualTrackHomogeneitySelectionSet);
                             modelsIgnoreSet.add(other);
                             imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(refDOMNodeObjectModel, other));
                         }

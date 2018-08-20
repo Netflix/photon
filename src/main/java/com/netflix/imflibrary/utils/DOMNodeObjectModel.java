@@ -178,6 +178,46 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A static factory method that will create a DOMNodeObjectModel with the selected fields only
+     * @param domNodeObjectModel a DOMNodeObjectModel object to derive the statically constructed model from
+     * @param selectionSet a non-null, empty or non-empty set of strings representing the local names of the DOM Node elements
+     *                  that should be included in the newly minted DOMNodeObjectModel
+     * @return a DOMNodeObjectModel that contains only the elements indicated in the selection set.
+     */
+    public static DOMNodeObjectModel createDOMNodeObjectModelSelectionSet(DOMNodeObjectModel domNodeObjectModel, @Nonnull Set<String> selectionSet){
+
+
+        Map<DOMNodeElementTuple, Map<String, Integer>> thisFields = new HashMap<>();
+        for(Map.Entry<DOMNodeElementTuple, Map<String, Integer>> entry : domNodeObjectModel.getFields().entrySet()){
+            if(selectionSet.contains(entry.getKey().getLocalName())){
+                thisFields.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+
+        Map<String, Map<String, Integer>> thisFieldsLocalNamesMap = new HashMap<>();
+        for(Map.Entry<String, Map<String, Integer>> entry : domNodeObjectModel.getFieldsLocalNameMap().entrySet()){
+            if(selectionSet.contains(entry.getKey())){
+                thisFieldsLocalNamesMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
+        for(Map.Entry<DOMNodeObjectModel, Integer> entry : domNodeObjectModel.getChildrenDOMNodes().entrySet()){
+            if(selectionSet.contains(entry.getKey().getLocalName()))
+            {
+                DOMNodeObjectModel child = entry.getKey().createDOMNodeObjectModelSelectionSet(entry.getKey(), selectionSet);
+                if (child.getChildrenDOMNodes().size() > 0
+                        || child.getFields().size() > 0) {
+                    childrenDOMNodes.put(child, entry.getValue());
+                }
+            }
+        }
+        return new DOMNodeObjectModel(domNodeObjectModel.getNode(), domNodeObjectModel.getLocalName(), domNodeObjectModel.getLocalNamespaceURI(),
+                domNodeObjectModel.getNodeType(), Collections.unmodifiableMap(childrenDOMNodes), Collections.unmodifiableMap(thisFields), Collections.unmodifiableMap(thisFieldsLocalNamesMap));
+    }
+
+    /**
      * A static factory method that will create a DOMNodeObjectModel without the fields that were set to be ignored
      * @param domNodeObjectModel a DOMNodeObjectModel object to derive the statically constructed model from
      * @return a DOMNodeObjectModel that excludes the elements indicated in the ignore set.
