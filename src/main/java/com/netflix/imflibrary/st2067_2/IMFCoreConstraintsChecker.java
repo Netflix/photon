@@ -38,7 +38,6 @@ final class IMFCoreConstraintsChecker {
         add("PictureCompression");
         add("ComponentMaxRef");
         add("ComponentMinRef");
-        add("CodingEquations");
         add("BlackRefLevel");
         add("WhiteRefLevel");
         add("ColorRange");
@@ -215,6 +214,9 @@ final class IMFCoreConstraintsChecker {
                     boolean isVirtualTrackHomogeneous = true;
                     Set<String> homogeneitySelectionSetAll = new HashSet<>(homogeneitySelectionSet);
                     homogeneitySelectionSetAll.addAll(IMFCoreConstraintsChecker.homogeneitySelectionSet);
+                    if (isCDCIEssenceDescriptor(virtualTrackEssenceDescriptors.get(0))) {
+                        homogeneitySelectionSetAll.add("CodingEquations");
+                    }
                     DOMNodeObjectModel refDOMNodeObjectModel = virtualTrackEssenceDescriptors.get(0).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(0), homogeneitySelectionSetAll);
                     for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
                         DOMNodeObjectModel other = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), homogeneitySelectionSetAll);
@@ -379,5 +381,9 @@ final class IMFCoreConstraintsChecker {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("VirtualTrack with ID %s has resources with inconsistent editRates %s", trackID.toString(), editRatesString.toString()));
         }
         return imfErrorLogger.getErrors();
+    }
+
+    private static boolean isCDCIEssenceDescriptor(DOMNodeObjectModel domNodeObjectModel) {
+        return domNodeObjectModel.getLocalName().equals("CDCIDescriptor");
     }
 }
