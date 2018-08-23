@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -47,10 +48,6 @@ public final class BasicMapProfileV2FileSet
      * Constructor for a {@link BasicMapProfileV2FileSet BasicMapProfilev2FileSet} from a {@link BasicMapProfileV2MappedFileSet MappedFileSet} object. Construction
      * succeeds if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are satisfied
      * @param basicMapProfileV2MappedFileSet the Mapped File Set object corresponding to this object
-     * @throws IOException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws SAXException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws JAXBException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
      */
     public BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet) throws IOException, SAXException, JAXBException, URISyntaxException
     {
@@ -95,9 +92,8 @@ public final class BasicMapProfileV2FileSet
 
     public static void main(String[] args) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        File rootFile = new File(args[0]);
-
-        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFile));
+        FileLocator rootFileLocator = FileLocator.fromLocation(args[0]);
+        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFileLocator));
         logger.warn(basicMapProfileV2FileSet.getAssetMap().toString());
     }
 
