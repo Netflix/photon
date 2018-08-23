@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
@@ -11,7 +12,12 @@ import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
 
 
 import javax.annotation.Nonnull;
+
+import org.w3c.dom.Node;
+
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.Null;
@@ -41,6 +47,21 @@ public class Application5Composition extends AbstractApplicationComposition {
     public Application5Composition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {
         super(imfCompositionPlaylistType, ignoreSet);
 
+        try {
+            List<DOMNodeObjectModel> essenceDescriptorsList = this.getEssenceDescriptors("RGBADescriptor").stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+/*            for(DOMNodeObjectModel domNodeObjectModel : essenceDescriptorsList){
+                System.out.println(" ED : " + domNodeObjectModel.toString());
+            }
+*/
+        }
+        catch (Exception e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Exception in validating EssenceDescriptors in APPLICATION_5_COMPOSITION_TYPE: %s ", e.getMessage()));
+        }
+        
         try
         {
             CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = getCompositionImageEssenceDescriptorModel();

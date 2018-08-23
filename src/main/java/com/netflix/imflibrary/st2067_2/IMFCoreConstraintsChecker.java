@@ -49,6 +49,11 @@ final class IMFCoreConstraintsChecker {
         add("XTOsiz");
         add("YTOsiz");
         add("Csiz");
+        //App #5 ACES
+ //       add("TargetFrameAncillaryResourceID");
+//        add("ACESPictureSubDescriptorInstanceID");
+        add("ACESPictureSubDescriptor");
+        add("TargetFrameSubDescriptor");
     }};
 
     //To prevent instantiation

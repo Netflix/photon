@@ -571,8 +571,15 @@ public final class CompositionImageEssenceDescriptorModel {
                 for (DOMNodeObjectModel domNodeObjectModel : targetFrameSubDescriptors) {
                     String missing_items = "";
                     Set<UUID> targetFrameAncillaryResourceID = domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(targetFrameAncillaryResourceIDUL));
+                    // Check for missing required items
                     if (targetFrameAncillaryResourceID.isEmpty()) {
                         missing_items += "TargetFrameAncillaryResourceID, ";
+                    } else {
+                        //TODO Check it targetFrameAncillaryResourceID belongs to an existing GSP
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                String.format("INFO: Target FrameSubDescriptor (ID %s) references an Ancillary Resource (ID %s), but Ancillary Resources cannot be checked yet", 
+                                        domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), targetFrameAncillaryResourceID.toString()));
                     }
                     String media_type = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(mediaTypeUL));
                     if (media_type == null) {
@@ -607,11 +614,31 @@ public final class CompositionImageEssenceDescriptorModel {
                                 IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                 String.format("Target FrameSubDescriptor (ID %s): is missing required item(s): %s", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), missing_items));
                     }
+
+                    // Check if acesPictureSubDescriptorInstanceID references an existing ACESPictureSubDescriptor Instance ID
+                    Set<UUID> acesPictureSubDescriptorInstanceID = domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorInstanceIDUL));
+                    if (!acesPictureSubDescriptorInstanceID.isEmpty()) {
+                        if (acesPictureSubDescriptors.isEmpty()) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("Target FrameSubDescriptor (ID %s) references an ACESPictureSubDescriptorInstanceID (%s) but no ACESPictureSubDescriptor is present", 
+                                            domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), acesPictureSubDescriptorInstanceID.toString()));
+                        } else {
+                            if (acesPictureSubDescriptors.stream().noneMatch(e -> e.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).equals(acesPictureSubDescriptorInstanceID))) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                        String.format("Target FrameSubDescriptor (ID %s) references an ACESPictureSubDescriptor but no ACESPictureSubDescriptor with Instance ID (%s) is present", 
+                                                domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), acesPictureSubDescriptorInstanceID.toString()));
+                            }
+                        }
+                        
+                    }
+                    
                     if ((max_ref != null) && (min_ref != null)) {
                         if (max_ref <= min_ref) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                    String.format("Target FrameSubDescriptor (ID %s): TargetFrameComponentMaxRef (%d) is less or equal to TargetFrameComponentMaxRef (%d)", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), max_ref, min_ref));
+                                    String.format("Target FrameSubDescriptor (ID %s): TargetFrameComponentMaxRef (%d) is less than or equal to TargetFrameComponentMaxRef (%d)", domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), max_ref, min_ref));
                         }
                     }
                 }
