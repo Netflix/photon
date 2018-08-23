@@ -229,24 +229,23 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, FileLocator fileLocator) throws IOException {
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(FileLocator fileLocator) throws IOException {
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
         try {
-            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile, fileLocator);
+            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(fileLocator);
             imfErrorLogger.addAllErrors(mapProfileV2MappedFileSet.getErrors());
             IMFErrorLogger assetMapErrorLogger = new IMFErrorLoggerImpl();
 
             try {
-
-                AssetMap assetMap = new AssetMap(new S3FileLocator(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
+                AssetMap assetMap = new AssetMap(FileLocator.fromLocation(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
                 assetMapErrorLogger.addAllErrors(assetMap.getErrors());
 
                 for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
                     IMFErrorLogger packingListErrorLogger = new IMFErrorLoggerImpl();
                     try {
-                        PackingList packingList = new PackingList(new S3FileLocator(fileLocator.getAbsolutePath() + packingListAsset.getPath().toString()));
+                        PackingList packingList = new PackingList(FileLocator.fromLocation(fileLocator, packingListAsset.getPath().toString()));
                         packingListErrorLogger.addAllErrors(packingList.getErrors());
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
@@ -257,7 +256,8 @@ public class IMPAnalyzer {
                                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                                     continue;
                                 }
-                                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
+                                FileLocator assetFile = FileLocator.fromLocation(fileLocator, assetMap.getPath(asset.getUUID()).toString());
+
                                 if(!assetFile.exists()) {
                                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                             IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString
@@ -265,8 +265,7 @@ public class IMPAnalyzer {
                                     continue;
                                 }
 
-//                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
+                                ResourceByteRangeProvider resourceByteRangeProvider = assetFile.getResourceByteRangeProvider();
 
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
@@ -314,7 +313,7 @@ public class IMPAnalyzer {
             }
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-            errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
+            errorMap.put(fileLocator.getName(), imfErrorLogger.getErrors());
         }
 
 
@@ -360,7 +359,7 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
+                FileLocator assetFile = FileLocator.fromLocation(fileLocator, assetMap.getPath(asset.getUUID()).toString());
 
                 if(!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -368,7 +367,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = assetFile.getResourceByteRangeProvider();
                 if (OutputProfileList.isOutputProfileList(resourceByteRangeProvider)) {
                     IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
                     try {
@@ -421,7 +420,7 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                FileLocator assetFile = new S3FileLocator(rootFile.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
+                FileLocator assetFile = FileLocator.fromLocation(rootFile, assetMap.getPath(asset.getUUID()).toString());
 
                 if(!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -429,7 +428,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = assetFile.getResourceByteRangeProvider();
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
@@ -490,13 +489,13 @@ public class IMPAnalyzer {
     }
 
 
-    public static List<ErrorLogger.ErrorObject> analyzeFile(File inputFile) throws IOException {
+    public static List<ErrorLogger.ErrorObject> analyzeFile(FileLocator inputFileLocator) throws IOException {
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
 
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        ResourceByteRangeProvider resourceByteRangeProvider = inputFileLocator.getResourceByteRangeProvider();
 
-        if(inputFile.getName().lastIndexOf('.') > 0) {
-            String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf('.')+1);
+        if(inputFileLocator.getName().lastIndexOf('.') > 0) {
+            String extension = inputFileLocator.getName().substring(inputFileLocator.getName().lastIndexOf('.')+1);
             if(extension.equalsIgnoreCase("mxf")) {
                 errorLogger.addAllErrors(validateEssencePartition(resourceByteRangeProvider));
                 return errorLogger.getErrors();
@@ -579,9 +578,7 @@ public class IMPAnalyzer {
             System.exit(-1);
         }
 
-        String inputFileName = args[0];
-        File inputFile = new File(inputFileName);
-        FileLocator inputFileLocator = new S3FileLocator(args[0]);
+        FileLocator inputFileLocator = FileLocator.fromLocation(args[0]);
         if(!inputFileLocator.exists()){
             logger.error(String.format("File %s does not exist", inputFileLocator.getAbsolutePath()));
             System.exit(-1);
@@ -589,10 +586,10 @@ public class IMPAnalyzer {
 
         if(inputFileLocator.isDirectory()) {
             logger.info("==========================================================================" );
-            logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
+            logger.info(String.format("Analyzing IMF package %s", inputFileLocator.getName()));
             logger.info("==========================================================================");
 
-            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, inputFileLocator);
+            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFileLocator);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
                     logErrors(entry.getKey(), entry.getValue());
@@ -614,10 +611,10 @@ public class IMPAnalyzer {
         else
         {
             logger.info("==========================================================================\n" );
-            logger.info(String.format("Analyzing file %s", inputFile.getName()));
+            logger.info(String.format("Analyzing file %s", inputFileLocator.getName()));
             logger.info("==========================================================================\n");
-            List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrors(inputFile.getName(), errors);
+            List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFileLocator);
+            logErrors(inputFileLocator.getName(), errors);
         }
     }
 }

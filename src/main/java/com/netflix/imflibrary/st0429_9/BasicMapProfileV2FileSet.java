@@ -21,6 +21,7 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -91,9 +92,8 @@ public final class BasicMapProfileV2FileSet
 
     public static void main(String[] args) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        File rootFile = new File(args[0]);
-
-        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFile, null));
+        FileLocator rootFileLocator = FileLocator.fromLocation(args[0]);
+        BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFileLocator));
         logger.warn(basicMapProfileV2FileSet.getAssetMap().toString());
     }
 

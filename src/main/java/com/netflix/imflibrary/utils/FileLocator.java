@@ -18,6 +18,7 @@
 
 package com.netflix.imflibrary.utils;
 
+import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +28,32 @@ import java.net.URI;
  */
 public interface FileLocator
 {
+
+    public static FileLocator fromLocation(String location) {
+        if (location.startsWith("s3://")) {
+            return new S3FileLocator(location);
+        }
+
+        return new LocalFileLocator(location);
+    }
+
+    public static FileLocator fromLocation(FileLocator directoryLocator, String fileName) throws IOException {
+        String directoryPath = directoryLocator.getAbsolutePath();
+        if (directoryPath.charAt(directoryPath.length() - 1) != '/') {
+            directoryPath += '/';
+        }
+
+        return FileLocator.fromLocation(directoryPath + fileName);
+    }
+
+    public static FileLocator fromLocation(URI location) {
+        if (location.toString().startsWith("s3://")) {
+            return new S3FileLocator(location);
+        }
+
+        return new LocalFileLocator(location);
+    }
+
     /**
      * Tests whether the file denoted by this abstract pathname is a
      * directory.
@@ -47,4 +74,6 @@ public interface FileLocator
     public String getName() throws IOException;
 
     public String getPath() throws IOException;
+
+    public ResourceByteRangeProvider getResourceByteRangeProvider();
 }

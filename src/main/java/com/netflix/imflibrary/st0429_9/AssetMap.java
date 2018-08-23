@@ -313,12 +313,7 @@ public final class AssetMap
 
     private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(FileLocator fileLocator)
     {
-//        return new FileByteRangeProvider(new File("/")); // TODO: FIX IT
-        if (fileLocator instanceof S3FileLocator) {
-            return new S3ByteRangeProvider(fileLocator);
-        }
-
-        return null;
+        return fileLocator.getResourceByteRangeProvider();
     }
 
     static List<ErrorLogger.ErrorObject> checkConformance(AssetMapType assetMapType)

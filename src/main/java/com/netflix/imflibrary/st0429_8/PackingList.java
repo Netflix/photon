@@ -100,7 +100,7 @@ public final class PackingList
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public PackingList(FileLocator packingListXMLFile) throws IOException {
-        this(new S3ByteRangeProvider(packingListXMLFile));
+        this(packingListXMLFile.getResourceByteRangeProvider());
     }
 
     /**

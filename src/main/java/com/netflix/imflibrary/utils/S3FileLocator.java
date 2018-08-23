@@ -77,6 +77,10 @@ public class S3FileLocator implements FileLocator {
         return this.getAbsolutePath();
     }
 
+    public ResourceByteRangeProvider getResourceByteRangeProvider() {
+        return new S3ByteRangeProvider(this);
+    }
+
     public String getName() {
         String[] parts = this.key.split("/");
         return parts[parts.length - 1];
@@ -119,4 +123,6 @@ public class S3FileLocator implements FileLocator {
 
         return fileLocators.toArray(new S3FileLocator[0]);
     }
+
+
 }

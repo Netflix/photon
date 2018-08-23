@@ -177,20 +177,19 @@ public class IMPFixer {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(FileLocator rootFile, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
+    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(FileLocator fileLocator, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
             IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
-        BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(null, rootFile);
+        BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(fileLocator);
         AssetMap assetMap = new AssetMap(new S3FileLocator(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
         for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
-            PackingList packingList = new PackingList(new S3FileLocator(rootFile.getAbsolutePath() + packingListAsset.getPath().toString()));
+            PackingList packingList = new PackingList(new S3FileLocator(fileLocator.getAbsolutePath() + packingListAsset.getPath().toString()));
             Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                FileLocator assetFile = new S3FileLocator(rootFile.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
-//                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
+                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
+                ResourceByteRangeProvider resourceByteRangeProvider = assetFile.getResourceByteRangeProvider();
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, new IMFErrorLoggerImpl());
@@ -219,9 +218,8 @@ public class IMPFixer {
 
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                FileLocator assetFile = new S3FileLocator(rootFile.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
-//                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
+                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
+                ResourceByteRangeProvider resourceByteRangeProvider = assetFile.getResourceByteRangeProvider();
                 if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
                     if(applicationComposition == null){
