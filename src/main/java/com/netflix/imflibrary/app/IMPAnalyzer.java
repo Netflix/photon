@@ -20,11 +20,7 @@ import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,25 +229,24 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile) throws IOException {
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, FileLocator fileLocator) throws IOException {
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
         try {
-            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
+            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile, fileLocator);
             imfErrorLogger.addAllErrors(mapProfileV2MappedFileSet.getErrors());
             IMFErrorLogger assetMapErrorLogger = new IMFErrorLoggerImpl();
 
             try {
 
-                AssetMap assetMap = new AssetMap(new File(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
+                AssetMap assetMap = new AssetMap(new S3FileLocator(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
                 assetMapErrorLogger.addAllErrors(assetMap.getErrors());
-
 
                 for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
                     IMFErrorLogger packingListErrorLogger = new IMFErrorLoggerImpl();
                     try {
-                        PackingList packingList = new PackingList(new File(rootFile, packingListAsset.getPath().toString()));
+                        PackingList packingList = new PackingList(new S3FileLocator(fileLocator.getAbsolutePath() + packingListAsset.getPath().toString()));
                         packingListErrorLogger.addAllErrors(packingList.getErrors());
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
@@ -262,7 +257,7 @@ public class IMPAnalyzer {
                                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                                     continue;
                                 }
-                                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
                                 if(!assetFile.exists()) {
                                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                             IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString
@@ -270,7 +265,8 @@ public class IMPAnalyzer {
                                     continue;
                                 }
 
-                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+//                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
 
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
@@ -299,9 +295,9 @@ public class IMPAnalyzer {
                             }
                         }
 
-                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap);
+                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( fileLocator, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap);
 
-                        analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
+                        analyzeOutputProfileLists( fileLocator, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
 
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
@@ -347,7 +343,7 @@ public class IMPAnalyzer {
         return trackFileErrorLogger.getErrors();
     }
 
-    public static List<OutputProfileList> analyzeOutputProfileLists(File rootFile,
+    public static List<OutputProfileList> analyzeOutputProfileLists(FileLocator fileLocator,
                                                                     AssetMap assetMap,
                                                                     PackingList packingList,
                                                                     List<ApplicationComposition> applicationCompositionList,
@@ -364,7 +360,7 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                FileLocator assetFile = new S3FileLocator(fileLocator.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
 
                 if(!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -372,7 +368,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
                 if (OutputProfileList.isOutputProfileList(resourceByteRangeProvider)) {
                     IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
                     try {
@@ -405,7 +401,7 @@ public class IMPAnalyzer {
    }
 
 
-    public static List<ApplicationComposition> analyzeApplicationCompositions( File rootFile,
+    public static List<ApplicationComposition> analyzeApplicationCompositions( FileLocator rootFile,
                                                   AssetMap assetMap,
                                                   PackingList packingList,
                                                   List<PayloadRecord> headerPartitionPayloadRecords,
@@ -425,7 +421,7 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                FileLocator assetFile = new S3FileLocator(rootFile.getAbsolutePath() + assetMap.getPath(asset.getUUID()).toString());
 
                 if(!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -433,7 +429,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = new S3ByteRangeProvider(assetFile);
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
@@ -585,17 +581,18 @@ public class IMPAnalyzer {
 
         String inputFileName = args[0];
         File inputFile = new File(inputFileName);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        FileLocator inputFileLocator = new S3FileLocator(args[0]);
+        if(!inputFileLocator.exists()){
+            logger.error(String.format("File %s does not exist", inputFileLocator.getAbsolutePath()));
             System.exit(-1);
         }
 
-        if(inputFile.isDirectory()) {
+        if(inputFileLocator.isDirectory()) {
             logger.info("==========================================================================" );
             logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
             logger.info("==========================================================================");
 
-            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, inputFileLocator);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
                     logErrors(entry.getKey(), entry.getValue());

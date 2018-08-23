@@ -23,11 +23,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
-import com.netflix.imflibrary.utils.Utilities;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +100,7 @@ public final class AssetMap
      * @param assetMapXmlFile the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public AssetMap(File assetMapXmlFile) throws IOException
+    public AssetMap(FileLocator assetMapXmlFile) throws IOException
     {
         this(getFileAsResourceByteRangeProvider(assetMapXmlFile));
     }
@@ -315,9 +311,14 @@ public final class AssetMap
         return assetMapNamespaceURI;
     }
 
-    private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
+    private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(FileLocator fileLocator)
     {
-        return new FileByteRangeProvider(file);
+//        return new FileByteRangeProvider(new File("/")); // TODO: FIX IT
+        if (fileLocator instanceof S3FileLocator) {
+            return new S3ByteRangeProvider(fileLocator);
+        }
+
+        return null;
     }
 
     static List<ErrorLogger.ErrorObject> checkConformance(AssetMapType assetMapType)

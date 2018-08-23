@@ -22,6 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileLocator;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
@@ -50,15 +51,14 @@ public final class BasicMapProfileV2MappedFileSet
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
      */
-    public BasicMapProfileV2MappedFileSet(File rootFile) throws IOException
+    public BasicMapProfileV2MappedFileSet(File rootFile, FileLocator fileLocator) throws IOException
     {
         imfErrorLogger = new IMFErrorLoggerImpl();
-        if (!rootFile.isDirectory())
+        if (!fileLocator.isDirectory())
         {
             String message = String.format("Root file %s corresponding to the mapped file set is not a " +
-                    "directory", rootFile.getAbsolutePath());
+                    "directory", fileLocator.getAbsolutePath());
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL,
                     message);
@@ -74,7 +74,7 @@ public final class BasicMapProfileV2MappedFileSet
             }
         };
 
-        File[] files = rootFile.listFiles(filenameFilter);
+        FileLocator[] files = fileLocator.listFiles(filenameFilter);
         if ((files == null) || (files.length != 1))
         {
             String message = String.format("Found %d files with name %s in mapped file set rooted at %s, " +
