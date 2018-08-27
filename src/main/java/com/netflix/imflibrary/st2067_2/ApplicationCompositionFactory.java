@@ -18,19 +18,19 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class provides a factory method to construct ApplicationComposition based on CPL ApplicationIdentification.
@@ -87,6 +87,10 @@ public class ApplicationCompositionFactory {
     }
 
     public static ApplicationComposition getApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+        return getApplicationComposition(resourceByteRangeProvider, imfErrorLogger, new HashSet<>());
+    }
+
+    public static ApplicationComposition getApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger, Set<String> homogeneitySelectionSet) throws IOException {
         ApplicationComposition composition = null;
         Class<?> clazz = null;
 
@@ -105,8 +109,8 @@ public class ApplicationCompositionFactory {
                 clazz = applicationCompositionType.getClazz();
             }
 
-            Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class);
-            composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType);
+            Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class, Set.class);
+            composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType, homogeneitySelectionSet);
             imfErrorLogger.addAllErrors(composition.getErrors());
         }
         catch(IMFException e) {
