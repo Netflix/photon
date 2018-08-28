@@ -53,6 +53,7 @@ final class IMFCoreConstraintsChecker {
         add("Code");
         add("ComponentSize");
         add("PictureComponentSizing");
+        add("J2KComponentSizing");
         add("Ssiz");
         add("XRSiz");
         add("YRSiz");
