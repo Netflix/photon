@@ -356,6 +356,7 @@ public class IMPFixer {
 
         if (!inputFile.exists() || !inputFile.isDirectory()) {
             logger.error(String.format("Invalid input package path"));
+            System.exit(-1);
         }
         else
         {
@@ -369,6 +370,7 @@ public class IMPFixer {
                         logger.warn(errorObject.toString());
                     }
                 }
+                System.exit(-1);
             } else {
                 logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
             }
