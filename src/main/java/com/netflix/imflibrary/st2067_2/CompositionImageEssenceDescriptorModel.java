@@ -35,6 +35,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer storedHeight;
     private final Fraction sampleRate;
     private final Integer pixelBitDepth;
+    private final Integer componentDepth;
     private final Colorimetry.Quantization quantization;
     private final Colorimetry color;
     private final Colorimetry.Sampling sampling;
@@ -91,6 +92,8 @@ public final class CompositionImageEssenceDescriptorModel {
             this.codingEquation = CodingEquation.None;
         }
 
+        this.componentDepth = parseComponentDepth();
+
         if(!this.colorModel.equals(ColorModel.Unknown)) {
             this.pixelBitDepth = parsePixelBitDepth(this.colorModel);
             this.quantization = parseQuantization(this.colorModel, this.pixelBitDepth);
@@ -137,6 +140,10 @@ public final class CompositionImageEssenceDescriptorModel {
 
     public @Nonnull Integer getPixelBitDepth() {
         return pixelBitDepth;
+    }
+
+    public @Nonnull Integer getComponentDepth() {
+        return componentDepth;
     }
 
     public @Nonnull Integer getStoredHeight() {
@@ -203,7 +210,10 @@ public final class CompositionImageEssenceDescriptorModel {
         return imageEssencedescriptorDOMNode.getFieldAsFraction(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
 
-
+    private @Nonnull Integer parseComponentDepth() {
+        Integer depth = getFieldAsInteger(componentDepthUL);
+        return depth != null ? depth : 0;
+    }
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;
