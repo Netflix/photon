@@ -99,7 +99,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError_componentDepth_missing.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError_componentDepth_mismatch.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
     @Test
