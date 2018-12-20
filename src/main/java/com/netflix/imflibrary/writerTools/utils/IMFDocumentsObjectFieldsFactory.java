@@ -20,14 +20,13 @@ package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.exceptions.MXFException;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +36,7 @@ import java.util.Set;
  */
 public final class IMFDocumentsObjectFieldsFactory {
 
-    private static final Set<Class<?>> setOfWrapperTypes = new HashSet<Class<?>>()
+    private static final Set<Class<?>> setOfWrapperTypes = Collections.unmodifiableSet(new HashSet<Class<?>>()
     {
         {
             /* Java Wrapper types */
@@ -53,12 +52,11 @@ public final class IMFDocumentsObjectFieldsFactory {
             add(Enum.class);
             add(BigInteger.class);
         }
-    };
+    });
 
-    private static final Set<Class<?>> setOfPrimitiveTypes = new HashSet<Class<?>>()
+    private static final Set<Class<?>> setOfPrimitiveTypes = Collections.unmodifiableSet(new HashSet<Class<?>>()
     {
         {
-
             /* Java Primitive types */
             add(boolean.class);
             add(char.class);
@@ -71,7 +69,7 @@ public final class IMFDocumentsObjectFieldsFactory {
             add(void.class);
             add(byte[].class);
         }
-    };
+    });
 
     /**
      * To prevent instantiation
@@ -83,49 +81,44 @@ public final class IMFDocumentsObjectFieldsFactory {
     public static void constructObjectFields(Object object) {
         try {
             Field[] fields = object.getClass().getDeclaredFields();
-            Object value = null;
             for (Field field : fields) {
                 // Skip synthetic fields. They don't need to be recreated
                 if (field.isSynthetic())
                     continue;
 
+                Class<?> fieldType = field.getType();
+
+                // No need to construct primitive types (int, boolean, ...)
+                if (setOfPrimitiveTypes.contains(fieldType))
+                    continue;
+
+                // No need to construct wrapper types (Integer, Long, Enum, ...)
+                if (setOfWrapperTypes.contains(fieldType))
+                    continue;
+
+                // No need to construct String, because it is immutable and will be set when assigned
+                if (fieldType.equals(String.class))
+                    continue;
+
+                // No need to construct XMLGregorianCalendar, because an already constructed instance will be provided when assigned
+                if(XMLGregorianCalendar.class.isAssignableFrom(fieldType))
+                    continue;
+
+                // Types that wrap a collection provide access to the collection through
+                // an accessor hence negating the need to construct the collection.
+                if(Collection.class.isAssignableFrom(fieldType))
+                    continue;
+
+                // Construct a field of a complex type, and construct that types fields recursively
+                Object value = constructObjectByName(fieldType);
+                constructObjectFields(value);
+
+                // Update this field with the newly constructed object
                 field.setAccessible(true);
-                boolean isPrimitiveType = isJavaPrimitiveType(field.getType());
-                boolean isJavaWrapperType = isJavaWrapperType(field.getType());
-                if(!(XMLGregorianCalendar.class.isAssignableFrom(field.getType())
-                        || Collection.class.isAssignableFrom(field.getType())
-                        || isPrimitiveType
-                        || isJavaWrapperType)) {
-                    value = constructObjectByName(field.getType());
-                }
-                else if(XMLGregorianCalendar.class.isAssignableFrom(field.getType())){
-                    value = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-                    continue;
-                }
-                else if(Collection.class.isAssignableFrom(field.getType())){
-                    /**
-                     * Types that wrap a collection provide access to the collection through
-                     * an accessor hence negating the need to construct the collection.
-                     */
-                    continue;
-                }
-                else if(isPrimitiveType || isJavaWrapperType){
-                    /**
-                     * Field is a Java primitive/wrapper type, skip construction
-                     */
-                    continue;
-                }
-                /* Construct the fields of the object just constructed unless it is a JAVA primitive or String */
-                if(!(/*field.getType().isPrimitive()*/
-                        getJavaPrimitiveTypes().contains(field.getType())
-                                || field.getType().equals(String.class))){
-                    //Not one of the primitive types and not a string either
-                    constructObjectFields(value);
-                }
                 field.set(object, value);
             }
         }
-        catch(IllegalAccessException | DatatypeConfigurationException e){
+        catch(IllegalAccessException e){
             throw new MXFException(String.format("Error occurred while trying to construct %s", object.getClass().getSimpleName()));
         }
     }
@@ -138,59 +131,5 @@ public final class IMFDocumentsObjectFieldsFactory {
         catch(NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e){
             throw new MXFException(String.format("Error occurred while trying to construct %s", clazz.getSimpleName()));
         }
-    }
-
-    private static Set<Class<?>> getJavaPrimitiveTypes(){
-
-        Set<Class<?>> ret = new HashSet<Class<?>>();
-
-        /* Java Primitive types */
-        ret.add(boolean.class);
-        ret.add(char.class);
-        ret.add(byte.class);
-        ret.add(short.class);
-        ret.add(int.class);
-        ret.add(long.class);
-        ret.add(float.class);
-        ret.add(double.class);
-        ret.add(void.class);
-        ret.add(byte[].class);
-
-        return ret;
-    }
-
-    private static boolean isJavaPrimitiveType(Class type){
-        boolean result = false;
-        if(setOfPrimitiveTypes.contains(type)){
-            result = true;
-        }
-        return result;
-    }
-
-    private static Set<Class<?>> getJavaWrapperTypes() {
-        Set<Class<?>> ret = new HashSet<Class<?>>();
-
-        /* Java Wrapper types */
-        ret.add(Boolean.class);
-        ret.add(Character.class);
-        ret.add(Byte.class);
-        ret.add(Short.class);
-        ret.add(Integer.class);
-        ret.add(Long.class);
-        ret.add(Float.class);
-        ret.add(Double.class);
-        ret.add(Void.class);
-        ret.add(Enum.class);
-        ret.add(BigInteger.class);
-
-        return ret;
-    }
-
-    private static boolean isJavaWrapperType(Class type){
-        boolean result = false;
-        if(setOfWrapperTypes.contains(type)){
-            result = true;
-        }
-        return result;
     }
 }
