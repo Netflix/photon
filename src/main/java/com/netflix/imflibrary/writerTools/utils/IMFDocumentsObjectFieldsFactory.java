@@ -85,6 +85,10 @@ public final class IMFDocumentsObjectFieldsFactory {
             Field[] fields = object.getClass().getDeclaredFields();
             Object value = null;
             for (Field field : fields) {
+                // Skip synthetic fields. They don't need to be recreated
+                if (field.isSynthetic())
+                    continue;
+
                 field.setAccessible(true);
                 boolean isPrimitiveType = isJavaPrimitiveType(field.getType());
                 boolean isJavaWrapperType = isJavaWrapperType(field.getType());
