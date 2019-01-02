@@ -31,12 +31,12 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
      */
     public static abstract class MCALabelSubDescriptorBO extends SubDescriptorBO{
 
-        @MXFProperty(size=16) protected final UL mca_label_dictionary_id = null;
-        @MXFProperty(size=16) protected final byte[] mca_link_id = null; //UUID type
+        @MXFProperty(size=16) public final UL mca_label_dictionary_id = null;
+        @MXFProperty(size=16) public final byte[] mca_link_id = null; //UUID type
         @MXFProperty(size=0, charset = "UTF-16") protected final String mca_tag_symbol = null; //UTF-16 String
         @MXFProperty(size=0, charset = "UTF-16") protected final String mca_tag_name = null; //UTF-16 String
-        @MXFProperty(size=4) protected final Long mca_channel_id = null;
-        @MXFProperty(size=0, charset="ISO-8859-1") protected final String rfc_5646_spoken_language = null; //ISO-8 String
+        @MXFProperty(size=4) public final Long mca_channel_id = null;
+        @MXFProperty(size=0, charset="ISO-8859-1") public final String rfc_5646_spoken_language = null; //ISO-8 String
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_title = null;
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_title_version = null;
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_audio_content_kind = null;
@@ -47,7 +47,7 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        MCALabelSubDescriptorBO(final KLVPacket.Header header) {
+        public MCALabelSubDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
 
@@ -57,6 +57,30 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
          */
         public Long getMCAChannelID(){
             return this.mca_channel_id;
+        }
+
+        /**
+         * Accessor for the MCA Tag Name of this MCA Label Subdescriptor
+         * @return a String representing the MCA Tag Name
+         */
+        public String getMCATagName(){
+            return this.mca_tag_name;
+        }
+
+        /**
+         * Accessor for the MCA Tag Symbol of this MCA Label Subdescriptor
+         * @return a String representing the MCA Tag Symbol
+         */
+        public String getMCATagSymbol(){
+            return this.mca_tag_symbol;
+        }
+
+        /**
+         * Accessor for the MCA Label Dictionnary ID of this MCA Label Subdescriptor
+         * @return a UL representing the MCA Label Dictionnary ID
+         */
+        public UL getMCALabelDictionnaryId(){
+            return this.mca_label_dictionary_id;
         }
 
         /**

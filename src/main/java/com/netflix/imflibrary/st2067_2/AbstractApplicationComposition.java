@@ -933,9 +933,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return byteProvider;
     }
 
-    private List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>>
-                                                                    essenceDescriptorsMap, Map<UUID,
-            DOMNodeObjectModel> eDLMap) {
+    private List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         /**

@@ -20,6 +20,8 @@ package com.netflix.imflibrary.st0377.header;
 
 
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
+import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
@@ -628,12 +630,18 @@ public final class StructuralMetadata
                     return GroupOfSoundFieldGroupLabelSubDescriptor.GroupOfSoundFieldGroupLabelSubDescriptorBO.class;
                 case 0x5A :
                     return JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO.class;
+                case 0x7B :
+                    return IABEssenceDescriptor.IABEssenceDescriptorBO.class;
+                case 0x7C :
+                    return IABSoundfieldLabelSubDescriptor.IABSoundfieldLabelSubDescriptorBO.class;
                 default :
+                    System.out.printf("Unknown value for key[14]: "+key[14]+"\n");
                     return Object.class;
             }
         }
         else
         {
+            System.out.printf("Couldn't match metadata ");
             return Object.class;
         }
     }

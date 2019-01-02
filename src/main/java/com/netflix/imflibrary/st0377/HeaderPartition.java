@@ -32,6 +32,7 @@ import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericTrack;
+import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.st0377.header.MaterialPackage;
@@ -50,6 +51,8 @@ import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
+import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
@@ -421,6 +424,35 @@ public final class HeaderPartition
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), waveAudioEssenceDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
+                    List<InterchangeObject> subDescriptors = new ArrayList<>();
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        // Adding all AudioChannelLabelSubDescriptor, GroupOfSoundFieldGroupLabelSubDescriptor, and SoundFieldGroupLabelSubDescriptor to check their absence in IMF Constraints
+                        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = null;
+                        GroupOfSoundFieldGroupLabelSubDescriptor groupOfSoundFieldGroupLabelSubDescriptor = null;
+                        SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = null;
+                        IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof AudioChannelLabelSubDescriptor){
+                            audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) dependentInterchangeObject;
+                            subDescriptors.add(audioChannelLabelSubDescriptor);
+                        }
+                        else if (dependentInterchangeObject instanceof SoundFieldGroupLabelSubDescriptor){
+                            soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
+                            subDescriptors.add(soundFieldGroupLabelSubDescriptor);
+                        }
+                        else if (dependentInterchangeObject instanceof GroupOfSoundFieldGroupLabelSubDescriptor){
+                            groupOfSoundFieldGroupLabelSubDescriptor = (GroupOfSoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
+                            subDescriptors.add(groupOfSoundFieldGroupLabelSubDescriptor);
+                        }
+                        else if (dependentInterchangeObject instanceof IABSoundfieldLabelSubDescriptor){
+                            iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) dependentInterchangeObject;
+                            subDescriptors.add(iabSoundfieldLabelSubDescriptor);
+                        }
+                    }
+                    IABEssenceDescriptor iabEssenceDescriptor = new IABEssenceDescriptor((IABEssenceDescriptor.IABEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(iabEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), iabEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
                     List<TimeTextResourceSubDescriptor> subDescriptorList = new ArrayList<>();
                     for(Node dependent : node.depends) {
