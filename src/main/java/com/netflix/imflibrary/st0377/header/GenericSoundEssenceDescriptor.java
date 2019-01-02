@@ -293,7 +293,7 @@ public abstract class GenericSoundEssenceDescriptor extends FileDescriptor{
         public String toString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("================== %s ======================\n", GenericSoundEssenceDescriptor.class.getSimpleName()));
+            sb.append(String.format("================== %s ======================%n", GenericSoundEssenceDescriptor.class.getSimpleName()));
             sb.append(this.header.toString());
             sb.append(String.format("instance_uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
                     this.instance_uid[0], this.instance_uid[1], this.instance_uid[2], this.instance_uid[3],

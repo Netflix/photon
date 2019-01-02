@@ -425,7 +425,6 @@ public final class HeaderPartition
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), waveAudioEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
-                    List<InterchangeObject> subDescriptors = new ArrayList<>();
                     for(Node dependent : node.depends) {
                         InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
                         // Adding all AudioChannelLabelSubDescriptor, GroupOfSoundFieldGroupLabelSubDescriptor, and SoundFieldGroupLabelSubDescriptor to check their absence in IMF Constraints
@@ -435,19 +434,15 @@ public final class HeaderPartition
                         IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = null;
                         if(dependentInterchangeObject instanceof AudioChannelLabelSubDescriptor){
                             audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) dependentInterchangeObject;
-                            subDescriptors.add(audioChannelLabelSubDescriptor);
                         }
                         else if (dependentInterchangeObject instanceof SoundFieldGroupLabelSubDescriptor){
                             soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
-                            subDescriptors.add(soundFieldGroupLabelSubDescriptor);
                         }
                         else if (dependentInterchangeObject instanceof GroupOfSoundFieldGroupLabelSubDescriptor){
                             groupOfSoundFieldGroupLabelSubDescriptor = (GroupOfSoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
-                            subDescriptors.add(groupOfSoundFieldGroupLabelSubDescriptor);
                         }
                         else if (dependentInterchangeObject instanceof IABSoundfieldLabelSubDescriptor){
                             iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) dependentInterchangeObject;
-                            subDescriptors.add(iabSoundfieldLabelSubDescriptor);
                         }
                     }
                     IABEssenceDescriptor iabEssenceDescriptor = new IABEssenceDescriptor((IABEssenceDescriptor.IABEssenceDescriptorBO) interchangeObjectBO);
