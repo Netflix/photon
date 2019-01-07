@@ -145,16 +145,14 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
                             imageEssenceDescriptorID.toString(), colorPrimaries.name(), transferCharacteristic.name(), codingEquation.name(), applicationCompositionType.toString()));
         }
 
-        FrameLayoutType frameLayoutType = imageEssenceDescriptorModel.getFrameLayoutType();
         UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
         if(essenceContainerFormatUL != null) {
-            Byte contentKind = essenceContainerFormatUL.getULAsBytes()[14];
-            if ((frameLayoutType.equals(FrameLayoutType.FullFrame) && contentKind != 6) ||
-                    (frameLayoutType.equals(FrameLayoutType.SeparateFields) && contentKind != 3)) {
+            UL proresUL = UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.0D.01.03.01.02.1C.01.00");
+            if (!essenceContainerFormatUL.equals(proresUL)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("EssenceDescriptor with ID %s has invalid ContentKind(%d) indicated by the ContainerFormat as per %s",
-                                imageEssenceDescriptorID.toString(), contentKind, applicationCompositionType.toString()));
+                        String.format("EssenceDescriptor with ID %s has invalid UL %s indicated by the ContainerFormat as per %s",
+                                imageEssenceDescriptorID.toString(), essenceContainerFormatUL.toString(), applicationCompositionType.toString()));
             }
         }
    }
