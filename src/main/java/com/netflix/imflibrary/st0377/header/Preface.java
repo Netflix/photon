@@ -221,7 +221,7 @@ public final class Preface extends InterchangeObject
             sb.append(String.format("operational_pattern = %s%n", this.operational_pattern.toString()));
             sb.append(this.essencecontainers.toString());
             sb.append(this.dm_schemes.toString());
-            sb.append(this.conforms_to_specifications.toString());
+            if (this.conforms_to_specifications != null) sb.append(this.conforms_to_specifications.toString());
             return sb.toString();
         }
     }
