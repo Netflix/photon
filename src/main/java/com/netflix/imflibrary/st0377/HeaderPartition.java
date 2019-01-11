@@ -425,26 +425,6 @@ public final class HeaderPartition
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), waveAudioEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
-                    for(Node dependent : node.depends) {
-                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
-                        // Adding all AudioChannelLabelSubDescriptor, GroupOfSoundFieldGroupLabelSubDescriptor, and SoundFieldGroupLabelSubDescriptor to check their absence in IMF Constraints
-                        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = null;
-                        GroupOfSoundFieldGroupLabelSubDescriptor groupOfSoundFieldGroupLabelSubDescriptor = null;
-                        SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = null;
-                        IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = null;
-                        if(dependentInterchangeObject instanceof AudioChannelLabelSubDescriptor){
-                            audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) dependentInterchangeObject;
-                        }
-                        else if (dependentInterchangeObject instanceof SoundFieldGroupLabelSubDescriptor){
-                            soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
-                        }
-                        else if (dependentInterchangeObject instanceof GroupOfSoundFieldGroupLabelSubDescriptor){
-                            groupOfSoundFieldGroupLabelSubDescriptor = (GroupOfSoundFieldGroupLabelSubDescriptor) dependentInterchangeObject;
-                        }
-                        else if (dependentInterchangeObject instanceof IABSoundfieldLabelSubDescriptor){
-                            iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) dependentInterchangeObject;
-                        }
-                    }
                     IABEssenceDescriptor iabEssenceDescriptor = new IABEssenceDescriptor((IABEssenceDescriptor.IABEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(iabEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), iabEssenceDescriptor);
@@ -706,6 +686,16 @@ public final class HeaderPartition
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }*/
+        } else if (this.hasIABEssenceDescriptor()) {
+            List<InterchangeObject> soundfieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : soundfieldLabelSubDescriptors) {
+                IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the IABSoundfieldLabelSubDescriptor", rfc5646SpokenLanguage, iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
         }
         return rfc5646SpokenLanguage;
     }
@@ -727,6 +717,17 @@ public final class HeaderPartition
                     this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("AudioContentKind (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", audioContentKind, soundFieldGroupLabelSubDescriptor.getAudioContentKind()));
                 }
             }
+        } else if (this.hasIABEssenceDescriptor()) {
+            List<InterchangeObject> soundfieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : soundfieldLabelSubDescriptors) {
+                IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
+                if (audioContentKind == null) {
+                    audioContentKind = iabSoundfieldLabelSubDescriptor.getAudioContentKind();
+                } else if (!audioContentKind.equals(iabSoundfieldLabelSubDescriptor.getAudioContentKind())) {
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("AudioContentKind (%s, %s) do not match across the IABSoundfieldLabelSubDescriptor", audioContentKind, iabSoundfieldLabelSubDescriptor.getAudioContentKind()));
+                }
+            }
+
         }
         return AudioContentKind.getAudioContentKindFromSymbol(audioContentKind);
     }
@@ -766,6 +767,15 @@ public final class HeaderPartition
     }
 
     /**
+     * Checks if this HeaderPartition object has a IAB Essence Descriptor
+     * @return true/false depending on whether this HeaderPartition contains a IABEssenceDescriptor or not
+     */
+    public boolean hasIABEssenceDescriptor()
+    {
+        return this.hasInterchangeObject(IABEssenceDescriptor.class);
+    }
+
+    /**
      * Checks if this HeaderPartition object has a CDCI Picture Essence Descriptor
      * @return true/false depending on whether this HeaderPartition contains a CDCIPictureEssenceDescriptor or not
      */
@@ -799,6 +809,15 @@ public final class HeaderPartition
     public List<InterchangeObject> getWaveAudioEssenceDescriptors()
     {
         return this.getInterchangeObjects(WaveAudioEssenceDescriptor.class);
+    }
+
+    /**
+     * Gets all the IAB audio essence descriptors associated with this HeaderPartition object
+     * @return list of all the IABEssenceDescriptors in this header partition
+     */
+    public List<InterchangeObject> getIABEssenceDescriptors()
+    {
+        return this.getInterchangeObjects(IABEssenceDescriptor.class);
     }
 
     /**
@@ -840,6 +859,15 @@ public final class HeaderPartition
     public List<InterchangeObject> getSoundFieldGroupLabelSubDescriptors()
     {
         return this.getInterchangeObjects(SoundFieldGroupLabelSubDescriptor.class);
+    }
+
+    /**
+     * Gets all the IAB SoundField label sub descriptors associated with this HeaderPartition object
+     * @return list of sound field label sub descriptors contained in this header partition
+     */
+    public List<InterchangeObject> getIABSoundFieldLabelSubDescriptors()
+    {
+        return this.getInterchangeObjects(IABSoundfieldLabelSubDescriptor.class);
     }
 
     /**
@@ -1241,6 +1269,9 @@ public final class HeaderPartition
         List<EssenceTypeEnum> essenceTypes = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO interchangeObjectBO : this.getEssenceDescriptors()){
             if(interchangeObjectBO.getClass().getEnclosingClass().equals(WaveAudioEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
+            }
+            if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
             }
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(CDCIPictureEssenceDescriptor.class)){

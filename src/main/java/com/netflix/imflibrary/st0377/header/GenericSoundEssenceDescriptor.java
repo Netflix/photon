@@ -158,6 +158,14 @@ public abstract class GenericSoundEssenceDescriptor extends FileDescriptor{
         return this.genericSoundEssenceDescriptorBO.getReferenceImageEditRate();
     }
 
+    /**
+     * Getter for the Essence Container UL of this FileDescriptor
+     * @return a UL representing the Essence Container
+     */
+    public UL getEssenceContainerUL(){
+        return this.genericSoundEssenceDescriptorBO.getEssenceContainerUL();
+    }
+
     public static abstract class GenericSoundEssenceDescriptorBO extends FileDescriptorBO{
 
         @MXFProperty(size=0) protected final CompoundDataTypes.Rational audio_sampling_rate = null;

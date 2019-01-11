@@ -56,6 +56,14 @@ public final class IABSoundfieldLabelSubDescriptor extends GenericDescriptor {
     }
 
     /**
+     * A getter for the spoken language in this SubDescriptor
+     * @return string representing the spoken language as defined in RFC-5646
+     */
+    public String getAudioContentKind(){
+        return this.iabSoundfieldLabelSubDescriptorBO.getMCAAudioContentKind();
+    }
+
+    /**
      * Object corresponding to a parsed IABSoundfieldLabelSubDescriptor structural metadata set defined in st20167-201:201x
      */
     @Immutable

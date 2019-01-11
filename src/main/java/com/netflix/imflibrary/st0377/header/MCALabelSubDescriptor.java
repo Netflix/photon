@@ -116,6 +116,15 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         }
 
         /**
+         * Accessor for the RFC 5646 Spoken Language of this MCA Label Subdescriptor
+         * @return a String representing the RFC 5646 Spoken Language
+         */
+        public String getRFC5646SpokenLanguage(){
+            return this.rfc_5646_spoken_language;
+        }
+
+
+        /**
          * A method that returns a string representation of a SoundFieldGroupLabelSubDescriptorBO object
          *
          * @return string representing the object

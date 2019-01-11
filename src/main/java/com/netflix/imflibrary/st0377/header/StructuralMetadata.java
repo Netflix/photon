@@ -497,6 +497,11 @@ public final class StructuralMetadata
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mime_media_type");
         }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x02, 0x02, 0x10, 0x02, 0x04, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "conforms_to_specifications");
+        }
         ItemULToItemName = Collections.unmodifiableMap(map);
     }
 

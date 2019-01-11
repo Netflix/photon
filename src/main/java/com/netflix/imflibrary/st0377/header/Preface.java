@@ -94,6 +94,15 @@ public final class Preface extends InterchangeObject
     }
 
     /**
+     * Getter for a list of UL of Specifications to which this MXF file complies
+     * @return list of UL of Specifications to which this MXF file complies
+     */
+    public CompoundDataTypes.MXFCollections.MXFCollection<UL> getConformstoSpecificationsULs()
+    {
+        return this.prefaceBO.conforms_to_specifications;
+    }
+
+    /**
      * A method that returns a string representation of a Preface object
      * @return string representing the object
      */
@@ -117,6 +126,7 @@ public final class Preface extends InterchangeObject
         @MXFProperty(size=16) private final UL operational_pattern = null;
         @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> essencecontainers = null;
         @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> dm_schemes = null;
+        @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> conforms_to_specifications = null;
 
         /**
          * Instantiates a new parsed Preface object by virtue of parsing the MXF file bitstream
@@ -211,6 +221,7 @@ public final class Preface extends InterchangeObject
             sb.append(String.format("operational_pattern = %s%n", this.operational_pattern.toString()));
             sb.append(this.essencecontainers.toString());
             sb.append(this.dm_schemes.toString());
+            sb.append(this.conforms_to_specifications.toString());
             return sb.toString();
         }
     }
