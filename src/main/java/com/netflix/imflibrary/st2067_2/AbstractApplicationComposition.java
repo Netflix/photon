@@ -112,15 +112,27 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         this(IMFCompositionPlaylistType.getCompositionPlayListType( resourceByteRangeProvider, new IMFErrorLoggerImpl()), new HashSet<String>());
     }
 
+    /**
+     * Constructor for a {@link AbstractApplicationComposition Composition} object from a XML file
+     *
+     * @param imfCompositionPlaylistType corresponding to the Composition XML file.
+     *                                  if any {@link IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @param ignoreSet Set of essence descriptor fields to ignore
+     */
+    public AbstractApplicationComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, @Nonnull Set<String> ignoreSet) {
+        this(imfCompositionPlaylistType, ignoreSet, new HashSet<>());
+    }
+
 
     /**
      * Constructor for a {@link AbstractApplicationComposition Composition} object from a XML file
      *
      * @param imfCompositionPlaylistType corresponding to the Composition XML file.
      *                                  if any {@link IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
-     * @param ignoreSet Set of essence descriptor fields to ignore in track homogeneity check
+     * @param ignoreSet Set of essence descriptor fields to ignore
+     * @param homogeneitySelectionSet Set of essence descriptor fields to select in track homogeneity check
      */
-    public AbstractApplicationComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, @Nonnull Set<String> ignoreSet) {
+    public AbstractApplicationComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, @Nonnull Set<String> ignoreSet, @Nonnull Set<String> homogeneitySelectionSet) {
         imfErrorLogger = new IMFErrorLoggerImpl();
 
         this.compositionPlaylistType = imfCompositionPlaylistType;
@@ -135,7 +147,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap= this.getEssenceDescriptorListMap(ignoreSet);
 
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
-                .virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary));
+                .virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet));
 
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {

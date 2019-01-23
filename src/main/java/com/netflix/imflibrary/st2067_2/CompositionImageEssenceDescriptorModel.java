@@ -565,7 +565,7 @@ public final class CompositionImageEssenceDescriptorModel {
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                        String.format("INFO (can be ignored): No ACESPictureSubDescriptor found"));
+                        String.format("INFO (can be ignored): EssenceDescriptor with ID %s: No ACESPictureSubDescriptor found", imageEssencedescriptorID.toString()));
             }
             if (!targetFrameSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : targetFrameSubDescriptors) {
@@ -645,12 +645,12 @@ public final class CompositionImageEssenceDescriptorModel {
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                        String.format("INFO (can be ignored): No TargetFrameSubDescriptor found"));
+                        String.format("INFO (can be ignored): EssenceDescriptor with ID %s: No TargetFrameSubDescriptor found", imageEssencedescriptorID.toString()));
             }
         } else {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                    String.format("INFO (can be ignored): No ACESPictureSubDescriptor and no TargetFrameSubDescriptor found"));
+                    String.format("INFO (can be ignored): EssenceDescriptor with ID %s: No ACESPictureSubDescriptor and no TargetFrameSubDescriptor found", imageEssencedescriptorID.toString()));
         }
         return;
     }
