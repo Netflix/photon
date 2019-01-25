@@ -97,7 +97,7 @@ public class Application5Composition extends AbstractApplicationComposition {
             if (!areAcesPictureSubDecriptorsHomogeneous) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("ACESPictureSubDescriptors shall be homogeneous per Academy Digital Source Master Specification, mismatch occured in essence (sub)descriptor(s) %s.",
+                        String.format("ACESPictureSubDescriptors shall be homogeneous per Draft Academy Digital Source Master Specification S-2018-001, mismatch occured in essence (sub)descriptor(s) %s.",
                         		inhomogeneousEssenceDescriptorIds.toString()));
             }
 

@@ -130,7 +130,6 @@ public class ApplicationCompositionFactory {
                    return null;
                }
             }
-            e.printStackTrace();
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format(String.format("No matching constructor for class %s", clazz != null ? clazz.getSimpleName(): "ApplicationComposition")));
             return null;
