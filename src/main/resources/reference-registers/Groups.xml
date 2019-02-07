@@ -1,28 +1,43 @@
+<!-- Metadata tags to support XML file editing -->
+<!--  -->
+<!-- Please fill these in if you edit this XML file -->
+<!-- author= -->
+<!-- summary_of_edit= -->
+<!--  -->
 <!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000079 -->
+<!-- master_commit_tag=v000000081 -->
 <!-- DO NOT EDIT THIS TAG -->
-<!--
-Copyright (c) 2018 SMPTE All rights reserved.
-
-The latest version of this document can be retrieved at
-
-http://smpte-ra.org/smpte-metadata-registry
-
-The document is constructed according to 
-
-ST 395:2014  -  Metadata Groups Register,
-
-which is available at http://dx.doi.org/10.5594/SMPTE.ST395.2014
-
-Use of this file without consulting the corresponding SMPTE Engineering Document is NOT supported.  Interoperability will generally require adherence to additional guidelines and constraints specified in the corresponding prose document.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
+<!--  -->
+<!--  -->
+<!-- SMPTE METADATA REGISTER -->
+<!-- ####################### -->
+<!--  -->
+<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources. -->
+<!--  -->
+<!-- Editing these XML Files -->
+<!-- ####################### -->
+<!--  -->
+<!-- If you wish to edit one of these XML files please first complete the metadata tags at the top of the file. -->
+<!-- Then edit existing entries in the XML or add new entries. -->
+<!-- When editing the XML file you may delete some or all of the original entries. Leaving only those that you are -->
+<!-- working on may make editing simpler and less error prone. -->
+<!-- If you think that an entry actually needs to be deleted from the Registers please get in touch. -->
+<!-- You must not edit the UL of an entry - doing so would make it look like you want to create a new entry. -->
+<!-- Please get in touch if you think the UL of an entry in the Registers actually needs to be changed. -->
+<!--  -->
+<!-- Please create a ZIP file containing all of the XML files you have edited. -->
+<!-- This may contain zero or more XML files for each Register. -->
+<!-- Try to only make related edits in the XML files you include in the ZIP - if you have two sets of unrelated changes to make -->
+<!-- please do these in separate XML files that are packaged into two separate ZIP files. All the changes will ultimately be merged into the -->
+<!-- Registers. -->
+<!-- When ready, please send your ZIP file(s) by email (each ZIP file in its own email message). -->
+<!--  -->
+<!-- Contact -->
+<!-- ####### -->
+<!--  -->
+<!-- Please email:  30mr10wg-def@lists.smpte.org -->
+<!--  -->
+<!--  -->
 <GroupsRegister xmlns="http://www.smpte-ra.org/ns/395/2016">
   <Entries>
     <Entry>
@@ -5281,7 +5296,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Kind>LEAF</Kind>
       <Name>MPEG Audio Descriptor</Name>
       <Definition>MPEG Audio Descriptor</Definition>
-      <Applications>AAF[1.2:]</Applications>
       <DefiningDocument>SMPTE ST 381-2</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
       <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01014200</Parent>
@@ -5290,6 +5304,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Contents>
         <Record>
           <UL>urn:smpte:ul:060e2b34.0101010a.04020403.01020000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04020403.01050000</UL>
           <IsOptional>true</IsOptional>
         </Record>
       </Contents>
@@ -6026,6 +6044,98 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         </Record>
         <Record>
           <UL>urn:smpte:ul:060e2b34.0101010e.04020403.01030000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/aaf</NamespaceName>
+      <Symbol>ACESPictureSubDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010101.01017900</UL>
+      <Kind>LEAF</Kind>
+      <Name>ACES Picture SubDescriptor</Name>
+      <Definition>ACES Picture SubDescriptor</Definition>
+      <DefiningDocument>SMPTE ST 2067-50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01015900</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0401060a.01000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0401060a.02000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0401060a.03000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0401060a.04000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0401060a.05000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/aaf</NamespaceName>
+      <Symbol>TargetFrameSubDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010101.01017a00</UL>
+      <Kind>LEAF</Kind>
+      <Name>Target Frame SubDescriptor</Name>
+      <Definition>Target Frame SubDescriptor</Definition>
+      <DefiningDocument>SMPTE ST 2067-50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01015900</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.01000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.02000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.03000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.04000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.05000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.06000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.07000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.08000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.09000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04010609.0a000000</UL>
           <IsOptional>true</IsOptional>
         </Record>
       </Contents>
@@ -8959,6 +9069,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <UL>urn:smpte:ul:060e2b34.01010109.02090302.01000000</UL>
           <IsOptional>false</IsOptional>
         </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07040300</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
       </Contents>
     </Entry>
     <Entry>
@@ -9258,6 +9372,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Parent>urn:smpte:ul:060e2b34.027f0101.0d010401.00000000</Parent>
       <IsConcrete>false</IsConcrete>
       <KLVSyntax>06 53</KLVSyntax>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/amwa/as07</NamespaceName>
+      <Symbol>AS_07</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010701.07000000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07</Name>
+      <Definition>AS-07 Archiving and Preservation Format</Definition>
+      <Applications>AMWA</Applications>
+      <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
       <Register>Groups</Register>
@@ -15453,6 +15578,390 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <IsOptional>false</IsOptional>
         </Record>
       </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>LOC_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f010e.0d0e0000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>LOC_Groups</Name>
+      <Definition>Metadata registered by the Library of Congress for public use</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>LOC_ApplicationSpecifications_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f010e.0d0e0100.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>LOC_ApplicationSpecifications_Groups</Name>
+      <Definition>Library of Congress Application Specifications Groups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>LOC_ApplicationSpecifications_Groups_V1</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f010e.0d0e0101.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>LOC_ApplicationSpecifications_Groups_V1</Name>
+      <Definition>Library of Congress Application Specifications Groups V1</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f010e.0d0e0101.07000000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07_Groups</Name>
+      <Definition>AS-07 Archiving and Preservation Format Groups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_DMS_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07010000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07_DMS_Groups</Name>
+      <Definition>AS-07 Archiving and Preservation Format Descriptive Metadata Groups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_Core_DMS_Framework</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07010100</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_Core_DMS_Framework</Name>
+      <Definition>AS-07 Descriptive Metadata</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010401.00000000</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010101</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010102</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010103</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010105</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010106</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010107</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010108</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010109</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010a</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010b</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010c</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010d</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010e</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.0701010f</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010110</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_DMS_Device</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07010200</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_DMS_Device</Name>
+      <Definition>Description of a device used to capture or create the content</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010400.00000000</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010202</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010203</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010204</UL>
+          <LimitLength>32</LimitLength>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010205</UL>
+          <LimitLength>32</LimitLength>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010206</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_DMS_Identifier</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07010300</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_DMS_Identifier</Name>
+      <Definition>Description of a file or part identifier in an AS-07 file</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010400.00000000</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010302</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010303</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010304</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010305</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_GSP_DMS_Object</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07010400</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_GSP_DMS_Object</Name>
+      <Definition>Additional GSP descriptive information for AS-07</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010401.04020100</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010401</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010402</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010403</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07010404</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_GSP_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07_GSP_Groups</Name>
+      <Definition>AS-07 Archiving and Preservation Format Generic Stream Partition Groups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_GSP_DMS_Framework</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020100</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_GSP_DMS_Framework</Name>
+      <Definition>Abstract GSP Object Group</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010401.04010100</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_GSP_BD_DMS_Framework</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020200</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_GSP_BD_DMS_Framework</Name>
+      <Definition>Binary Data GSP Object Group</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020100</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_GSP_TD_DMS_Framework</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020300</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_GSP_TD_DMS_Framework</Name>
+      <Definition>Text Data GSP Object Group</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07020100</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07020301</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07020302</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_Segmentation_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07030000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07_Segmentation_Groups</Name>
+      <Definition>AS-07 Archiving and Preservation Format SegmentationGroups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_Segmentation_DMS_Framework</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07030100</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_Segmentation_DMS_Framework</Name>
+      <Definition>Metadata for AS-07 files that segment essence data</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010701.01010100</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07030101</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07030102</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_Timecode_Groups</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07040000</UL>
+      <Kind>NODE</Kind>
+      <Name>AS_07_Timecode_Groups</Name>
+      <Definition>AS-07 Archiving and Preservation Format Timecode Groups</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.loc.gov/avconservation</NamespaceName>
+      <Symbol>AS_07_TimecodeLabelSubdescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0e0101.07040100</UL>
+      <Kind>LEAF</Kind>
+      <Name>AS_07_TimecodeLabelSubdescriptor</Name>
+      <Definition>Timecode Label for AS-07 files</Definition>
+      <Applications>DMS_AS_07</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01015900</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07040101</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07040102</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07040103</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010101.0d0e0101.07040104</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/15</NamespaceName>
+      <Symbol>ISDCF</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d0f0000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>Inter-Society Digital Cinema Forum</Name>
+      <Definition>Metadata registered by Inter-Society Digital Cinema Forum for public use</Definition>
+      <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
       <Register>Groups</Register>
