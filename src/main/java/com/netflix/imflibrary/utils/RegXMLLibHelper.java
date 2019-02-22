@@ -187,7 +187,7 @@ public final class RegXMLLibHelper {
             throw new MXFException(String.format("Essence Descriptors that are larger than %d bytes are not supported", Integer.MAX_VALUE));
         }
         byte[] value = byteProvider.getBytes((int) header.getVSize());
-        return new MemoryTriplet(AUID.fromURN(key.toString()), value);
+        return new MemoryTriplet(new AUID(key), value);
     }
 
 
