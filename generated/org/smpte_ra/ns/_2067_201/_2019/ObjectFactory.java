@@ -8,11 +8,12 @@
 
 package org.smpte_ra.ns._2067_201._2019;
 
+import org.smpte_ra.schemas.st2067_2_2016.SequenceType;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
-import org.smpte_ra.schemas._2067_3._2016.SequenceType;
 
 
 /**
