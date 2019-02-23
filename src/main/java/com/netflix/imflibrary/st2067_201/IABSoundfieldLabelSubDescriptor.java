@@ -18,7 +18,7 @@ import java.util.Map;
  * Object model corresponding to MultiChannelAudioLabelSubDescriptor structural metadata set defined in st20167-201:201x
  */
 @Immutable
-public final class IABSoundfieldLabelSubDescriptor extends GenericDescriptor {
+public final class IABSoundfieldLabelSubDescriptor extends MCALabelSubDescriptor {
 
     public static final String IAB_MCA_TAG_SYMBOL = "IAB";
     public static final String IAB_MCA_TAG_NAME = "IAB";
