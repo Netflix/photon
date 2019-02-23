@@ -1308,6 +1308,7 @@ public final class HeaderPartition
         CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
         KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
+        IABEssence(Composition.SequenceTypeEnum.IABSequence),
         UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
 
         private final Composition.SequenceTypeEnum sequenceType;
@@ -1369,6 +1370,8 @@ public final class HeaderPartition
                     return "KaraokeEssence";
                 case AncillaryDataSequence:
                     return "AncillaryDataEssence";
+                case IABSequence:
+                    return "IABEssence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";
