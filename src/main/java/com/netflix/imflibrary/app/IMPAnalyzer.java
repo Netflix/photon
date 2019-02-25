@@ -236,6 +236,11 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, final ApplicationSet rExpectedAppType) throws IOException {
+		expectedAppType = rExpectedAppType;
+		return analyzePackage(rootFile);
+    }
+
     public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile) throws IOException {
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
