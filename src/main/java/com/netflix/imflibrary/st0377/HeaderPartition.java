@@ -1272,7 +1272,7 @@ public final class HeaderPartition
                 essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
             }
             if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
-                essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
+                essenceTypes.add(EssenceTypeEnum.IABEssence);
             }
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(CDCIPictureEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainImageEssence);
