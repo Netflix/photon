@@ -236,7 +236,7 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, final ApplicationSet rExpectedAppType) throws IOException {
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, ApplicationSet rExpectedAppType) throws IOException {
 		expectedAppType = rExpectedAppType;
 		return analyzePackage(rootFile);
     }
