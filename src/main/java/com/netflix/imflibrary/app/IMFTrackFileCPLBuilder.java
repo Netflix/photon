@@ -65,12 +65,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A class that builds an IMF Composition representation of an IMF Essence
@@ -419,7 +421,7 @@ final class IMFTrackFileCPLBuilder {
         return sb.toString();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws FileNotFoundException {
 
         if (args.length != 2)
         {
@@ -429,8 +431,9 @@ final class IMFTrackFileCPLBuilder {
 
         File inputFile = new File(args[0]);
         if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
-            System.exit(-1);
+            String message = String.format("File %s does not exist", inputFile.getAbsolutePath());
+            logger.error(message);
+            throw new FileNotFoundException(message);
         }
         File workingDirectory = new File(args[1]);
 
@@ -439,38 +442,51 @@ final class IMFTrackFileCPLBuilder {
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
+        File outputFile;
         try
         {
             IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
             sb.append(imfTrackFileReader.getRandomIndexPack(imfErrorLogger));
             logger.info(String.format("%s", sb.toString()));
-
-            imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
+            outputFile = imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
+            File byteRangeFile = new File(workingDirectory, "range");
+            if (byteRangeFile.exists()) {
+                if (!byteRangeFile.delete()) {
+                    logger.error("Unable to delete temp file: {}", byteRangeFile.getAbsolutePath());
+                }
+            }
         }
         catch(IOException e)
         {
             throw new IMFException(e);
         }
-        List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
-        if(errors.size() > 0){
-            long warningCount = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
-                    .WARNING)).count();
-            logger.info(String.format("IMFTrackFile has %d errors and %d warnings",
-                    errors.size() - warningCount, warningCount));
-            for(ErrorLogger.ErrorObject errorObject : errors){
-                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                    logger.error(errorObject.toString());
+        List<ErrorLogger.ErrorObject> errorsAndWarnings = imfErrorLogger.getErrors();
+        if (errorsAndWarnings.size() > 0) {
+            long errorCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).count();
+            long warningCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).count();
+            long nonFatalCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).count();
+
+            if (warningCount > 0) {
+                logger.warn("IMFTrackFile has {} warnings:", warningCount);
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (errorCount > 0 || nonFatalCount > 0) {
+                if (errorCount > 0) {
+                    logger.error("IMFTrackFile has {} errors:", errorCount);
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
                 }
-                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                    logger.warn(errorObject.toString());
+                if (nonFatalCount > 0) {
+                    logger.error("IMFTrackFile has {} non-fatal errors:", nonFatalCount);
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.error(er.toString()));
                 }
+                String message = errorsAndWarnings.stream().filter(e ->
+                        (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL))
+                ).map(er -> er.toString()).collect(Collectors.joining(System.lineSeparator()));
+                throw new IMFException(message);
             }
         }
-        else{
-            logger.info(imfTrackFileReader.toString());
-            logger.info("No errors were detected in the IMFTrackFile");
-        }
+        logger.info(String.format("IMFTrackFile %s created successfully", outputFile.getName()));
     }
 
 }
