@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -189,6 +190,9 @@ public class IMPFixer {
 
             for (PackingList.Asset asset : packingList.getAssets()) {
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                if (!assetFile.exists()) {
+                    throw new FileNotFoundException("Asset listed in PKL not found: " + assetFile.toPath().toString());
+                }
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
@@ -358,23 +362,31 @@ public class IMPFixer {
             logger.error(String.format("Invalid input package path"));
             System.exit(-1);
         }
-        else
-        {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
-            if (errors.size() > 0) {
-                logger.info(String.format("IMPWriter encountered errors:"));
-                for (ErrorLogger.ErrorObject errorObject : errors) {
-                    if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.error(errorObject.toString());
-                    } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.warn(errorObject.toString());
-                    }
+
+        List<ErrorLogger.ErrorObject> errorsAndWarnings = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
+        if (errorsAndWarnings.size() > 0) {
+            long errorCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).count();
+            long warningCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).count();
+            long nonFatalCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).count();
+
+            if (warningCount > 0) {
+                logger.warn("IMPWriter encountered warnings:");
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (errorCount > 0 || nonFatalCount > 0) {
+                if (errorCount > 0) {
+                    logger.error("IMPWriter encountered errors:");
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
+                }
+                if (nonFatalCount > 0) {
+                    logger.error("IMPWriter encountered non-fatal issues:");
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.error(er.toString()));
                 }
                 System.exit(-1);
-            } else {
-                logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
             }
         }
+        logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
     }
 
 }
