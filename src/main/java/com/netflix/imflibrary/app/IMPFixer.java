@@ -358,23 +358,30 @@ public class IMPFixer {
             logger.error(String.format("Invalid input package path"));
             System.exit(-1);
         }
-        else
-        {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
-            if (errors.size() > 0) {
-                logger.info(String.format("IMPWriter encountered errors:"));
-                for (ErrorLogger.ErrorObject errorObject : errors) {
-                    if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.error(errorObject.toString());
-                    } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.warn(errorObject.toString());
-                    }
-                }
+
+        List<ErrorLogger.ErrorObject> errorsAndWarnings = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
+        if (errorsAndWarnings.size() > 0) {
+            long errorCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).count();
+            long warningCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).count();
+            long nonFatalCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).count();
+
+            if (nonFatalCount > 0) {
+                logger.info("IMPWriter encountered non-fatal issues:");
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (warningCount > 0) {
+                logger.info("IMPWriter encountered warnings:");
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (errorCount > 0) {
+                logger.info("IMPWriter encountered errors:");
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
                 System.exit(-1);
-            } else {
-                logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
             }
         }
+        logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
     }
 
 }
