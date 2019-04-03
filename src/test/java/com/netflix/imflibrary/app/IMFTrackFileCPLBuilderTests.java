@@ -38,4 +38,17 @@ public class IMFTrackFileCPLBuilderTests {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Assert.assertTrue(imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger).length() > 0);
     }
+
+    @Test
+    public void testMainEnsureRangeFileDeleted() throws Exception {
+        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        File workingDirectory = Files.createTempDirectory(null).toFile();
+        String[] params = {
+                inputFile.getAbsolutePath(),
+                workingDirectory.getAbsolutePath()
+        };
+        IMFTrackFileCPLBuilder.main(params);
+        File byteRangeFile = new File(workingDirectory, "range");
+        assert !byteRangeFile.exists();
+    }
 }

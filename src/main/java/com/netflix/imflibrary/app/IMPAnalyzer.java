@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -549,8 +549,15 @@ public class IMPAnalyzer {
     }
 
 
-    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
+    /**
+     * Log fatal, non-fatal, & warnings
+     * @param file source file being analyzed
+     * @param errors List<ErrorLogger.ErrorObject>
+     * @return boolean indicating whether there were fatal or non-fatal errors.
+     */
+    private static boolean logErrors(String file, List<ErrorLogger.ErrorObject> errors)
     {
+        boolean hasErrors = false;
         if(errors.size()>0)
 
         {
@@ -559,8 +566,10 @@ public class IMPAnalyzer {
             logger.info(String.format("%s has %d errors and %d warnings", file,
                     errors.size() - warningCount, warningCount));
             for (ErrorLogger.ErrorObject errorObject : errors) {
-                if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL ||
+                        errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) {
                     logger.error("\t\t" + errorObject.toString());
+                    hasErrors = true;
                 } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
                     logger.warn("\t\t" + errorObject.toString());
                 }
@@ -572,24 +581,28 @@ public class IMPAnalyzer {
         {
             logger.info(String.format("%s has no errors or warnings", file));
         }
-
+        return hasErrors;
     }
 
     public static void main(String args[]) throws IOException
     {
         if (args.length != 1)
         {
-            logger.error(usage());
-            System.exit(-1);
+            String message = usage();
+            logger.error(message);
+            throw new IllegalArgumentException(message);
         }
 
         String inputFileName = args[0];
         File inputFile = new File(inputFileName);
         if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
-            System.exit(-1);
+            String message = String.format("File %s does not exist", inputFile.getAbsolutePath());
+            logger.error(message);
+            throw new FileNotFoundException(message);
         }
 
+        String exceptionMessage = "";
+        boolean hasErrors = false;
         if(inputFile.isDirectory()) {
             logger.info("==========================================================================" );
             logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
@@ -598,7 +611,9 @@ public class IMPAnalyzer {
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
+                    if (logErrors(entry.getKey(), entry.getValue()) == true) {
+                        hasErrors = true;
+                    }
                 }
             }
 
@@ -610,9 +625,12 @@ public class IMPAnalyzer {
 
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
+                    if (logErrors(entry.getKey(), entry.getValue()) == true) {
+                        hasErrors = true;
+                    }
                 }
             }
+            exceptionMessage = errorMap.entrySet().stream().map(entry -> entry.toString()).collect(Collectors.joining(System.lineSeparator()));
         }
         else
         {
@@ -620,7 +638,13 @@ public class IMPAnalyzer {
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
             logger.info("==========================================================================\n");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrors(inputFile.getName(), errors);
+            if (logErrors(inputFile.getName(), errors) == true) {
+                hasErrors = true;
+                exceptionMessage = errors.stream().map(entry -> entry.toString()).collect(Collectors.joining(System.lineSeparator()));
+            }
+        }
+        if (hasErrors) {
+            throw new IMFException("IMP validation failed: " + exceptionMessage);
         }
     }
 }
