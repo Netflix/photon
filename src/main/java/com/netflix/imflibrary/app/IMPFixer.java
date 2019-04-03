@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -189,6 +190,9 @@ public class IMPFixer {
 
             for (PackingList.Asset asset : packingList.getAssets()) {
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                if (!assetFile.exists()) {
+                    throw new FileNotFoundException("Asset listed in PKL not found: " + assetFile.toPath().toString());
+                }
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
