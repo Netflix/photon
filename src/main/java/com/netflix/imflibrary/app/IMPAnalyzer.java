@@ -602,11 +602,6 @@ public class IMPAnalyzer {
         add(com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
     }});
 
-    private static final Set<ApplicationCompositionType> applicationAllSet = Collections.unmodifiableSet(new HashSet<ApplicationCompositionType>() {{
-        addAll(application2Set);
-        addAll(application5Set);
-    }});
-
     public enum ApplicationSet {
         APPLICATION_2_SET(application2Set),
         APPLICATION_5_SET(application5Set);
