@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:1c43e7a3-f3e1-4e1a-a706-a7c28c388863</Id>
+  <IssueDate>2019-04-13T03:14:41Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <Creator language="en">IMF-Tool 1.5.293</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:eaf76289-fd79-477f-9526-e34d69a8f57a</Id>
+      <Hash>Ie7HTR45lG6woK0BEnveNsSdVeY=</Hash>
+      <Size>16944</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_eaf76289-fd79-477f-9526-e34d69a8f57a.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:a74cc26b-a87d-4fde-9a28-1865a5ef33db</Id>
+      <Hash>g7KCTSzAmR7n4T0YPsEa4p/cJLE=</Hash>
+      <Size>23934</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_a74cc26b-a87d-4fde-9a28-1865a5ef33db.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:be8dd1cf-f6e0-4455-ac6f-b22d28557755</Id>
+      <Hash>t41EJUYXIE9Iu4GniKaJ+TGq3uc=</Hash>
+      <Size>16964</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_be8dd1cf-f6e0-4455-ac6f-b22d28557755.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

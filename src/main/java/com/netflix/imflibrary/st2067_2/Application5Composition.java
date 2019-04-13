@@ -1,3 +1,20 @@
+/*
+ *
+ * Copyright 2019 RheinMain University of Applied Sciences, Wiesbaden, Germany.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.Colorimetry;
@@ -55,6 +72,12 @@ public class Application5Composition extends AbstractApplicationComposition {
             List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = this.getEssenceDescriptors("RGBADescriptor").stream()
                     .distinct()
                     .collect(Collectors.toList());
+            if (virtualTrackEssenceDescriptors.isEmpty()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("No RGBA Picture Essence Descriptor found in APPLICATION_5_COMPOSITION_TYPE."));
+                return;
+            }
             List<DOMNodeObjectModel> refAcesPictureSubDescriptors = new ArrayList<>();
             int indexFirstAcesPictureSubdescriptor = 0;
             boolean areAcesPictureSubDecriptorsHomogeneous = true;

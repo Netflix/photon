@@ -5,14 +5,16 @@ The IMPAnalyzer now supports the following option:
 java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer <directory> [-a <APPSTRING> | --application <APPSTRING>]
 ```
 ```
-options:            
--a | --application <APPSTRING>      IMF Application to test against, supported values for <APPSTRING> are app2or2E, app5 or all (default: app2or2E)
+Options:
+-a | --application <APPSTRING>      IMF Application to test against, supported values for <APPSTRING> are app2or2E and app5
 ```
 
 Notes:
 1. The option "-a | --application" is supported for the application ```IMPAnalyzer``` only.
 
-2. By default, Photon tests against the App #2/#2E specification.
+2. By default, Photon tests against the Application specified in the ```ApplicationIdentification``` element of a CPL.
+
+3. Use "--application" to force Photon to test against a specific IMF Application
 
 # Photon
 

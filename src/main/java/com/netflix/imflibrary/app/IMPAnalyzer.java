@@ -328,7 +328,8 @@ public class IMPAnalyzer {
             imfErrorLogger.addAllErrors(e.getErrors());
             errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
         }
-
+        // Reset expectedAppType, needs to be set explicitly for each subsequent call of analyzePackage()
+        expectedAppType = null;
 
         return errorMap;
     }
@@ -424,8 +425,6 @@ public class IMPAnalyzer {
                 getTrackFileIdToHeaderPartitionPayLoadMap(headerPartitionPayloadRecords);
 
         List<ApplicationComposition> applicationCompositionList = new ArrayList<>();
-        //If called as static method: Assume testing versus App#2/2E specification
-        if (expectedAppType == null) expectedAppType = ApplicationSet.APPLICATION_2_SET;
 
         for (PackingList.Asset asset : packingList.getAssets()) {
             if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
@@ -457,7 +456,7 @@ public class IMPAnalyzer {
                         }
 
                         ApplicationCompositionType applicationCompositionType = applicationComposition.getApplicationCompositionType();
-                        if (!expectedAppType.getApplicationSet().contains(applicationCompositionType)) {
+                        if ((expectedAppType != null) && !expectedAppType.getApplicationSet().contains(applicationCompositionType)) {
 	                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
 	                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
 	                                String.format("CPL Application is %s vs. expected type one of %s", applicationComposition.getApplicationCompositionType().toString(), expectedAppType.getApplicationSet().toString()));
@@ -610,8 +609,7 @@ public class IMPAnalyzer {
 
     public enum ApplicationSet {
         APPLICATION_2_SET(application2Set),
-        APPLICATION_5_SET(application5Set),
-        APPLICATION_ALL_SET(applicationAllSet);
+        APPLICATION_5_SET(application5Set);
 
         private Set<ApplicationCompositionType> appplicationSet;
 
@@ -639,7 +637,6 @@ public class IMPAnalyzer {
             System.exit(-1);
         }
 
-        expectedAppType = ApplicationSet.APPLICATION_2_SET;
         for(int argIdx = 1; argIdx < args.length; ++argIdx)
         {
             String curArg = args[argIdx];
@@ -649,11 +646,11 @@ public class IMPAnalyzer {
                     logger.error(usage());
                     System.exit(-1);
                 }
-                if (nextArg.equalsIgnoreCase("app5")) {
+                if (nextArg.equalsIgnoreCase("app2or2E")) {
+                    expectedAppType = ApplicationSet.APPLICATION_2_SET;
+                } else if (nextArg.equalsIgnoreCase("app5")) {
                     expectedAppType = ApplicationSet.APPLICATION_5_SET;
-                } else if (nextArg.equalsIgnoreCase("all")) {
-                    expectedAppType = ApplicationSet.APPLICATION_ALL_SET;
-                } else if (!nextArg.equalsIgnoreCase("app2or2E")) {
+                } else {
                     logger.error(usage());
                     System.exit(-1);
                 }
