@@ -82,23 +82,23 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     //end items constrained in 2065-5 or 2067-50
     //begin items defined in 2067-50
     public static final String acesPictureSubDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01017900";
-    public static final String acesAuthoringInformationUL =						"urn:smpte:ul:060e2b34.0101010e.0401060a.01000000";
-    public static final String acesMasteringDisplayPrimariesUL =				"urn:smpte:ul:060e2b34.0101010e.0401060a.02000000";
-    public static final String acesMasteringDisplayWhitePointChromaticityUL = 	"urn:smpte:ul:060e2b34.0101010e.0401060a.03000000";
-    public static final String acesMasteringDisplayDisplayMaximumLuminanceUL = 	"urn:smpte:ul:060e2b34.0101010e.0401060a.04000000";
-    public static final String acesMasteringDisplayDisplayMinimumLuminanceUL = 	"urn:smpte:ul:060e2b34.0101010e.0401060a.05000000";
+    public static final String acesAuthoringInformationUL = "urn:smpte:ul:060e2b34.0101010e.0401060a.01000000";
+    public static final String acesMasteringDisplayPrimariesUL = "urn:smpte:ul:060e2b34.0101010e.0401060a.02000000";
+    public static final String acesMasteringDisplayWhitePointChromaticityUL = "urn:smpte:ul:060e2b34.0101010e.0401060a.03000000";
+    public static final String acesMasteringDisplayDisplayMaximumLuminanceUL = "urn:smpte:ul:060e2b34.0101010e.0401060a.04000000";
+    public static final String acesMasteringDisplayDisplayMinimumLuminanceUL = "urn:smpte:ul:060e2b34.0101010e.0401060a.05000000";
     public static final String targetFrameSubDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01017a00";
-    public static final String targetFrameAncillaryResourceIDUL = 		"urn:smpte:ul:060e2b34.0101010e.04010609.01000000";
-    public static final String mediaTypeUL = 							"urn:smpte:ul:060e2b34.0101010e.04010609.02000000";
-    public static final String targetFrameIndexUL = 					"urn:smpte:ul:060e2b34.0101010e.04010609.03000000";
-    public static final String targetFrameTransferCharacteristicUL =	"urn:smpte:ul:060e2b34.0101010e.04010609.04000000";
-    public static final String targetFrameColorPrimariesUL = 			"urn:smpte:ul:060e2b34.0101010e.04010609.05000000";
-    public static final String targetFrameComponentMaxRefUL = 			"urn:smpte:ul:060e2b34.0101010e.04010609.06000000";
-    public static final String targetFrameComponentMinRefUL = 			"urn:smpte:ul:060e2b34.0101010e.04010609.07000000";
-    public static final String targetFrameEssenceStreamIDUL = 			"urn:smpte:ul:060e2b34.0101010e.04010609.08000000";
-    public static final String acesPictureSubDescriptorInstanceIDUL =	"urn:smpte:ul:060e2b34.0101010e.04010609.09000000";
-    public static final String targetFrameViewingEnvironmentUL = 		"urn:smpte:ul:060e2b34.0101010e.04010609.0a000000";
-    public static final String instanceID =                             "urn:smpte:ul:060e2b34.01010101.01011502.00000000";
+    public static final String targetFrameAncillaryResourceIDUL = "urn:smpte:ul:060e2b34.0101010e.04010609.01000000";
+    public static final String mediaTypeUL = "urn:smpte:ul:060e2b34.0101010e.04010609.02000000";
+    public static final String targetFrameIndexUL = "urn:smpte:ul:060e2b34.0101010e.04010609.03000000";
+    public static final String targetFrameTransferCharacteristicUL = "urn:smpte:ul:060e2b34.0101010e.04010609.04000000";
+    public static final String targetFrameColorPrimariesUL = "urn:smpte:ul:060e2b34.0101010e.04010609.05000000";
+    public static final String targetFrameComponentMaxRefUL = "urn:smpte:ul:060e2b34.0101010e.04010609.06000000";
+    public static final String targetFrameComponentMinRefUL = "urn:smpte:ul:060e2b34.0101010e.04010609.07000000";
+    public static final String targetFrameEssenceStreamIDUL = "urn:smpte:ul:060e2b34.0101010e.04010609.08000000";
+    public static final String acesPictureSubDescriptorInstanceIDUL = "urn:smpte:ul:060e2b34.0101010e.04010609.09000000";
+    public static final String targetFrameViewingEnvironmentUL = "urn:smpte:ul:060e2b34.0101010e.04010609.0a000000";
+    public static final String instanceID = "urn:smpte:ul:060e2b34.01010101.01011502.00000000";
     //end items defined in 2067-50
     
        

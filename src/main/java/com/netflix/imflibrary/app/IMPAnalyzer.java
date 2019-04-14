@@ -562,7 +562,7 @@ public class IMPAnalyzer {
         sb.append(String.format("%s <pkl_file>%n", IMPAnalyzer.class.getName()));
         sb.append(String.format("%s <mxf_file>%n", IMPAnalyzer.class.getName()));
         sb.append(String.format("options:            %n"));
-        sb.append(String.format("-a, --application APPSTRING      IMF Application to test against, supported values for APPSTRING are app2or2E, app5 or all (default: app2or2E)%n"));
+        sb.append(String.format("-a, --application APPSTRING      Force to test against a specific IMF Application, supported values for APPSTRING are app2or2E and app5%n"));
         return sb.toString();
     }
 
