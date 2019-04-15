@@ -79,6 +79,7 @@ public class Application2Composition extends AbstractApplicationComposition {
             imfErrorLogger)
     {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
+
         ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
         if( colorModel.equals(ColorModel.Unknown)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -86,6 +87,14 @@ public class Application2Composition extends AbstractApplicationComposition {
                     String.format("EssenceDescriptor with ID %s has Invalid color components as per %s",
                             imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
             return;
+        }
+
+        Integer componentDepth = imageEssenceDescriptorModel.getComponentDepth();
+        if (colorModel.equals(ColorModel.YUV) && componentDepth == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s is missing component depth required per %s",
+                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
         }
 
         Integer storedWidth = imageEssenceDescriptorModel.getStoredWidth();
@@ -201,6 +210,13 @@ public class Application2Composition extends AbstractApplicationComposition {
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s invalid PixelBitDepth(%d) as per %s",
                             imageEssenceDescriptorID.toString(), pixelBitDepth, applicationCompositionType.toString()));
+        }
+        Integer componentDepth = imageEssenceDescriptorModel.getComponentDepth();
+        if (colorModel.equals(ColorModel.YUV) && !pixelBitDepth.equals(componentDepth)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has a PixelBitDepth(%d) not matching Component Depth (%d) as per %s",
+                            imageEssenceDescriptorID.toString(), pixelBitDepth, componentDepth, applicationCompositionType.toString()));
         }
 
         //FrameLayout
