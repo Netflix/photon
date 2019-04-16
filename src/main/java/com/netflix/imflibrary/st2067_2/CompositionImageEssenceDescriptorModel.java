@@ -294,7 +294,7 @@ public final class CompositionImageEssenceDescriptorModel {
     }
     
     public @Nonnull Integer getDisplayWidth() {
-    	return displayWidth;
+        return displayWidth;
     }
     
     public @Nonnull Integer getDisplayHeight() {
@@ -305,73 +305,73 @@ public final class CompositionImageEssenceDescriptorModel {
         return displayXOffset;
     }
 
-	public @Nullable Integer getDisplayYOffset() {
-	    return displayYOffset;
-	}
+    public @Nullable Integer getDisplayYOffset() {
+        return displayYOffset;
+    }
 
-	public @Nullable Integer getDisplayF2Offset() {
-	    return displayF2Offset;
-	}
+    public @Nullable Integer getDisplayF2Offset() {
+        return displayF2Offset;
+    }
 
-	public @Nullable Fraction getImageAspectRatio() {
-	    return imageAspectRatio;
-	}
+    public @Nullable Fraction getImageAspectRatio() {
+        return imageAspectRatio;
+    }
 
-	public @Nullable Integer getActiveFormatDescriptor() {
-	    return activeFormatDescriptor;
-	}
+    public @Nullable Integer getActiveFormatDescriptor() {
+        return activeFormatDescriptor;
+    }
 
-	public @Nullable Integer getAlphaTransparency() {
-	    return alphaTransparency;
-	}
+    public @Nullable Integer getAlphaTransparency() {
+        return alphaTransparency;
+    }
 
-	public @Nullable Integer getImageAlignmentOffset() {
-	    return imageAlignmentOffset;
-	}
+    public @Nullable Integer getImageAlignmentOffset() {
+        return imageAlignmentOffset;
+    }
 
-	public @Nullable Integer getImageStartOffset() {
-	    return imageStartOffset;
-	}
+    public @Nullable Integer getImageStartOffset() {
+        return imageStartOffset;
+    }
 
-	public @Nullable Integer getImageEndOffset() {
-	    return imageEndOffset;
-	}
+    public @Nullable Integer getImageEndOffset() {
+        return imageEndOffset;
+    }
 
-	public @Nullable Integer getFieldDominance() {
-	    return fieldDominance;
-	}
+    public @Nullable Integer getFieldDominance() {
+        return fieldDominance;
+    }
 
-	public @Nullable UL getCodingEquations() {
-	    return codingEquations;
-	}
+    public @Nullable UL getCodingEquations() {
+        return codingEquations;
+    }
 
-	public @Nullable Integer getComponentMinRef() {
-	    return componentMinRef;
-	}
+    public @Nullable Integer getComponentMinRef() {
+        return componentMinRef;
+    }
 
-	public @Nullable Integer getComponentMaxRef() {
-	    return componentMaxRef;
-	}
+    public @Nullable Integer getComponentMaxRef() {
+        return componentMaxRef;
+    }
 
-	public @Nullable Integer getAlphaMinRef() {
-	    return alphaMinRef;
-	}
+    public @Nullable Integer getAlphaMinRef() {
+        return alphaMinRef;
+    }
 
-	public @Nullable Integer getAlphaMaxRef() {
-	    return alphaMaxRef;
-	}
+    public @Nullable Integer getAlphaMaxRef() {
+        return alphaMaxRef;
+    }
 
-	public @Nullable Integer getScanningDirection() {
-	    return scanningDirection;
-	}
+    public @Nullable Integer getScanningDirection() {
+        return scanningDirection;
+    }
 
-	public @Nullable String getPalette() {
-	    return palette;
-	}
+    public @Nullable String getPalette() {
+        return palette;
+    }
 
-	public @Nullable String getPaletteLayout() {
-	    return paletteLayout;
-	}
+    public @Nullable String getPaletteLayout() {
+        return paletteLayout;
+    }
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;

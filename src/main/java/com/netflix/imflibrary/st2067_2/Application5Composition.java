@@ -86,8 +86,8 @@ public class Application5Composition extends AbstractApplicationComposition {
                 DOMNodeObjectModel subDescriptors = virtualTrackEssenceDescriptors.get(indexFirstAcesPictureSubdescriptor).getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
                 List<DOMNodeObjectModel> acesPictureSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
                 for (DOMNodeObjectModel desc :  acesPictureSubDescriptors) {
-                	DOMNodeObjectModel refAcesPictureSubDescriptor = desc.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
-	                refAcesPictureSubDescriptors.add(refAcesPictureSubDescriptor);
+                    DOMNodeObjectModel refAcesPictureSubDescriptor = desc.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
+                    refAcesPictureSubDescriptors.add(refAcesPictureSubDescriptor);
                 }
                 indexFirstAcesPictureSubdescriptor++;
             } while (refAcesPictureSubDescriptors.isEmpty() && (indexFirstAcesPictureSubdescriptor < virtualTrackEssenceDescriptors.size()));
@@ -95,47 +95,47 @@ public class Application5Composition extends AbstractApplicationComposition {
             if ((indexFirstAcesPictureSubdescriptor == 1) && (!refAcesPictureSubDescriptors.isEmpty())) { // ACESPicture SubDescriptor(s) present in first resource
                 for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
                     DOMNodeObjectModel subDescriptors = virtualTrackEssenceDescriptors.get(i).getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
-                	List<DOMNodeObjectModel> other = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
-                	DOMNodeObjectModel refAcesPictureSubDescriptor = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), acesPictureSubDescriptorHomogeneitySelectionSet);
-                	if (other.size() != refAcesPictureSubDescriptors.size()) { // Number of ACESPictureSubDescriptors is different
-                		areAcesPictureSubDecriptorsHomogeneous = false;
-                		inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
-                	} else {
-	                	for (DOMNodeObjectModel desc : other) {
-	                    	DOMNodeObjectModel selectOther = desc.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
-	                    	if (!refAcesPictureSubDescriptors.contains(selectOther)) { // Value of Field ACESAuthoringInformation is different
-		                    	areAcesPictureSubDecriptorsHomogeneous = false;
-		                		inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
-	                    	}
-	                	}
-                	}
+                    List<DOMNodeObjectModel> other = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
+                    DOMNodeObjectModel refAcesPictureSubDescriptor = virtualTrackEssenceDescriptors.get(i).createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), acesPictureSubDescriptorHomogeneitySelectionSet);
+                    if (other.size() != refAcesPictureSubDescriptors.size()) { // Number of ACESPictureSubDescriptors is different
+                        areAcesPictureSubDecriptorsHomogeneous = false;
+                        inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+                    } else {
+                        for (DOMNodeObjectModel desc : other) {
+                            DOMNodeObjectModel selectOther = desc.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
+                            if (!refAcesPictureSubDescriptors.contains(selectOther)) { // Value of Field ACESAuthoringInformation is different
+                                areAcesPictureSubDecriptorsHomogeneous = false;
+                                inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+                            }
+                        }
+                    }
                 }
             } else if (indexFirstAcesPictureSubdescriptor > 1 )  { // Inhomogeneous: First subdescriptor does not contain an ACESPictureSubDescriptor, but others do
-            	areAcesPictureSubDecriptorsHomogeneous = false;
-            	DOMNodeObjectModel firstOccurence = virtualTrackEssenceDescriptors.get(indexFirstAcesPictureSubdescriptor-1);
-            	if (firstOccurence != null) {
-            		inhomogeneousEssenceDescriptorIds.add(firstOccurence.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
-            	}
+                areAcesPictureSubDecriptorsHomogeneous = false;
+                DOMNodeObjectModel firstOccurence = virtualTrackEssenceDescriptors.get(indexFirstAcesPictureSubdescriptor-1);
+                if (firstOccurence != null) {
+                    inhomogeneousEssenceDescriptorIds.add(firstOccurence.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+                }
             }
             if (!areAcesPictureSubDecriptorsHomogeneous) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("ACESPictureSubDescriptors shall be homogeneous per Draft Academy Digital Source Master Specification S-2018-001, mismatch occured in essence (sub)descriptor(s) %s.",
-                        		inhomogeneousEssenceDescriptorIds.toString()));
+                                inhomogeneousEssenceDescriptorIds.toString()));
             }
 
             // Validate all Essence Descriptors, because ACES sub-descriptors are not required to be homogeneous for all elements, in particular the TargetFrameSubDescriptors may differ per ST 2067-50.
             for(DOMNodeObjectModel imageEssencedescriptorDOMNode : virtualTrackEssenceDescriptors){
-				CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
-				UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
-				        .get();
-				imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
-				                regXMLLibDictionary);
-	            if (imageEssenceDescriptorModel != null) {
-	                imfErrorLogger.addAllErrors(imageEssenceDescriptorModel.getErrors());
-	                Application5Composition.validatePictureEssenceDescriptor(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE,
-	                        imfErrorLogger);
-	            }
+                CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
+                UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
+                        .get();
+                imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
+                                regXMLLibDictionary);
+                if (imageEssenceDescriptorModel != null) {
+                    imfErrorLogger.addAllErrors(imageEssenceDescriptorModel.getErrors());
+                    Application5Composition.validatePictureEssenceDescriptor(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE,
+                            imfErrorLogger);
+                }
             }
         }
         catch (Exception e) {
@@ -233,18 +233,18 @@ public class Application5Composition extends AbstractApplicationComposition {
         UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
         UL MXFGCFrameWrappedACESPictures = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.0d010301.02190100"); // MXF-GC Frame-wrapped ACES Pictures per 2065-5
         if(essenceContainerFormatUL == null) {
-	            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-	                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-	                    String.format("EssenceDescriptor with ID %s does not contain a ContainerFormat as per %s",
-	                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s does not contain a ContainerFormat as per %s",
+                                imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
         } else  {
-	        if (!essenceContainerFormatUL.equals(MXFGCFrameWrappedACESPictures)) {
-	            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-	                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-	                    String.format("EssenceDescriptor with ID %s has invalid ContainerFormat(%s) as per %s",
-	                            imageEssenceDescriptorID.toString(), essenceContainerFormatUL.toString(), applicationCompositionType.toString()));
-	        }
-	    }
+            if (!essenceContainerFormatUL.equals(MXFGCFrameWrappedACESPictures)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s has invalid ContainerFormat(%s) as per %s",
+                                imageEssenceDescriptorID.toString(), essenceContainerFormatUL.toString(), applicationCompositionType.toString()));
+            }
+        }
         Integer offset = imageEssenceDescriptorModel.getSampledXOffset();
         if((offset != null) && (offset != 0)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,

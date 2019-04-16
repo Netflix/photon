@@ -17,7 +17,7 @@
  */
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.app.IMPAnalyzer.ApplicationSet;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ public class IMPAnalyzerTestMultiAppIMP
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/MultiAppIMP/");
         // Test against App 2/2E
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, ApplicationSet.APPLICATION_2_SET);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, ApplicationCompositionType.APPLICATION_2_COMPOSITION_TYPE);
         Assert.assertEquals(errorMap.size(), 8);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -61,7 +61,7 @@ public class IMPAnalyzerTestMultiAppIMP
         );
 
         // Test against App 5
-        errorMap = analyzePackage(inputFile, ApplicationSet.APPLICATION_5_SET);
+        errorMap = analyzePackage(inputFile, ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
         Assert.assertEquals(errorMap.size(), 8);
         errorMap.entrySet().stream().forEach( e ->
                 {

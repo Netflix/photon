@@ -6,7 +6,7 @@ java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer <directory> [-a 
 ```
 ```
 Options:
--a | --application <APPSTRING>      IMF Application to test against, supported values for <APPSTRING> are app2or2E and app5
+-a | --application <APPSTRING>      IMF Application to test against, supported values for <APPSTRING> are app2, app2E or app5
 ```
 
 Notes:
