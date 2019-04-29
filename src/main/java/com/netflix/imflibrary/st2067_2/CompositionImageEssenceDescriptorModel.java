@@ -35,6 +35,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final Integer storedHeight;
     private final Fraction sampleRate;
     private final Integer pixelBitDepth;
+    private final Integer componentDepth;
     private final Colorimetry.Quantization quantization;
     private final Colorimetry color;
     private final Colorimetry.Sampling sampling;
@@ -78,6 +79,8 @@ public final class CompositionImageEssenceDescriptorModel {
         this.storedOffset = getFieldAsInteger(storedF2OffsetUL);
         this.sampleHeight = getFieldAsInteger(sampledHeightUL);
         this.sampleWidth = getFieldAsInteger(sampledWidthUL);
+
+        this.componentDepth = getFieldAsInteger(componentDepthUL);
 
         this.transferCharacteristic = Colorimetry.TransferCharacteristic.valueOf(imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN
                 (transferCharacteristicUL)));
@@ -133,6 +136,10 @@ public final class CompositionImageEssenceDescriptorModel {
 
     public @Nonnull Fraction getSampleRate() {
         return sampleRate;
+    }
+
+    public Integer getComponentDepth() {
+        return componentDepth;
     }
 
     public @Nonnull Integer getPixelBitDepth() {
@@ -202,8 +209,6 @@ public final class CompositionImageEssenceDescriptorModel {
     private @Nullable Fraction getFieldAsFraction(@Nonnull String urn) {
         return imageEssencedescriptorDOMNode.getFieldAsFraction(regXMLLibDictionary.getSymbolNameFromURN(urn));
     }
-
-
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;
