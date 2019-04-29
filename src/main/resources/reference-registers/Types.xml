@@ -1,36 +1,18 @@
-<!-- Metadata tags to support XML file editing -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- *****DO NOT EDIT THIS XML FILE******* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
 <!--  -->
-<!-- Please fill these in if you edit this XML file -->
-<!-- author= -->
-<!-- summary_of_edit= -->
-<!--  -->
-<!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000081 -->
-<!-- DO NOT EDIT THIS TAG -->
-<!--  -->
+<!-- DEVELOPMENT REGISTER -->
 <!--  -->
 <!-- SMPTE METADATA REGISTER -->
 <!-- ####################### -->
 <!--  -->
-<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources. -->
-<!--  -->
-<!-- Editing these XML Files -->
-<!-- ####################### -->
-<!--  -->
-<!-- If you wish to edit one of these XML files please first complete the metadata tags at the top of the file. -->
-<!-- Then edit existing entries in the XML or add new entries. -->
-<!-- When editing the XML file you may delete some or all of the original entries. Leaving only those that you are -->
-<!-- working on may make editing simpler and less error prone. -->
-<!-- If you think that an entry actually needs to be deleted from the Registers please get in touch. -->
-<!-- You must not edit the UL of an entry - doing so would make it look like you want to create a new entry. -->
-<!-- Please get in touch if you think the UL of an entry in the Registers actually needs to be changed. -->
-<!--  -->
-<!-- Please create a ZIP file containing all of the XML files you have edited. -->
-<!-- This may contain zero or more XML files for each Register. -->
-<!-- Try to only make related edits in the XML files you include in the ZIP - if you have two sets of unrelated changes to make -->
-<!-- please do these in separate XML files that are packaged into two separate ZIP files. All the changes will ultimately be merged into the -->
-<!-- Registers. -->
-<!-- When ready, please send your ZIP file(s) by email (each ZIP file in its own email message). -->
+<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources including copies of the  -->
+<!-- SMPTE Metadata Registers that are suitable for editing. -->
 <!--  -->
 <!-- Contact -->
 <!-- ####### -->
@@ -350,6 +332,34 @@
       <ContextScope>UnknownContext</ContextScope>
       <TypeKind>Integer</TypeKind>
       <TypeSize>4</TypeSize>
+      <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>Double</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.01020200.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Double</Name>
+      <Applications>ASPA</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Float</TypeKind>
+      <TypeSize>8</TypeSize>
+      <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>HalfFloat</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.01020300.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>HalfFloat</Name>
+      <Applications>ASPA</Applications>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Float</TypeKind>
+      <TypeSize>2</TypeSize>
       <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
     </Entry>
     <Entry>
@@ -2967,6 +2977,22 @@
           <Value>urn:smpte:ul:060e2b34.0401010d.04010101.010d0000</Value>
           <IsDeprecated>false</IsDeprecated>
         </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.010e0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.010f0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.01100000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.01110000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
       </Facets>
     </Entry>
     <Entry>
@@ -3089,6 +3115,30 @@
           <Value>urn:smpte:ul:060e2b34.0401010d.04010101.03080000</Value>
           <IsDeprecated>false</IsDeprecated>
         </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.03090000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.030a0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.030b0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.030c0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.030d0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.030e0000</Value>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
       </Facets>
     </Entry>
     <Entry>
@@ -3130,6 +3180,10 @@
         <Facet>
           <Value>urn:smpte:ul:060e2b34.0401010d.04010101.02060000</Value>
           <Applications>AAF[1.1:]</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Value>urn:smpte:ul:060e2b34.0401010d.04010101.02070000</Value>
           <IsDeprecated>false</IsDeprecated>
         </Facet>
       </Facets>
@@ -3975,6 +4029,19 @@
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>HalfFloatArray</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.04011300.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>HalfFloatArray</Name>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>VariableArray</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01020300.00000000</BaseType>
+      <TypeQualifiers>isOrdered</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>VC2WaveletArray</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.04011400.00000000</UL>
       <Kind>LEAF</Kind>
@@ -4340,6 +4407,19 @@
       <DefiningDocument>SMPTE ST 377-1</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
       <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Rename</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.04100100.00000000</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ST2109PayloadSeries</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.04100b00.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ST 2109 Payload Series</Name>
+      <DefiningDocument>SMPTE ST 2109</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
       <TypeKind>Rename</TypeKind>
       <BaseType>urn:smpte:ul:060e2b34.01040101.04100100.00000000</BaseType>
     </Entry>
