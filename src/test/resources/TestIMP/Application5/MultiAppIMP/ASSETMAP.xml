@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:5671d298-ce6e-4a28-95d9-83778b52104b</Id>
+  <Creator language="en">IMF-Tool 1.5.293</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2019-04-13T03:14:41Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:eaf76289-fd79-477f-9526-e34d69a8f57a</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_eaf76289-fd79-477f-9526-e34d69a8f57a.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:a74cc26b-a87d-4fde-9a28-1865a5ef33db</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_a74cc26b-a87d-4fde-9a28-1865a5ef33db.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:be8dd1cf-f6e0-4455-ac6f-b22d28557755</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_be8dd1cf-f6e0-4455-ac6f-b22d28557755.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:1c43e7a3-f3e1-4e1a-a706-a7c28c388863</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_1c43e7a3-f3e1-4e1a-a706-a7c28c388863.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

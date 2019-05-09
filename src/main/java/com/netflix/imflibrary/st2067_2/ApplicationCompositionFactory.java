@@ -46,9 +46,14 @@ public class ApplicationCompositionFactory {
         add("http://www.smpte-ra.org/schemas/2067-21/2016");
     }});
 
+    private static final Set<String> namespacesApplication5Composition = Collections.unmodifiableSet(new HashSet<String>() {{
+        add("http://www.smpte-ra.org/ns/2067-50/2017");
+    }});
+
     public enum ApplicationCompositionType {
         APPLICATION_2_COMPOSITION_TYPE(Application2Composition.class,          namespacesApplication2Composition),
         APPLICATION_2E_COMPOSITION_TYPE(Application2ExtendedComposition.class, namespacesApplication2EComposition),
+        APPLICATION_5_COMPOSITION_TYPE(Application5Composition.class,          namespacesApplication5Composition),
         APPLICATION_UNSUPPORTED_COMPOSITION_TYPE(ApplicationUnsupportedComposition.class, Collections.unmodifiableSet(new HashSet<>()));
         private Set<String> nameSpaceSet;
         private Class<?> clazz;
