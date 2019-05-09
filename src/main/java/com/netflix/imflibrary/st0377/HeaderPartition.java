@@ -686,7 +686,18 @@ public final class HeaderPartition
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }*/
-        } else if (this.hasIABEssenceDescriptor()) {
+        }
+        return rfc5646SpokenLanguage;
+    }
+    /**
+     * A method that returns the spoken language within this essence provided it is an IAB Essence
+     * @return string representing a spoken language as defined in RFC-5646, null if the spoken language tag is missing
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    @Nullable
+    public String getIABEssenceSpokenLanguage() throws IOException {
+        String rfc5646SpokenLanguage = null;
+        if (this.hasIABEssenceDescriptor()) {
             List<InterchangeObject> soundfieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
             for (InterchangeObject subDescriptor : soundfieldLabelSubDescriptors) {
                 IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
@@ -1342,6 +1353,8 @@ public final class HeaderPartition
                     return KaraokeEssence;
                 case "AncillaryDataEssence":
                     return AncillaryDataEssence;
+                case "IABEssence":
+                    return IABEssence;
                 case "UnsupportedEssence":
                 default:
                     return UnsupportedEssence;
