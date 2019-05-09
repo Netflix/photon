@@ -50,6 +50,7 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String componentMaxRefUL = "urn:smpte:ul:060e2b34.01010105.04010503.0b000000";
     public static final String blackRefLevelUL = "urn:smpte:ul:060e2b34.01010101.04010503.03000000";
     public static final String whiteRefLevelUL = "urn:smpte:ul:060e2b34.01010101.04010503.04000000";
+    public static final String componentDepthUL = "urn:smpte:ul:060e2b34.01010102.04010503.0a000000";
     public static final String horizontalSubSamplingUL = "urn:smpte:ul:060e2b34.01010101.04010501.05000000";
     public static final String verticalSubSamplingUL = "urn:smpte:ul:060e2b34.01010102.04010501.10000000";
     public static final String containerFormatUL = "urn:smpte:ul:060e2b34.01010102.06010104.01020000";

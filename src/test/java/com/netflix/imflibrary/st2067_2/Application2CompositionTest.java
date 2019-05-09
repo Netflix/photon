@@ -2,19 +2,12 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
-import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Test(groups = "unit")
 public class Application2CompositionTest
@@ -106,7 +99,25 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
+    }
+
+    @Test
+    public void app2CompositionJPEG2000SubDescriptorMissingComponentDepthErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError_componentDepth_missing.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
+    }
+
+    @Test
+    public void app2CompositionJPEG2000SubDescriptorComponentDepthPixelDepthMismatchErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError_componentDepth_mismatch.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
     }
 
     @Test
@@ -115,7 +126,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_JPEG2000SubDescriptorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
     }
 
     @Test
@@ -124,7 +135,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_J2CLayoutError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
     }
 
     @Test
@@ -133,7 +144,7 @@ public class Application2CompositionTest
                 ("TestIMP/Application2/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_RGBAComponentError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
     }
 
     @Test

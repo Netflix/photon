@@ -97,6 +97,13 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.9'
 }
 
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
 //Following line will enable including compile time dependencies as a part of the
 //compile and build process.
 //assemble.dependsOn getDependencies
