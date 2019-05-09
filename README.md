@@ -1,21 +1,3 @@
-
-# How to use
-The IMPAnalyzer now supports the following option:
-```
-java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer <directory> [-a <APPSTRING> | --application <APPSTRING>]
-```
-```
-Options:
--a | --application <APPSTRING>      IMF Application to test against, supported values for <APPSTRING> are app2, app2E or app5
-```
-
-Notes:
-1. The option "-a | --application" is supported for the application ```IMPAnalyzer``` only.
-
-2. By default, Photon tests against the Application specified in the ```ApplicationIdentification``` element of a CPL.
-
-3. Use "--application" to force Photon to test against a specific IMF Application
-
 # Photon
 
 Photon is a Java implementation of the Interoperable Master Format (IMF) standard. IMF is a SMPTE standard whose core constraints are defined in the specification st2067-2:2013. Photon offers tools for parsing, interpreting and validating constituent files that make an Interoperable Master Package (IMP). These include AssetMap (st429-9:2014), PackingList (st429-8:2007), Composition Playlist (st2067-3:2013), and the essence containing IMF track file (st2067-5:2013) which follows the Material eXchange Format (MXF) format (st377-1:2011). Specifically, Photon parses and completely reads an MXF file containing a single audio or video essence as defined by the IMF Essence Component specification (st2067-5:2013) and serializes the metadata into the IMF Composition Playlist structure.
@@ -85,7 +67,7 @@ java -cp ./build/libs/*: com.netflix.imflibrary.st0429_8.PackingList packing_lis
 java -cp ./build/libs/*: com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
 ```
 ```
-java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path [-a <APPSTRING> | --application <APPSTRING>]
+java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path
 ```
 
 For Windows please refer to the following examples
@@ -112,5 +94,5 @@ java -cp build\libs\*; com.netflix.imflibrary.st0429_8.PackingList packing_list_
 java -cp build\libs\*; com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
 ```
 ```
-java -cp build\libs\*; com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path [-a <APPSTRING> | --application <APPSTRING>]
+java -cp build\libs\*; com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path
 ```

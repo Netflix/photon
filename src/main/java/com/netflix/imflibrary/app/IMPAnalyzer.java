@@ -18,7 +18,6 @@ import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
@@ -56,7 +55,6 @@ public class IMPAnalyzer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
     private static final Logger logger = LoggerFactory.getLogger(IMPAnalyzer.class);
-    private static ApplicationCompositionType expectedAppType;
 
     private static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
                                                                                 headerPartitionPayloadRecords) throws
@@ -236,11 +234,6 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile, ApplicationCompositionType rExpectedAppType) throws IOException {
-        expectedAppType = rExpectedAppType;
-        return analyzePackage(rootFile);
-    }
-
     public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile) throws IOException {
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -328,8 +321,6 @@ public class IMPAnalyzer {
             imfErrorLogger.addAllErrors(e.getErrors());
             errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
         }
-        // Reset expectedAppType, needs to be set explicitly for each subsequent call of analyzePackage()
-        expectedAppType = null;
 
         return errorMap;
     }
@@ -455,13 +446,6 @@ public class IMPAnalyzer {
                             continue;
                         }
 
-                        ApplicationCompositionType applicationCompositionType = applicationComposition.getApplicationCompositionType();
-                        if ((expectedAppType != null) && !expectedAppType.equals(applicationCompositionType)) {
-                            compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                    String.format("CPL Application is %s vs. expected %s", applicationComposition.getApplicationCompositionType().toString(), expectedAppType.toString()));
-                        }
-
                         applicationCompositionList.add(applicationComposition);
                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                 .keySet();
@@ -561,8 +545,6 @@ public class IMPAnalyzer {
         sb.append(String.format("%s <asset_map_file>%n", IMPAnalyzer.class.getName()));
         sb.append(String.format("%s <pkl_file>%n", IMPAnalyzer.class.getName()));
         sb.append(String.format("%s <mxf_file>%n", IMPAnalyzer.class.getName()));
-        sb.append(String.format("options:            %n"));
-        sb.append(String.format("-a, --application APPSTRING      Force to test against a specific IMF Application, supported values for APPSTRING are app2, app2E or app5%n"));
         return sb.toString();
     }
 
@@ -595,7 +577,7 @@ public class IMPAnalyzer {
 
     public static void main(String args[]) throws IOException
     {
-        if ((args.length != 1) && (args.length != 3))
+        if (args.length != 1)
         {
             logger.error(usage());
             System.exit(-1);
@@ -606,33 +588,6 @@ public class IMPAnalyzer {
         if(!inputFile.exists()){
             logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
             System.exit(-1);
-        }
-
-        for(int argIdx = 1; argIdx < args.length; ++argIdx)
-        {
-            String curArg = args[argIdx];
-            String nextArg = argIdx < args.length - 1 ? args[argIdx + 1] : "";
-            if(curArg.equalsIgnoreCase("--application") || curArg.equalsIgnoreCase("-a")) {
-                if(nextArg.length() == 0 || nextArg.charAt(0) == '-') {
-                    logger.error(usage());
-                    System.exit(-1);
-                }
-                if (nextArg.equalsIgnoreCase("app2")) {
-                    expectedAppType = ApplicationCompositionType.APPLICATION_2_COMPOSITION_TYPE;
-                } else if (nextArg.equalsIgnoreCase("app2E")) {
-                    expectedAppType = ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE;
-                } else if (nextArg.equalsIgnoreCase("app5")) {
-                    expectedAppType = ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE;
-                } else {
-                    logger.error(usage());
-                    System.exit(-1);
-                }
-                argIdx++;
-            }
-            else {
-                logger.error(usage());
-                System.exit(-1);
-            }
         }
 
         if(inputFile.isDirectory()) {

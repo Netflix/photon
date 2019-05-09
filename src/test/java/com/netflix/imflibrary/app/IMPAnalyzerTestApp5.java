@@ -37,7 +37,7 @@ public class IMPAnalyzerTestApp5
     public void IMPAnalyzerTestApp5() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {

@@ -37,7 +37,7 @@ public class IMPAnalyzerTestApp5Errors
     public void IMPAnalyzerTestApp5Errors() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5TestDiscontinuityAndVideoLineMapError/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile, ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
