@@ -66,7 +66,24 @@ final class IMFCompositionPlaylistType {
     private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
     private final IMFErrorLogger imfErrorLogger;
     private final String coreConstraintsVersion;
-    private final String applicationId;
+    private final Set<String> applicationIdSet;
+
+
+    @Deprecated
+    public IMFCompositionPlaylistType(String id,
+                                      List<Long> editRate,
+                                      String annotation,
+                                      String issuer,
+                                      String creator,
+                                      String contentOriginator,
+                                      String contentTitle,
+                                      List<IMFSegmentType> segmentList,
+                                      List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
+                                      String coreConstraintsVersion,
+                                      String applicationId)
+    {
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsVersion, new HashSet<String>(Arrays.asList(applicationId)));
+    }
 
     public IMFCompositionPlaylistType(String id,
                                    List<Long> editRate,
@@ -78,7 +95,7 @@ final class IMFCompositionPlaylistType {
                                    List<IMFSegmentType> segmentList,
                                    List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                    String coreConstraintsVersion,
-                                   String applicationId)
+                                   @Nonnull Set<String> applicationIds)
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
         Composition.EditRate rate = null;
@@ -101,7 +118,7 @@ final class IMFCompositionPlaylistType {
         this.segmentList       = segmentList;
         this.essenceDescriptorList  = essenceDescriptorList;
         this.coreConstraintsVersion = coreConstraintsVersion;
-        this.applicationId          = applicationId;
+        this.applicationIdSet = applicationIds;
 
         if(imfErrorLogger.hasFatalErrors())
         {
@@ -440,8 +457,21 @@ final class IMFCompositionPlaylistType {
      *
      * @return a string representing ApplicationIdentification for this CompositionPlaylist
      */
+    @Deprecated
     public String getApplicationIdentification() {
-        return this.applicationId;
+        if (this.applicationIdSet.size() > 0) {
+            return this.applicationIdSet.iterator().next();
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * Getter for the ApplicationIdentification Set corresponding to this CompositionPlaylist
+     *
+     * @return a set of all the strings representing ApplicationIdentification for this CompositionPlaylist
+     */
+    public Set<String> getApplicationIdentificationSet() {
+        return this.applicationIdSet;
+    }
 }

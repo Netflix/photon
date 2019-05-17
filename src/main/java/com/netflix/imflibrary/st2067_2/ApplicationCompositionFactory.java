@@ -101,22 +101,30 @@ public class ApplicationCompositionFactory {
 
         try {
             IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, imfErrorLogger);
-            String applicationIdentification = imfCompositionPlaylistType.getApplicationIdentification();
-            ApplicationCompositionType applicationCompositionType = ApplicationCompositionType.fromApplicationID(applicationIdentification);
-
-            if(applicationCompositionType == null) {
+            if (imfCompositionPlaylistType.getApplicationIdentificationSet().size() == 0) {
                 clazz = Application2ExtendedComposition.class;
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
-            }
-            else
-            {
-                clazz = applicationCompositionType.getClazz();
-            }
+                        String.format("Missing ApplicationIdentification in CPL"));
+                Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class, Set.class);
+                composition = (ApplicationComposition) constructor.newInstance(imfCompositionPlaylistType, homogeneitySelectionSet);
+                imfErrorLogger.addAllErrors(composition.getErrors());
+            } else {
+                for (String applicationIdentification : imfCompositionPlaylistType.getApplicationIdentificationSet()) {
+                    ApplicationCompositionType applicationCompositionType = ApplicationCompositionType.fromApplicationID(applicationIdentification);
 
-            Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class, Set.class);
-            composition = (ApplicationComposition)constructor.newInstance(imfCompositionPlaylistType, homogeneitySelectionSet);
-            imfErrorLogger.addAllErrors(composition.getErrors());
+                    if (applicationCompositionType == null) {
+                        clazz = Application2ExtendedComposition.class;
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("Unsupported/Missing ApplicationIdentification %s in CPL", applicationIdentification));
+                    } else {
+                        clazz = applicationCompositionType.getClazz();
+                    }
+
+                    Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class, Set.class);
+                    composition = (ApplicationComposition) constructor.newInstance(imfCompositionPlaylistType, homogeneitySelectionSet);
+                    imfErrorLogger.addAllErrors(composition.getErrors());
+                }
+            }
         }
         catch(IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
