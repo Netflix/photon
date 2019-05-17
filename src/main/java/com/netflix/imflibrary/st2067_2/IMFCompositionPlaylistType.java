@@ -87,7 +87,7 @@ final class IMFCompositionPlaylistType {
                                       String coreConstraintsVersion,
                                       String applicationId)
     {
-        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsVersion, new HashSet<String>(Arrays.asList(applicationId)));
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsVersion, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
     }
 
     public IMFCompositionPlaylistType(String id,
