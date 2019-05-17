@@ -68,7 +68,12 @@ final class IMFCompositionPlaylistType {
     private final String coreConstraintsVersion;
     private final Set<String> applicationIdSet;
 
-
+    /**
+     * @deprecated
+     * This constructor is the legacy constructor, it uses a single String for the application id
+     * but a CPL may declare that it conforms to multiple application ids.
+     * The constructor using a Set should be preferred.
+     */
     @Deprecated
     public IMFCompositionPlaylistType(String id,
                                       List<Long> editRate,
@@ -456,13 +461,16 @@ final class IMFCompositionPlaylistType {
      * Getter for the ApplicationIdentification corresponding to this CompositionPlaylist
      *
      * @return a string representing ApplicationIdentification for this CompositionPlaylist
+     *
+     * @deprecated
+     * A CPL may declare multiple Application identifiers, the getter that returns a Set should be used instead.
      */
     @Deprecated
     public String getApplicationIdentification() {
         if (this.applicationIdSet.size() > 0) {
             return this.applicationIdSet.iterator().next();
         } else {
-            return null;
+            return "";
         }
     }
 
