@@ -549,8 +549,15 @@ public class IMPAnalyzer {
     }
 
 
-    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
+    /**
+     * Log fatal, non-fatal, & warnings
+     * @param file source file being analyzed
+     * @param errors List<ErrorLogger.ErrorObject>
+     * @return boolean indicating whether there were fatal or non-fatal errors.
+     */
+    private static boolean logErrors(String file, List<ErrorLogger.ErrorObject> errors)
     {
+        boolean hasErrors = false;
         if(errors.size()>0)
 
         {
@@ -559,8 +566,10 @@ public class IMPAnalyzer {
             logger.info(String.format("%s has %d errors and %d warnings", file,
                     errors.size() - warningCount, warningCount));
             for (ErrorLogger.ErrorObject errorObject : errors) {
-                if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL ||
+                        errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) {
                     logger.error("\t\t" + errorObject.toString());
+                    hasErrors = true;
                 } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
                     logger.warn("\t\t" + errorObject.toString());
                 }
@@ -572,7 +581,7 @@ public class IMPAnalyzer {
         {
             logger.info(String.format("%s has no errors or warnings", file));
         }
-
+        return hasErrors;
     }
 
     public static void main(String args[]) throws IOException
@@ -590,6 +599,7 @@ public class IMPAnalyzer {
             System.exit(-1);
         }
 
+        boolean hasErrors = false;
         if(inputFile.isDirectory()) {
             logger.info("==========================================================================" );
             logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
@@ -598,7 +608,9 @@ public class IMPAnalyzer {
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
+                    if (logErrors(entry.getKey(), entry.getValue()) == true) {
+                        hasErrors = true;
+                    }
                 }
             }
 
@@ -610,7 +622,9 @@ public class IMPAnalyzer {
 
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
+                    if (logErrors(entry.getKey(), entry.getValue()) == true) {
+                        hasErrors = true;
+                    }
                 }
             }
         }
@@ -620,7 +634,12 @@ public class IMPAnalyzer {
             logger.info(String.format("Analyzing file %s", inputFile.getName()));
             logger.info("==========================================================================\n");
             List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrors(inputFile.getName(), errors);
+            if (logErrors(inputFile.getName(), errors) == true) {
+                hasErrors = true;
+            }
+        }
+        if (hasErrors) {
+            System.exit(-1);
         }
     }
 }
