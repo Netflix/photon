@@ -439,38 +439,45 @@ final class IMFTrackFileCPLBuilder {
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
+        File outputFile;
         try
         {
             IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
             sb.append(imfTrackFileReader.getRandomIndexPack(imfErrorLogger));
             logger.info(String.format("%s", sb.toString()));
 
-            imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
+            outputFile = imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
         }
         catch(IOException e)
         {
             throw new IMFException(e);
         }
-        List<ErrorLogger.ErrorObject> errors = imfErrorLogger.getErrors();
-        if(errors.size() > 0){
-            long warningCount = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
-                    .WARNING)).count();
-            logger.info(String.format("IMFTrackFile has %d errors and %d warnings",
-                    errors.size() - warningCount, warningCount));
-            for(ErrorLogger.ErrorObject errorObject : errors){
-                if(errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                    logger.error(errorObject.toString());
+        List<ErrorLogger.ErrorObject> errorsAndWarnings = imfErrorLogger.getErrors();
+        if (errorsAndWarnings.size() > 0) {
+            long errorCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).count();
+            long warningCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).count();
+            long nonFatalCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).count();
+
+            if (warningCount > 0) {
+                logger.warn("IMFTrackFile has {} warnings:", warningCount);
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (errorCount > 0 || nonFatalCount > 0) {
+                if (errorCount > 0) {
+                    logger.error("IMFTrackFile has {} errors:", errorCount);
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
                 }
-                else if(errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                    logger.warn(errorObject.toString());
+                if (nonFatalCount > 0) {
+                    logger.error("IMFTrackFile has {} non-fatal errors:", nonFatalCount);
+                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.error(er.toString()));
                 }
+                System.exit(-1);
             }
         }
-        else{
-            logger.info(imfTrackFileReader.toString());
-            logger.info("No errors were detected in the IMFTrackFile");
-        }
+        logger.info(String.format("IMFTrackFile %s created successfully", outputFile.getName()));
+
+
     }
 
 }
