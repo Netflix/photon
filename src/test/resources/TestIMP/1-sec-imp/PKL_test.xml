@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:b59596a0-6f32-4a6e-8afd-d35a7857012c</Id>
+  <AnnotationText>Sample IMP</AnnotationText>
+  <IssueDate>2019-06-05T00:39:56-00:00</IssueDate>
+  <Issuer>Netflix</Issuer>
+  <Creator>Netflix</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:1304a785-9ab6-4716-b9b2-6fcdad62f883</Id>
+      <AnnotationText>black-1sec.mxf</AnnotationText>
+      <Hash>8SC6DosM9Hq9qclqnHzltaLrOIU=</Hash>
+      <Size>41712</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>black-1sec.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:a7bf1451-658f-4d87-8ba0-a6fddd7e34a4</Id>
+      <AnnotationText>stereo.mxf</AnnotationText>
+      <Hash>g6gHVIeUP4mDpap+E0NWukc9TsU=</Hash>
+      <Size>305022</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>stereo-en.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:5ae73dbf-7e09-4a5e-b7d6-f165a25f71d8</Id>
+      <AnnotationText>CPL_test.xml</AnnotationText>
+      <Hash>0oCdJTgPmk4O5Gr6XA52/FruOAw=</Hash>
+      <Size>14203</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_test.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

@@ -298,7 +298,7 @@ public class IMPFixer {
         return trackFileErrorLogger.getErrors();
     }
 
-    private static String usage() {
+    static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
         sb.append(String.format("%s input_package_directory output_package_directory [options]%n", IMPFixer.class.getName()));
@@ -306,8 +306,6 @@ public class IMPFixer {
         sb.append(String.format("-cs, --cpl-schema VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
         sb.append(String.format("-nc, --no-copy                 don't copy track files     %n"));
         sb.append(String.format("-nh, --no-hash                 No update for trackfile hash in PKL %n"));
-
-
         return sb.toString();
     }
 
@@ -318,7 +316,6 @@ public class IMPFixer {
 
         if (args.length < 2) {
             String message = usage();
-            logger.error(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -326,7 +323,6 @@ public class IMPFixer {
         File inputFile = new File(inputFileName);
         if (!inputFile.exists()) {
             String message = String.format("File %s does not exist", inputFile.getAbsolutePath());
-            logger.error(message);
             throw new FileNotFoundException(message);
         }
 
@@ -334,7 +330,6 @@ public class IMPFixer {
         File outputFile = new File(outputFileName);
         if (!outputFile.exists() && !outputFile.mkdir()) {
             String message = String.format("Directory %s cannot be created", outputFile.getAbsolutePath());
-            logger.error(message);
             throw new FileNotFoundException(message);
         }
 
@@ -347,8 +342,7 @@ public class IMPFixer {
             String curArg = args[argIdx];
             String nextArg = argIdx < args.length - 1 ? args[argIdx + 1] : "";
             if(curArg.equalsIgnoreCase("--cpl-schema") || curArg.equalsIgnoreCase("-cs")) {
-                if(nextArg.length() == 0 || nextArg.charAt(0) == '-') {
-                    logger.error(usage());
+                if(nextArg.length() == 0 || !Arrays.asList("2013", "2016").contains(nextArg)) {
                     throw new IllegalArgumentException(usage());
                 }
                 versionCPLSchema = nextArg;
@@ -361,14 +355,12 @@ public class IMPFixer {
                 generateHash = false;
             }
             else {
-                logger.error(usage());
                 throw new IllegalArgumentException(usage());
             }
         }
 
-        if (!inputFile.exists() || !inputFile.isDirectory()) {
-            String message = String.format("Invalid input package path");
-            logger.error(message);
+        if (!inputFile.isDirectory()) {
+            String message = String.format("Invalid input package path: %s", inputFileName);
             throw new IllegalArgumentException(message);
         }
 
@@ -384,17 +376,8 @@ public class IMPFixer {
             }
 
             if (errorCount > 0 || nonFatalCount > 0) {
-                if (errorCount > 0) {
-                    logger.error("IMPWriter encountered errors:");
-                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
-                }
-                if (nonFatalCount > 0) {
-                    logger.error("IMPWriter encountered non-fatal issues:");
-                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.error(er.toString()));
-                }
-                String message = errorsAndWarnings.stream().filter(e ->
-                        (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL))
-                ).map(er -> er.toString()).collect(Collectors.joining(System.lineSeparator()));
+                String message = errorsAndWarnings.stream().filter(e -> (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)))
+                        .map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
                 throw new IMFException(message);
             }
         }
