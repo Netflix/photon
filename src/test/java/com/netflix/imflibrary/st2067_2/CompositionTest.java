@@ -22,8 +22,9 @@ public class CompositionTest
     @Test
     public void testCompositionPlaylist() throws Exception
     {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(applicationComposition.toString().length() > 0);
         Assert.assertEquals(applicationComposition.getEditRate().getNumerator().longValue(), 24);
@@ -295,5 +296,41 @@ public class CompositionTest
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack6) == false);
         Assert.assertTrue(virtualTrack7.equivalent(virtualTrack8) == true);
         Assert.assertTrue(virtualTrack9.equivalent(virtualTrack10) == true);
+    }
+
+    @Test
+    public void compositionWithMultipleApplicationIdentificationPositiveTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ApplicationIdentification/CPL-multiple-values-supported.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+    }
+
+    @Test
+    public void compositionWithMultipleApplicationIdentificationDuplicatePositiveTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ApplicationIdentification/CPL-multiple-values-supported-duplicated.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+    }
+
+    @Test
+    public void compositionWithMultipleApplicationIdentificationPartialNegativeTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ApplicationIdentification/CPL-multiple-values-partially-supported.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void compositionWithMultipleApplicationIdentificationFullyNegativeTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ApplicationIdentification/CPL-multiple-values-non-supported.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 }
