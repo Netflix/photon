@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import static org.testng.Assert.fail;
 
 @Test(groups = "unit")
 public class IMPAnalyzerTest
@@ -69,6 +70,7 @@ public class IMPAnalyzerTest
         }
     }
 
+
     @Test
     public void testMainBadIMP() throws Exception {
         try {
@@ -76,12 +78,32 @@ public class IMPAnalyzerTest
                     TestHelper.findResourceByPath("test_mapped_file_set").getAbsolutePath()
             });
         } catch (IMFException ex) {
+            assert ex.getMessage().contains("IMP validation failed:" + System.lineSeparator());
             assert ex.getMessage().contains("Unsupported/Missing ApplicationIdentification");
             assert ex.getMessage().contains("is not an integer");
             assert ex.getMessage().contains("EssenceDescriptorList is either absent or empty");
             assert ex.getMessage().contains("Failed to get header partition");
-            assert ex.getMessage().contains("CPL resource 93c158aa-b9e8-152e-9f17-0e9a350ff9ac is not present in the package");
+            assert !ex.getMessage().contains("PKL_51edd4be-4506-494d-a58e-516553055c33.xml:"): "Error: message " +
+                    "should not contain PKL_51edd4be-4506-494d-a58e-516553055c33.xml: \n" + ex.getMessage();
         }
+    }
+
+    @Test(expectedExceptions = IMFException.class, expectedExceptionsMessageRegExp = "IMP validation failed:\nERROR-Unsupported/Missing ApplicationIdentification.*")
+    public void testMainIndividualAssets() throws Exception {
+        IMPAnalyzer.main(new String[] {
+                TestHelper.findResourceByPath("test_mapped_file_set/ASSETMAP.xml").getAbsolutePath()
+        });
+        IMPAnalyzer.main(new String[] {
+                TestHelper.findResourceByPath("test_mapped_file_set/PKL_51edd4be-4506-494d-a58e-516553055c33.xml").getAbsolutePath()
+        });
+        IMPAnalyzer.main(new String[] {
+                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml").getAbsolutePath()
+        });
+        IMPAnalyzer.main(new String[] {
+                TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml").getAbsolutePath()
+        });
+        fail();
+
     }
 
 }

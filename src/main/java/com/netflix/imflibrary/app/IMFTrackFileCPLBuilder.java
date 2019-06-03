@@ -68,6 +68,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -84,7 +85,7 @@ final class IMFTrackFileCPLBuilder {
     private final IMFTrackFileReader imfTrackFileReader;
     private final RegXMLLibHelper regXMLLibHelper;
     private final File workingDirectory;
-    private final org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot;
+    final org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot;
     private final File mxfFile;
     private final String fileName;
 
@@ -230,7 +231,7 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.setCompositionTimecode(null);
     }
 
-    private void buildSampleCompositionTimeCode(IMFErrorLogger imfErrorLogger) throws IOException {
+    void buildSampleCompositionTimeCode(IMFErrorLogger imfErrorLogger) throws IOException {
         /* Following serves as SampleCode to getCompositionPlaylist a CompositionTimecode object*/
         CompositionTimecodeType compositionTimecodeType = this.cplRoot.getCompositionTimecode();
         compositionTimecodeType.setTimecodeDropFrame(false);/*TimecodeDropFrame set to false by default*/
@@ -242,7 +243,7 @@ final class IMFTrackFileCPLBuilder {
         this.cplRoot.setLocaleList(null);
     }
 
-    private void buildSampleLocaleList(){
+    void buildSampleLocaleList(){
         /*Following serves as SampleCode to getCompositionPlaylist a SampleLocaleList*/
         List<LocaleType> list = this.cplRoot.getLocaleList().getLocale();
         LocaleType localeType = new LocaleType();
@@ -413,7 +414,7 @@ final class IMFTrackFileCPLBuilder {
         return this.regXMLLibHelper.getEssenceDescriptorDocumentFragment(essenceDescriptorTriplet, subDescriptorTriplets, document, imfErrorLogger);
     }
 
-    private static String usage()
+    static String usage()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
@@ -425,14 +426,12 @@ final class IMFTrackFileCPLBuilder {
 
         if (args.length != 2)
         {
-            logger.error(usage());
-            throw new IllegalArgumentException("Invalid parameters");
+            throw new IllegalArgumentException(String.format("Invalid parameters:%s%s", System.lineSeparator(), usage()));
         }
 
         File inputFile = new File(args[0]);
         if(!inputFile.exists()){
             String message = String.format("File %s does not exist", inputFile.getAbsolutePath());
-            logger.error(message);
             throw new FileNotFoundException(message);
         }
         File workingDirectory = new File(args[1]);
@@ -452,7 +451,7 @@ final class IMFTrackFileCPLBuilder {
             File byteRangeFile = new File(workingDirectory, "range");
             if (byteRangeFile.exists()) {
                 if (!byteRangeFile.delete()) {
-                    logger.error("Unable to delete temp file: {}", byteRangeFile.getAbsolutePath());
+                    throw new FileSystemException(String.format("Unable to delete temp file: %s", byteRangeFile.getAbsolutePath()));
                 }
             }
         }
@@ -472,18 +471,10 @@ final class IMFTrackFileCPLBuilder {
             }
 
             if (errorCount > 0 || nonFatalCount > 0) {
-                if (errorCount > 0) {
-                    logger.error("IMFTrackFile has {} errors:", errorCount);
-                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).forEach(er -> logger.error(er.toString()));
-                }
-                if (nonFatalCount > 0) {
-                    logger.error("IMFTrackFile has {} non-fatal errors:", nonFatalCount);
-                    errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).forEach(er -> logger.error(er.toString()));
-                }
-                String message = errorsAndWarnings.stream().filter(e ->
-                        (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL))
-                ).map(er -> er.toString()).collect(Collectors.joining(System.lineSeparator()));
-                throw new IMFException(message);
+                String exceptionMessage = errorsAndWarnings.stream()
+                        .filter(e -> (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)))
+                        .map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
+                throw new IMFException(exceptionMessage);
             }
         }
         logger.info(String.format("IMFTrackFile %s created successfully", outputFile.getName()));
