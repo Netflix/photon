@@ -31,9 +31,13 @@ public class ApplicationUnsupportedComposition extends AbstractApplicationCompos
     public ApplicationUnsupportedComposition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType, Set<String> homogeneitySelectionSet) {
 
         super(imfCompositionPlaylistType, ignoreSet, homogeneitySelectionSet);
-        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                String.format("Application ID %s is not fully supported", imfCompositionPlaylistType.getApplicationIdentification()));
+        for(String appString: imfCompositionPlaylistType.getApplicationIdentificationSet()) {
+            if (ApplicationCompositionType.fromApplicationID(appString).equals(ApplicationCompositionType.APPLICATION_UNSUPPORTED_COMPOSITION_TYPE)){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("Application ID %s is not fully supported", appString));
+            }
+        }
     }
 
     public ApplicationCompositionType getApplicationCompositionType() {
