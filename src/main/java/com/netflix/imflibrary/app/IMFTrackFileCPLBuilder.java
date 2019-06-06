@@ -65,8 +65,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -341,8 +343,7 @@ final class IMFTrackFileCPLBuilder {
         /*Key Id*/
         trackFileResourceType.setKeyId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*Hash*/
-        trackFileResourceType.setHash(IMFUtils.generateSHA1HashAndBase64Encode(this.mxfFile));
-
+        trackFileResourceType.setHash(IMFUtils.generateSHA1Hash(this.mxfFile));
         /*Add the constructed TrackFileResourceType to the ResourceTypes list*/
         BaseResourceType baseResourceType = (BaseResourceType)trackFileResourceType;
         baseResourceTypes.add(baseResourceType);

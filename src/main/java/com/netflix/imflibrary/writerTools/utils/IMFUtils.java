@@ -20,6 +20,7 @@ package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
 import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
@@ -90,6 +91,18 @@ public class IMFUtils {
     }
 
     /**
+     * A method that generates a SHA-1 hash of the file.
+     *
+     * @param file - the file whose SHA-1 hash is to be generated
+     * @return a byte[] representing the generated hash of the file
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public static byte[] generateSHA1Hash(File file) throws IOException {
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(file);
+            return IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+    }
+
+    /**
      * A method that generates a SHA-1 hash of the file and Base64 encode the result.
      *
      * @param file - the file whose SHA-1 hash is to be generated
@@ -97,22 +110,7 @@ public class IMFUtils {
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
     public static byte[] generateSHA1HashAndBase64Encode(File file) throws IOException {
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-            FileInputStream fileInputStream = new FileInputStream(file);
-            byte[] bytes = new byte[1024];
-            int bytesRead = 0;
-            while((bytesRead = fileInputStream.read(bytes)) != -1){
-                messageDigest.update(bytes, 0, bytesRead);
-            }
-            byte[] digest = messageDigest.digest();
-            byte[] base64EncodedDigest = Base64.getEncoder().encodeToString(digest).getBytes("UTF-8");
-            fileInputStream.close();
-            return base64EncodedDigest;
-        }
-        catch (NoSuchAlgorithmException | FileNotFoundException e){
-            throw new IMFException(e);
-        }
+        return generateBase64Encode(generateSHA1Hash(file));
     }
 
     /**
@@ -133,28 +131,32 @@ public class IMFUtils {
      *          specified algorithm.
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static byte[] generateSHA1Hash(ResourceByteRangeProvider resourceByteRangeProvider) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("SHA1");
-        long rangeStart = 0;
-        long rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize()-1)
-                ? resourceByteRangeProvider.getResourceSize()-1
-                : rangeStart + 1023;
-
-        int nread = 0;
-
-        while (rangeStart < resourceByteRangeProvider.getResourceSize()
-                && rangeEnd < resourceByteRangeProvider.getResourceSize()) {
-            byte[] dataBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-            nread = (int)(rangeEnd - rangeStart + 1);
-            md.update(dataBytes, 0, nread);
-            rangeStart = rangeEnd+1;
-            rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize()-1)
-                    ? resourceByteRangeProvider.getResourceSize()-1
+    public static byte[] generateSHA1Hash(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            long rangeStart = 0;
+            long rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize() - 1)
+                    ? resourceByteRangeProvider.getResourceSize() - 1
                     : rangeStart + 1023;
-        };
 
-        byte[] mdbytes = md.digest();
-        return Arrays.copyOf(mdbytes, mdbytes.length);
+            int nread = 0;
+
+            while (rangeStart < resourceByteRangeProvider.getResourceSize()
+                    && rangeEnd < resourceByteRangeProvider.getResourceSize()) {
+                byte[] dataBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+                nread = (int) (rangeEnd - rangeStart + 1);
+                md.update(dataBytes, 0, nread);
+                rangeStart = rangeEnd + 1;
+                rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize() - 1)
+                        ? resourceByteRangeProvider.getResourceSize() - 1
+                        : rangeStart + 1023;
+            }
+            byte[] mdbytes = md.digest();
+            return Arrays.copyOf(mdbytes, mdbytes.length);
+        }
+        catch (NoSuchAlgorithmException e){
+            throw new IMFException(e);
+        }
     }
 
     /**
