@@ -30,11 +30,13 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -189,11 +191,17 @@ public class IMPFixer {
 
             for (PackingList.Asset asset : packingList.getAssets()) {
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                if (!assetFile.exists()) {
+                    throw new FileNotFoundException("Asset listed in PKL not found: " + assetFile.toPath().toString());
+                }
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, new IMFErrorLoggerImpl());
                     headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
+                    if (headerPartitionPayloadRecord == null) {
+                        throw new IMFException("Unable to get header partition payload for file: " + assetFile.toPath().toString());
+                    }
                     byte[] bytes = headerPartitionPayloadRecord.getPayload();
                     byte[] hash = asset.getHash();
                     if( generateHash) {
@@ -290,7 +298,7 @@ public class IMPFixer {
         return trackFileErrorLogger.getErrors();
     }
 
-    private static String usage() {
+    static String usage() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Usage:%n"));
         sb.append(String.format("%s input_package_directory output_package_directory [options]%n", IMPFixer.class.getName()));
@@ -298,32 +306,31 @@ public class IMPFixer {
         sb.append(String.format("-cs, --cpl-schema VERSION      CPL schema version for output IMP, supported values are 2013 or 2016%n"));
         sb.append(String.format("-nc, --no-copy                 don't copy track files     %n"));
         sb.append(String.format("-nh, --no-hash                 No update for trackfile hash in PKL %n"));
-
-
         return sb.toString();
     }
 
 
     public static void main(String args[]) throws
-            IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
+            IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException,
+            NoSuchAlgorithmException, IllegalArgumentException {
 
         if (args.length < 2) {
-            logger.error(usage());
-            System.exit(-1);
+            String message = usage();
+            throw new IllegalArgumentException(message);
         }
 
         String inputFileName = args[0];
         File inputFile = new File(inputFileName);
         if (!inputFile.exists()) {
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
-            System.exit(-1);
+            String message = String.format("File %s does not exist", inputFile.getAbsolutePath());
+            throw new FileNotFoundException(message);
         }
 
         String outputFileName = args[1];
         File outputFile = new File(outputFileName);
         if (!outputFile.exists() && !outputFile.mkdir()) {
-            logger.error(String.format("Directory %s cannot be created", outputFile.getAbsolutePath()));
-            System.exit(-1);
+            String message = String.format("Directory %s cannot be created", outputFile.getAbsolutePath());
+            throw new FileNotFoundException(message);
         }
 
         String versionCPLSchema = "";
@@ -335,9 +342,8 @@ public class IMPFixer {
             String curArg = args[argIdx];
             String nextArg = argIdx < args.length - 1 ? args[argIdx + 1] : "";
             if(curArg.equalsIgnoreCase("--cpl-schema") || curArg.equalsIgnoreCase("-cs")) {
-                if(nextArg.length() == 0 || nextArg.charAt(0) == '-') {
-                    logger.error(usage());
-                    System.exit(-1);
+                if(nextArg.length() == 0 || !Arrays.asList("2013", "2016").contains(nextArg)) {
+                    throw new IllegalArgumentException(usage());
                 }
                 versionCPLSchema = nextArg;
                 argIdx++;
@@ -349,32 +355,33 @@ public class IMPFixer {
                 generateHash = false;
             }
             else {
-                logger.error(usage());
-                System.exit(-1);
+                throw new IllegalArgumentException(usage());
             }
         }
 
-        if (!inputFile.exists() || !inputFile.isDirectory()) {
-            logger.error(String.format("Invalid input package path"));
-            System.exit(-1);
+        if (!inputFile.isDirectory()) {
+            String message = String.format("Invalid input package path: %s", inputFileName);
+            throw new IllegalArgumentException(message);
         }
-        else
-        {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
-            if (errors.size() > 0) {
-                logger.info(String.format("IMPWriter encountered errors:"));
-                for (ErrorLogger.ErrorObject errorObject : errors) {
-                    if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.error(errorObject.toString());
-                    } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.warn(errorObject.toString());
-                    }
-                }
-                System.exit(-1);
-            } else {
-                logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
+
+        List<ErrorLogger.ErrorObject> errorsAndWarnings = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
+        if (errorsAndWarnings.size() > 0) {
+            long errorCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)).count();
+            long warningCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).count();
+            long nonFatalCount = errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)).count();
+
+            if (warningCount > 0) {
+                logger.warn("IMPWriter encountered warnings:");
+                errorsAndWarnings.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.WARNING)).forEach(er -> logger.warn(er.toString()));
+            }
+
+            if (errorCount > 0 || nonFatalCount > 0) {
+                String message = errorsAndWarnings.stream().filter(e -> (e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL) || e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL)))
+                        .map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
+                throw new IMFException(message);
             }
         }
+        logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
     }
 
 }
