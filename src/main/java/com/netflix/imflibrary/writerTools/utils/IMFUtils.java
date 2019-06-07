@@ -18,7 +18,6 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -32,7 +31,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -99,7 +97,18 @@ public class IMFUtils {
      */
     public static byte[] generateSHA1Hash(File file) throws IOException {
             ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(file);
-            return IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+            return IMFUtils.generateHash(resourceByteRangeProvider, "SHA-1");
+    }
+
+    /**
+     * A method that generates a SHA-1 hash of the incoming resource.
+     *
+     * @param resourceByteRangeProvider representing the resource whose digest is to be generated
+     * @return a byte[] representing the generated hash of the file
+     * @throws IOException - any I/O related error will be exposed through an IOException
+     */
+    public static byte[] generateSHA1Hash(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+        return IMFUtils.generateHash(resourceByteRangeProvider, "SHA-1");
     }
 
     /**
@@ -124,16 +133,15 @@ public class IMFUtils {
     }
 
     /**
-     * A method to generate a SHA-1 digest of the incoming resource
-     * @param resourceByteRangeProvider representing the resource whose SHA-1 digest is to be generated
-     * @return a byte[] representing the SHA-1 digest of the resource
-     * @throws NoSuchAlgorithmException - if no Provider supports a MessageDigestSpi implementation for the
-     *          specified algorithm.
+     * A method to generate a digest of the incoming resource for a given algorithm
+     * @param resourceByteRangeProvider representing the resource whose digest is to be generated
+     * @param hashAlgorithm the name of the hash algorithm
+     * @return a byte[] representing the digest of the resource
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static byte[] generateSHA1Hash(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+    public static byte[] generateHash(ResourceByteRangeProvider resourceByteRangeProvider, String hashAlgorithm) throws IOException {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA1");
+            MessageDigest md = MessageDigest.getInstance(hashAlgorithm);
             long rangeStart = 0;
             long rangeEnd = (rangeStart + 1023 > resourceByteRangeProvider.getResourceSize() - 1)
                     ? resourceByteRangeProvider.getResourceSize() - 1
