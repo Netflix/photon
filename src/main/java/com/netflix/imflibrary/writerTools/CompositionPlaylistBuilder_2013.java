@@ -63,6 +63,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -138,15 +139,15 @@ public class CompositionPlaylistBuilder_2013 {
         this.trackResourceSourceEncodingMap = new HashMap<>();//Map of TrackFileId -> SourceEncodingElement of each resource of this VirtualTrack
         this.imfEssenceDescriptorBaseTypeList = Collections.unmodifiableList(imfEssenceDescriptorBaseTypeList);
 
+        Set<UUID> sourceEncodingIds = imfEssenceDescriptorBaseTypeList.stream().map(IMFEssenceDescriptorBaseType::getId).collect(Collectors.toSet());
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
             for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
-                UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
-                if (sourceEncoding == null) {
-                    trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
+                UUID sourceEncodingUUID = UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding());
+                if(sourceEncodingIds.contains(sourceEncodingUUID)) {
+                    trackResourceSourceEncodingMap.putIfAbsent(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), sourceEncodingUUID);
                 }
             }
         }
-
     }
 
 
