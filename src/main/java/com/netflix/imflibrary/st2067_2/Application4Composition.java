@@ -86,6 +86,9 @@ public class Application4Composition extends AbstractApplicationComposition {
 
         try
         {
+            // Validate CPL Constraints
+            validateCompositionPlaylist(imfCompositionPlaylistType, ApplicationCompositionType.APPLICATION_4_COMPOSITION_TYPE, imfErrorLogger);
+            // Validate Image Essence Constraints
             CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = getCompositionImageEssenceDescriptorModel();
 
             if (imageEssenceDescriptorModel != null)
@@ -99,6 +102,43 @@ public class Application4Composition extends AbstractApplicationComposition {
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("Exception in validating EssenceDescriptors in APPLICATION_4_COMPOSITION_TYPE: %s ", e.getMessage()));
         }
+    }
+
+    public static void validateCompositionPlaylist(IMFCompositionPlaylistType imfCompositionPlaylistType,
+                                                   ApplicationCompositionFactory.ApplicationCompositionType applicationCompositionType,
+                                                   IMFErrorLogger imfErrorLogger)
+    {
+        //ContentKind
+        String contentKind = imfCompositionPlaylistType.getContentKind();
+        if(contentKind == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("ContentKind shall be present as per %s", applicationCompositionType.toString()));
+        }
+
+        //Creator
+        String creator = imfCompositionPlaylistType.getCreator();
+        if(creator == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Creator shall be present as per %s", applicationCompositionType.toString()));
+        }
+
+        //Issuer
+        String issuer = imfCompositionPlaylistType.getIssuer();
+        if(issuer == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Issuer shall be present as per %s", applicationCompositionType.toString()));
+        }
+
+        //ContentVersionList
+        if( imfCompositionPlaylistType.getContentVersionList().getContentVersions().size() == 0) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("At least one ContentVersion shall be present as per %s", applicationCompositionType.toString()));
+        }
+
     }
 
 
