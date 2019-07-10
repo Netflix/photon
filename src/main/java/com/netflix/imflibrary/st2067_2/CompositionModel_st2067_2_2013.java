@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
+
 import org.w3c.dom.Element;
 
 
@@ -13,8 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -189,6 +192,11 @@ final class CompositionModel_st2067_2_2013 {
             }
         }
 
+        Map<String, String> contentVersionList = new HashMap<String, String>();
+        for (org.smpte_ra.schemas.st2067_2_2013.ContentVersionType entry : compositionPlaylistType.getContentVersionList().getContentVersion()) {
+            contentVersionList.put(entry.getId(), entry.getLabelText().getValue());
+        }
+
         return new IMFCompositionPlaylistType(compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -196,6 +204,8 @@ final class CompositionModel_st2067_2_2013 {
                 (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue()),
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
+                (compositionPlaylistType.getContentKind() == null ? null : compositionPlaylistType.getContentKind().getValue()),
+                contentVersionList,
                 Collections.synchronizedList(segmentList),
                 Collections.synchronizedList(essenceDescriptorList),
                 "org.smpte_ra.schemas.st2067_2_2013", applicationIDs);

@@ -32,12 +32,14 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.text.AbstractDocument.Content;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -515,6 +517,157 @@ public final class Composition {
         public HeaderPartition getHeaderPartition(){
             return this.headerPartition;
         }
+    }
+
+    /**
+     * This class is an immutable implementation of a content version, described as an ID and a label
+     */
+    @Immutable
+    public static final class ContentVersion {
+        private final String id;
+        private final String labelText;
+
+        /**
+         * Constructor for the content version.
+         *
+         * @param id the Id of the content represented by the CompositionPlaylist
+         * @param labelText the human readable description of the content
+         */
+        public ContentVersion(String id, String labelText) {
+            this.id = id;
+            this.labelText = labelText;
+        }
+
+        /**
+         * Getter for the content version Id
+         *
+         * @return a string value corresponding to the frame rate numerator
+         */
+        public String getId() {
+            return this.id;
+        }
+
+        /**
+         * Getter for the content version description
+         *
+         * @return a string value corresponding to the frame rate denominator
+         */
+        public String getLabelText() {
+            return this.labelText;
+        }
+
+        /**
+         * A method that returns a string representation of a Composition object
+         *
+         * @return string representing the object
+         */
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("=================== ContentVersion =====================\n");
+            sb.append(String.format("id = %s, labelText = %s%n", this.id, this.labelText));
+            return sb.toString();
+        }
+
+        /**
+         * Overridden equals method.
+         *
+         * @param object the ContentVersion to be compared with.
+         * @return boolean false if the object is null or is not an instance of the ContentVersion class.
+         */
+        @Override
+        public boolean equals(Object object) {
+            if (object == null
+                    || !(object instanceof ContentVersion)) {
+                return false;
+            }
+            ContentVersion other = (ContentVersion) object;
+            return ((this.getId().equals(other.getId())) && (this.getLabelText().equals(other.getLabelText())));
+        }
+
+        /**
+         * A Java compliant implementation of the hashCode() method
+         *
+         * @return integer containing the hash code corresponding to this object
+         */
+        @Override
+        public int hashCode() {
+            int hash = 1;
+            hash = hash * 31 + this.id.hashCode();
+            hash = hash * 31 + this.labelText.hashCode();
+            return hash;
+        }
+
+    }
+
+    /**
+     * This class is an immutable implementation of a content version list
+     */
+    @Immutable
+    public static final class ContentVersionList {
+        private final List<ContentVersion> contentVersions;
+        private final IMFErrorLogger imfErrorLogger;
+
+        /**
+         * Constructor for the content version list.
+         *
+         * @param contentVersions the list of content versions
+         */
+        public ContentVersionList(List<ContentVersion> contentVersions) {
+            this.contentVersions = contentVersions;
+
+            this.imfErrorLogger = new IMFErrorLoggerImpl();
+            validateContentVersions();
+        }
+
+        /**
+         * Constructor for the content version list.
+         *
+         * @param contentVersions the list of content versions
+         */
+        public ContentVersionList(Map<String, String> contentVersions) {
+            this.contentVersions = new ArrayList<ContentVersion>();
+            for (Map.Entry<String, String> entry : contentVersions.entrySet()) {
+                this.contentVersions.add(new ContentVersion(entry.getKey(), entry.getValue()));
+            }
+
+            this.imfErrorLogger = new IMFErrorLoggerImpl();
+            validateContentVersions();
+        }
+
+        /**
+         * Validate content version list.
+         *
+         * @throws Validation failed
+         */
+        private void validateContentVersions() {
+
+            Set<String> contentIds = new HashSet<>();
+            for (ContentVersion contentVersion : contentVersions) {
+                contentIds.add(contentVersion.getId());
+            }
+
+            if (contentIds.size() < contentVersions.size()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                        .ErrorLevels.NON_FATAL, String.format(
+                        "No two ContentVersion elements shall have identical Id elements"));
+
+            }
+
+            if(imfErrorLogger.hasFatalErrors())
+            {
+                throw new IMFException("Failed to create IMFBaseResourceType", imfErrorLogger);
+            }
+        }
+
+        /**
+         * Getter for the content version list
+         *
+         * @return a list value containing all content versions
+         */
+        public List<ContentVersion> getContentVersions() {
+            return this.contentVersions;
+        }
+
     }
 
 }
