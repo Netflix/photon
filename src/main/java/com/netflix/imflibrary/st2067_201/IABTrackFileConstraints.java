@@ -52,7 +52,7 @@ public final class IABTrackFileConstraints {
                     CompoundDataTypes.MXFCollections.MXFCollection<UL> conformsToSpecifications = preface.getConformstoSpecificationsULs();
                     if (conformsToSpecifications == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                String.format("Preface in the IMFTrackFile represented by ID %s does not have the conformsToSpecifications item.", packageID.toString()));
+                                String.format("Preface in the IMFTrackFile represented by ID %s does not have the required conformsToSpecifications item.", packageID.toString()));
                     } else {
                         List specificationsULs = conformsToSpecifications.getEntries();
                         if (specificationsULs.size() == 0) {
@@ -60,7 +60,7 @@ public final class IABTrackFileConstraints {
                                     String.format("Preface in the IMFTrackFile represented by ID %s does not have a single UL in the conformsToSpecifications item.", packageID.toString()));
                         } else if (!specificationsULs.contains(IABEssenceDescriptor.IMF_IAB_TRACK_FILE_LEVEL0_UL)) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                    String.format("Preface in the IMFTrackFile represented by ID %s does not indicate conformance to the IAB Level 0 Plugin specification.", packageID.toString()));
+                                    String.format("Preface in the IMFTrackFile represented by ID %s does not indicate the required IAB Level 0 Plugin UL in the conformsToSpecifications item, but to %s", packageID.toString(), specificationsULs));
                         }
                     }
 
@@ -92,7 +92,7 @@ public final class IABTrackFileConstraints {
 
                     if (!iabEssenceDescriptor.getSoundEssenceCoding().equals(IABEssenceDescriptor.IMMERSIVE_AUDIO_CODING_LABEL)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Immersive Audio Coding value in its Sound Essence Coding item: %s.", packageID.toString(), iabEssenceDescriptor.getSoundEssenceCoding().toString()));
+                                String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Immersive Audio Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), IABEssenceDescriptor.IMMERSIVE_AUDIO_CODING_LABEL, iabEssenceDescriptor.getSoundEssenceCoding().toString()));
                     }
 
                     if (iabEssenceDescriptor.getElectroSpatialFormulation() != null && iabEssenceDescriptor.getElectroSpatialFormulation() != GenericSoundEssenceDescriptor.ElectroSpatialFormulation.MULTI_CHANNEL_MODE) {
@@ -154,7 +154,7 @@ public final class IABTrackFileConstraints {
                                 // Section 4.10.4
                                 if (!iabSoundFieldLabelSubDescriptorBO.getMCATagName().equals(IABSoundfieldLabelSubDescriptor.IAB_MCA_TAG_NAME)) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have a valid MCATagName %s", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCATagName()));
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have a valid MCATagName: %s", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCATagName()));
                                 }
                             }
 
@@ -165,18 +165,18 @@ public final class IABTrackFileConstraints {
                                 // Section 4.10.4
                                 if (!iabSoundFieldLabelSubDescriptorBO.getMCATagSymbol().equals(IABSoundfieldLabelSubDescriptor.IAB_MCA_TAG_SYMBOL)) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have a valid MCATagSymbol %s", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCATagSymbol()));
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have a valid MCATagSymbol: %s", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCATagSymbol()));
                                 }
                             }
 
                             if (iabSoundFieldLabelSubDescriptorBO.getMCALabelDictionnaryId() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCALabelDictionnaryId", packageID.toString()));
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", packageID.toString()));
                             } else {
                                 // Section 4.10.4
                                 if (!iabSoundFieldLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(IABSoundfieldLabelSubDescriptor.IAB_MCA_LABEL_DICTIONNARY_ID_UL)) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have a valid MCA Label Dictionnary Id %s", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCALabelDictionnaryId().toString()));
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s does not have the required MCA Label Dictionary Id %s but %s", packageID.toString(), IABSoundfieldLabelSubDescriptor.IAB_MCA_LABEL_DICTIONNARY_ID_UL, iabSoundFieldLabelSubDescriptorBO.getMCALabelDictionnaryId().toString()));
                                 }
                             }
 

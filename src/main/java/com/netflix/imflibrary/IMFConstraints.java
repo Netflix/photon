@@ -20,12 +20,9 @@ package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
-import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
-import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
@@ -34,7 +31,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -446,6 +442,10 @@ public final class IMFConstraints
                 targetMXFDataDefinition = MXFDataDefinition.PICTURE;
             }
             else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence))
+            {
+                targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
+            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.IABEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
             }
