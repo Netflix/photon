@@ -19,17 +19,10 @@ import java.util.Map;
 @Immutable
 public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
 
-    private final static byte[] IMF_IAB_TRACK_FILE_LEVEL0_KEY = { 0x06, 0x0E, 0x2B, 0x34, 0x04, 0x01, 0x01, 0x0D, 0x01, 0x01, 0x02, 0x01, 0x02, 0x00, 0x00, 0x00};
-    public final static UL IMF_IAB_TRACK_FILE_LEVEL0_UL = new UL(IMF_IAB_TRACK_FILE_LEVEL0_KEY);
-
-    private final static byte[] IMMERSIVE_AUDIO_CODING_KEY = { 0x06, 0x0E, 0x2B, 0x34, 0x04, 0x01, 0x01, 0x05, 0x0E, 0x09, 0x06, 0x04, 0x00, 0x00, 0x00, 0x00};
-    public final static UL IMMERSIVE_AUDIO_CODING_LABEL = new UL(IMMERSIVE_AUDIO_CODING_KEY);
-
-    private final static byte[] IMF_IAB_ESSENCE_CLIP_WRAPPED_ELEMENT_KEY = { 0x06, 0x0E, 0x2B, 0x34, 0x01, 0x02, 0x01, 0x01, 0x0D, 0x01, 0x03, 0x01, 0x16, 0x00, 0x0D, 0x00};
-    public final static UL IMF_IAB_ESSENCE_CLIP_WRAPPED_ELEMENT_UL = new UL(IMF_IAB_ESSENCE_CLIP_WRAPPED_ELEMENT_KEY);
-
-    private final static byte[] IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_KEY = { 0x06, 0x0E, 0x2B, 0x34, 0x04, 0x01, 0x01, 0x0D, 0x0D, 0x01, 0x03, 0x01, 0x02, 0x1D, 0x01, 0x01};
-    public final static UL IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL = new UL(IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_KEY);
+    final static UL IMF_IAB_TRACK_FILE_LEVEL0_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.0401010D.01010201.02000000");
+    public final static UL IMMERSIVE_AUDIO_CODING_LABEL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.04010105.0E090604.00000000");
+    public final static UL IMF_IAB_ESSENCE_CLIP_WRAPPED_ELEMENT_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.01020101.0D010301.16000D00");
+    public final static UL IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.0401010D.0D010301.021D0101");
 
     public IABEssenceDescriptor(IABEssenceDescriptorBO iabEssenceDescriptorBO)
     {

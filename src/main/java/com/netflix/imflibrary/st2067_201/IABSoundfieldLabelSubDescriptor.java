@@ -22,9 +22,7 @@ public final class IABSoundfieldLabelSubDescriptor extends MCALabelSubDescriptor
 
     public static final String IAB_MCA_TAG_SYMBOL = "IAB";
     public static final String IAB_MCA_TAG_NAME = "IAB";
-    private static final byte [] IAB_MCA_LABEL_DICTIONNARY_ID_KEY = { 0x06, 0x0E, 0x2B, 0x34, 0x04, 0x01, 0x01, 0x0D, 0x03, 0x02, 0x02, 0x21, 0x00, 0x00, 0x00, 0x00 };
-    public static final UL IAB_MCA_LABEL_DICTIONNARY_ID_UL = new UL(IAB_MCA_LABEL_DICTIONNARY_ID_KEY);
-
+    public static final UL IAB_MCA_LABEL_DICTIONNARY_ID_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.0401010D.03020221.00000000");
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + IABSoundfieldLabelSubDescriptor.class.getSimpleName() + " : ";
     private final IABSoundfieldLabelSubDescriptorBO iabSoundfieldLabelSubDescriptorBO;
 
