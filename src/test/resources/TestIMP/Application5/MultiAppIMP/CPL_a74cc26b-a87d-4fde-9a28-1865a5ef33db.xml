@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:a74cc26b-a87d-4fde-9a28-1865a5ef33db</Id>
+  <Annotation language="en">US English Version</Annotation>
+  <IssueDate>2019-04-13T03:14:40Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <Creator language="en">IMF-Tool 1.5.293</Creator>
+  <ContentOriginator language="en">WR</ContentOriginator>
+  <ContentTitle language="en">App2 CPL</ContentTitle>
+  <ContentKind scope="http://www.smpte-ra.org/schemas/2067-3/2013#content-kind">feature</ContentKind>
+  <ContentVersionList>
+    <ContentVersion>
+      <Id>urn:uuid:728dc36b-a5dc-40db-8ad6-6d7e24f1fed5</Id>
+      <LabelText language="en"/>
+    </ContentVersion>
+  </ContentVersionList>
+  <EssenceDescriptorList>
+    <EssenceDescriptor>
+      <Id>urn:uuid:adeb0650-b940-45e8-9ab2-7328649b4c16</Id>
+      <r0:CDCIDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
+        <r1:InstanceID>urn:uuid:3d4afa90-54e8-4c68-9151-631cb97a20c6</r1:InstanceID>
+        <r1:SubDescriptors>
+          <r0:JPEG2000SubDescriptor>
+            <r1:InstanceID>urn:uuid:95b697e6-b733-4d90-ac7c-b1b5b815308e</r1:InstanceID>
+            <r1:Rsiz>260</r1:Rsiz>
+            <r1:Xsiz>1920</r1:Xsiz>
+            <r1:Ysiz>1080</r1:Ysiz>
+            <r1:XOsiz>0</r1:XOsiz>
+            <r1:YOsiz>0</r1:YOsiz>
+            <r1:XTsiz>1920</r1:XTsiz>
+            <r1:YTsiz>1080</r1:YTsiz>
+            <r1:XTOsiz>0</r1:XTOsiz>
+            <r1:YTOsiz>0</r1:YTOsiz>
+            <r1:Csiz>3</r1:Csiz>
+            <r1:PictureComponentSizing>
+              <r2:J2KComponentSizing>
+                <r2:Ssiz>9</r2:Ssiz>
+                <r2:XRSiz>1</r2:XRSiz>
+                <r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+              <r2:J2KComponentSizing>
+                <r2:Ssiz>9</r2:Ssiz>
+                <r2:XRSiz>2</r2:XRSiz>
+                <r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+              <r2:J2KComponentSizing>
+                <r2:Ssiz>9</r2:Ssiz>
+                <r2:XRSiz>2</r2:XRSiz>
+                <r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+            </r1:PictureComponentSizing>
+            <r1:CodingStyleDefault>00040100020504040000070707070706</r1:CodingStyleDefault>
+            <r1:J2CLayout>
+              <r2:RGBAComponent>
+                <r2:Code>CompLuma</r2:Code>
+                <r2:ComponentSize>10</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompColorDifferenceU</r2:Code>
+                <r2:ComponentSize>10</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompColorDifferenceV</r2:Code>
+                <r2:ComponentSize>10</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompNull</r2:Code>
+                <r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompNull</r2:Code>
+                <r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompNull</r2:Code>
+                <r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompNull</r2:Code>
+                <r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+              <r2:RGBAComponent>
+                <r2:Code>CompNull</r2:Code>
+                <r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+            </r1:J2CLayout>
+          </r0:JPEG2000SubDescriptor>
+        </r1:SubDescriptors>
+        <r1:LinkedTrackID>2</r1:LinkedTrackID>
+        <r1:SampleRate>24000/1001</r1:SampleRate>
+        <r1:EssenceLength>491</r1:EssenceLength>
+        <r1:ContainerFormat>urn:smpte:ul:060e2b34.0401010d.0d010301.020c0600</r1:ContainerFormat>
+        <r1:FrameLayout>FullFrame</r1:FrameLayout>
+        <r1:StoredWidth>1920</r1:StoredWidth>
+        <r1:StoredHeight>1080</r1:StoredHeight>
+        <r1:SampledWidth>1920</r1:SampledWidth>
+        <r1:SampledHeight>1080</r1:SampledHeight>
+        <r1:DisplayHeight>1080</r1:DisplayHeight>
+        <r1:DisplayWidth>1920</r1:DisplayWidth>
+        <r1:DisplayF2Offset>0</r1:DisplayF2Offset>
+        <r1:ImageAspectRatio>16/9</r1:ImageAspectRatio>
+        <r1:TransferCharacteristic>urn:smpte:ul:060e2b34.04010101.04010101.01020000</r1:TransferCharacteristic>
+        <r1:PictureCompression>urn:smpte:ul:060e2b34.0401010d.04010202.03010114</r1:PictureCompression>
+        <r1:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</r1:CodingEquations>
+        <r1:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</r1:ColorPrimaries>
+        <r1:ActiveWidth>1920</r1:ActiveWidth>
+        <r1:ActiveHeight>1080</r1:ActiveHeight>
+        <r1:ActiveXOffset>0</r1:ActiveXOffset>
+        <r1:ActiveYOffset>0</r1:ActiveYOffset>
+        <r1:VideoLineMap>
+          <r2:Int32>1</r2:Int32>
+          <r2:Int32>0</r2:Int32>
+        </r1:VideoLineMap>
+        <r1:ComponentDepth>10</r1:ComponentDepth>
+        <r1:HorizontalSubsampling>2</r1:HorizontalSubsampling>
+        <r1:VerticalSubsampling>1</r1:VerticalSubsampling>
+        <r1:ColorSiting>CoSiting</r1:ColorSiting>
+        <r1:BlackRefLevel>64</r1:BlackRefLevel>
+        <r1:WhiteRefLevel>940</r1:WhiteRefLevel>
+        <r1:ColorRange>897</r1:ColorRange>
+      </r0:CDCIDescriptor>
+    </EssenceDescriptor>
+    <EssenceDescriptor>
+      <Id>urn:uuid:916576dc-b4f6-41c4-ad90-afc890b26fcb</Id>
+      <r0:WAVEPCMDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
+        <r1:InstanceID>urn:uuid:ae61b6e7-9c03-4cc1-9cae-8d9d0cbe6863</r1:InstanceID>
+        <r1:SubDescriptors>
+          <r0:SoundfieldGroupLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:cf24f560-e288-4f49-9138-48afec258c42</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:70877da6-c52f-4444-9b77-814e7004e2f8</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020201.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:MCALinkID>
+            <r1:MCATagSymbol>sg51</r1:MCATagSymbol>
+            <r1:MCATagName>5.1</r1:MCATagName>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+          </r0:SoundfieldGroupLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:ca1be17a-c67d-4b3e-9009-c6052425b5a1</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:be857c05-e203-4080-a32a-8b8557ab39cb</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020101.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:fbb9417b-9d2d-48d8-9c90-22844ac1bb3f</r1:MCALinkID>
+            <r1:MCATagSymbol>chL</r1:MCATagSymbol>
+            <r1:MCATagName>Left</r1:MCATagName>
+            <r1:MCAChannelID>1</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:f40db470-8345-4132-8a85-17e82ff331c5</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:f2718de2-df1a-4c05-a45b-ae806c2aae32</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020102.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:cf62794e-e6f3-4424-b1a5-4c1062388cfb</r1:MCALinkID>
+            <r1:MCATagSymbol>chR</r1:MCATagSymbol>
+            <r1:MCATagName>Right</r1:MCATagName>
+            <r1:MCAChannelID>2</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:1ef89363-fd68-45fd-87d1-11aff1a520e5</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:b5b702f8-0a4a-43d8-a488-fe2be5f14a14</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020103.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:572ad945-d134-4e4f-a1d0-5ee463ec1e18</r1:MCALinkID>
+            <r1:MCATagSymbol>chC</r1:MCATagSymbol>
+            <r1:MCATagName>Center</r1:MCATagName>
+            <r1:MCAChannelID>3</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:34f79e39-d1bd-4e6d-9e1d-8ac092aa40fe</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:8fe9546d-cf95-4efa-a60f-4c07324715e3</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020104.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:4e4655c4-6542-460e-9d4a-568b66db4296</r1:MCALinkID>
+            <r1:MCATagSymbol>chLFE</r1:MCATagSymbol>
+            <r1:MCATagName>LFE</r1:MCATagName>
+            <r1:MCAChannelID>4</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:c87c3a16-b47b-41c8-8c22-1af5a1df6802</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:9a90ba7f-f8d1-4dcb-935d-b328ad2cf783</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020105.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:6f66e839-10c4-4bff-b04f-74210cf5d400</r1:MCALinkID>
+            <r1:MCATagSymbol>chLs</r1:MCATagSymbol>
+            <r1:MCATagName>Left surround</r1:MCATagName>
+            <r1:MCAChannelID>5</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:8092bf6a-ea12-436a-a297-ce8861c78c4f</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:e2c35536-e9aa-4096-a535-443f14883048</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020106.00000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:c4fb3de5-553e-43d5-8410-8644a95307ba</r1:MCALinkID>
+            <r1:MCATagSymbol>chRs</r1:MCATagSymbol>
+            <r1:MCATagName>Right surround</r1:MCATagName>
+            <r1:MCAChannelID>6</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-5.1</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:ce9d0624-9f04-4e39-9092-29d10fda18e4</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+        </r1:SubDescriptors>
+        <r1:LinkedTrackID>2</r1:LinkedTrackID>
+        <r1:SampleRate>48000/1</r1:SampleRate>
+        <r1:EssenceLength>982982</r1:EssenceLength>
+        <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010101.0d010301.02060200</r1:ContainerFormat>
+        <r1:AudioSampleRate>48000/1</r1:AudioSampleRate>
+        <r1:Locked>False</r1:Locked>
+        <r1:ChannelCount>6</r1:ChannelCount>
+        <r1:QuantizationBits>24</r1:QuantizationBits>
+        <r1:SoundCompression>urn:smpte:ul:060e2b34.04010101.04020201.7f000000</r1:SoundCompression>
+        <r1:BlockAlign>18</r1:BlockAlign>
+        <r1:AverageBytesPerSecond>864000</r1:AverageBytesPerSecond>
+        <r1:ChannelAssignment>urn:smpte:ul:060e2b34.0401010d.04020210.04010000</r1:ChannelAssignment>
+        <r1:ReferenceImageEditRate>24000/1001</r1:ReferenceImageEditRate>
+        <r1:ReferenceAudioAlignmentLevel>0</r1:ReferenceAudioAlignmentLevel>
+      </r0:WAVEPCMDescriptor>
+    </EssenceDescriptor>
+    <EssenceDescriptor>
+      <Id>urn:uuid:a1333bfb-4d8a-4b23-9821-9bebc826b511</Id>
+      <r0:WAVEPCMDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
+        <r1:InstanceID>urn:uuid:daee0f9f-91ca-41fc-bf58-4ee6e2bebd8d</r1:InstanceID>
+        <r1:SubDescriptors>
+          <r0:SoundfieldGroupLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:3973ea19-8ad0-47db-a086-b474ff7c86e0</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:e9627c9f-85e9-4f98-b54d-ab29ac118e9b</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020220.09000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:5f836f52-fe70-4e1c-a6a8-b30cbc68907e</r1:MCALinkID>
+            <r1:MCATagSymbol>sgLtRt</r1:MCATagSymbol>
+            <r1:MCATagName>Lt-Rt</r1:MCATagName>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-2.0</r1:MCAAudioElementKind>
+          </r0:SoundfieldGroupLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:6b70fb63-14eb-4394-b599-bc4f788d627b</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:506659af-480d-418b-b2f0-74b0ec88db64</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020120.03000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:3fba3b4e-9285-4113-9517-de9e7b3b3822</r1:MCALinkID>
+            <r1:MCATagSymbol>chLt</r1:MCATagSymbol>
+            <r1:MCATagName>Left Total</r1:MCATagName>
+            <r1:MCAChannelID>1</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-2.0</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:5f836f52-fe70-4e1c-a6a8-b30cbc68907e</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+          <r0:AudioChannelLabelSubDescriptor>
+            <r1:InstanceID>urn:uuid:92aff961-e3bb-4d4e-8bd6-2fbc51e378ee</r1:InstanceID>
+            <r1:LinkedGenerationID>urn:uuid:82a94c4d-1d6e-4ea5-9b7c-7844ce7098ac</r1:LinkedGenerationID>
+            <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020120.04000000</r1:MCALabelDictionaryID>
+            <r1:MCALinkID>urn:uuid:6b5384d5-affb-4c9a-8670-b2643c0ec79c</r1:MCALinkID>
+            <r1:MCATagSymbol>chRt</r1:MCATagSymbol>
+            <r1:MCATagName>Right Total</r1:MCATagName>
+            <r1:MCAChannelID>2</r1:MCAChannelID>
+            <r1:RFC5646SpokenLanguage>en-US</r1:RFC5646SpokenLanguage>
+            <r1:MCATitle>Inside Out (2015)</r1:MCATitle>
+            <r1:MCATitleVersion>ENG</r1:MCATitleVersion>
+            <r1:MCAAudioContentKind>feature</r1:MCAAudioContentKind>
+            <r1:MCAAudioElementKind>en-2.0</r1:MCAAudioElementKind>
+            <r1:SoundfieldGroupLinkID>urn:uuid:5f836f52-fe70-4e1c-a6a8-b30cbc68907e</r1:SoundfieldGroupLinkID>
+          </r0:AudioChannelLabelSubDescriptor>
+        </r1:SubDescriptors>
+        <r1:LinkedTrackID>2</r1:LinkedTrackID>
+        <r1:SampleRate>48000/1</r1:SampleRate>
+        <r1:EssenceLength>982982</r1:EssenceLength>
+        <r1:ContainerFormat>urn:smpte:ul:060e2b34.04010101.0d010301.02060200</r1:ContainerFormat>
+        <r1:AudioSampleRate>48000/1</r1:AudioSampleRate>
+        <r1:Locked>False</r1:Locked>
+        <r1:ChannelCount>2</r1:ChannelCount>
+        <r1:QuantizationBits>24</r1:QuantizationBits>
+        <r1:SoundCompression>urn:smpte:ul:060e2b34.04010101.04020201.7f000000</r1:SoundCompression>
+        <r1:BlockAlign>6</r1:BlockAlign>
+        <r1:AverageBytesPerSecond>288000</r1:AverageBytesPerSecond>
+        <r1:ChannelAssignment>urn:smpte:ul:060e2b34.0401010d.04020210.04010000</r1:ChannelAssignment>
+        <r1:ReferenceImageEditRate>24000/1001</r1:ReferenceImageEditRate>
+        <r1:ReferenceAudioAlignmentLevel>0</r1:ReferenceAudioAlignmentLevel>
+      </r0:WAVEPCMDescriptor>
+    </EssenceDescriptor>
+  </EssenceDescriptorList>
+  <CompositionTimecode>
+    <TimecodeDropFrame>false</TimecodeDropFrame>
+    <TimecodeRate>24</TimecodeRate>
+    <TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
+  </CompositionTimecode>
+  <EditRate>24000 1001</EditRate>
+  <LocaleList>
+    <Locale>
+      <Annotation language="en"/>
+      <LanguageList>
+        <Language>en-US</Language>
+      </LanguageList>
+      <RegionList>
+        <Region>us</Region>
+      </RegionList>
+      <ContentMaturityRatingList>
+        <ContentMaturityRating>
+          <Agency>http://www.movielabs.com/md/ratings/US/MPAA/2</Agency>
+          <Rating>G</Rating>
+          <Audience scope="General"/>
+        </ContentMaturityRating>
+      </ContentMaturityRatingList>
+    </Locale>
+  </LocaleList>
+  <ExtensionProperties>
+    <cc:ApplicationIdentification>http://www.smpte-ra.org/schemas/2067-20/2016</cc:ApplicationIdentification>
+  </ExtensionProperties>
+  <SegmentList>
+    <Segment>
+      <Id>urn:uuid:c704b31d-720f-4e6e-bbf6-30ae6e7b2632</Id>
+      <Annotation language="en">US English Version</Annotation>
+      <SequenceList>
+        <cc:MainImageSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <Id>urn:uuid:827025e2-61d7-42b1-918f-34918cbf41f6</Id>
+          <TrackId>urn:uuid:cf83f929-e71e-4669-8d98-5441c553cf2e</TrackId>
+          <ResourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Resource xsi:type="TrackFileResourceType">
+              <Id>urn:uuid:8a3f16bc-82dd-4892-844a-1f5a49b7366c</Id>
+              <Annotation language="en">Image</Annotation>
+              <EditRate>24000 1001</EditRate>
+              <IntrinsicDuration>491</IntrinsicDuration>
+              <EntryPoint>0</EntryPoint>
+              <SourceDuration>276</SourceDuration>
+              <RepeatCount>1</RepeatCount>
+              <SourceEncoding>urn:uuid:adeb0650-b940-45e8-9ab2-7328649b4c16</SourceEncoding>
+              <TrackFileId>urn:uuid:78a135dc-e3fb-4058-a896-36f93a3f40ed</TrackFileId>
+              <Hash>WyRyyDRXZXqBXIv80Er6TI9qK0U=</Hash>
+            </Resource>
+          </ResourceList>
+        </cc:MainImageSequence>
+        <cc:MainAudioSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <Id>urn:uuid:6a032eff-edbe-4d9f-a154-b6606966bfa9</Id>
+          <TrackId>urn:uuid:294e9729-736b-48a3-aff3-656df7a7038b</TrackId>
+          <ResourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Resource xsi:type="TrackFileResourceType">
+              <Id>urn:uuid:f6f082e4-f93c-4237-bd57-cde1b3b810b0</Id>
+              <Annotation language="en">IO_Plugfest_ENG_51</Annotation>
+              <EditRate>48000 1</EditRate>
+              <IntrinsicDuration>982982</IntrinsicDuration>
+              <EntryPoint>0</EntryPoint>
+              <SourceDuration>552552</SourceDuration>
+              <RepeatCount>1</RepeatCount>
+              <SourceEncoding>urn:uuid:916576dc-b4f6-41c4-ad90-afc890b26fcb</SourceEncoding>
+              <TrackFileId>urn:uuid:8ddabd94-ab54-44d9-80c8-e0454893160b</TrackFileId>
+              <Hash>2cUlrPcwDbypGPodc0rxAvtCvd8=</Hash>
+            </Resource>
+          </ResourceList>
+        </cc:MainAudioSequence>
+        <cc:MainAudioSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <Id>urn:uuid:2175c7c0-8c75-4535-aae5-8912219eede0</Id>
+          <TrackId>urn:uuid:0f14285c-35cc-441c-b2a0-c75cb34d9ef7</TrackId>
+          <ResourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Resource xsi:type="TrackFileResourceType">
+              <Id>urn:uuid:74bfabd8-81ed-49f6-884d-e1c7cd618be3</Id>
+              <Annotation language="en">IO_Plugfest_ENG_LtRt</Annotation>
+              <EditRate>48000 1</EditRate>
+              <IntrinsicDuration>982982</IntrinsicDuration>
+              <EntryPoint>0</EntryPoint>
+              <SourceDuration>552552</SourceDuration>
+              <RepeatCount>1</RepeatCount>
+              <SourceEncoding>urn:uuid:a1333bfb-4d8a-4b23-9821-9bebc826b511</SourceEncoding>
+              <TrackFileId>urn:uuid:2e2c4145-03a5-48e0-b8b2-b3b595787608</TrackFileId>
+              <Hash>3aPmfpN/xSfqi5otO6m9pg0HaV4=</Hash>
+            </Resource>
+          </ResourceList>
+        </cc:MainAudioSequence>
+      </SequenceList>
+    </Segment>
+  </SegmentList>
+</CompositionPlaylist>

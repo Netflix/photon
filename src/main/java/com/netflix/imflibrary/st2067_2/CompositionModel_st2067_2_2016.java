@@ -11,8 +11,10 @@ import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -184,7 +186,7 @@ final class CompositionModel_st2067_2_2016 {
         }
         essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
 
-        String applicationID = "";
+        Set<String> applicationIDs = new LinkedHashSet<>();
         if(compositionPlaylistType.getExtensionProperties() != null) {
             for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
                 if (object instanceof JAXBElement) {
@@ -192,8 +194,10 @@ final class CompositionModel_st2067_2_2016 {
                     if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
                         if (jaxbElement.getValue() instanceof List) {
                             List applicationIDList = (List) jaxbElement.getValue();
-                            if (applicationIDList.size() == 1 && applicationIDList.get(0) instanceof String) {
-                                applicationID = applicationIDList.get(0).toString();
+                            for(Object entry: applicationIDList) {
+                                if (entry instanceof String) {
+                                    applicationIDs.add(entry.toString());
+                                }
                             }
                         }
                     }
@@ -210,7 +214,7 @@ final class CompositionModel_st2067_2_2016 {
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 Collections.synchronizedList(segmentList),
                 Collections.synchronizedList(essenceDescriptorList),
-                "org.smpte_ra.schemas.st2067_2_2016", applicationID
+                "org.smpte_ra.schemas.st2067_2_2016", applicationIDs
                 );
     }
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:734c414e-a97e-4e2a-bd25-46564c65dfd7</Id>
+  <AnnotationText language="en">Photon App5 test</AnnotationText>
+  <Creator language="en">IMF-Tool 1.5.285</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2019-02-25T08:45:49Z</IssueDate>
+  <Issuer language="en">Wolfgang Ruppel</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:59829373-6f21-4d1e-b713-0c6e6dc5a1f4</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>reel3-errors.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:2e4ff806-2f81-445c-90aa-6d82242b7a40</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_2e4ff806-2f81-445c-90aa-6d82242b7a40.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:060fe563-18d5-48d4-9148-1bfba4262ae2</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>WAV_060fe563-18d5-48d4-9148-1bfba4262ae2.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:34a5ae67-63ba-401d-a9f1-6c4b86d73d5b</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>reel2.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:9c2d2974-2970-465b-a74e-adbc419efd46</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_9c2d2974-2970-465b-a74e-adbc419efd46.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

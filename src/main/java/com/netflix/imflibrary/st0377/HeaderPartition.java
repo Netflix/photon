@@ -35,6 +35,8 @@ import com.netflix.imflibrary.st0377.header.GenericTrack;
 import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
+import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
+import com.netflix.imflibrary.st0377.header.TargetFrameSubDescriptor;
 import com.netflix.imflibrary.st0377.header.MaterialPackage;
 import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
 import com.netflix.imflibrary.st0377.header.Preface;
@@ -390,6 +392,14 @@ public final class HeaderPartition
                         JPEG2000PictureSubDescriptor jpeg2000PictureSubDescriptor = null;
                         if(dependentInterchangeObject instanceof JPEG2000PictureSubDescriptor){
                             jpeg2000PictureSubDescriptor = (JPEG2000PictureSubDescriptor) dependentInterchangeObject;
+                        }
+                        ACESPictureSubDescriptor acesPictureSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof ACESPictureSubDescriptor){
+                            acesPictureSubDescriptor = (ACESPictureSubDescriptor) dependentInterchangeObject;
+                        }
+                        TargetFrameSubDescriptor targetFrameSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof TargetFrameSubDescriptor){
+                            targetFrameSubDescriptor = (TargetFrameSubDescriptor) dependentInterchangeObject;
                         }
                         /*Add similar casting code for other sub descriptors when relevant*/
                     }

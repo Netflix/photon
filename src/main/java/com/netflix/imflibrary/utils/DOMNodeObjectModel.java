@@ -50,7 +50,7 @@ public class DOMNodeObjectModel {
     @Nonnull
     private final String localNamespaceURI;
     /*List of child ElementDOMNodes*/
-    private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new HashMap<>();
+    private final Map<DOMNodeObjectModel, Integer> childrenDOMNodes = new LinkedHashMap<>();
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
     private final Map<DOMNodeElementTuple, Map<String, Integer>> fields = new HashMap<>();
     private final Map<String, Map<String, Integer>> fieldsLocalNameMap = new HashMap<>();

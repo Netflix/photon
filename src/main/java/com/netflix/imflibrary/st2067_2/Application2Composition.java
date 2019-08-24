@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0422.JP2KContentKind;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.Fraction;
 
@@ -159,12 +160,12 @@ public class Application2Composition extends AbstractApplicationComposition {
         FrameLayoutType frameLayoutType = imageEssenceDescriptorModel.getFrameLayoutType();
         UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
         if(essenceContainerFormatUL != null) {
-            Byte contentKind = essenceContainerFormatUL.getULAsBytes()[14];
-            if ((frameLayoutType.equals(FrameLayoutType.FullFrame) && contentKind != 6) ||
-                    (frameLayoutType.equals(FrameLayoutType.SeparateFields) && contentKind != 3)) {
+            JP2KContentKind contentKind = JP2KContentKind.valueOf(essenceContainerFormatUL.getULAsBytes()[14]);
+            if ((frameLayoutType.equals(FrameLayoutType.FullFrame) && !contentKind.equals(JP2KContentKind.P1)) ||
+                    (frameLayoutType.equals(FrameLayoutType.SeparateFields) && !contentKind.equals(JP2KContentKind.I1))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("EssenceDescriptor with ID %s has invalid ContentKind(%d) indicated by the ContainerFormat as per %s",
+                        String.format("EssenceDescriptor with ID %s has invalid JPEG-2000 ContentKind (%s) indicated by the ContainerFormat as per %s",
                                 imageEssenceDescriptorID.toString(), contentKind, applicationCompositionType.toString()));
             }
         }
