@@ -964,4 +964,76 @@ public class IMPValidator {
         }
         return imfErrorLogger.getErrors();
     }
+
+    public static List<ErrorLogger.ErrorObject> validateIndexEditRate(List<PayloadRecord> headerPartitionPayloadRecords, List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(headerPartitionPayloadRecords);
+        for(PayloadRecord headerPayloadRecord : essencesHeaderPartition){
+            if(headerPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("Payload asset type is %s, expected asset type %s",
+                                headerPayloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                continue;
+            }
+
+            HeaderPartition headerPartition = null;
+            try {
+                headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPayloadRecord.getPayload()),
+                        0L, (long) headerPayloadRecord.getPayload().length, imfErrorLogger);
+
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+
+                for (PayloadRecord indexPayloadRecord : indexSegmentPayloadRecords) {
+                    if (indexPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                String.format("Payload asset type is %s, expected asset type %s",
+                                        indexPayloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                        continue;
+                    }
+                    PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(indexPayloadRecord.getPayload()));
+                    if (partitionPack.hasIndexTableSegments()) {//logic to provide as an input stream the portion of the archive that contains a Partition
+                        ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(indexPayloadRecord.getPayload());
+
+                        long numBytesToRead = indexPayloadRecord.getPayload().length;
+                        long numBytesRead = 0;
+                        while (numBytesRead < numBytesToRead) {
+                            KLVPacket.Header header = new KLVPacket.Header(imfEssenceComponentByteProvider, 0);
+                            numBytesRead += header.getKLSize();
+
+                            if (IndexTableSegment.isValidKey(header.getKey())) {
+                                IndexTableSegment indexTableSegment = new IndexTableSegment(imfEssenceComponentByteProvider, header);
+                                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
+                                    IABTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
+                                }
+                            } else {
+                                imfEssenceComponentByteProvider.skipBytes(header.getVSize());
+                            }
+                            numBytesRead += header.getVSize();
+                        }
+
+                    }
+                }
+            } catch (IMFException | MXFException e){
+                if(headerPartition != null) {
+                    Preface preface = headerPartition.getPreface();
+                    GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                    SourcePackage filePackage = (SourcePackage) genericPackage;
+                    UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                }
+                if(e instanceof IMFException){
+                    IMFException imfException = (IMFException)e;
+                    imfErrorLogger.addAllErrors(imfException.getErrors());
+                }
+                else if(e instanceof MXFException){
+                    MXFException mxfException = (MXFException)e;
+                    imfErrorLogger.addAllErrors(mxfException.getErrors());
+                }
+            }
+        }
+        return imfErrorLogger.getErrors();
+    }
 }

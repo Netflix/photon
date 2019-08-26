@@ -26,7 +26,7 @@ public class IABMXFValidationTest {
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_editrate_mismatch.mxf");
         List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
-        Assert.assertEquals(errors.size(), 7);
+        Assert.assertEquals(errors.size(), 8);
     }
 
     @Test
@@ -115,5 +115,13 @@ public class IABMXFValidationTest {
         File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_wrong_subdesc_gosg.mxf");
         List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
         Assert.assertEquals(errors.size(), 4);
+    }
+
+    @Test
+    public void testInvalidWrongIndexEditRate() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_wrong_index_edit_rate.mxf");
+        List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
+        Assert.assertEquals(errors.size(), 7);
     }
 }

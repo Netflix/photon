@@ -327,22 +327,24 @@ public class IMPAnalyzer {
 
     public static List<ErrorLogger.ErrorObject> validateEssencePartition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
 
-            IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
+        IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
+        List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
 
-            PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
-            if(headerPartitionPayload == null) {
-                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Failed to get header partition"));
-            }
-            else {
-                List<PayloadRecord> payloadRecords = new ArrayList<>();
-                payloadRecords.add(headerPartitionPayload);
-                trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
-            }
+        PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
+        if(headerPartitionPayload == null) {
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Failed to get header partition"));
+        }
+        else {
+            headerPartitionPayloadRecords.add(headerPartitionPayload);
+            trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(headerPartitionPayloadRecords));
+        }
 
         // Validate index table segments
-        List<PayloadRecord>  payloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
-        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(payloadRecords));
+        List<PayloadRecord>  indexSegmentPayloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(indexSegmentPayloadRecords));
+
+        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexEditRate(headerPartitionPayloadRecords, indexSegmentPayloadRecords));
 
         return trackFileErrorLogger.getErrors();
     }
