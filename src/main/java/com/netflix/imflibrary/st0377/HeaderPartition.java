@@ -699,27 +699,6 @@ public final class HeaderPartition
         }
         return rfc5646SpokenLanguage;
     }
-    /**
-     * A method that returns the spoken language within this essence provided it is an IAB Essence
-     * @return string representing a spoken language as defined in RFC-5646, null if the spoken language tag is missing
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    @Nullable
-    public String getIABEssenceSpokenLanguage() throws IOException {
-        String rfc5646SpokenLanguage = null;
-        if (this.hasIABEssenceDescriptor()) {
-            List<InterchangeObject> soundfieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
-            for (InterchangeObject subDescriptor : soundfieldLabelSubDescriptors) {
-                IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
-                if (rfc5646SpokenLanguage == null) {
-                    rfc5646SpokenLanguage = iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage();
-                } else if (!rfc5646SpokenLanguage.equals(iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage())) {
-                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the IABSoundfieldLabelSubDescriptor", rfc5646SpokenLanguage, iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage()));
-                }
-            }
-        }
-        return rfc5646SpokenLanguage;
-    }
 
     /**
      * A method that returns the audio content kind for this Essence
@@ -738,17 +717,6 @@ public final class HeaderPartition
                     this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("AudioContentKind (%s, %s) do not match across the SoundFieldGroupLabelSubDescriptors", audioContentKind, soundFieldGroupLabelSubDescriptor.getAudioContentKind()));
                 }
             }
-        } else if (this.hasIABEssenceDescriptor()) {
-            List<InterchangeObject> soundfieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
-            for (InterchangeObject subDescriptor : soundfieldLabelSubDescriptors) {
-                IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
-                if (audioContentKind == null) {
-                    audioContentKind = iabSoundfieldLabelSubDescriptor.getAudioContentKind();
-                } else if (!audioContentKind.equals(iabSoundfieldLabelSubDescriptor.getAudioContentKind())) {
-                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("AudioContentKind (%s, %s) do not match across the IABSoundfieldLabelSubDescriptor", audioContentKind, iabSoundfieldLabelSubDescriptor.getAudioContentKind()));
-                }
-            }
-
         }
         return AudioContentKind.getAudioContentKindFromSymbol(audioContentKind);
     }
@@ -788,15 +756,6 @@ public final class HeaderPartition
     }
 
     /**
-     * Checks if this HeaderPartition object has a IAB Essence Descriptor
-     * @return true/false depending on whether this HeaderPartition contains a IABEssenceDescriptor or not
-     */
-    public boolean hasIABEssenceDescriptor()
-    {
-        return this.hasInterchangeObject(IABEssenceDescriptor.class);
-    }
-
-    /**
      * Checks if this HeaderPartition object has a CDCI Picture Essence Descriptor
      * @return true/false depending on whether this HeaderPartition contains a CDCIPictureEssenceDescriptor or not
      */
@@ -830,15 +789,6 @@ public final class HeaderPartition
     public List<InterchangeObject> getWaveAudioEssenceDescriptors()
     {
         return this.getInterchangeObjects(WaveAudioEssenceDescriptor.class);
-    }
-
-    /**
-     * Gets all the IAB audio essence descriptors associated with this HeaderPartition object
-     * @return list of all the IABEssenceDescriptors in this header partition
-     */
-    public List<InterchangeObject> getIABEssenceDescriptors()
-    {
-        return this.getInterchangeObjects(IABEssenceDescriptor.class);
     }
 
     /**
@@ -880,15 +830,6 @@ public final class HeaderPartition
     public List<InterchangeObject> getSoundFieldGroupLabelSubDescriptors()
     {
         return this.getInterchangeObjects(SoundFieldGroupLabelSubDescriptor.class);
-    }
-
-    /**
-     * Gets all the IAB SoundField label sub descriptors associated with this HeaderPartition object
-     * @return list of sound field label sub descriptors contained in this header partition
-     */
-    public List<InterchangeObject> getIABSoundFieldLabelSubDescriptors()
-    {
-        return this.getInterchangeObjects(IABSoundfieldLabelSubDescriptor.class);
     }
 
     /**

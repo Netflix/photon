@@ -664,50 +664,6 @@ public class IMPValidator {
         return audioLanguageSet.iterator().next();
     }
 
-    /**
-     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an IAB Essence
-     * @param essencesHeaderPartition - a list of payloads corresponding to the Header Partitions of TrackFiles that are a part of an IAB VirtualTrack
-     * @param iabVirtualTrack - the IAB virtual track whose spoken language needs to be ascertained
-     * @return string corresponding to the RFC-5646 language tag present in the header partition of the IAB Essence
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    @Nullable
-    public static String getIABTrackSpokenLanguage(VirtualTrack iabVirtualTrack, List<PayloadRecord> essencesHeaderPartition) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        if(iabVirtualTrack.getSequenceTypeEnum() != Composition.SequenceTypeEnum.IABSequence){
-            throw new IMFException(String.format("Virtual track that was passed in is of type %s, spoken language is " +
-                            "currently supported for only %s tracks", iabVirtualTrack.getSequenceTypeEnum().toString(),
-                    Composition.SequenceTypeEnum.MainAudioSequence.toString()));
-        }
-        List<VirtualTrack> virtualTracks = new ArrayList<>();
-        virtualTracks.add(iabVirtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartition));
-        if(imfErrorLogger.hasFatalErrors()){
-            throw new IMFException(String.format("Fatal Errors were detected when trying to verify the Virtual Track and Essence Header Partition payloads %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors())));
-        }
-        Set<String> audioLanguageSet = new HashSet<>();
-        for (PayloadRecord payloadRecord : essencesHeaderPartition){
-            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s",
-                        payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString
-                                ()), imfErrorLogger);
-            }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long) payloadRecord.getPayload().length,
-                    imfErrorLogger);
-            audioLanguageSet.add(headerPartition.getIABEssenceSpokenLanguage());
-        }
-
-        if(audioLanguageSet.size() > 1){
-            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across " +
-                            "resources of this IAB Virtual Track, found references to %s languages in the HeaderPartition",
-                    Utilities.serializeObjectCollectionToString(audioLanguageSet)), imfErrorLogger);
-        }
-        return audioLanguageSet.iterator().next();
-    }
-
     private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map2, IMFErrorLogger imfErrorLogger){
         boolean result = true;
         Iterator refIterator = map1.entrySet().iterator();

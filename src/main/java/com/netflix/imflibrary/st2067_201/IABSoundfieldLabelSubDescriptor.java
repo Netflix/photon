@@ -46,22 +46,6 @@ public final class IABSoundfieldLabelSubDescriptor extends MCALabelSubDescriptor
     }
 
     /**
-     * A getter for the spoken language in this SubDescriptor
-     * @return string representing the spoken language as defined in RFC-5646
-     */
-    public String getRFC5646SpokenLanguage(){
-        return this.iabSoundfieldLabelSubDescriptorBO.rfc_5646_spoken_language;
-    }
-
-    /**
-     * A getter for the spoken language in this SubDescriptor
-     * @return string representing the spoken language as defined in RFC-5646
-     */
-    public String getAudioContentKind(){
-        return this.iabSoundfieldLabelSubDescriptorBO.getMCAAudioContentKind();
-    }
-
-    /**
      * Object corresponding to a parsed IABSoundfieldLabelSubDescriptor structural metadata set defined in st20167-201:201x
      */
     @Immutable

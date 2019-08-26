@@ -477,25 +477,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     }
 
     /**
-     * Getter for the IAB VirtualTrack in this Composition
-     *
-     * @return the IAB virtual track that is a part of this composition or null if there is no marker virtual track
-     */
-    @Nullable
-    public List<IMFEssenceComponentVirtualTrack> getIABVirtualTracks() {
-        List<IMFEssenceComponentVirtualTrack> iabVirtualTracks = new ArrayList<>();
-        Iterator iterator = this.virtualTrackMap.entrySet().iterator();
-        while (iterator != null
-                && iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
-                iabVirtualTracks.add(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack));
-            }
-        }
-        return Collections.unmodifiableList(iabVirtualTracks);
-    }
-
-    /**
      * Getter for the errors in Composition
      *
      * @return List of errors in Composition.
