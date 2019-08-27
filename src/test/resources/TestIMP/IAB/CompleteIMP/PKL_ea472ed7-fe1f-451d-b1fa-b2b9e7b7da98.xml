@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:ea472ed7-fe1f-451d-b1fa-b2b9e7b7da98</Id>
+  <IssueDate>2019-08-26T21:32:17Z</IssueDate>
+  <Issuer language="en">Netflix</Issuer>
+  <Creator language="en">IMF-Tool 1.6.308</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:299b877c-d40b-4f9e-aa22-4fadf7ebf2b9</Id>
+      <Hash>+Aoe0+pJLEQV4Mq/bFbYviz4dls=</Hash>
+      <Size>3149704</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">AUDIO_299b877c-d40b-4f9e-aa22-4fadf7ebf2b9.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:17c68559-b6de-4525-93f8-17c8ae77f599</Id>
+      <Hash>rX6rCqftjfcrJnUrPa4fb1KPrWg=</Hash>
+      <Size>84500641</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">meridian_2398_Atmos_20190603_first10s.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:418e4d1f-f5c7-4c71-8c62-6f796446de20</Id>
+      <Hash>7Coib6dR2H1nm6eOrIslqiFjCao=</Hash>
+      <Size>56565526</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">VIDEO_418e4d1f-f5c7-4c71-8c62-6f796446de20.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e0265fda-cb35-4e35-a4e4-4f44d82d2a52</Id>
+      <Hash>RtHTQRQf6Ny/3xK+mz6Rgzqrt34=</Hash>
+      <Size>15728</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_e0265fda-cb35-4e35-a4e4-4f44d82d2a52.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
