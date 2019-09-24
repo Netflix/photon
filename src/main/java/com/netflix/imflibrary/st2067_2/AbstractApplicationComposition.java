@@ -31,6 +31,7 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
@@ -150,7 +151,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
                 .virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet));
 
         if (IMFCoreConstraintsChecker.hasIABVirtualTracks(compositionPlaylistType, virtualTrackMap)) {
-            List<ErrorLogger.ErrorObject> errors = IMFIABConstraintsChecker.checkIABVirtualTrack(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet);
+            List<ErrorLogger.ErrorObject> errors = IMFIABConstraintsChecker.checkIABVirtualTrack(compositionPlaylistType.getEditRate(), virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet);
             imfErrorLogger.addAllErrors(errors);
         }
 

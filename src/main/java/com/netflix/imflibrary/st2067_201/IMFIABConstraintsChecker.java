@@ -1,8 +1,11 @@
-package com.netflix.imflibrary.st2067_2;
+package com.netflix.imflibrary.st2067_201;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
+import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -23,7 +26,7 @@ public class IMFIABConstraintsChecker {
     private static final Integer IAB_BIT_DEPTH = 24;
     private static final short IAB_CHANNEL_COUNT = 0;
 
-    public static List<ErrorLogger.ErrorObject> checkIABVirtualTrack(IMFCompositionPlaylistType compositionPlaylistType,
+    public static List<ErrorLogger.ErrorObject> checkIABVirtualTrack(Composition.EditRate compositionEditRate,
                                                                      Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                                                      Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
                                                                      RegXMLLibDictionary regXMLLibDictionary,
@@ -44,9 +47,9 @@ public class IMFIABConstraintsChecker {
                             imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
                 }
 
-                if (((imfTrackFileResourceType.getEditRate().getNumerator()*compositionPlaylistType.getEditRate().getDenominator()) % (imfTrackFileResourceType.getEditRate().getDenominator()*compositionPlaylistType.getEditRate().getNumerator()) != 0)) {
+                if (((imfTrackFileResourceType.getEditRate().getNumerator()*compositionEditRate.getDenominator()) % (imfTrackFileResourceType.getEditRate().getDenominator()*compositionEditRate.getNumerator()) != 0)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not a multiple of the EditRate of the Main Image Virtual Track %s/%s",
-                            imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionPlaylistType.getEditRate().getNumerator(), compositionPlaylistType.getEditRate().getDenominator()));
+                            imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
                 }
 
                 if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL)) {
