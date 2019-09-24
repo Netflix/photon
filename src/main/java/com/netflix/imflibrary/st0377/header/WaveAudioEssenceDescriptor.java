@@ -43,6 +43,10 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
         this.genericSoundEssenceDescriptorBO = waveAudioEssenceDescriptorBO;
     }
 
+    public WaveAudioEssenceDescriptorBO getWaveAudioEssenceDescriptorBO() {
+        return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO);
+    }
+
     /**
      * Getter for the block align of this WaveAudioEssenceDescriptor
      *
@@ -51,7 +55,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public int getBlockAlign() throws MXFException
     {
-        long value = ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).block_align;
+        long value = getWaveAudioEssenceDescriptorBO().block_align;
         if ((value <=0) || (value > Integer.MAX_VALUE))
         {
             throw new MXFException(String.format("Observed block align = %d, which is not supported at this time", value));
@@ -66,9 +70,9 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
     public @Nullable
     MXFUID getChannelAssignmentUL()
     {
-        if (((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).channel_assignment != null)
+        if (getWaveAudioEssenceDescriptorBO().channel_assignment != null)
         {
-            return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).channel_assignment.getULAsMXFUid();
+            return getWaveAudioEssenceDescriptorBO().channel_assignment.getULAsMXFUid();
         }
         return null;
     }
@@ -89,7 +93,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
         }
 
         WaveAudioEssenceDescriptor otherObject = (WaveAudioEssenceDescriptor)other;
-        return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).equals((otherObject.genericSoundEssenceDescriptorBO));
+        return this.genericSoundEssenceDescriptorBO.equals((otherObject.genericSoundEssenceDescriptorBO));
     }
 
     /**
@@ -100,7 +104,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public int hashCode()
     {
-        return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).hashCode();
+        return this.genericSoundEssenceDescriptorBO.hashCode();
     }
 
     /**
@@ -110,7 +114,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public String toString()
     {
-        return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO).toString();
+        return getWaveAudioEssenceDescriptorBO().toString();
     }
 
     /**
@@ -166,7 +170,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
                 return false;
             }
 
-            boolean genericEqual = super.equals((GenericSoundEssenceDescriptorBO)other);
+            boolean genericEqual = super.equals(other);
             if (!genericEqual) return false;
 
             WaveAudioEssenceDescriptorBO otherObject = (WaveAudioEssenceDescriptorBO)other;
