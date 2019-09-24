@@ -921,6 +921,13 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
+    /**
+     * A stateless method, used for IMP containing IAB tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7 of SMPTE ST 2067-201:2019)
+     * @param headerPartitionPayloadRecords - a list of IMF Essence Component partition payloads for header partitions
+     * @param indexSegmentPayloadRecords - a list of IMF Essence Component partition payloads for index partitions
+     * @return list of error messages encountered while validating
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
     public static List<ErrorLogger.ErrorObject> validateIndexEditRate(List<PayloadRecord> headerPartitionPayloadRecords, List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(headerPartitionPayloadRecords);
