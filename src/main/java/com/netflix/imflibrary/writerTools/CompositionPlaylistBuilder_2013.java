@@ -24,6 +24,9 @@ import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
+import com.netflix.imflibrary.st2067_2.IMFMarkerResourceType;
+import com.netflix.imflibrary.st2067_2.IMFMarkerType;
+import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -271,6 +274,14 @@ public class CompositionPlaylistBuilder_2013 {
             IMFEssenceComponentVirtualTrack essenceTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
             for (IMFTrackFileResourceType trackFileResource : essenceTrack.getTrackFileResourceList()) {
                 trackResourceList.add(buildTrackFileResource(trackFileResource));
+            }
+        }
+        // Wrap marker track resources into the JAXB class
+        else if (virtualTrack instanceof IMFMarkerVirtualTrack)
+        {
+            IMFMarkerVirtualTrack markerTrack = (IMFMarkerVirtualTrack) virtualTrack;
+            for (IMFMarkerResourceType markerResource : markerTrack.getMarkerResourceList()) {
+                trackResourceList.add(buildMarkerResource(markerResource));
             }
         }
         return Collections.unmodifiableList(trackResourceList);
@@ -553,21 +564,23 @@ public class CompositionPlaylistBuilder_2013 {
                                                org.smpte_ra.schemas.st2067_2_2013.SegmentType segment) {
 
         org.smpte_ra.schemas.st2067_2_2013.ObjectFactory objectFactory = new org.smpte_ra.schemas.st2067_2_2013.ObjectFactory();
-        JAXBElement<SequenceType> element = null;
         List<Object> any = segment.getSequenceList().getAny();
 
         for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
             switch(sequenceTypeTuple.getSequenceType()){
                 case MainImageSequence:
-                    element = objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence());
+                    any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                     break;
                 case MainAudioSequence:
-                    element = objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence());
+                    any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
+                    break;
+                case MarkerSequence:
+                    segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                     break;
                 default:
-                    throw new IMFAuthoringException(String.format("Currently we only support %s and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s", Composition.SequenceTypeEnum.MainAudioSequence.toString(), Composition.SequenceTypeEnum.MainImageSequence, sequenceTypeTuple.getSequenceType().toString()));
+                    throw new IMFAuthoringException(String.format("Currently we only support %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
+                            Composition.SequenceTypeEnum.MainAudioSequence.toString(), Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.MarkerSequence.toString(), sequenceTypeTuple.getSequenceType().toString()));
             }
-            any.add(element);
         }
     }
 
@@ -591,6 +604,43 @@ public class CompositionPlaylistBuilder_2013 {
         trackFileResource.setHash(trackResource.getHash());
 
         return trackFileResource;
+    }
+
+    /**
+     * A method to construct a MarkerResourceType conforming to the 2013 schema
+     * @param markerResource an object that roughly models a MarkerResourceType
+     * @return a MarkerResourceType conforming to the 2013 schema
+     */
+    public org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType buildMarkerResource(IMFMarkerResourceType markerResource){
+        org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType jaxbMarkerResource = new org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType();
+        jaxbMarkerResource.setId(markerResource.getId());
+        jaxbMarkerResource.setAnnotation(null);
+        jaxbMarkerResource.getEditRate().add(markerResource.getEditRate().getNumerator());
+        jaxbMarkerResource.getEditRate().add(markerResource.getEditRate().getDenominator());
+        jaxbMarkerResource.setIntrinsicDuration(markerResource.getIntrinsicDuration());
+        jaxbMarkerResource.setEntryPoint(markerResource.getEntryPoint());
+        jaxbMarkerResource.setSourceDuration(markerResource.getSourceDuration());
+        jaxbMarkerResource.setRepeatCount(markerResource.getRepeatCount());
+
+        for(IMFMarkerType marker : markerResource.getMarkerList()) {
+            // Wrap each Marker into the JAXB class
+            org.smpte_ra.schemas.st2067_2_2013.MarkerType jaxbMarker = new org.smpte_ra.schemas.st2067_2_2013.MarkerType();
+            jaxbMarker.setOffset(marker.getOffset());
+            if (marker.getAnnotation() != null) {
+                jaxbMarker.setAnnotation(buildCPLUserTextType_2013(marker.getAnnotation(), null));
+            }
+            org.smpte_ra.schemas.st2067_2_2013.MarkerType.Label jaxbLabel = new org.smpte_ra.schemas.st2067_2_2013.MarkerType.Label();
+            jaxbLabel.setValue(marker.getLabel().getValue());
+            if (marker.getLabel().getScope() != null) {
+                jaxbLabel.setScope(marker.getLabel().getScope());
+            }
+            jaxbMarker.setLabel(jaxbLabel);
+
+            // Add each marker to the list in marker resource
+            jaxbMarkerResource.getMarker().add(jaxbMarker);
+        }
+
+        return jaxbMarkerResource;
     }
 
     /**
