@@ -21,6 +21,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -138,7 +139,12 @@ public class CompositionPlaylistBuilder_2016 {
         this.imfEssenceDescriptorBaseTypeList = Collections.unmodifiableList(imfEssenceDescriptorBaseTypeList);
 
         for(Composition.VirtualTrack virtualTrack : virtualTracks) {
-            for (IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>) virtualTrack.getResourceList()) {
+            if (!(virtualTrack instanceof IMFEssenceComponentVirtualTrack)) {
+                continue; // Skip non-essence tracks
+            }
+
+            IMFEssenceComponentVirtualTrack essenceTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
+            for (IMFTrackFileResourceType trackResource : essenceTrack.getTrackFileResourceList()) {
                 UUID sourceEncoding = trackResourceSourceEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
                 if (sourceEncoding == null) {
                     trackResourceSourceEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
@@ -231,10 +237,14 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     private List<org.smpte_ra.schemas.st2067_2_2016.BaseResourceType> buildTrackResourceList(Composition.VirtualTrack virtualTrack){
-        List<IMFTrackFileResourceType> trackResources = (List<IMFTrackFileResourceType>)virtualTrack.getResourceList();
         List<org.smpte_ra.schemas.st2067_2_2016.BaseResourceType> trackResourceList = new ArrayList<>();
-        for(IMFTrackFileResourceType trackResource : trackResources){
-            trackResourceList.add(buildTrackFileResource(trackResource));
+
+        // Wrap essence track file resources into the JAXB class
+        if (virtualTrack instanceof IMFEssenceComponentVirtualTrack) {
+            IMFEssenceComponentVirtualTrack essenceTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
+            for (IMFTrackFileResourceType trackFileResource : essenceTrack.getTrackFileResourceList()) {
+                trackResourceList.add(buildTrackFileResource(trackFileResource));
+            }
         }
         return Collections.unmodifiableList(trackResourceList);
     }

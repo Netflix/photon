@@ -537,6 +537,10 @@ public class IMPBuilder {
         Map<UUID, List<Node>> imfEssenceDescriptorMap = new HashMap<>();
 
         for(Composition.VirtualTrack virtualTrack : virtualTrackList) {
+            if (!(virtualTrack instanceof IMFEssenceComponentVirtualTrack)) {
+                continue; // Skip non-essence tracks
+            }
+
             Set<UUID> trackResourceIds = IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds();
             /**
              * Create the RegXML representation of the EssenceDescriptor metadata for every Resource of every VirtualTrack
