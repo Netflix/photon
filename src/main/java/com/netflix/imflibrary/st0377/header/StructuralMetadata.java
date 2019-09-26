@@ -721,13 +721,11 @@ public final class StructuralMetadata
                 case 0x7a :
                     return TargetFrameSubDescriptor.TargetFrameSubDescriptorBO.class;
                 default :
-                    System.out.printf("Unknown value for key[14]: "+key[14]+"\n");
                     return Object.class;
             }
         }
         else
         {
-            System.out.printf("Couldn't match metadata ");
             return Object.class;
         }
     }
