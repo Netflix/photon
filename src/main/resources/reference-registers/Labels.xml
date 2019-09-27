@@ -1,36 +1,18 @@
-<!-- Metadata tags to support XML file editing -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- *****DO NOT EDIT THIS XML FILE******* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
+<!-- ************************************* -->
 <!--  -->
-<!-- Please fill these in if you edit this XML file -->
-<!-- author= -->
-<!-- summary_of_edit= -->
-<!--  -->
-<!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000081 -->
-<!-- DO NOT EDIT THIS TAG -->
-<!--  -->
+<!-- DEVELOPMENT REGISTER -->
 <!--  -->
 <!-- SMPTE METADATA REGISTER -->
 <!-- ####################### -->
 <!--  -->
-<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources. -->
-<!--  -->
-<!-- Editing these XML Files -->
-<!-- ####################### -->
-<!--  -->
-<!-- If you wish to edit one of these XML files please first complete the metadata tags at the top of the file. -->
-<!-- Then edit existing entries in the XML or add new entries. -->
-<!-- When editing the XML file you may delete some or all of the original entries. Leaving only those that you are -->
-<!-- working on may make editing simpler and less error prone. -->
-<!-- If you think that an entry actually needs to be deleted from the Registers please get in touch. -->
-<!-- You must not edit the UL of an entry - doing so would make it look like you want to create a new entry. -->
-<!-- Please get in touch if you think the UL of an entry in the Registers actually needs to be changed. -->
-<!--  -->
-<!-- Please create a ZIP file containing all of the XML files you have edited. -->
-<!-- This may contain zero or more XML files for each Register. -->
-<!-- Try to only make related edits in the XML files you include in the ZIP - if you have two sets of unrelated changes to make -->
-<!-- please do these in separate XML files that are packaged into two separate ZIP files. All the changes will ultimately be merged into the -->
-<!-- Registers. -->
-<!-- When ready, please send your ZIP file(s) by email (each ZIP file in its own email message). -->
+<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources including copies of the  -->
+<!-- SMPTE Metadata Registers that are suitable for editing. -->
 <!--  -->
 <!-- Contact -->
 <!-- ####### -->
@@ -151,6 +133,17 @@
       <Kind>LEAF</Kind>
       <Name>Unknown File Format</Name>
       <Definition>Identifies Unknown File Format</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>IMF_IABTrackFileLevel0</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.01010201.02000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>IMF IAB Track File Level 0</Name>
+      <Definition>Identifier for MXF track files compliant with ST 2067-201</Definition>
+      <DefiningDocument>SMPTE ST 2067-201</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
@@ -647,6 +640,17 @@
       <Name>Visually Impaired Narrative Audio Channel</Name>
       <Definition>A dedicated narration channel describing the main picture events for the visually impaired.</Definition>
       <DefiningDocument>ST 428-12</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>FSKSyncSignalChannel</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.03020110.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>FSK Sync Signal Channel</Name>
+      <Definition>Identifies an FSK Sync channel</Definition>
+      <DefiningDocument>SMPTE ST 430-12:2014-AMND1</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
@@ -2357,6 +2361,17 @@
     <Entry>
       <Register>Labels</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>IABSoundfield</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.03020221.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>IAB Soundfield</Name>
+      <Definition>Identifies an IAB Soundfield</Definition>
+      <DefiningDocument>SMPTE ST 2067-201</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
       <Symbol>GroupOfSoundfieldGroups</Symbol>
       <UL>urn:smpte:ul:060e2b34.0401010d.03020300.00000000</UL>
       <Kind>NODE</Kind>
@@ -2606,6 +2621,50 @@
     <Entry>
       <Register>Labels</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>TransferCharacteristic_ST2115_CameraLogS3</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.010e0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Log S3 Transfer Characteristic</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Log S3 transfer characteristic</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>TransferCharacteristic_ST2115_CameraLogV</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.010f0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Log V Transfer Characteristic</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Log V transfer characteristic</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>TransferCharacteristic_ST2115_CameraLogC2</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.01100000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Log C2 Transfer Characteristic</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Log C2 transfer characteristic</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>TransferCharacteristic_ST2115_CameraLogC3</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.01110000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Log C3 Transfer Characteristic</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Log C3 transfer characteristic</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
       <Symbol>CodingEquations</Symbol>
       <UL>urn:smpte:ul:060e2b34.04010101.04010101.02000000</UL>
       <Kind>NODE</Kind>
@@ -2678,6 +2737,17 @@
       <Name>ITU-R BT.2020 Non-Constant Luminance Coding Equations</Name>
       <Definition>Identifies ITU-R BT.2020 coding equations for non-constant luminance</Definition>
       <DefiningDocument>ITU-R BT.2020</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>CodingEquations_ITU2100_ICtCp</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.02070000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ITU-R BT.2100 ICtCp Coding Equations</Name>
+      <Definition>Identifies ITU-R BT.2100 coding equations for ICtCp</Definition>
+      <DefiningDocument>ITU-R BT.2100</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
@@ -2779,6 +2849,72 @@
       <Name>Cinema Mezzanine Color Primaries</Name>
       <Definition>Identifies XYZ tristimulus values as specified in ISO 11664-3</Definition>
       <DefiningDocument>SMPTE ST 2067-40</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_P3D60</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.03090000</UL>
+      <Kind>LEAF</Kind>
+      <Name>P3D60 Color Primaries</Name>
+      <Definition>Identifies P3D60 color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2113</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_P3DCI</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.030a0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>P3DCI Color Primaries</Name>
+      <Definition>Identifies P3DCI color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2113</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_ST2115_CameraGamutS3</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.030b0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Gamut S3 Color Primaries</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Gamut S3 color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_ST2115_CameraGamutSC</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.030c0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Gamut SC Color Primaries</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Gamut SC color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_ST2115_CameraGamutV</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.030d0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Gamut V Color Primaries</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Gamut V color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ColorPrimaries_ST2115_CameraGamutC</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010101.030e0000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SMPTE ST 2115 Camera Gamut C Color Primaries</Name>
+      <Definition>Identifies the SMPTE ST 2115 Camera Gamut C color primaries and white point</Definition>
+      <DefiningDocument>SMPTE ST 2115</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
@@ -9139,6 +9275,39 @@
     <Entry>
       <Register>Labels</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>DNxUncompressedPictureCoding</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010202.03070000</UL>
+      <Kind>NODE</Kind>
+      <Name>DNxUncompressed Picture Coding</Name>
+      <Definition>Identifier for DNxUncompressed Picture Coding</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>DNxUncompressedPictureCodingStandard</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010202.03070100</UL>
+      <Kind>LEAF</Kind>
+      <Name>DNxUncompressed Picture Coding - Standard</Name>
+      <Definition>Identifier for DNxUncompressed Picture Coding - Standard</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>DNxUncompressedPictureCodingVariants</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04010202.03070200</UL>
+      <Kind>LEAF</Kind>
+      <Name>DNxUncompressedPictureCodingVariants</Name>
+      <Definition>Identifier for DNxUncompressed Picture Coding - S2.14, 10.6, 12.4 formats</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
       <Symbol>SpecialisedCompressionSchemes</Symbol>
       <UL>urn:smpte:ul:060e2b34.04010101.04010202.70000000</UL>
       <Kind>NODE</Kind>
@@ -11299,6 +11468,204 @@
       <Name>DMCVT Application 4</Name>
       <Definition>Identifies DMCVT Application 4</Definition>
       <DefiningDocument>SMPTE ST 2094-2</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioMetadata</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040200.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>Audio Metadata</Name>
+      <Definition>Audio Metadata</Definition>
+      <DefiningDocument>SMPTE ST 2109</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ConfigPayload</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040201.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Config Payload</Name>
+      <Definition>Config Payload</Definition>
+      <DefiningDocument>SMPTE ST 2109</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>SyncPayload</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040202.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Sync Payload</Name>
+      <Definition>Sync Payload</Definition>
+      <DefiningDocument>SMPTE ST 2109</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>CRCPayload</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040203.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>CRC Payload</Name>
+      <Definition>CRC Payload</Definition>
+      <DefiningDocument>SMPTE ST 2109</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>PMDVersion</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040204.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>PMD Version</Name>
+      <Definition>PMD Version</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioBedDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040205.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Audio Bed Description</Name>
+      <Definition>Audio Bed Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioObjectDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040206.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Audio Object Description</Name>
+      <Definition>Audio Object Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioPresentationDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040207.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Audio Presentation Description</Name>
+      <Definition>Audio Presentation Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioPresentationNames</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040208.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Audio Presentation Names</Name>
+      <Definition>Audio Presentation Names</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>AudioElementNames</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040209.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Audio Element Names</Name>
+      <Definition>Audio Element Names</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ED2SubstreamDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020a.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ED2 Substream Description</Name>
+      <Definition>ED2 Substream Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ED2SubstreamNames</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020b.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ED2 Substream Names</Name>
+      <Definition>ED2 Substream Names</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>EAC3EncodingParameters</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020c.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>EAC3 Encoding Parameters</Name>
+      <Definition>EAC3 Encoding Parameters</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>DynamicPositionUpdate</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020d.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Dynamic Position Update</Name>
+      <Definition>Dynamic Position Update</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>IdentityAndTiming</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020e.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Identity And Timing</Name>
+      <Definition>Identity And Timing</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>PresentationLoudnessDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0404020f.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Presentation Loudness Description</Name>
+      <Definition>Presentation Loudness Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>ED2TurnaroundDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040210.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ED2 Turnaround Description</Name>
+      <Definition>ED2 Turnaround Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012</NamespaceName>
+      <Symbol>HeadphoneElementDescription</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.04040211.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Headphone Element Description</Name>
+      <Definition>Headphone Element Description</Definition>
+      <DefiningDocument>SMPTE RDD 49</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
@@ -35256,6 +35623,72 @@
     <Entry>
       <Register>Labels</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>MXFGCImmersiveAudio</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021d0000</UL>
+      <Kind>NODE</Kind>
+      <Name>MXF-GC Immersive Audio</Name>
+      <Definition>Identifiers for MXF-GC Mappings of immersive audio data</Definition>
+      <DefiningDocument>SMPTE ST 2067-201</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>MXFGCIABAudio</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021d0100</UL>
+      <Kind>NODE</Kind>
+      <Name>MXF-GC IAB Audio</Name>
+      <Definition>Identifiers for MXF-GC Mappings of Immersive Audio Bitstream (SMPTE ST 2098-2) audio data</Definition>
+      <DefiningDocument>SMPTE ST 2067-201</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>IMF_IABEssenceClipWrappedContainer</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021d0101</UL>
+      <Kind>LEAF</Kind>
+      <Name>IMF Clip-Wrapped IAB Essence Container</Name>
+      <Definition>Identifier of IAB Essence Clip-Wrapped Container</Definition>
+      <DefiningDocument>SMPTE ST 2067-201</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>MXFGCEssenceContainerDNxPacked</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021e0000</UL>
+      <Kind>NODE</Kind>
+      <Name>MXF-GC Essence Container DNxPacked</Name>
+      <Definition>Identifier for MXF-GC Essence Container DNxPacked</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>MXFGCEssenceContainerDNxPackedFrameWrapped</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021e0100</UL>
+      <Kind>LEAF</Kind>
+      <Name>MXF-GC Essence Container DNxPacked Frame Wrapped</Name>
+      <Definition>Identifier for MXF-GC Essence Container DNxPacked Frame Wrapped</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
+      <Symbol>MXFGCEssenceContainerDNxPackedClipWrapped</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0401010d.0d010301.021e0200</UL>
+      <Kind>LEAF</Kind>
+      <Name>MXF-GC Essence Container DNxPacked Clip Wrapped</Name>
+      <Definition>Identifier for MXF-GC Essence Container DNxPacked Clip Wrapped</Definition>
+      <DefiningDocument>SMPTE RDD 50</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/aaf</NamespaceName>
       <Symbol>MXFGCGenericEssenceMappings</Symbol>
       <UL>urn:smpte:ul:060e2b34.04010101.0d010301.027f0000</UL>
       <Kind>NODE</Kind>
@@ -36038,6 +36471,17 @@
       <Kind>LEAF</Kind>
       <Name>Blocks File Format 0</Name>
       <Definition>Blocks File Format 0</Definition>
+      <DefiningDocument>AMWA Rules-based Specification component</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/13/1/amwa/rules</NamespaceName>
+      <Symbol>Blocks_FF_1</Symbol>
+      <UL>urn:smpte:ul:060e2b34.04010101.0d010801.05020000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Blocks File Format 1</Name>
+      <Definition>Blocks File Format 1</Definition>
       <DefiningDocument>AMWA Rules-based Specification component</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
@@ -36937,6 +37381,28 @@
       <Kind>NODE</Kind>
       <Name>Dolby Laboratories Inc.</Name>
       <Definition>Metadata registered by Dolby Laboratories Inc. for private use</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/14/9</NamespaceName>
+      <Symbol>ImmersiveAudioCoding</Symbol>
+      <UL>urn:smpte:ul:060e2b34.04010105.0e090604.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Immersive Audio Coding</Name>
+      <Definition>Identifies Immersive Audio Coding per ST 2098-2</Definition>
+      <DefiningDocument>SMPTE ST 429-18</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Labels</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/400/2012/14/9</NamespaceName>
+      <Symbol>MXF_GC_IAData_Frame_Wrapped</Symbol>
+      <UL>urn:smpte:ul:060e2b34.04010105.0e090605.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>MXF-GC IAData Frame Wrapped</Name>
+      <Definition>Identifies Container for Frame Wrapped Immersive Audio Data</Definition>
+      <DefiningDocument>SMPTE ST 429-18</DefiningDocument>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>

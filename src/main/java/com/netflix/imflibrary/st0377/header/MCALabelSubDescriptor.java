@@ -47,7 +47,7 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        MCALabelSubDescriptorBO(final KLVPacket.Header header) {
+        public MCALabelSubDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
 
@@ -57,6 +57,30 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
          */
         public Long getMCAChannelID(){
             return this.mca_channel_id;
+        }
+
+        /**
+         * Accessor for the MCA Tag Name of this MCA Label Subdescriptor
+         * @return a String representing the MCA Tag Name
+         */
+        public String getMCATagName(){
+            return this.mca_tag_name;
+        }
+
+        /**
+         * Accessor for the MCA Tag Symbol of this MCA Label Subdescriptor
+         * @return a String representing the MCA Tag Symbol
+         */
+        public String getMCATagSymbol(){
+            return this.mca_tag_symbol;
+        }
+
+        /**
+         * Accessor for the MCA Label Dictionnary ID of this MCA Label Subdescriptor
+         * @return a UL representing the MCA Label Dictionnary ID
+         */
+        public UL getMCALabelDictionnaryId(){
+            return this.mca_label_dictionary_id;
         }
 
         /**
@@ -90,6 +114,15 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         public String getMCAAudioElementKind(){
             return this.mca_audio_element_kind;
         }
+
+        /**
+         * Accessor for the RFC 5646 Spoken Language of this MCA Label Subdescriptor
+         * @return a String representing the RFC 5646 Spoken Language
+         */
+        public String getRFC5646SpokenLanguage(){
+            return this.rfc_5646_spoken_language;
+        }
+
 
         /**
          * A method that returns a string representation of a SoundFieldGroupLabelSubDescriptorBO object

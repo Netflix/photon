@@ -75,6 +75,7 @@ public class ObjectFactory {
     private final static QName _VersionInfoListTypeName_QNAME = new QName("http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/", "Name");
     private final static QName _VersionInfoListTypeValue_QNAME = new QName("http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/", "Value");
     private final static QName _TransformTypeXPath_QNAME = new QName("http://www.w3.org/2000/09/xmldsig#", "XPath");
+    private final static QName _IABSequence_QNAME = new QName("http://www.smpte-ra.org/ns/2067-201/2019", "IABSequence");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.smpte_ra.schemas.st2067_2_2016
@@ -1020,4 +1021,12 @@ public class ObjectFactory {
         return new JAXBElement<String>(_TransformTypeXPath_QNAME, String.class, TransformType.class, value);
     }
 
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SequenceType }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://www.smpte-ra.org/ns/2067-201/2019", name = "IABSequence")
+    public JAXBElement<SequenceType> createIABSequence(SequenceType value) {
+        return new JAXBElement<SequenceType>(_IABSequence_QNAME, SequenceType.class, null, value);
+    }
 }

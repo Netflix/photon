@@ -36,6 +36,8 @@ public abstract class FileDescriptor extends GenericDescriptor {
         protected final CompoundDataTypes.Rational sample_rate = null;
         @MXFProperty(size = 16)
         protected final UL essence_container = null;
+        @MXFProperty(size = 16)
+        protected final UL codec = null;
 
         /**
          * Constructor for a File descriptor ByteObject.
@@ -65,6 +67,14 @@ public abstract class FileDescriptor extends GenericDescriptor {
          */
         public UL getEssenceContainerUL(){
             return this.essence_container;
+        }
+
+        /**
+         * Accessor for the Codec UL of this FileDescriptor
+         * @return a UL to identify a codec compatible with this Essence Container.
+         */
+        public UL getCodecUL(){
+            return this.codec;
         }
     }
 }

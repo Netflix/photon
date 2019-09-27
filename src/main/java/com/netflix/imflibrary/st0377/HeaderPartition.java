@@ -32,6 +32,7 @@ import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericTrack;
+import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
@@ -52,6 +53,8 @@ import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
+import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
@@ -431,6 +434,10 @@ public final class HeaderPartition
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), waveAudioEssenceDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
+                    IABEssenceDescriptor iabEssenceDescriptor = new IABEssenceDescriptor((IABEssenceDescriptor.IABEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(iabEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), iabEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
                     List<TimeTextResourceSubDescriptor> subDescriptorList = new ArrayList<>();
                     for(Node dependent : node.depends) {
@@ -1226,6 +1233,9 @@ public final class HeaderPartition
             if(interchangeObjectBO.getClass().getEnclosingClass().equals(WaveAudioEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
             }
+            if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.IABEssence);
+            }
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(CDCIPictureEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainImageEssence);
             }
@@ -1260,6 +1270,7 @@ public final class HeaderPartition
         CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
         KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
+        IABEssence(Composition.SequenceTypeEnum.IABSequence),
         UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
 
         private final Composition.SequenceTypeEnum sequenceType;
@@ -1293,6 +1304,8 @@ public final class HeaderPartition
                     return KaraokeEssence;
                 case "AncillaryDataEssence":
                     return AncillaryDataEssence;
+                case "IABEssence":
+                    return IABEssence;
                 case "UnsupportedEssence":
                 default:
                     return UnsupportedEssence;
@@ -1321,6 +1334,8 @@ public final class HeaderPartition
                     return "KaraokeEssence";
                 case AncillaryDataSequence:
                     return "AncillaryDataEssence";
+                case IABSequence:
+                    return "IABEssence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";
