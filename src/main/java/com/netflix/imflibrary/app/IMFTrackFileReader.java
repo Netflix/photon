@@ -490,6 +490,7 @@ final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.IABEssence);
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 

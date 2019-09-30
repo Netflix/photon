@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -181,7 +180,7 @@ public final class IMFConstraints
                             } else {
                                 //Section 5.3.6.2 st2067-2:2016
                                 Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = headerPartition.getAudioChannelIDToMCASubDescriptorMap();
-                                if (waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptorMap.size()) {
+                                if (waveAudioEssenceDescriptor.getChannelCount() == 0 || waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptorMap.size()) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                             String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", packageID.toString(), waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptorMap.size()));
                                 }
@@ -254,10 +253,10 @@ public final class IMFConstraints
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ESSENCE_EXCEPTION_PREFIX +
                                         String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s seems to indicate an Audio Bit Depth = %d, only 24 is allowed.", packageID.toString(), waveAudioEssenceDescriptor.getQuantizationBits()));
                             }
-
-                        } else {//Section 5.3.4.1 st2067-2:2016
-                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Header Partition does not have a WaveAudioEssenceDescriptor set in the IMFTrackFile represented by ID %s", packageID.toString()));
                         }
+//                        else {//Section 5.3.4.1 st2067-2:2016
+//                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Header Partition does not have a WaveAudioEssenceDescriptor set in the IMFTrackFile represented by ID %s", packageID.toString()));
+//                        }
                     } else if (filePackageMxfDataDefinition.equals(MXFDataDefinition.DATA)) {
                         if (genericDescriptor instanceof TimedTextDescriptor) {
                             TimedTextDescriptor timedTextDescriptor = TimedTextDescriptor.class.cast(genericDescriptor);
@@ -443,6 +442,10 @@ public final class IMFConstraints
                 targetMXFDataDefinition = MXFDataDefinition.PICTURE;
             }
             else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence))
+            {
+                targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
+            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.IABEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
             }

@@ -37,75 +37,14 @@ import java.util.Map;
 public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescriptor
 {
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + WaveAudioEssenceDescriptor.class.getSimpleName() + " : ";
-    private final WaveAudioEssenceDescriptorBO waveAudioEssenceDescriptorBO;
 
     public WaveAudioEssenceDescriptor(WaveAudioEssenceDescriptorBO waveAudioEssenceDescriptorBO)
     {
-        this.waveAudioEssenceDescriptorBO = waveAudioEssenceDescriptorBO;
+        this.genericSoundEssenceDescriptorBO = waveAudioEssenceDescriptorBO;
     }
 
-    /**
-     * Getter for the audio sampling rate numerator of this WaveAudioEssenceDescriptor
-     *
-     * @return audio sampling rate numerator in the inclusive range [1, Integer.MAX_VALUE]
-     * @throws MXFException when audio sampling rate numerator is out of range
-     */
-    public int getAudioSamplingRateNumerator() throws MXFException
-    {
-        long value = this.waveAudioEssenceDescriptorBO.audio_sampling_rate.getNumerator();
-        if ((value <=0) || (value > Integer.MAX_VALUE))
-        {
-            throw new MXFException(String.format("Observed audio sampling rate numerator = %d, which is not supported at this time", value));
-        }
-        return (int)value;
-    }
-
-    /**
-     * Getter for the audio sampling rate denominator of this WaveAudioEssenceDescriptor
-     *
-     * @return audio sampling rate denominator in the inclusive range [1, Integer.MAX_VALUE]
-     * @throws MXFException when audio sampling rate denominator is out of range
-     */
-    public int getAudioSamplingRateDenominator() throws MXFException
-    {
-        long value = this.waveAudioEssenceDescriptorBO.audio_sampling_rate.getDenominator();
-        if ((value <=0) || (value > Integer.MAX_VALUE))
-        {
-            throw new MXFException(String.format("Observed audio sampling rate denominator = %d, which is not supported at this time", value));
-        }
-        return (int)value;
-    }
-
-    /**
-     * Getter for the channel count of this WaveAudioEssenceDescriptor
-     *
-     * @return channel count in the inclusive range [1, Integer.MAX_VALUE]
-     * @throws MXFException when channel count is out of range
-     */
-    public int getChannelCount() throws MXFException
-    {
-        long value = this.waveAudioEssenceDescriptorBO.channelcount;
-        if ((value <=0) || (value > Integer.MAX_VALUE))
-        {
-            throw new MXFException(String.format("Observed channel count = %d, which is not supported at this time", value));
-        }
-        return (int)value;
-    }
-
-    /**
-     * Getter for the quantization bits of this WaveAudioEssenceDescriptor
-     *
-     * @return quantization bits in the inclusive range [1, Integer.MAX_VALUE]
-     * @throws MXFException when quantization bits is out of range
-     */
-    public int getQuantizationBits() throws MXFException
-    {
-        long value = this.waveAudioEssenceDescriptorBO.quantization_bits;
-        if ((value <=0) || (value > Integer.MAX_VALUE))
-        {
-            throw new MXFException(String.format("Observed quantization bits = %d, which is not supported at this time", value));
-        }
-        return (int)value;
+    public WaveAudioEssenceDescriptorBO getWaveAudioEssenceDescriptorBO() {
+        return ((WaveAudioEssenceDescriptorBO)this.genericSoundEssenceDescriptorBO);
     }
 
     /**
@@ -116,7 +55,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public int getBlockAlign() throws MXFException
     {
-        long value = this.waveAudioEssenceDescriptorBO.block_align;
+        long value = getWaveAudioEssenceDescriptorBO().block_align;
         if ((value <=0) || (value > Integer.MAX_VALUE))
         {
             throw new MXFException(String.format("Observed block align = %d, which is not supported at this time", value));
@@ -131,19 +70,11 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
     public @Nullable
     MXFUID getChannelAssignmentUL()
     {
-        if (this.waveAudioEssenceDescriptorBO.channel_assignment != null)
+        if (getWaveAudioEssenceDescriptorBO().channel_assignment != null)
         {
-            return this.waveAudioEssenceDescriptorBO.channel_assignment.getULAsMXFUid();
+            return getWaveAudioEssenceDescriptorBO().channel_assignment.getULAsMXFUid();
         }
         return null;
-    }
-
-    /**
-     * Getter for the Essence Container UL of this FileDescriptor
-     * @return a UL representing the Essence Container
-     */
-    public UL getEssenceContainerUL(){
-        return this.waveAudioEssenceDescriptorBO.getEssenceContainerUL();
     }
 
     /**
@@ -162,7 +93,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
         }
 
         WaveAudioEssenceDescriptor otherObject = (WaveAudioEssenceDescriptor)other;
-        return this.waveAudioEssenceDescriptorBO.equals(otherObject.waveAudioEssenceDescriptorBO);
+        return this.genericSoundEssenceDescriptorBO.equals((otherObject.genericSoundEssenceDescriptorBO));
     }
 
     /**
@@ -173,7 +104,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public int hashCode()
     {
-        return this.waveAudioEssenceDescriptorBO.hashCode();
+        return this.genericSoundEssenceDescriptorBO.hashCode();
     }
 
     /**
@@ -183,7 +114,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
      */
     public String toString()
     {
-        return this.waveAudioEssenceDescriptorBO.toString();
+        return getWaveAudioEssenceDescriptorBO().toString();
     }
 
     /**
@@ -209,34 +140,12 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
         public WaveAudioEssenceDescriptorBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException
         {
-            super(header);
+            super(header, imfErrorLogger);
             long numBytesToRead = this.header.getVSize();
 
             StructuralMetadata.populate(this, byteProvider, numBytesToRead, localTagToUIDMap);
 
-            if (this.instance_uid == null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        WaveAudioEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
-            }
-
-            if (this.audio_sampling_rate == null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        WaveAudioEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "audio_sampling_rate is null");
-            }
-
-            if (this.channelcount == null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        WaveAudioEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "channelcount is null");
-            }
-
-            if (this.quantization_bits == null)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        WaveAudioEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "quantization_bits is null");
-            }
+            postPopulateCheck();
 
             if (this.block_align == null)
             {
@@ -261,23 +170,10 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
                 return false;
             }
 
+            boolean genericEqual = super.equals(other);
+            if (!genericEqual) return false;
+
             WaveAudioEssenceDescriptorBO otherObject = (WaveAudioEssenceDescriptorBO)other;
-
-            if ((this.audio_sampling_rate == null) || (!this.audio_sampling_rate.equals(otherObject.audio_sampling_rate)))
-            {
-                return false;
-            }
-
-            if ((this.channelcount== null) || (!this.channelcount.equals(otherObject.channelcount)))
-            {
-                return false;
-            }
-
-            if ((this.quantization_bits == null) || (!this.quantization_bits.equals(otherObject.quantization_bits)))
-            {
-                return false;
-            }
-
             return !((this.block_align == null) || (!this.block_align.equals(otherObject.block_align)));
 
         }
@@ -290,8 +186,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
          */
         public int hashCode()
         {
-            return this.audio_sampling_rate.hashCode() + this.channelcount.hashCode() + this.quantization_bits.hashCode()
-                    + this.block_align.hashCode();
+            return super.hashCode() + this.block_align.hashCode();
         }
 
         /**
@@ -302,24 +197,7 @@ public final class WaveAudioEssenceDescriptor extends GenericSoundEssenceDescrip
         public String toString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.append("================== WaveAudioEssenceDescriptor ======================\n");
-            sb.append(this.header.toString());
-            sb.append(String.format("instance_uid = 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%n",
-                    this.instance_uid[0], this.instance_uid[1], this.instance_uid[2], this.instance_uid[3],
-                    this.instance_uid[4], this.instance_uid[5], this.instance_uid[6], this.instance_uid[7],
-                    this.instance_uid[8], this.instance_uid[9], this.instance_uid[10], this.instance_uid[11],
-                    this.instance_uid[12], this.instance_uid[13], this.instance_uid[14], this.instance_uid[15]));
-            sb.append("================== SampleRate ======================\n");
-            sb.append(this.sample_rate.toString());
-            sb.append(String.format("essence_container = %s%n", this.essence_container.toString()));
-            sb.append("================== AudioSamplingRate ======================\n");
-            sb.append(this.audio_sampling_rate.toString());
-            sb.append(String.format("channelcount = %d%n", this.channelcount));
-            sb.append(String.format("quantization_bits = %d%n", this.quantization_bits));
-            if (this.sound_essence_coding != null)
-            {
-                sb.append(String.format("sound_essence_coding = %s%n", this.sound_essence_coding.toString()));
-            }
+            sb.append(super.toString());
             sb.append(String.format("block_align = %d%n", this.block_align));
             sb.append(String.format("average_bytes_per_second = %d%n", this.average_bytes_per_second));
             if (this.channel_assignment != null)

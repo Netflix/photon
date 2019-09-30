@@ -187,6 +187,7 @@ public final class Composition {
         CommentarySequence("CommentarySequence"),
         KaraokeSequence("KaraokeSequence"),
         AncillaryDataSequence("AncillaryDataSequence"),
+        IABSequence("IABSequence"),
         UnsupportedSequence("UnsupportedSequence");
 
         private final String name;
@@ -221,6 +222,8 @@ public final class Composition {
                     return KaraokeSequence;
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
+                case "IABSequence":
+                    return IABSequence;
                 case "UnsupportedSequence":
                 default:
                     return UnsupportedSequence;
