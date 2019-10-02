@@ -70,7 +70,11 @@ public class IMPBuilderFunctionalTest {
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2013", true, 1},
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2013", true, 1},
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2013", false, 0},
-                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2013", false, 0}
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2013", false, 0},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2016", true, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2016", true, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2016", false, 0},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2016", false, 0}
         };
     }
 
@@ -98,7 +102,7 @@ public class IMPBuilderFunctionalTest {
             if (schemaVersion.equals("2016")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
                         "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileMetadataMap(imfErrorLogger),
@@ -106,7 +110,7 @@ public class IMPBuilderFunctionalTest {
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
                         "Netflix",
-                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
                         "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileMetadataMap(imfErrorLogger),
@@ -116,7 +120,7 @@ public class IMPBuilderFunctionalTest {
             if (schemaVersion.equals("2016")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
                         "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileInfoMap(imfErrorLogger),
@@ -125,7 +129,7 @@ public class IMPBuilderFunctionalTest {
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
                         "Netflix",
-                        applicationComposition.getEssenceVirtualTracks(),
+                        applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
                         "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileInfoMap(imfErrorLogger),

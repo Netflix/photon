@@ -369,6 +369,7 @@
             <Resource xsi:type="MarkerResourceType">
               <Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>
               <IntrinsicDuration>7148</IntrinsicDuration>
+              <RepeatCount>2</RepeatCount> <!-- Repeats, to match the duration of duplicated essence Resources -->
               <Marker>
                 <Label>FFCL</Label>
                 <Offset>24</Offset>
