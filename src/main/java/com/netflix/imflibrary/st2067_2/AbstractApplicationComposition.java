@@ -31,6 +31,7 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
@@ -148,6 +149,11 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(compositionPlaylistType, this
                 .virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet));
+
+        if (IMFCoreConstraintsChecker.hasIABVirtualTracks(compositionPlaylistType, virtualTrackMap)) {
+            List<ErrorLogger.ErrorObject> errors = IMFIABConstraintsChecker.checkIABVirtualTrack(compositionPlaylistType.getEditRate(), virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet);
+            imfErrorLogger.addAllErrors(errors);
+        }
 
         if ((compositionPlaylistType.getEssenceDescriptorList() == null) ||
                 (compositionPlaylistType.getEssenceDescriptorList().size() < 1)) {
@@ -470,7 +476,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         }
         return null;
     }
-
 
     /**
      * Getter for the errors in Composition
@@ -933,9 +938,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return byteProvider;
     }
 
-    private List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>>
-                                                                    essenceDescriptorsMap, Map<UUID,
-            DOMNodeObjectModel> eDLMap) {
+    private List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         /**

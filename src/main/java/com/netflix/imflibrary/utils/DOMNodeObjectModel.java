@@ -543,8 +543,7 @@ public class DOMNodeObjectModel {
             while(iterator.hasNext()){
                 Map.Entry<String, Integer> fieldValuesEntry = iterator.next();
                 for(Integer i = 0; i< fieldValuesEntry.getValue(); i++) {
-                    sb.append(String.format("  <%s>%s</%s xmlns=\"%s\">", entry.getKey().getLocalName(), fieldValuesEntry.getKey(), entry.getKey().getLocalName(),
-                            entry.getKey().getNamespaceURI())+ "\n");
+                    sb.append(String.format("  <%s xmlns=\"%s\">%s</%s>%n", entry.getKey().getLocalName(), entry.getKey().getNamespaceURI(), fieldValuesEntry.getKey(), entry.getKey().getLocalName()));
                 }
             }
         }

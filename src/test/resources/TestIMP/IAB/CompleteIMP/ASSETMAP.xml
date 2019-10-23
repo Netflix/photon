@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:6a3beb46-60ab-485f-9fa7-f1f033b5f2b8</Id>
+  <Creator language="en">IMF-Tool 1.6.308</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2019-08-26T21:32:17Z</IssueDate>
+  <Issuer language="en">Netflix</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:299b877c-d40b-4f9e-aa22-4fadf7ebf2b9</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>AUDIO_299b877c-d40b-4f9e-aa22-4fadf7ebf2b9.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:17c68559-b6de-4525-93f8-17c8ae77f599</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>meridian_2398_Atmos_20190603_first10s.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:418e4d1f-f5c7-4c71-8c62-6f796446de20</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>VIDEO_418e4d1f-f5c7-4c71-8c62-6f796446de20.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e0265fda-cb35-4e35-a4e4-4f44d82d2a52</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_e0265fda-cb35-4e35-a4e4-4f44d82d2a52.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:ea472ed7-fe1f-451d-b1fa-b2b9e7b7da98</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_ea472ed7-fe1f-451d-b1fa-b2b9e7b7da98.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

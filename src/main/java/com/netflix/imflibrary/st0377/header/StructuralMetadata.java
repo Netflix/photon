@@ -20,6 +20,8 @@ package com.netflix.imflibrary.st0377.header;
 
 
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
+import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
@@ -495,6 +497,11 @@ public final class StructuralMetadata
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "mime_media_type");
         }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x02, 0x02, 0x10, 0x02, 0x04, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "conforms_to_specifications");
+        }
         // ACESPictureSubDescriptor
         {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x01, 0x06, 0x0a, 0x01, 0x00, 0x00, 0x00};
@@ -705,6 +712,10 @@ public final class StructuralMetadata
                     return GroupOfSoundFieldGroupLabelSubDescriptor.GroupOfSoundFieldGroupLabelSubDescriptorBO.class;
                 case 0x5A :
                     return JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO.class;
+                case 0x7B :
+                    return IABEssenceDescriptor.IABEssenceDescriptorBO.class;
+                case 0x7C :
+                    return IABSoundfieldLabelSubDescriptor.IABSoundfieldLabelSubDescriptorBO.class;
                 case 0x79 :
                     return ACESPictureSubDescriptor.ACESPictureSubDescriptorBO.class;
                 case 0x7a :

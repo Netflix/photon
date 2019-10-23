@@ -199,6 +199,10 @@ public final class IndexTableSegment
         }
     }
 
+    public CompoundDataTypes.Rational getIndexEditRate() {
+        return indexEditRate;
+    }
+
     /**
      * Checks if the key passed in corresponds to a IndexTable segment
      *

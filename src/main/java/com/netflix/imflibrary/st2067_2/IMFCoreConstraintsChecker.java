@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
@@ -66,21 +67,38 @@ final class IMFCoreConstraintsChecker {
 
     }
 
-    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
                                           Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                           Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
         RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
         return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary);
     }
 
-    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
                                           Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                           Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
                                           RegXMLLibDictionary regXMLLibDictionary) {
         return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary, new HashSet<>());
     }
 
-    public static List checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+    /**
+     * Checks that there is only one video track and at least one audio track and that
+     * for each virtual track in the given virtual track map that:
+     * - the track is made of supported sequences
+     * - the CPL edit rate matches one of the MainImageSequence edit rate
+     * - the resources are valid see checkVirtualTrackResourceList
+     * - each resource has a corresponding essence descriptor
+     * - the CPL and descriptor rates match
+     * - the descriptors are homogeneous
+     *
+     * @param compositionPlaylistType CPL object
+     * @param virtualTrackMap map of tracks indexed by UUID
+     * @param essenceDescriptorListMap map of essence descriptors in the CPL
+     * @param regXMLLibDictionary helper for producing XML representation of descriptors
+     * @param homogeneitySelectionSet set of strings for which homogenity has to be checked
+     * @return a list of errors
+     */
+     public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
                                           Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                           Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
                                           RegXMLLibDictionary regXMLLibDictionary,
@@ -100,7 +118,8 @@ final class IMFCoreConstraintsChecker {
             if (!(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence))) {
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon",
                                 virtualTrack.getSequenceTypeEnum().toString()));
@@ -126,7 +145,8 @@ final class IMFCoreConstraintsChecker {
 
             if((virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence))
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))
                     && compositionPlaylistType.getEssenceDescriptorList() != null
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
             {
@@ -153,7 +173,8 @@ final class IMFCoreConstraintsChecker {
                             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence) ||
                                     virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)) {
                                 essenceDescriptorField = "SampleRate";
-                            } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)) {
+                            } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence) ||
+                                        virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
                                 essenceDescriptorField = "SampleRate";
                                 otherEssenceDescriptorField = "AudioSampleRate";
                             }
@@ -211,7 +232,8 @@ final class IMFCoreConstraintsChecker {
                             String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
                 else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
-                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)){
+                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
+                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)){
                     boolean isVirtualTrackHomogeneous = true;
                     Set<String> homogeneitySelectionSetAll = new HashSet<>(homogeneitySelectionSet);
                     homogeneitySelectionSetAll.addAll(IMFCoreConstraintsChecker.homogeneitySelectionSet);
@@ -259,6 +281,36 @@ final class IMFCoreConstraintsChecker {
         return imfErrorLogger.getErrors();
     }
 
+    public static boolean hasIABVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                              Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap){
+        boolean foundIABEssence = false;
+        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
+        Iterator iterator = virtualTrackMap.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+            List<ErrorLogger.ErrorObject> errors = checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList);
+            imfErrorLogger.addAllErrors(errors);
+
+            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
+                foundIABEssence = true;
+            }
+        }
+
+        return foundIABEssence;
+    }
+
+    /**
+     * Checks that for each segment that:
+     * - all tracks in the segment are in the reference track map
+     * - the reference track map and the segment have the same number of tracks
+     * - it has an integer duration when expressed in the CPL edit rate
+     * - all its sequences have the same duration
+     *
+     * @param compositionPlaylistType the playlist from which segments are to be checked
+     * @param virtualTrackMap a map of all the virtual tracks in a segment against which checks will be made
+     * @param imfErrorLogger the logger object in which error messages are added
+     **/
     public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, Composition.VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
     {
         for (IMFSegmentType segment : compositionPlaylistType.getSegmentList())
@@ -322,7 +374,16 @@ final class IMFCoreConstraintsChecker {
         }
     }
 
-    public static List checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType>
+    /**
+     * Checks within a list of Resources that
+     * - each resource has a valid duration (positive and less than the intrinsic duration), including for marker resources
+     * - all resources use the same edit rate
+     *
+     * @param trackID the track ID of the track to which the resources belong, used for logging
+     * @param virtualBaseResourceList the list of resources, including marker resources
+     * @return a list of errors
+     */
+     public static List<ErrorLogger.ErrorObject> checkVirtualTrackResourceList(UUID trackID, List<? extends IMFBaseResourceType>
             virtualBaseResourceList){
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         //Section 6.9.3 st2067-3:2016
