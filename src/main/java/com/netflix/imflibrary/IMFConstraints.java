@@ -23,6 +23,7 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
+import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
@@ -529,6 +530,35 @@ public final class IMFConstraints
             }
 
             return waveAudioEssenceDescriptor;
+        }
+
+        /**
+         * Gets the first IABEssenceDescriptor structural metadata set from
+         * an OP1A-conformant MXF Header partition. Returns null if none is found
+         * @return returns the first IABEssenceDescriptor
+         */
+        public @Nullable IABEssenceDescriptor getIABEssenceDescriptor()
+        {
+            IABEssenceDescriptor iabEssenceDescriptor = null;
+            GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
+                    getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
+            {
+                Sequence sequence = timelineTrack.getSequence();
+                MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
+                if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
+                {
+                    GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
+                    if (genericDescriptor instanceof IABEssenceDescriptor)
+                    {
+                        iabEssenceDescriptor = (IABEssenceDescriptor)genericDescriptor;
+                        break;
+                    }
+                }
+            }
+
+            return iabEssenceDescriptor;
         }
 
         /**
