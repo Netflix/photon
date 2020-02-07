@@ -96,6 +96,24 @@ public final class Sequence extends StructuralComponent
     }
 
     /**
+     * Getter for the subset of structural components that are of type SourceClip
+     *
+     * @return the source clips
+     */
+    public List<DescriptiveMarkerSegment> getDescriptiveMarkerSegments()
+    {
+        List<DescriptiveMarkerSegment> descriptiveMarkerSegments = new ArrayList<>();
+        for (StructuralComponent structuralComponent : this.structuralComponents)
+        {
+            if (structuralComponent instanceof DescriptiveMarkerSegment)
+            {
+                descriptiveMarkerSegments.add((DescriptiveMarkerSegment)structuralComponent);
+            }
+        }
+        return descriptiveMarkerSegments;
+    }
+
+    /**
      * Getter for the instance UID of a SourceClip structural component in the list of structural components referred by this Sequence object
      * @param index - the index in the list corresponding to the SourceClip structural component
      * @return the source clips
