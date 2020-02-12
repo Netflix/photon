@@ -54,7 +54,7 @@ import java.util.*;
  * A class that models an IMF Composition Playlist structure.
  */
 @Immutable
-final class IMFCompositionPlaylistType {
+public final class IMFCompositionPlaylistType {
     private final UUID id;
     private final Composition.EditRate editRate;
     private final String annotation;
