@@ -25,9 +25,11 @@ import com.netflix.imflibrary.st2067_2.AbstractApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylistType;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.Fraction;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -74,6 +76,8 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
         add("ActiveYOffset");
     }});
 
+    private CompositionImageEssenceTsp2121DescriptorModel imageEssenceDescriptorModel;
+
     public ApplicationTsp2121Composition(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {
         this(imfCompositionPlaylistType, new HashSet<>());
     }
@@ -82,14 +86,12 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
         super(imfCompositionPlaylistType, ignoreSet, homogeneitySelectionSet);
 
         try {
-            CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = getCompositionImageEssenceDescriptorModel();
+            this.imageEssenceDescriptorModel = (CompositionImageEssenceTsp2121DescriptorModel) getCompositionImageEssenceDescriptorModel();
 
             if (imageEssenceDescriptorModel != null) {
                 imfErrorLogger.addAllErrors(imageEssenceDescriptorModel.getErrors());
-                validateGenericPictureEssenceDescriptor(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_TSP_2121_COMPOSITION_TYPE,
-                        imfErrorLogger);
-                validateImageCharacteristics(imageEssenceDescriptorModel, ApplicationCompositionType.APPLICATION_TSP_2121_COMPOSITION_TYPE,
-                        imfErrorLogger);
+                validateGenericPictureEssenceDescriptor(imfErrorLogger);
+                validateImageCharacteristics(imfErrorLogger);
             }
         } catch (Exception e) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -98,16 +100,32 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
         }
     }
 
-    private static void validateGenericPictureEssenceDescriptor(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel,
-                                                                ApplicationCompositionType applicationCompositionType,
-                                                                IMFErrorLogger imfErrorLogger) {
+    @Override
+    public @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel() {
+        CompositionImageEssenceTsp2121DescriptorModel imageEssenceDescriptorModel = null;
+        final DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
+                this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
+
+        if (imageEssencedescriptorDOMNode != null) {
+            final UUID imageEssenceDescriptorID = getEssenceDescriptorListMap().entrySet().stream()
+                    .filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode))
+                    .map(e -> e.getKey())
+                    .findFirst().get();
+            imageEssenceDescriptorModel =
+                    new CompositionImageEssenceTsp2121DescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode, regXMLLibDictionary);
+        }
+
+        return imageEssenceDescriptorModel;
+    }
+
+    private void validateGenericPictureEssenceDescriptor(IMFErrorLogger imfErrorLogger) {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
         ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
         if (colorModel.equals(ColorModel.Unknown)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has Invalid color components as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
             return;
         }
 
@@ -117,7 +135,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid storedWidth(%d) or storedHeight(%d) as per %s",
-                            imageEssenceDescriptorID.toString(), storedWidth, storedHeight, applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), storedWidth, storedHeight, getApplicationCompositionType().toString()));
         }
 
         Integer sampleWidth = imageEssenceDescriptorModel.getSampleWidth();
@@ -128,14 +146,14 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid sampleWidth(%d) or sampleHeight(%d) as per %s",
                             imageEssenceDescriptorID.toString(), sampleWidth != null ? sampleWidth : 0, sampleHeight != null ? sampleHeight : 0,
-                            applicationCompositionType.toString()));
+                            getApplicationCompositionType().toString()));
         }
 
         if (imageEssenceDescriptorModel.getStoredOffset() != null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s invalid StoredOffset as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
         }
 
         ColorPrimaries colorPrimaries = imageEssenceDescriptorModel.getColorPrimaries();
@@ -143,7 +161,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
         }
 
         TransferCharacteristic transferCharacteristic = imageEssenceDescriptorModel.getTransferCharacteristic();
@@ -151,7 +169,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid TransferCharacteristic as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
         }
 
         CodingEquation codingEquation = imageEssenceDescriptorModel.getCodingEquation();
@@ -159,7 +177,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid CodingEquation as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
         }
 
         Colorimetry color = imageEssenceDescriptorModel.getColor();
@@ -167,7 +185,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries(%s)-TransferCharacteristic(%s)-CodingEquation(%s) combination as per %s",
-                            imageEssenceDescriptorID.toString(), colorPrimaries.name(), transferCharacteristic.name(), codingEquation.name(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), colorPrimaries.name(), transferCharacteristic.name(), codingEquation.name(), getApplicationCompositionType().toString()));
         }
 
         UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
@@ -177,14 +195,12 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("EssenceDescriptor with ID %s has invalid UL %s indicated by the ContainerFormat as per %s",
-                                imageEssenceDescriptorID.toString(), essenceContainerFormatUL.toString(), applicationCompositionType.toString()));
+                                imageEssenceDescriptorID.toString(), essenceContainerFormatUL.toString(), getApplicationCompositionType().toString()));
             }
         }
     }
 
-    private static void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel,
-                                                     ApplicationCompositionType applicationCompositionType,
-                                                     IMFErrorLogger imfErrorLogger) {
+    private void validateImageCharacteristics(IMFErrorLogger imfErrorLogger) {
         UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
 
         ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
@@ -192,7 +208,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has Invalid color components as per %s",
-                            imageEssenceDescriptorID.toString(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), getApplicationCompositionType().toString()));
             return;
         }
 
@@ -204,7 +220,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid storedHeight(%d) as per %s",
-                            imageEssenceDescriptorID.toString(), storedHeight, applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), storedHeight, getApplicationCompositionType().toString()));
         }
 
         //ComponentDepth
@@ -213,7 +229,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s invalid ComponentDepth(%d) as per %s",
-                            imageEssenceDescriptorID.toString(), componentDepth, applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), componentDepth, getApplicationCompositionType().toString()));
         }
 
         //PixelBitDepth
@@ -222,7 +238,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s invalid PixelBitDepth(%d) as per %s",
-                            imageEssenceDescriptorID.toString(), pixelBitDepth, applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), pixelBitDepth, getApplicationCompositionType().toString()));
         }
 
         //FrameLayout
@@ -231,7 +247,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid FrameLayout(%s) as per %s",
-                            imageEssenceDescriptorID.toString(), frameLayoutType.name(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), frameLayoutType.name(), getApplicationCompositionType().toString()));
         } else {
             //SampleRate
             Fraction sampleRate = imageEssenceDescriptorModel.getSampleRate();
@@ -239,7 +255,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("EssenceDescriptor with ID %s has Invalid SampleRate(%s) for frame structure %s as per %s",
-                                imageEssenceDescriptorID.toString(), sampleRate.toString(), frameLayoutType.name(), applicationCompositionType.toString()));
+                                imageEssenceDescriptorID.toString(), sampleRate.toString(), frameLayoutType.name(), getApplicationCompositionType().toString()));
             }
         }
 
@@ -249,7 +265,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid combination of FrameLayOut(%s) for Sampling(%s) as per %s",
-                            imageEssenceDescriptorID.toString(), frameLayoutType.name(), sampling.name(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), frameLayoutType.name(), sampling.name(), getApplicationCompositionType().toString()));
         }
 
         //Quantization
@@ -262,7 +278,7 @@ public class ApplicationTsp2121Composition extends AbstractApplicationCompositio
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s has invalid combination of quantization(%s)-Sampling(%s)-colorModel(%s)-color(%s) as per %s",
-                            imageEssenceDescriptorID.toString(), quantization.name(), sampling.name(), colorModel.name(), color.name(), applicationCompositionType.toString()));
+                            imageEssenceDescriptorID.toString(), quantization.name(), sampling.name(), colorModel.name(), color.name(), getApplicationCompositionType().toString()));
         }
     }
 
