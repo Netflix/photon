@@ -22,7 +22,7 @@ public enum Colorimetry {
     Color6(ColorPrimaries.P3D65,      TransferCharacteristic.SMPTEST2084,       CodingEquation.None),
     Color7(ColorPrimaries.ITU2020,    TransferCharacteristic.SMPTEST2084,       CodingEquation.ITU2020NCL),
     Color_App5_AP0(ColorPrimaries.ACES,    TransferCharacteristic.Linear,       CodingEquation.None),
-    Color8DPP(ColorPrimaries.ITU2020, TransferCharacteristic.ITU2020HLG,        CodingEquation.ITU2020NCL),
+    Color8(ColorPrimaries.ITU2020,    TransferCharacteristic.ITU2020HLG,        CodingEquation.ITU2020NCL),
     Unknown(ColorPrimaries.Unknown,   TransferCharacteristic.Unknown,           CodingEquation.Unknown);
 
 
