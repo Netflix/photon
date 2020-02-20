@@ -43,6 +43,10 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
          * Constructor for a File descriptor ByteObject.
          *
          * @param header the MXF KLV header (Key and Length field)
+         * @param byteProvider the input stream corresponding to the MXF file
+         * @param localTagToUIDMap mapping from local tag to element UID as provided by the Primer Pack defined in st377-1:2011
+         * @param imfErrorLogger logger for recording any parsing errors
+         * @throws IOException - any I/O related error will be exposed through an IOException
          */
         public IABEssenceDescriptorBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException {
             super(header, imfErrorLogger);

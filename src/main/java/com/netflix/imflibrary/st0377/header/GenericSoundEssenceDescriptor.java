@@ -181,6 +181,7 @@ public abstract class GenericSoundEssenceDescriptor extends FileDescriptor{
          * Constructor for a File descriptor ByteObject.
          *
          * @param header the MXF KLV header (Key and Length field)
+         * @param imfErrorLogger logger for recording any parsing errors
          */
         public GenericSoundEssenceDescriptorBO(final KLVPacket.Header header, IMFErrorLogger imfErrorLogger) {
             super(header);
