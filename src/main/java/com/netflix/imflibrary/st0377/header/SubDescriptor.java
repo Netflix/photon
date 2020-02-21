@@ -35,7 +35,7 @@ public abstract class SubDescriptor extends InterchangeObject {
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        SubDescriptorBO(final KLVPacket.Header header) {
+        protected SubDescriptorBO(final KLVPacket.Header header) {
             super(header);
         }
     }

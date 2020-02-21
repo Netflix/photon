@@ -1,36 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <Id>urn:uuid:2fa7fd3e-6e20-45bf-bff1-30afe4e8c086</Id>
+  <Id>urn:uuid:aa8669d7-6ebc-4839-9855-b5d7f9aa7f21</Id>
   <AnnotationText language="en">Photon App5 test</AnnotationText>
-  <Creator language="en">IMF-Tool 1.5.285</Creator>
+  <Creator language="en">IMF-Tool 1.6.336</Creator>
   <VolumeCount>1</VolumeCount>
-  <IssueDate>2019-02-25T08:47:01Z</IssueDate>
+  <IssueDate>2020-02-21T22:50:36Z</IssueDate>
   <Issuer language="en">Wolfgang Ruppel</Issuer>
   <AssetList>
-    <Asset>
-      <Id>urn:uuid:804316e9-4d12-432c-a6be-052c29204b73</Id>
-      <ChunkList>
-        <Chunk>
-          <Path>CPL_804316e9-4d12-432c-a6be-052c29204b73.xml</Path>
-        </Chunk>
-      </ChunkList>
-    </Asset>
-    <Asset>
-      <Id>urn:uuid:467334be-4343-430b-9a39-a4fe5a333b3e</Id>
-      <ChunkList>
-        <Chunk>
-          <Path>reel1.mxf</Path>
-        </Chunk>
-      </ChunkList>
-    </Asset>
-    <Asset>
-      <Id>urn:uuid:34a5ae67-63ba-401d-a9f1-6c4b86d73d5b</Id>
-      <ChunkList>
-        <Chunk>
-          <Path>reel2.mxf</Path>
-        </Chunk>
-      </ChunkList>
-    </Asset>
     <Asset>
       <Id>urn:uuid:060fe563-18d5-48d4-9148-1bfba4262ae2</Id>
       <ChunkList>
@@ -40,11 +16,35 @@
       </ChunkList>
     </Asset>
     <Asset>
-      <Id>urn:uuid:a17821c0-e94b-4b73-b761-3426dbefc0e1</Id>
+      <Id>urn:uuid:b7078739-8e49-4c3b-b5f9-11544799ff54</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>reel1.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:2718c7fd-4cb3-4ff8-b4bd-889c912edc9b</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>reel2.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:f45a2034-317d-40fa-b07f-b9c5f3f15cfa</Id>
       <PackingList>true</PackingList>
       <ChunkList>
         <Chunk>
-          <Path>PKL_a17821c0-e94b-4b73-b761-3426dbefc0e1.xml</Path>
+          <Path>PKL_f45a2034-317d-40fa-b07f-b9c5f3f15cfa.xml</Path>
         </Chunk>
       </ChunkList>
     </Asset>

@@ -550,6 +550,7 @@ public final class CompositionImageEssenceDescriptorModel {
         if (subDescriptors != null) {
             List<DOMNodeObjectModel> acesPictureSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
             List<DOMNodeObjectModel> targetFrameSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(targetFrameSubDescriptorUL));
+            List<DOMNodeObjectModel> containerConstraintsSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(containerConstraintsSubDescriptorUL));
             if (!acesPictureSubDescriptors.isEmpty()) {
                 for (DOMNodeObjectModel domNodeObjectModel : acesPictureSubDescriptors) {
                     String authoring_information = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(acesAuthoringInformationUL));
@@ -585,7 +586,7 @@ public final class CompositionImageEssenceDescriptorModel {
                         //TODO Check it targetFrameAncillaryResourceID belongs to an existing GSP
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                                 IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                                String.format("INFO: Target FrameSubDescriptor (ID %s) references an Ancillary Resource (ID %s), but Ancillary Resources cannot be checked yet", 
+                                String.format("INFO (can be ignored): Target FrameSubDescriptor (ID %s) references an Ancillary Resource (ID %s), but Ancillary Resources cannot be checked yet", 
                                         domNodeObjectModel.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString(), targetFrameAncillaryResourceID.toString()));
                     }
                     String media_type = domNodeObjectModel.getFieldAsString(regXMLLibDictionary.getSymbolNameFromURN(mediaTypeUL));
@@ -653,6 +654,11 @@ public final class CompositionImageEssenceDescriptorModel {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("INFO (can be ignored): EssenceDescriptor with ID %s: No TargetFrameSubDescriptor found", imageEssencedescriptorID.toString()));
+            }
+            if (containerConstraintsSubDescriptors.isEmpty()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("EssenceDescriptor with ID %s: A ContainerConstraintsSubDescriptor shall be present per ST 379-2, but is missing", imageEssencedescriptorID.toString()));
             }
         } else {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
