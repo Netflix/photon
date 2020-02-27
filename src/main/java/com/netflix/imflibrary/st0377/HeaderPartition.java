@@ -743,6 +743,16 @@ public final class HeaderPartition
                     throw new MXFException(String.format("Language Codes (%s, %s) do not match across SoundFieldGroupLabelSubdescriptors and AudioChannelLabelSubDescriptors", rfc5646SpokenLanguage, audioChannelLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }*/
+        } else if (this.hasIABEssenceDescriptor()) {
+            List<InterchangeObject> iabSoundFieldLabelSubDescriptors = this.getIABSoundFieldLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : iabSoundFieldLabelSubDescriptors) {
+                IABSoundfieldLabelSubDescriptor iabSoundfieldLabelSubDescriptor = (IABSoundfieldLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the IABSoundFieldLabelSubDescriptors", rfc5646SpokenLanguage, iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
         }
         return rfc5646SpokenLanguage;
     }
@@ -800,6 +810,15 @@ public final class HeaderPartition
     public boolean hasWaveAudioEssenceDescriptor()
     {
         return this.hasInterchangeObject(WaveAudioEssenceDescriptor.class);
+    }
+
+    /**
+     * Checks if this HeaderPartition object has a IAB Essence Descriptor
+     * @return true/false depending on whether this HeaderPartition contains a IABEssenceDescriptor or not
+     */
+    public boolean hasIABEssenceDescriptor()
+    {
+        return this.hasInterchangeObject(IABEssenceDescriptor.class);
     }
 
     /**
@@ -877,6 +896,15 @@ public final class HeaderPartition
     public List<InterchangeObject> getSoundFieldGroupLabelSubDescriptors()
     {
         return this.getInterchangeObjects(SoundFieldGroupLabelSubDescriptor.class);
+    }
+
+    /**
+     * Gets all the IAB Soundfield Label SubDescriptors associated with this HeaderPartition object
+     * @return list of IAB Soundfield Label SubDescriptor contained in this header partition
+     */
+    public List<InterchangeObject> getIABSoundFieldLabelSubDescriptors()
+    {
+        return this.getInterchangeObjects(IABSoundfieldLabelSubDescriptor.class);
     }
 
     /**

@@ -42,7 +42,7 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
         /**
          * Constructor for a IABEssenceDescriptor ByteObject.
          *
-         * @param header the parsed header (K and L fields from the KLV packet)
+         * @param header the MXF KLV header (Key and Length field)
          * @param byteProvider the input stream corresponding to the MXF file
          * @param localTagToUIDMap mapping from local tag to element UID as provided by the Primer Pack defined in st377-1:2011
          * @param imfErrorLogger logger for recording any parsing errors
