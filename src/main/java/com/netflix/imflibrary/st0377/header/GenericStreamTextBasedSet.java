@@ -38,6 +38,10 @@ public class GenericStreamTextBasedSet extends TextBasedObject {
          * Instantiates a new parsed GenericStreamTextBasedSetBO object by virtue of parsing the MXF file bitstream
          *
          * @param header the parsed header (K and L fields from the KLV packet)
+         * @param byteProvider the input stream corresponding to the MXF file
+         * @param localTagToUIDMap mapping from local tag to element UID as provided by the Primer Pack defined in st377-1:2011
+         * @param imfErrorLogger logger for recording any parsing errors
+         * @throws IOException - any I/O related error will be exposed through an IOException
          */
         public GenericStreamTextBasedSetBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException {
             super(header, imfErrorLogger);

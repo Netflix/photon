@@ -1440,8 +1440,8 @@ public final class HeaderPartition
      * A static method to get the Header Partition from a file
      * @param inputFile source file to get the Header Partition from
      * @param imfErrorLogger logging object
-     * @return
-     * @throws IOException
+     * @return an HeaderPartition object constructed from the file
+     * @throws IOException any I/O related error will be exposed through an IOException
      */
     public static HeaderPartition fromFile(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
