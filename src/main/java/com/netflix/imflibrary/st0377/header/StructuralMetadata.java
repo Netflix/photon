@@ -46,8 +46,8 @@ public final class StructuralMetadata
     private static final byte[] KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00};
     private static final byte[] KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    1,    0,    0,    1};
 
-    private static final byte[] DESCRIPTIVE_KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00};
-    private static final byte[] DESCRIPTIVE_KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    0,    0,    0,    1};
+    private static final byte[] DESCRIPTIVE_METADATA_KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00};
+    private static final byte[] DESCRIPTIVE_METADATA_KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    0,    0,    0,    1};
 
 
     private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
@@ -676,7 +676,7 @@ public final class StructuralMetadata
     {
         for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
-            if( (StructuralMetadata.DESCRIPTIVE_KEY_MASK[i] != 0) && (StructuralMetadata.DESCRIPTIVE_KEY_BASE[i] != key[i]) )
+            if( (StructuralMetadata.DESCRIPTIVE_METADATA_KEY_MASK[i] != 0) && (StructuralMetadata.DESCRIPTIVE_METADATA_KEY_BASE[i] != key[i]) )
             {
                 return false;
             }
