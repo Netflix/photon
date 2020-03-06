@@ -46,6 +46,10 @@ public final class StructuralMetadata
     private static final byte[] KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00};
     private static final byte[] KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    1,    0,    0,    1};
 
+    private static final byte[] DESCRIPTIVE_METADATA_KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00};
+    private static final byte[] DESCRIPTIVE_METADATA_KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    0,    0,    0,    1};
+
+
     private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
 
 
@@ -119,6 +123,28 @@ public final class StructuralMetadata
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07 , 0x02, 0x01, 0x03, 0x01, 0x03, 0x00, 0x00};
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "origin");
+        }
+        //Event
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x07 , 0x02, 0x01, 0x03, 0x03, 0x03, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "event_start_position");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x02, 0x05 , 0x30, 0x04, 0x04, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "event_comment");
+        }
+        //DMSegment
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x04, 0x01, 0x07, 0x01, 0x05, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "track_ids");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x06, 0x01, 0x01, 0x04, 0x02, 0x0c, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "dm_framework");
         }
         //CDCIPictureEssenceDescriptor
         {
@@ -579,6 +605,39 @@ public final class StructuralMetadata
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "viewing_environment");
         }
+        //Text-based DM Framework
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x06, 0x01, 0x01, 0x04, 0x05, 0x41, 0x01, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "text_based_object");
+        }
+        //Text-based Object
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x04, 0x06, 0x08, 0x06, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "metadata_payload_scheme_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x04, 0x09, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mime_type");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x03, 0x01, 0x01, 0x02, 0x02, 0x14, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "language_code");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x03, 0x02, 0x01, 0x06, 0x03, 0x02, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "description");
+        }
+        //Generic Stream Text-based Set
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0d, 0x01, 0x03, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "generic_stream_id");
+        }
         ItemULToItemName = Collections.unmodifiableMap(map);
     }
 
@@ -598,6 +657,26 @@ public final class StructuralMetadata
         for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (StructuralMetadata.KEY_MASK[i] != 0) && (StructuralMetadata.KEY_BASE[i] != key[i]) )
+            {
+                return false;
+            }
+        }
+
+        return ((key[5] == 0x53) || (key[5] == 0x13));
+
+    }
+
+    /**
+     * A method that determines of the key passed in corresponds to a descriptive metadata set.
+     *
+     * @param key the key
+     * @return the boolean
+     */
+    public static boolean isDescriptiveMetadata(byte[] key)
+    {
+        for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
+        {
+            if( (StructuralMetadata.DESCRIPTIVE_METADATA_KEY_MASK[i] != 0) && (StructuralMetadata.DESCRIPTIVE_METADATA_KEY_BASE[i] != key[i]) )
             {
                 return false;
             }
@@ -661,7 +740,7 @@ public final class StructuralMetadata
                 case 0x39 :
                     return Object.class; //Event Track
                 case 0x3A :
-                    return Object.class; //Static Track
+                    return StaticTrack.StaticTrackBO.class;
                 case 0x0F:
                     return Sequence.SequenceBO.class;
                 case 0x11 :
@@ -669,7 +748,7 @@ public final class StructuralMetadata
                 case 0x14 :
                     return TimecodeComponent.TimecodeComponentBO.class;
                 case 0x41 :
-                    return Object.class; //DM Segment
+                    return DescriptiveMarkerSegment.DescriptiveMarkerSegmentBO.class; //DM Segment
                 case 0x45 :
                     return Object.class; //DM Source Clip
                 case 0x09 :
@@ -722,6 +801,15 @@ public final class StructuralMetadata
                     return TargetFrameSubDescriptor.TargetFrameSubDescriptorBO.class;
                 default :
                     return Object.class;
+            }
+        }
+        else if (isDescriptiveMetadata(key)) { // Metadata Sets for the Text-based Metadata
+            if (key[13] == 0x02 && key[14] == 0x01) {
+                return GenericStreamTextBasedSet.GenericStreamTextBasedSetBO.class;
+            } else if (key[13] == 0x01 && key[14] == 0x01) {
+                return TextBasedDMFramework.TextBasedDMFrameworkBO.class;
+            } else {
+                return Object.class;
             }
         }
         else

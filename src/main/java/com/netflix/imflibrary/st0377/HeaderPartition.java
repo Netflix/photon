@@ -23,19 +23,25 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.ContentStorage;
+import com.netflix.imflibrary.st0377.header.DMFramework;
+import com.netflix.imflibrary.st0377.header.DescriptiveMarkerSegment;
 import com.netflix.imflibrary.st0377.header.EssenceContainerData;
 import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.GenericStreamTextBasedSet;
 import com.netflix.imflibrary.st0377.header.GenericTrack;
 import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
+import com.netflix.imflibrary.st0377.header.StaticTrack;
 import com.netflix.imflibrary.st0377.header.TargetFrameSubDescriptor;
 import com.netflix.imflibrary.st0377.header.MaterialPackage;
 import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
@@ -47,6 +53,8 @@ import com.netflix.imflibrary.st0377.header.SourceClip;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.StructuralComponent;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
+import com.netflix.imflibrary.st0377.header.TextBasedDMFramework;
+import com.netflix.imflibrary.st0377.header.TextBasedObject;
 import com.netflix.imflibrary.st0377.header.TimeTextResourceSubDescriptor;
 import com.netflix.imflibrary.st0377.header.TimedTextDescriptor;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
@@ -55,13 +63,18 @@ import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -165,7 +178,7 @@ public final class HeaderPartition
             byte[] key = Arrays.copyOf(header.getKey(), header.getKey().length);
             numBytesRead += header.getKLSize();
 
-            if (StructuralMetadata.isStructuralMetadata(Arrays.copyOf(header.getKey(), header.getKey().length)))
+            if (StructuralMetadata.isStructuralMetadata(Arrays.copyOf(header.getKey(), header.getKey().length)) || StructuralMetadata.isDescriptiveMetadata(Arrays.copyOf(header.getKey(), header.getKey().length)))
             {
                 Class clazz = StructuralMetadata.getStructuralMetadataSetClass(key);
                 if(!clazz.getSimpleName().equals(Object.class.getSimpleName())){
@@ -296,6 +309,18 @@ public final class HeaderPartition
                         TimelineTrack timelineTrack = new TimelineTrack((TimelineTrack.TimelineTrackBO) interchangeObjectBO, sequence);
                         this.cacheInterchangeObject(timelineTrack);
                         uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), timelineTrack);
+                    }
+
+                } else if (interchangeObjectBO.getClass().getEnclosingClass().equals(StaticTrack.class)) {
+                    Sequence sequence = null;
+                    for (Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        if (dependentInterchangeObject instanceof Sequence) {
+                            sequence = (Sequence) dependentInterchangeObject;
+                        }
+                        StaticTrack staticTrack = new StaticTrack((StaticTrack.StaticTrackBO) interchangeObjectBO, sequence);
+                        this.cacheInterchangeObject(staticTrack);
+                        uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), staticTrack);
                     }
 
                 } else if (interchangeObjectBO.getClass().getEnclosingClass().equals(SourcePackage.class)) {
@@ -449,6 +474,28 @@ public final class HeaderPartition
                     TimedTextDescriptor timedTextDescriptor = new TimedTextDescriptor((TimedTextDescriptor.TimedTextDescriptorBO) interchangeObjectBO, subDescriptorList);
                     this.cacheInterchangeObject(timedTextDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), timedTextDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TextBasedDMFramework.class)){
+                    TextBasedObject textBasedObject = null;
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        if(dependentInterchangeObject instanceof TextBasedObject) {
+                            textBasedObject = (TextBasedObject)dependentInterchangeObject;
+                        }
+                    }
+                    TextBasedDMFramework textBasedDMFramework = new TextBasedDMFramework((TextBasedDMFramework.TextBasedDMFrameworkBO) interchangeObjectBO, textBasedObject);
+                    this.cacheInterchangeObject(textBasedDMFramework);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), textBasedDMFramework);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(DescriptiveMarkerSegment.class)){
+                    DMFramework dmFramework = null;
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        if(dependentInterchangeObject instanceof TextBasedDMFramework) {
+                            dmFramework = (TextBasedDMFramework)dependentInterchangeObject;
+                        }
+                    }
+                    DescriptiveMarkerSegment descriptiveMarkerSegment = new DescriptiveMarkerSegment((DescriptiveMarkerSegment.DescriptiveMarkerSegmentBO) interchangeObjectBO, dmFramework);
+                    this.cacheInterchangeObject(descriptiveMarkerSegment);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), descriptiveMarkerSegment);
                 }
             }
         }
@@ -1416,4 +1463,66 @@ public final class HeaderPartition
         }
         return sb.toString();
     }
+
+    /**
+     * A static method to get the Header Partition from a file
+     * @param inputFile source file to get the Header Partition from
+     * @param imfErrorLogger logging object
+     * @return an HeaderPartition object constructed from the file
+     * @throws IOException any I/O related error will be exposed through an IOException
+     */
+    public static HeaderPartition fromFile(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long rangeEnd = archiveFileSize - 1;
+        long rangeStart = archiveFileSize - 4;
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
+        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+
+        rangeStart = archiveFileSize - randomIndexPackSize;
+        rangeEnd = archiveFileSize - 1;
+
+        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
+        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+
+        rangeStart = partitionByteOffsets.get(0);
+        rangeEnd = partitionByteOffsets.get(1) - 1;
+        byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
+        ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
+
+        return new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+    }
+
+    /**
+     * Method to get the stream id (used in GenericStreamPartition) for the descriptive metadata pointed by
+     * a GenericStreamTextBasedSet object, with a given description
+     * @param description text field to match with the description field of the GenericStreamTextBasedSet object
+     * @return the generic stream id of the metadata or -1 if not found
+     */
+    public long getGenericStreamIdFromGenericStreamTextBaseSetDescription(@Nonnull String description) {
+        long sid = -1;
+        for (SourcePackage sourcePackage: this.getPreface().getContentStorage().getSourcePackageList()) {
+            for (StaticTrack staticTrack: sourcePackage.getStaticTracks()) {
+                for (DescriptiveMarkerSegment segment: staticTrack.getSequence().getDescriptiveMarkerSegments()) {
+                    DMFramework dmFramework = segment.getDmFramework();
+                    if (dmFramework instanceof TextBasedDMFramework) {
+                        TextBasedObject textBasedObject =((TextBasedDMFramework) dmFramework).getTextBaseObject();
+                        if (textBasedObject instanceof GenericStreamTextBasedSet) {
+                            if (description.equals(textBasedObject.getDescription())) {
+                                sid = ((GenericStreamTextBasedSet) textBasedObject).getGenericStreamId();
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (sid != -1) break;
+            }
+            if (sid != -1) break;
+        }
+        return sid;
+    }
+
 }
