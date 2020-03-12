@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <Id>urn:uuid:9c2d2974-2970-465b-a74e-adbc419efd46</Id>
+  <Id>urn:uuid:f45a2034-317d-40fa-b07f-b9c5f3f15cfa</Id>
   <AnnotationText language="en">Photon App5 test</AnnotationText>
-  <IssueDate>2019-02-25T08:45:49Z</IssueDate>
+  <IssueDate>2020-02-21T22:50:36Z</IssueDate>
   <Issuer language="en">Wolfgang Ruppel</Issuer>
-  <Creator language="en">IMF-Tool 1.5.285</Creator>
+  <Creator language="en">IMF-Tool 1.6.336</Creator>
   <AssetList>
-    <Asset>
-      <Id>urn:uuid:59829373-6f21-4d1e-b713-0c6e6dc5a1f4</Id>
-      <Hash>TcIcY89NmTG8a+Fjbmn93c4tslQ=</Hash>
-      <Size>1064308</Size>
-      <Type>application/mxf</Type>
-      <OriginalFileName language="en">reel3-errors.mxf</OriginalFileName>
-      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-    </Asset>
-    <Asset>
-      <Id>urn:uuid:2e4ff806-2f81-445c-90aa-6d82242b7a40</Id>
-      <Hash>rYY+k3VMLBa7/s323h0aHS1SyF4=</Hash>
-      <Size>20185</Size>
-      <Type>text/xml</Type>
-      <OriginalFileName language="en">CPL_2e4ff806-2f81-445c-90aa-6d82242b7a40.xml</OriginalFileName>
-      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-    </Asset>
     <Asset>
       <Id>urn:uuid:060fe563-18d5-48d4-9148-1bfba4262ae2</Id>
       <Hash>gWT9+xsM9NiSq5oZVfCePT+tnp8=</Hash>
@@ -31,11 +15,27 @@
       <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
     </Asset>
     <Asset>
-      <Id>urn:uuid:34a5ae67-63ba-401d-a9f1-6c4b86d73d5b</Id>
-      <Hash>fTP2EYLH5wJFhzq/fvkVSi89oaY=</Hash>
+      <Id>urn:uuid:b7078739-8e49-4c3b-b5f9-11544799ff54</Id>
+      <Hash>JpzedWSjYB1Uz6TknP6IUZfJJak=</Hash>
+      <Size>1064308</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">reel1.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:2718c7fd-4cb3-4ff8-b4bd-889c912edc9b</Id>
+      <Hash>8tLHFl33+zXKSsN8dP4JeDLD0rg=</Hash>
       <Size>1585536</Size>
       <Type>application/mxf</Type>
       <OriginalFileName language="en">reel2.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e</Id>
+      <Hash>liWwFZOekBAMY+TQ8bmhLGN3qYY=</Hash>
+      <Size>21001</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml</OriginalFileName>
       <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
     </Asset>
   </AssetList>

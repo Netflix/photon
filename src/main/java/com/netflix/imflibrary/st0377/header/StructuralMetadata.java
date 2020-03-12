@@ -22,6 +22,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
@@ -783,6 +784,8 @@ public final class StructuralMetadata
                     return TimedTextDescriptor.TimedTextDescriptorBO.class;
                 case 0x65 :
                     return TimeTextResourceSubDescriptor.TimeTextResourceSubdescriptorBO.class;
+                case 0x67 :
+                    return ContainerConstraintsSubDescriptor.ContainerConstraintsSubDescriptorBO.class;
                 case 0x6b :
                     return AudioChannelLabelSubDescriptor.AudioChannelLabelSubDescriptorBO.class;
                 case 0x6c :

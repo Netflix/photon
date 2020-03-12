@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:e7e571cf-ee54-415b-8e83-85cda7544322</Id>
+  <AnnotationText language="en">Photon App5 test</AnnotationText>
+  <IssueDate>2020-02-21T22:52:33Z</IssueDate>
+  <Issuer language="en">Wolfgang Ruppel</Issuer>
+  <Creator language="en">IMF-Tool 1.6.336</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:060fe563-18d5-48d4-9148-1bfba4262ae2</Id>
+      <Hash>gWT9+xsM9NiSq5oZVfCePT+tnp8=</Hash>
+      <Size>332454</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">WAV_060fe563-18d5-48d4-9148-1bfba4262ae2.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:2718c7fd-4cb3-4ff8-b4bd-889c912edc9b</Id>
+      <Hash>8tLHFl33+zXKSsN8dP4JeDLD0rg=</Hash>
+      <Size>1585536</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">reel2.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:7a9d73c1-706a-4409-aa8c-d387b80e7451</Id>
+      <Hash>htHprb1yX6yHX0u+Abfoc5d9J70=</Hash>
+      <Size>1064308</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">reel3-errors.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0a4e0cf5-3ad4-4248-9f4d-5998f3bbebc3</Id>
+      <Hash>+kBNNelBY8XmMxxg4vsUmed7dkQ=</Hash>
+      <Size>20885</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_0a4e0cf5-3ad4-4248-9f4d-5998f3bbebc3.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

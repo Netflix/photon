@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <Id>urn:uuid:2e4ff806-2f81-445c-90aa-6d82242b7a40</Id>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:iab="http://www.smpte-ra.org/ns/2067-201/2019" xmlns:rdd47="http://www.dolby.com/schemas/RDD-47/2018" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e</Id>
   <Annotation language="en">Photon App5 test</Annotation>
-  <IssueDate>2019-02-25T08:44:57Z</IssueDate>
+  <IssueDate>2020-02-21T22:50:28Z</IssueDate>
   <Issuer language="en">Wolfgang Ruppel</Issuer>
-  <Creator language="en">IMF-Tool 1.5.285</Creator>
+  <Creator language="en">IMF-Tool 1.6.336</Creator>
   <ContentOriginator language="en">blender.org</ContentOriginator>
   <ContentTitle language="en">Photon App5 test</ContentTitle>
   <ContentKind scope="http://www.smpte-ra.org/schemas/2067-3/2013#content-kind">test</ContentKind>
@@ -16,13 +16,16 @@
   </ContentVersionList>
   <EssenceDescriptorList>
     <EssenceDescriptor>
-      <Id>urn:uuid:a891ecec-a9b8-4be4-bcc4-4c06b784b5ac</Id>
+      <Id>urn:uuid:753af4f9-332c-46c7-b336-f37cf5780c02</Id>
       <r0:RGBADescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
-        <r1:InstanceID>urn:uuid:8f12fead-73c3-44df-a93c-bc15c8d04027</r1:InstanceID>
+        <r1:InstanceID>urn:uuid:748c44a6-6812-41fd-8364-fb8bdb426df5</r1:InstanceID>
         <r1:SubDescriptors>
+          <r0:ContainerConstraintsSubDescriptor>
+            <r1:InstanceID>urn:uuid:fa66aeeb-30f5-45d7-b19d-249649d1cdde</r1:InstanceID>
+          </r0:ContainerConstraintsSubDescriptor>
           <r0:ACESPictureSubDescriptor>
-            <r1:InstanceID>urn:uuid:c9ff63d3-41e4-48b0-a6a8-5cc93031c0d2</r1:InstanceID>
-            <r1:ACESAuthoringInformation>ODT.Academy.P3D60_ST2084_1000nits.a1.0.3</r1:ACESAuthoringInformation>
+            <r1:InstanceID>urn:uuid:c2bf564b-6cbc-4cad-b9e4-e477dcbbacfc</r1:InstanceID>
+            <r1:ACESAuthoringInformation>ODT.Academy.Rec709_100nits_dim.a1.0.3</r1:ACESAuthoringInformation>
             <r1:ACESMasteringDisplayPrimaries>
               <r2:ColorPrimary>
                 <r2:X>32000</r2:X>
@@ -61,6 +64,10 @@
         <r1:TransferCharacteristic>urn:smpte:ul:060e2b34.04010106.04010101.01060000</r1:TransferCharacteristic>
         <r1:PictureCompression>urn:smpte:ul:060e2b34.0401010d.04010202.03040200</r1:PictureCompression>
         <r1:ColorPrimaries>urn:smpte:ul:060e2b34.0401010d.04010101.03070000</r1:ColorPrimaries>
+        <r1:VideoLineMap>
+          <r2:Int32>1</r2:Int32>
+          <r2:Int32>0</r2:Int32>
+        </r1:VideoLineMap>
         <r1:PixelLayout>
           <r2:RGBAComponent>
             <r2:Code>CompAlpha</r2:Code>
@@ -98,12 +105,15 @@
       </r0:RGBADescriptor>
     </EssenceDescriptor>
     <EssenceDescriptor>
-      <Id>urn:uuid:9644a30e-32cc-46a4-8bdc-8d2b1813f3c8</Id>
+      <Id>urn:uuid:30fd6f7a-ec06-4ff9-b4d5-4aee3218cfc8</Id>
       <r0:RGBADescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012">
-        <r1:InstanceID>urn:uuid:93dc8749-49d6-4d64-b137-71f57ed55716</r1:InstanceID>
+        <r1:InstanceID>urn:uuid:4a1be16a-6533-41f8-a16c-57410697b379</r1:InstanceID>
         <r1:SubDescriptors>
+          <r0:ContainerConstraintsSubDescriptor>
+            <r1:InstanceID>urn:uuid:fc88c018-e366-48b9-b41f-1d04d52fd759</r1:InstanceID>
+          </r0:ContainerConstraintsSubDescriptor>
           <r0:ACESPictureSubDescriptor>
-            <r1:InstanceID>urn:uuid:60e98576-05c2-4e65-a899-9d1c551d7ff3</r1:InstanceID>
+            <r1:InstanceID>urn:uuid:8b0f6a9e-942d-4397-a286-949c23ac60d5</r1:InstanceID>
             <r1:ACESAuthoringInformation>ODT.Academy.Rec709_100nits_dim.a1.0.3</r1:ACESAuthoringInformation>
             <r1:ACESMasteringDisplayPrimaries>
               <r2:ColorPrimary>
@@ -127,8 +137,8 @@
             <r1:ACESMasteringDisplayMinimumLuminance>500</r1:ACESMasteringDisplayMinimumLuminance>
           </r0:ACESPictureSubDescriptor>
           <r0:TargetFrameSubDescriptor>
-            <r1:InstanceID>urn:uuid:68ac4817-b9fd-4d52-8ee2-bc8d1c8a4a72</r1:InstanceID>
-            <r1:TargetFrameAncillaryResourceID>urn:uuid:80d1480c-8102-5b68-9f03-81342d7bb8f5</r1:TargetFrameAncillaryResourceID>
+            <r1:InstanceID>urn:uuid:95bd2921-d072-4155-a5d3-4e36a2b8da6a</r1:InstanceID>
+            <r1:TargetFrameAncillaryResourceID>urn:uuid:d5033bde-00b4-5c17-87a8-3b97dc9d2047</r1:TargetFrameAncillaryResourceID>
             <r1:MediaType>image/tiff</r1:MediaType>
             <r1:TargetFrameIndex>2</r1:TargetFrameIndex>
             <r1:TargetFrameTransferCharacteristic>urn:smpte:ul:060e2b34.04010101.04010101.01020000</r1:TargetFrameTransferCharacteristic>
@@ -136,11 +146,11 @@
             <r1:TargetFrameComponentMaxRef>65535</r1:TargetFrameComponentMaxRef>
             <r1:TargetFrameComponentMinRef>0</r1:TargetFrameComponentMinRef>
             <r1:TargetFrameEssenceStreamID>10</r1:TargetFrameEssenceStreamID>
-            <r1:ACESPictureSubDescriptorInstanceID>urn:uuid:60e98576-05c2-4e65-a899-9d1c551d7ff3</r1:ACESPictureSubDescriptorInstanceID>
+            <r1:ACESPictureSubDescriptorInstanceID>urn:uuid:8b0f6a9e-942d-4397-a286-949c23ac60d5</r1:ACESPictureSubDescriptorInstanceID>
           </r0:TargetFrameSubDescriptor>
           <r0:TargetFrameSubDescriptor>
-            <r1:InstanceID>urn:uuid:95c3f9b0-88b3-4c7d-94f7-c358a67b09f8</r1:InstanceID>
-            <r1:TargetFrameAncillaryResourceID>urn:uuid:d5033bde-00b4-5c17-87a8-3b97dc9d2047</r1:TargetFrameAncillaryResourceID>
+            <r1:InstanceID>urn:uuid:59e8e288-acbd-4695-9367-c08660583004</r1:InstanceID>
+            <r1:TargetFrameAncillaryResourceID>urn:uuid:80d1480c-8102-5b68-9f03-81342d7bb8f5</r1:TargetFrameAncillaryResourceID>
             <r1:MediaType>image/tiff</r1:MediaType>
             <r1:TargetFrameIndex>4</r1:TargetFrameIndex>
             <r1:TargetFrameTransferCharacteristic>urn:smpte:ul:060e2b34.04010101.04010101.01020000</r1:TargetFrameTransferCharacteristic>
@@ -148,7 +158,7 @@
             <r1:TargetFrameComponentMaxRef>65535</r1:TargetFrameComponentMaxRef>
             <r1:TargetFrameComponentMinRef>0</r1:TargetFrameComponentMinRef>
             <r1:TargetFrameEssenceStreamID>11</r1:TargetFrameEssenceStreamID>
-            <r1:ACESPictureSubDescriptorInstanceID>urn:uuid:60e98576-05c2-4e65-a899-9d1c551d7ff3</r1:ACESPictureSubDescriptorInstanceID>
+            <r1:ACESPictureSubDescriptorInstanceID>urn:uuid:8b0f6a9e-942d-4397-a286-949c23ac60d5</r1:ACESPictureSubDescriptorInstanceID>
           </r0:TargetFrameSubDescriptor>
         </r1:SubDescriptors>
         <r1:LinkedTrackID>2</r1:LinkedTrackID>
@@ -208,7 +218,7 @@
       </r0:RGBADescriptor>
     </EssenceDescriptor>
     <EssenceDescriptor>
-      <Id>urn:uuid:f5c10622-16aa-4172-9dd4-64c40c12509b</Id>
+      <Id>urn:uuid:119c1a43-fa7a-46be-9644-2d76aac77ab3</Id>
       <r0:WAVEPCMDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
         <r1:InstanceID>urn:uuid:5f2f902d-91cc-4d6a-8b37-56fe0cc9e501</r1:InstanceID>
         <r1:SubDescriptors>
@@ -305,38 +315,38 @@
   </ExtensionProperties>
   <SegmentList>
     <Segment>
-      <Id>urn:uuid:de0bafbf-ee8f-4c2d-a79b-d6e6083ba9ac</Id>
+      <Id>urn:uuid:c78c5ba5-a677-4c22-a0e7-38d672bf6670</Id>
       <SequenceList>
-        <cc:MainImageSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-          <Id>urn:uuid:febb5ac3-5071-492f-b6b7-dbd89dca96c7</Id>
-          <TrackId>urn:uuid:29759387-c412-436f-9bc5-adb5f5c5df77</TrackId>
+        <cc:MainImageSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:iab="http://www.smpte-ra.org/ns/2067-201/2019" xmlns:rdd47="http://www.dolby.com/schemas/RDD-47/2018" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <Id>urn:uuid:8ad6561e-9e6f-44cf-a85a-7d3ce3d3cee6</Id>
+          <TrackId>urn:uuid:ed3eb89e-aa04-4c4e-8ad6-6909672c3310</TrackId>
           <ResourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <Resource xsi:type="TrackFileResourceType">
-              <Id>urn:uuid:c67abeb0-237a-4fc2-a157-25258ae56215</Id>
+              <Id>urn:uuid:dd384a31-a992-43d3-b9ff-bf37e93aebed</Id>
               <IntrinsicDuration>4</IntrinsicDuration>
               <SourceDuration>4</SourceDuration>
-              <SourceEncoding>urn:uuid:a891ecec-a9b8-4be4-bcc4-4c06b784b5ac</SourceEncoding>
-              <TrackFileId>urn:uuid:59829373-6f21-4d1e-b713-0c6e6dc5a1f4</TrackFileId>
+              <SourceEncoding>urn:uuid:753af4f9-332c-46c7-b336-f37cf5780c02</SourceEncoding>
+              <TrackFileId>urn:uuid:b7078739-8e49-4c3b-b5f9-11544799ff54</TrackFileId>
             </Resource>
             <Resource xsi:type="TrackFileResourceType">
-              <Id>urn:uuid:0d07cb0f-8c62-4190-b0c8-45ec46b9e202</Id>
+              <Id>urn:uuid:59f24a8c-2105-402e-90bd-62210795c123</Id>
               <IntrinsicDuration>4</IntrinsicDuration>
               <SourceDuration>4</SourceDuration>
-              <SourceEncoding>urn:uuid:9644a30e-32cc-46a4-8bdc-8d2b1813f3c8</SourceEncoding>
-              <TrackFileId>urn:uuid:34a5ae67-63ba-401d-a9f1-6c4b86d73d5b</TrackFileId>
+              <SourceEncoding>urn:uuid:30fd6f7a-ec06-4ff9-b4d5-4aee3218cfc8</SourceEncoding>
+              <TrackFileId>urn:uuid:2718c7fd-4cb3-4ff8-b4bd-889c912edc9b</TrackFileId>
             </Resource>
           </ResourceList>
         </cc:MainImageSequence>
-        <cc:MainAudioSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-          <Id>urn:uuid:e560e0c2-a003-4620-bb1b-9f5c4e71a32b</Id>
-          <TrackId>urn:uuid:8e6fe642-2919-4686-a739-8c08c2dd90d9</TrackId>
+        <cc:MainAudioSequence xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:cc="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:iab="http://www.smpte-ra.org/ns/2067-201/2019" xmlns:rdd47="http://www.dolby.com/schemas/RDD-47/2018" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <Id>urn:uuid:49b42665-a149-4fc2-9a27-f0254bd82ced</Id>
+          <TrackId>urn:uuid:bacb6d95-5416-46e0-9ea6-ec913fc40fa8</TrackId>
           <ResourceList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <Resource xsi:type="TrackFileResourceType">
-              <Id>urn:uuid:c2852f7e-8604-4411-8318-717cb084ad0f</Id>
+              <Id>urn:uuid:49103026-ef08-443b-84af-7f9c77cefcda</Id>
               <EditRate>48000 1</EditRate>
               <IntrinsicDuration>17524</IntrinsicDuration>
               <SourceDuration>16016</SourceDuration>
-              <SourceEncoding>urn:uuid:f5c10622-16aa-4172-9dd4-64c40c12509b</SourceEncoding>
+              <SourceEncoding>urn:uuid:119c1a43-fa7a-46be-9644-2d76aac77ab3</SourceEncoding>
               <TrackFileId>urn:uuid:060fe563-18d5-48d4-9148-1bfba4262ae2</TrackFileId>
             </Resource>
           </ResourceList>

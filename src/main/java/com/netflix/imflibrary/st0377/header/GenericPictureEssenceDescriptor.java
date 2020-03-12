@@ -101,6 +101,9 @@ public abstract class GenericPictureEssenceDescriptor extends FileDescriptor {
     public static final String targetFrameViewingEnvironmentUL = "urn:smpte:ul:060e2b34.0101010e.04010609.0a000000";
     public static final String instanceID = "urn:smpte:ul:060e2b34.01010101.01011502.00000000";
     //end items defined in 2067-50
+    //begin items defined in 379-2
+    public static final String containerConstraintsSubDescriptorUL = "urn:smpte:ul:060e2b34.027f0101.0d010101.01016700";
+    //begin items defined in 379-2
     
        
 
