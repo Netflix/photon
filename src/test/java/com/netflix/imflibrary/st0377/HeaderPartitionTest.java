@@ -211,29 +211,8 @@ public class HeaderPartitionTest
     public void videoHeaderPartitionTest2() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf");
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
-
-        rangeStart = archiveFileSize - randomIndexPackSize;
-        rangeEnd = archiveFileSize - 1;
-
-        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
-
-        rangeStart = partitionByteOffsets.get(0);
-        rangeEnd = partitionByteOffsets.get(1) - 1;
-        byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
-
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
         Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
@@ -287,5 +266,14 @@ public class HeaderPartitionTest
         Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALinkId(), new MXFUID(new byte[]{
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     }));
+    }
+
+    @Test
+    public void descriptiveMetadataHeaderPartitionTest() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f.mxf");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
+        Assert.assertEquals(headerPartition.getGenericStreamIdFromGenericStreamTextBaseSetDescription("http://www.dolby.com/schemas/2018/DbmdWrapper"), 3);
     }
 }

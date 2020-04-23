@@ -40,7 +40,7 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
     public static final class IABEssenceDescriptorBO extends GenericSoundEssenceDescriptor.GenericSoundEssenceDescriptorBO {
 
         /**
-         * Constructor for a File descriptor ByteObject.
+         * Constructor for a IABEssenceDescriptor ByteObject.
          *
          * @param header the MXF KLV header (Key and Length field)
          * @param byteProvider the input stream corresponding to the MXF file

@@ -109,6 +109,24 @@ public final class SourcePackage extends GenericPackage
     }
 
     /**
+     * Getter for subset of generic tracks that are of type StaticTrack
+     *
+     * @return the timeline tracks
+     */
+    public List<StaticTrack> getStaticTracks()
+    {
+        List<StaticTrack> staticTracks = new ArrayList<>();
+        for (GenericTrack genericTrack : this.genericTracks)
+        {
+            if (genericTrack instanceof StaticTrack)
+            {
+                staticTracks.add((StaticTrack)genericTrack);
+            }
+        }
+
+        return staticTracks;
+    }
+    /**
      * A method that returns a string representation of a Source Package object
      *
      * @return string representing the object
