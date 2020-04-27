@@ -9,10 +9,10 @@ import com.netflix.imflibrary.st0377.header.MCALabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 
 import java.io.IOException;
 import java.util.Map;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Object model corresponding to MultiChannelAudioLabelSubDescriptor structural metadata set defined in st20167-201:201x
