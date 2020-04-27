@@ -208,9 +208,12 @@ final class CompositionModel_st2067_2_2016 {
         }
 
         Map<String, String> contentVersionList = new HashMap<String, String>();
-        for (org.smpte_ra.schemas.st2067_2_2016.ContentVersionType entry : compositionPlaylistType.getContentVersionList().getContentVersion()) {
-            contentVersionList.put(entry.getId(), entry.getLabelText().getValue());
+        if (compositionPlaylistType.getContentVersionList() != null) {
+            for (org.smpte_ra.schemas.st2067_2_2016.ContentVersionType entry : compositionPlaylistType.getContentVersionList().getContentVersion()) {
+                contentVersionList.put(entry.getId(), entry.getLabelText().getValue());
+            }
         }
+
 
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
