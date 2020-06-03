@@ -23,7 +23,7 @@ import com.netflix.imflibrary.st2067_100.macro.scale.ScaleAlgorithm;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleInputImageSequence;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleMacro;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleOutputImageSequence;
-import jdk.nashorn.internal.ir.annotations.Immutable;
+
 import org.smpte_ra.schemas._2067_100._2014.OutputProfileListType.AliasList.Alias;
 import org.smpte_ra.schemas._2067_100._2014.PresetMacroType;
 import org.smpte_ra.schemas._2067_101._2014.crop_macro.ImageCropMacroType;
@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A class that models OutputProfileList as per specification st2067-100:2014.
@@ -126,7 +127,7 @@ class OutputProfileListModel_st2067_100_2014 {
                 inputImageSequence.getInset().getTop().intValue(),
                 inputImageSequence.getInset().getBottom().intValue());
 
-        CropInputImageSequence input = new CropInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null, 
+        CropInputImageSequence input = new CropInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null,
                 inputImageSequence.getHandle(), mxfRectangleEnum, inset);
 
         if(imageCropMacroType.getOutputImageSequence() == null) {
@@ -156,7 +157,7 @@ class OutputProfileListModel_st2067_100_2014 {
                     String.format("Missing InputImageSequence in %s macro", imageScaleMacroType.getName()));
         }
         ImageScaleMacroType.InputImageSequence inputImageSequence = imageScaleMacroType.getInputImageSequence();
-        ScaleInputImageSequence input = new ScaleInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null, 
+        ScaleInputImageSequence input = new ScaleInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null,
                 inputImageSequence.getHandle());
 
         if(imageScaleMacroType.getOutputImageSequence() == null) {
@@ -188,7 +189,7 @@ class OutputProfileListModel_st2067_100_2014 {
                     String.format("Missing InputImageSequence in %s macro", pixelDecoderType.getName()));
         }
         PixelDecoderType.InputImageSequence inputImageSequence = pixelDecoderType.getInputImageSequence();
-        PixelDecoderInputImageSequence input = new PixelDecoderInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null, 
+        PixelDecoderInputImageSequence input = new PixelDecoderInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null,
                 inputImageSequence.getHandle());
 
         if(pixelDecoderType.getOutputReferenceImageSequence() == null) {
@@ -210,7 +211,7 @@ class OutputProfileListModel_st2067_100_2014 {
                     String.format("Missing InputImageSequence in %s macro", pixelEncoderType.getName()));
         }
         PixelEncoderType.InputReferenceImageSequence inputImageSequence = pixelEncoderType.getInputReferenceImageSequence();
-        PixelEncoderInputImageSequence input = new PixelEncoderInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null, 
+        PixelEncoderInputImageSequence input = new PixelEncoderInputImageSequence(inputImageSequence.getAnnotation() != null ? inputImageSequence.getAnnotation().getValue() : null,
                 inputImageSequence.getHandle());
 
         if(pixelEncoderType.getOutputImageSequence() == null) {
