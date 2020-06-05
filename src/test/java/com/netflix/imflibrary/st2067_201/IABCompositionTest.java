@@ -2,7 +2,9 @@ package com.netflix.imflibrary.st2067_201;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.Composition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -155,5 +157,17 @@ public class IABCompositionTest {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+    }
+
+    @Test
+    public void correctDurationTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_valid_iabsequence.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationComposition composition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Composition.VirtualTrack iabTrack = composition.getVirtualTracks().stream().filter(vt -> vt.getSequenceTypeEnum() == Composition.SequenceTypeEnum.IABSequence).findFirst().orElse(null);
+        Assert.assertNotNull(iabTrack);
+        Assert.assertNotEquals(iabTrack.getDuration(), 0L);
+        Assert.assertNotEquals(iabTrack.getDurationInTrackEditRateUnits(), 0L);
     }
 }
