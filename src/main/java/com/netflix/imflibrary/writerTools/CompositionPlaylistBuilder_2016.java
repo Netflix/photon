@@ -534,12 +534,15 @@ public class CompositionPlaylistBuilder_2016 {
                 case MainAudioSequence:
                     any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                     break;
+                case IABSequence:
+                    any.add(objectFactory.createIABSequence(sequenceTypeTuple.getSequence()));
+                    break;
                 case MarkerSequence:
                     segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                     break;
                 default:
-                    throw new IMFAuthoringException(String.format("Currently we only support %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                            Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                    throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
+                            Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
             }
         }
     }
