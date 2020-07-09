@@ -3,11 +3,19 @@
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
-    <rule ref="rulesets/java/braces.xml">
-<!--        <exclude name="UselessParentheses"/> -->
-        <exclude name="ForLoopsMustUseBraces"/>
-        <exclude name="IfElseStmtsMustUseBraces"/>
-        <exclude name="IfStmtsMustUseBraces"/>
+    <description>
+        Requires for while loops, but not for most other single-line statements
+    </description>
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="checkIfElseStmt" value="false" />
+            <property name="checkSingleIfStmt" value="false" />
+            <property name="checkWhileStmt" value="true" />
+            <property name="checkForStmt" value="false" />
+            <property name="checkDoWhileStmt" value="true" />
+            <property name="checkCaseStmt" value="false" />
+            <property name="allowEmptyLoop" value="false" />
+        </properties>
     </rule>
 </ruleset>
 

@@ -789,7 +789,7 @@ public final class HeaderPartition
         Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = new HashMap<>();
         subDescriptors.stream()
                 .map(e -> AudioChannelLabelSubDescriptor.class.cast(e))
-                .forEach(e -> audioChannelLabelSubDescriptorMap.put(e.getMCAChannelId() == null? 1 : e.getMCAChannelId(), e));
+                .forEach(e -> audioChannelLabelSubDescriptorMap.put(e.getMCAChannelId() == null? Long.valueOf(1L) : e.getMCAChannelId(), e));
         return audioChannelLabelSubDescriptorMap;
     }
 
