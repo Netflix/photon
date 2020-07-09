@@ -89,15 +89,6 @@ task getDependencies(type: Copy) {
   into 'build/libs/'
 }
 
-/**
- * Use the following task judiciously, i.e. only
- * when you want to create a gradle wrapper for the
- * latest stable version of gradle.
- */
-wrapper {
-    gradleVersion = '6.5.1'
-}
-
 jacocoTestReport {
     reports {
         xml.enabled true
