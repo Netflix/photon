@@ -93,7 +93,7 @@ public class IMPAnalyzer {
     }
 
     private static Boolean isCompositionComplete(ApplicationComposition applicationComposition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
-        Boolean bComplete = true;
+        boolean bComplete = true;
         for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
             for (UUID uuid : virtualTrack.getTrackResourceIds()) {
                 if (!trackFileIDsSet.contains(uuid)) {

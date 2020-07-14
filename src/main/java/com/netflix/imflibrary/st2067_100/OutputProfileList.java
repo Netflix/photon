@@ -365,7 +365,7 @@ public final class OutputProfileList {
          * Add handles for OPL macros
          */
         for( int iteration = 0; iteration < this.macroMap.size(); iteration++) {
-            Boolean bAllDependencyMet = true;
+            boolean bAllDependencyMet = true;
             for (Map.Entry<String, Macro> entry : this.macroMap.entrySet()) {
                 Macro macro = entry.getValue();
                 /* Check for all the input dependencies for the macro */
