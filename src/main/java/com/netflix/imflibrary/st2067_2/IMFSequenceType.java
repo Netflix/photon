@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st2067_2;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,7 +39,7 @@ final class IMFSequenceType {
     {
         this.id             = id;
         this.trackId        = trackId;
-        this.resourceList   = (List<IMFBaseResourceType>)resourceList;
+        this.resourceList   = Collections.unmodifiableList(resourceList);
         this.type           = type;
     }
 

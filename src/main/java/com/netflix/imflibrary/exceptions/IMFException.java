@@ -58,6 +58,12 @@ public class IMFException extends RuntimeException
         this.errorLogger = errorLogger;
     }
 
+    public IMFException(String s, Throwable t, @Nonnull IMFErrorLogger errorLogger)
+    {
+        super(s, t);
+        this.errorLogger = errorLogger;
+    }
+
     public List<ErrorLogger.ErrorObject> getErrors()
     {
         List errorList = new ArrayList<ErrorLogger.ErrorObject>();

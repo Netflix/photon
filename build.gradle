@@ -22,7 +22,7 @@ repositories {
 
 spotbugsMain {
     enabled = true
-    excludeFilter = file("config/findbugs-excludeFilter-GeneratedCode.xml")
+    excludeFilter = file("codequality/findbugs-excludeFilter-GeneratedCode.xml")
     reports {
         xml.enabled = false
         html.enabled = true
@@ -35,7 +35,7 @@ spotbugsTest {
 pmd {
     ignoreFailures = false
     ruleSets = [] // This overwrites the rules that are being added
-    ruleSetFiles = files("${project.rootDir}/config/pmd/ruleset.xml")
+    ruleSetFiles = files("${project.rootDir}/codequality/pmd/ruleset.xml")
 }
 
 sourceSets {
