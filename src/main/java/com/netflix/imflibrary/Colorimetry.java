@@ -21,6 +21,7 @@ public enum Colorimetry {
     Color5(ColorPrimaries.ITU2020,    TransferCharacteristic.ITU2020,           CodingEquation.ITU2020NCL),
     Color6(ColorPrimaries.P3D65,      TransferCharacteristic.SMPTEST2084,       CodingEquation.None),
     Color7(ColorPrimaries.ITU2020,    TransferCharacteristic.SMPTEST2084,       CodingEquation.ITU2020NCL),
+    Color_App4_Lin(ColorPrimaries.XYZ,    TransferCharacteristic.Linear,       CodingEquation.None),
     Color_App5_AP0(ColorPrimaries.ACES,    TransferCharacteristic.Linear,       CodingEquation.None),
     Unknown(ColorPrimaries.Unknown,   TransferCharacteristic.Unknown,           CodingEquation.Unknown);
 
@@ -115,6 +116,7 @@ public enum Colorimetry {
         ITU2020(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.03.04.00.00")),
         P3D65(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0E.2B.34.04.01.01.0D.04.01.01.01.03.06.00.00")),
         ACES(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0e.2b.34.04.01.01.0d.04.01.01.01.03.07.00.00")),
+        XYZ(UL.fromULAsURNStringToUL("urn:smpte:ul:06.0e.2b.34.04.01.01.0d.04.01.01.01.03.08.00.00")),
         Unknown(null);
 
         private final UL colorPrimariesUL;

@@ -62,6 +62,8 @@ final class IMFCompositionPlaylistType {
     private final String creator;
     private final String contentOriginator;
     private final String contentTitle;
+    private final String contentKind;
+    private final Composition.ContentVersionList contentVersionList;
     private final List<IMFSegmentType> segmentList;
     private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
     private final IMFErrorLogger imfErrorLogger;
@@ -82,12 +84,14 @@ final class IMFCompositionPlaylistType {
                                       String creator,
                                       String contentOriginator,
                                       String contentTitle,
+                                      String contentKind,
+                                      Map<String, String> contentVersionList,
                                       List<IMFSegmentType> segmentList,
                                       List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                       String coreConstraintsVersion,
                                       String applicationId)
     {
-        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsVersion, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, contentKind, contentVersionList, segmentList, essenceDescriptorList, coreConstraintsVersion, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
     }
 
     public IMFCompositionPlaylistType(String id,
@@ -97,6 +101,8 @@ final class IMFCompositionPlaylistType {
                                    String creator,
                                    String contentOriginator,
                                    String contentTitle,
+                                   String contentKind,
+                                   Map<String, String> contentVersionList,
                                    List<IMFSegmentType> segmentList,
                                    List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                    String coreConstraintsVersion,
@@ -104,10 +110,12 @@ final class IMFCompositionPlaylistType {
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
         Composition.EditRate rate = null;
+        Composition.ContentVersionList versions = null;
         imfErrorLogger = new IMFErrorLoggerImpl();
         try
         {
             rate = new Composition.EditRate(editRate);
+            versions = new Composition.ContentVersionList(contentVersionList);
         }
         catch(IMFException e)
         {
@@ -120,6 +128,8 @@ final class IMFCompositionPlaylistType {
         this.creator           = creator;
         this.contentOriginator = contentOriginator;
         this.contentTitle      = contentTitle;
+        this.contentKind       = contentKind;
+        this.contentVersionList= versions;
         this.segmentList       = segmentList;
         this.essenceDescriptorList  = essenceDescriptorList;
         this.coreConstraintsVersion = coreConstraintsVersion;
@@ -430,6 +440,22 @@ final class IMFCompositionPlaylistType {
      */
     public String getContentTitle(){
         return this.contentTitle;
+    }
+
+    /**
+     * Getter for the Composition Playlist contentKind
+     * @return a string representing contentKind of the Composition Playlist
+     */
+    public String getContentKind(){
+        return this.contentKind;
+    }
+
+    /**
+     * Getter for the Composition Playlist contentVersionList
+     * @return an object representing contentVersionList of the Composition Playlist
+     */
+    public Composition.ContentVersionList getContentVersionList(){
+        return this.contentVersionList;
     }
 
     /**
