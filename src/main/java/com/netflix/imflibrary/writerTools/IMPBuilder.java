@@ -11,6 +11,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.AbstractApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +135,10 @@ public class IMPBuilder {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
+        Set<String> applicationIds = Collections.singleton(applicationId);
+        String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIds);
+        if (coreConstraintsSchema == null)
+            coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2013;
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
@@ -177,11 +183,12 @@ public class IMPBuilder {
                 CompositionPlaylistBuilder_2013.buildCPLUserTextType_2013("Photon PackingListBuilder", "en"),
                 virtualTracks,
                 compositionEditRate,
-                applicationId,
+                applicationIds,
                 totalRunningTime,
                 trackFileInfoMap,
                 workingDirectory,
-                imfEssenceDescriptorBaseTypeList);
+                imfEssenceDescriptorBaseTypeList,
+                coreConstraintsSchema);
 
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2013.build());
 
@@ -372,6 +379,10 @@ public class IMPBuilder {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
         UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
+        Set<String> applicationIds = Collections.singleton(applicationId);
+        String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIds);
+        if (coreConstraintsSchema == null)
+            coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2016;
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
@@ -416,11 +427,12 @@ public class IMPBuilder {
                 CompositionPlaylistBuilder_2016.buildCPLUserTextType_2016("Photon PackingListBuilder", "en"),
                 virtualTracks,
                 compositionEditRate,
-                applicationId,
+                applicationIds,
                 totalRunningTime,
                 trackFileInfoMap,
                 workingDirectory,
-                imfEssenceDescriptorBaseTypeList);
+                imfEssenceDescriptorBaseTypeList,
+                coreConstraintsSchema);
 
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2016.build());
 

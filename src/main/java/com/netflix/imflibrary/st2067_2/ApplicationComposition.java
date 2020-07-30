@@ -106,11 +106,19 @@ public interface ApplicationComposition {
     public UUID getUUID();
 
     /**
-     * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
+     * Get the Java package string for the Core Constraints version
+     * @deprecated Instead use {@link #getCoreConstraintsSchema()}
      *
-     * @return the uri for the CoreConstraints schema for this CompositionPlaylist
+     * @return package containing the Core Constraints classes
      */
+    @Deprecated
     public String getCoreConstraintsVersion();
+
+    /**
+     * Getter for the Core Constraints schema URI.
+     * @return URI for the Core Constraints schema
+     */
+    @Nonnull public String getCoreConstraintsSchema();
 
     /**
      * Getter for the essence VirtualTracks in this Composition

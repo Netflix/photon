@@ -84,7 +84,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
 
 
-    private final String coreConstraintsVersion;
+    private final String coreConstraintsSchema;
     private final Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap;
     private final IMFCompositionPlaylistType compositionPlaylistType;
     private final Map<UUID, List<Node>> essenceDescriptorDomNodeMap;
@@ -140,7 +140,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         this.regXMLLibDictionary = new RegXMLLibDictionary();
 
-        this.coreConstraintsVersion = this.compositionPlaylistType.getCoreConstraintsVersion();
+        this.coreConstraintsSchema = this.compositionPlaylistType.getCoreConstraintsSchema();
 
         this.essenceDescriptorKeyIgnoreSet = Collections.unmodifiableSet(ignoreSet);
 
@@ -375,12 +375,22 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     }
 
     /**
-     * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
+     * Get the Java package string for the Core Constraints version
+     * @deprecated Instead use {@link #getCoreConstraintsSchema()}
      *
-     * @return the uri for the CoreConstraints schema for this CompositionPlaylist
+     * @return package containing the Core Constraints classes
      */
+    @Deprecated
     public String getCoreConstraintsVersion() {
-        return this.coreConstraintsVersion;
+        return CoreConstraints.packageFromSchema(this.coreConstraintsSchema);
+    }
+
+    /**
+     * Getter for the Core Constraints schema URI.
+     * @return URI for the Core Constraints schema
+     */
+    @Nonnull public String getCoreConstraintsSchema() {
+        return this.coreConstraintsSchema;
     }
 
     /**

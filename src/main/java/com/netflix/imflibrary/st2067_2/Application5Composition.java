@@ -44,6 +44,7 @@ import static com.netflix.imflibrary.Colorimetry.*;
  * A class that models Composition with Application 5 constraints from 2067-50 specification
  */
 public class Application5Composition extends AbstractApplicationComposition {
+    public static final String SCHEMA_URI_APP5_2017 = "http://www.smpte-ra.org/ns/2067-50/2017";
     public static final Integer MAX_RGB_IMAGE_FRAME_WIDTH = Integer.MAX_VALUE; //TODO: 2067-50 specifies 2^32-1, would require using Long instead of Integer
     public static final Integer MAX_RGB_IMAGE_FRAME_HEIGHT = Integer.MAX_VALUE; //TODO: 2067-50 specifies 2^32-1, would require using Long instead of Integer
     public static final Map<Colorimetry, Set<Integer>>colorToBitDepthMap = Collections.unmodifiableMap(new HashMap<Colorimetry, Set<Integer>>() {{
