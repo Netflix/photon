@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st2067_2;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ final class IMFSegmentType {
     public IMFSegmentType(String id,
                           List<IMFSequenceType> sequenceList){
         this.id = id;
-        this.sequenceList = sequenceList;
+        this.sequenceList = Collections.unmodifiableList(sequenceList);
     }
 
     /**
