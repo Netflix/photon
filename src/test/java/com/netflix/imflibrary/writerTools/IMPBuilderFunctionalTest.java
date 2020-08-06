@@ -27,6 +27,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_2.Application2ExtendedComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
@@ -76,6 +77,10 @@ public class IMPBuilderFunctionalTest {
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2016", false, 0},
                 {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_duplicate_source_encoding_element.xml", "2016", false, 0},
                 {"TestIMP/IAB/CompleteIMP/CPL_e0265fda-cb35-4e35-a4e4-4f44d82d2a52.xml", "2016", false, 0},
+                {"TestIMP/IMF-2020/CPL-2020_no-audio-track.xml", "2020", false, 0},
+                {"TestIMP/IMF-2020/CPL-2020_no-audio-track.xml", "2016", false, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2020", true, 1},
+                {"TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml", "2020", false, 0},
         };
     }
 
@@ -105,7 +110,15 @@ public class IMPBuilderFunctionalTest {
                         "Netflix",
                         applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
-                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
+                        buildTrackFileMetadataMap(imfErrorLogger),
+                        tempDir);
+            } else if (schemaVersion.equals("2020")) {
+                IMPBuilder.buildIMP_2016("IMP",
+                        "Netflix",
+                        applicationComposition.getVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
                         buildTrackFileMetadataMap(imfErrorLogger),
                         tempDir);
             } else if (schemaVersion.equals("2013")) {
@@ -113,7 +126,7 @@ public class IMPBuilderFunctionalTest {
                         "Netflix",
                         applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
-                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
                         buildTrackFileMetadataMap(imfErrorLogger),
                         tempDir);
             }
@@ -123,7 +136,16 @@ public class IMPBuilderFunctionalTest {
                         "Netflix",
                         applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
-                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
+                        buildTrackFileInfoMap(imfErrorLogger),
+                        tempDir,
+                        applicationComposition.getEssenceDescriptorDomNodeMap());
+            } else if (schemaVersion.equals("2020")) {
+                IMPBuilder.buildIMP_2016("IMP",
+                        "Netflix",
+                        applicationComposition.getVirtualTracks(),
+                        applicationComposition.getEditRate(),
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
                         buildTrackFileInfoMap(imfErrorLogger),
                         tempDir,
                         applicationComposition.getEssenceDescriptorDomNodeMap());
@@ -132,7 +154,7 @@ public class IMPBuilderFunctionalTest {
                         "Netflix",
                         applicationComposition.getVirtualTracks(),
                         applicationComposition.getEditRate(),
-                        "http://www.smpte-ra.org/schemas/2067-21/2016",
+                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
                         buildTrackFileInfoMap(imfErrorLogger),
                         tempDir,
                         applicationComposition.getEssenceDescriptorDomNodeMap());

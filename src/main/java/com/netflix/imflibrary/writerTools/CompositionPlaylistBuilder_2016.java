@@ -296,6 +296,7 @@ public class CompositionPlaylistBuilder_2016 {
         return Collections.unmodifiableList(trackResourceList);
     }
 
+    // TODO- Refactor this and consolidate all marshall/unmarshall logic into CompositionModel_st2067_2_2016.java
     private void serializeCPLToXML(org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType cplRoot, File outputFile) throws IOException, JAXBException, SAXException{
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
@@ -306,18 +307,22 @@ public class CompositionPlaylistBuilder_2016 {
                 InputStream dcmlSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
                 InputStream cplSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                 InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
+                InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
                 OutputStream outputStream = new FileOutputStream(outputFile)
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
-            StreamSource[] schemaSources = new StreamSource[4];
+            StreamSource[] schemaSources = new StreamSource[5];
             schemaSources[0] = new StreamSource(dsigSchemaAsAStream);
             schemaSources[1] = new StreamSource(dcmlSchemaAsAStream);
             schemaSources[2] = new StreamSource(cplSchemaAsAStream);
             schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
+            schemaSources[4] = new StreamSource(xsd_core_constraints_2020);
             Schema schema = schemaFactory.newSchema(schemaSources);
 
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2016");
+            JAXBContext jaxbContext = JAXBContext.newInstance(
+                    org.smpte_ra.schemas.st2067_2_2016.ObjectFactory.class, // 2016 CPL and Core constraints
+                    org.smpte_ra.schemas.st2067_2_2020.ObjectFactory.class); // 2020 Core constraints also use 2016 CPL
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);
