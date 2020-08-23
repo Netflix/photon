@@ -88,11 +88,11 @@ public class AssetMapBuilderFunctionalTest {
         IMFErrorLogger assetMapBuilderErrorLogger = new IMFErrorLoggerImpl();
         List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempDir, assetMapBuilderErrorLogger).build();
 
-        List errorList = errors.stream().filter( e -> e.getErrorLevel().equals(IMFErrorLogger
+        List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger
                 .IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList());
-        if(errorList.size() > 0) {
+        if(fatalErrors.size() > 0) {
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the AssetMap. " +
-                    "Please see following error messages %s", Utilities.serializeObjectCollectionToString(errorList)));
+                    "Please see following error messages %s", Utilities.serializeObjectCollectionToString(fatalErrors)));
         }
 
         File assetMapFile = null;

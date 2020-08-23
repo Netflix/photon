@@ -2,23 +2,33 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
+import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.w3c.dom.Element;
-
+import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A class that models aspects of a Composition such as a VirtualTrack, TrackResources etc. compliant with the 2016 CompositionPlaylist specification st2067-3:2016.
+ * Used for converting a specific JAXB class (org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType) into the canonical, version-independent, class IMFCompositionPlaylistType
  */
 final class CompositionModel_st2067_2_2016 {
 
@@ -28,182 +38,29 @@ final class CompositionModel_st2067_2_2016 {
     }
 
     /**
-     * A stateless method that reads and parses all the virtual tracks of a Composition
+     * Converts a CompositionPlaylist from a JAXB object, into a version-independent model
      * @param compositionPlaylistType - a CompositionPlaylist object model
      * @param imfErrorLogger - an object for logging errors
-     * @return a map containing mappings of a UUID to the corresponding VirtualTrack
+     * @return A canonical, version-independent, instance of IMFCompositionPlaylistType
      */
-    public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    @Nonnull public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
-        List<IMFSegmentType> segmentList = new ArrayList<IMFSegmentType>();
-        for (org.smpte_ra.schemas.st2067_2_2016.SegmentType segment : compositionPlaylistType.getSegmentList().getSegment())
+        // Parse each Segment
+        List<IMFSegmentType> segmentList = compositionPlaylistType.getSegmentList().getSegment().stream()
+                .map(segment -> parseSegment(segment, compositionPlaylistType.getEditRate(), imfErrorLogger))
+                .collect(Collectors.toList());
+
+        // Parse the EssenceDescriptors, if present
+        List<IMFEssenceDescriptorBaseType> essenceDescriptorList = Collections.emptyList();
+        if (compositionPlaylistType.getEssenceDescriptorList() != null)
         {
-            List<IMFSequenceType> sequenceList = new ArrayList<IMFSequenceType>();
-            org.smpte_ra.schemas.st2067_2_2016.SequenceType sequence;
-
-            /* Parse Marker sequence */
-            sequence = segment.getSequenceList().getMarkerSequence();
-            if (sequence != null)
-            {
-                UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                /**
-                 * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
-                 * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
-                 * synchronized wrapping it around a synchronized list collection, although in this case it
-                 * is perhaps not required since this method is only invoked from the context of the constructor.
-                 */
-                List<IMFBaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
-                for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : sequence.getResourceList().getResource()) {
-                    IMFBaseResourceType baseResource = null;
-                    if (resource instanceof org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType) {
-                        org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType markerResource =
-                                (org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType) resource;
-
-                        List<IMFMarkerType> markerList = new ArrayList<IMFMarkerType>();
-                        for (org.smpte_ra.schemas.st2067_2_2016.MarkerType marker : markerResource.getMarker()) {
-                            markerList.add(new IMFMarkerType(marker.getAnnotation() == null ? null : marker
-                                    .getAnnotation().getValue(),
-                                    new IMFMarkerType.Label(marker.getLabel().getValue(), marker.getLabel().getScope()),
-                                    marker.getOffset()));
-                        }
-
-                        try {
-                            baseResource = new IMFMarkerResourceType(
-                                    markerResource.getId(),
-                                    markerResource.getEditRate().size() != 0 ? markerResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                    markerResource.getIntrinsicDuration(),
-                                    markerResource.getEntryPoint(),
-                                    markerResource.getSourceDuration(),
-                                    markerResource.getRepeatCount(),
-                                    markerList);
-                        }
-                        catch(IMFException e)
-                        {
-                            imfErrorLogger.addAllErrors(e.getErrors());
-                        }
-                    } else {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "Unsupported Resource type in Marker Sequence");
-                    }
-
-                    if (baseResource != null) {
-                        baseResources.add(baseResource);
-                    }
-                }
-                sequenceList.add(new IMFSequenceType(sequence.getId(),
-                        sequence.getTrackId(),
-                        Composition.SequenceTypeEnum.MarkerSequence,
-                        Collections.synchronizedList(baseResources)));
-            }
-
-            /* Parse rest of the sequences */
-            for (Object object : segment.getSequenceList().getAny())
-            {
-                if(!(object instanceof JAXBElement)){
-                    String details = "";
-                    if(object instanceof Element)
-                    {
-                        Element element = Element.class.cast(object);
-                        details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
-                    }
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
-                            .IMFErrors.ErrorLevels.NON_FATAL, String.format("Unsupported sequence type or schema %s",
-                            details));
-                    continue;
-                }
-                JAXBElement jaxbElement = (JAXBElement)(object);
-                String name = jaxbElement.getName().getLocalPart();
-                sequence = (org.smpte_ra.schemas.st2067_2_2016.SequenceType)(jaxbElement).getValue();
-                if (sequence != null)
-                {
-                    UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
-                    /**
-                     * A LinkedList seems appropriate since we want to preserve the order of the Resources referenced
-                     * by a virtual track to recreate the presentation. Since the LinkedList implementation is not
-                     * synchronized wrapping it around a synchronized list collection, although in this case it
-                     * is perhaps not required since this method is only invoked from the context of the constructor.
-                     */
-                    List<IMFBaseResourceType> baseResources = Collections.synchronizedList(new LinkedList<>());
-                    for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : sequence.getResourceList().getResource())
-                    {
-                        IMFBaseResourceType baseResource = null;
-                        if(resource instanceof  org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType)
-                        {
-
-                            org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource =
-                                    (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType) resource;
-
-                            try {
-                                baseResource = new IMFTrackFileResourceType(
-                                        trackFileResource.getId(),
-                                        trackFileResource.getTrackFileId(),
-                                        trackFileResource.getEditRate().size() != 0 ? trackFileResource.getEditRate() : compositionPlaylistType.getEditRate(),
-                                        trackFileResource.getIntrinsicDuration(),
-                                        trackFileResource.getEntryPoint(),
-                                        trackFileResource.getSourceDuration(),
-                                        trackFileResource.getRepeatCount(),
-                                        trackFileResource.getSourceEncoding(),
-                                        trackFileResource.getHash(),
-                                        trackFileResource.getHashAlgorithm() == null?
-                                                CompositionPlaylistBuilder_2016.defaultHashAlgorithm : trackFileResource
-                                                .getHashAlgorithm().getAlgorithm()
-                                );
-                            }
-                            catch(IMFException e)
-                            {
-                                imfErrorLogger.addAllErrors(e.getErrors());
-                            }
-                        }
-                        else
-                        {
-                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type");
-                        }
-
-                        if(baseResource != null)
-                        {
-                            baseResources.add(baseResource);
-                        }
-                    }
-                    sequenceList.add(new IMFSequenceType(sequence.getId(),
-                            sequence.getTrackId(),
-                            Composition.SequenceTypeEnum.getSequenceTypeEnum(name),
-                            Collections.synchronizedList(baseResources)));
-                }
-            }
-            sequenceList = Collections.unmodifiableList(sequenceList);
-            segmentList.add(new IMFSegmentType(segment.getId(), Collections.synchronizedList(sequenceList)));
+            essenceDescriptorList = compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().stream()
+                    .map(ed -> parseEssenceDescriptor(ed, imfErrorLogger))
+                    .collect(Collectors.toList());
         }
-        segmentList = Collections.unmodifiableList(segmentList);
 
-        List<IMFEssenceDescriptorBaseType> essenceDescriptorList = new ArrayList<IMFEssenceDescriptorBaseType>();
-
-        if(compositionPlaylistType.getEssenceDescriptorList() != null &&
-                compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor().size() >= 1)
-        {
-            for (org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType essenceDescriptor : compositionPlaylistType.getEssenceDescriptorList().getEssenceDescriptor()) {
-                essenceDescriptorList.add(new IMFEssenceDescriptorBaseType(essenceDescriptor.getId(),
-                        essenceDescriptor.getAny()));
-            }
-        }
-        essenceDescriptorList = Collections.unmodifiableList(essenceDescriptorList);
-
-        Set<String> applicationIDs = new LinkedHashSet<>();
-        if(compositionPlaylistType.getExtensionProperties() != null) {
-            for (Object object : compositionPlaylistType.getExtensionProperties().getAny()) {
-                if (object instanceof JAXBElement) {
-                    JAXBElement jaxbElement = (JAXBElement) (object);
-                    if (jaxbElement.getName().getLocalPart().equals("ApplicationIdentification")) {
-                        if (jaxbElement.getValue() instanceof List) {
-                            List applicationIDList = (List) jaxbElement.getValue();
-                            for(Object entry: applicationIDList) {
-                                if (entry instanceof String) {
-                                    applicationIDs.add(entry.toString());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // Parse the ApplicationIdentification values
+        Set<String> applicationIDs = parseApplicationIds(compositionPlaylistType, imfErrorLogger);
 
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
@@ -212,17 +69,273 @@ final class CompositionModel_st2067_2_2016 {
                 (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue()),
                 (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
-                Collections.synchronizedList(segmentList),
-                Collections.synchronizedList(essenceDescriptorList),
+                segmentList,
+                essenceDescriptorList,
                 "org.smpte_ra.schemas.st2067_2_2016", applicationIDs
                 );
+    }
+
+    @Nonnull static org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    {
+        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1))
+        {
+            // Validate the document against the CPL schemas, when unmarshalling
+            Schema schema = ValidationSchema.INSTANCE;
+            ValidationEventHandlerImpl validationEventHandlerImpl = new ValidationEventHandlerImpl(true);
+            Unmarshaller unmarshaller = CompositionPlaylistType2016_Context.INSTANCE.createUnmarshaller();
+            unmarshaller.setEventHandler(validationEventHandlerImpl);
+            unmarshaller.setSchema(schema);
+
+            JAXBElement<org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType> jaxbCpl
+                    = unmarshaller.unmarshal(new StreamSource(inputStream), org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType.class);
+
+            // Report any schema validation errors that occurred during unmarshalling
+            if (validationEventHandlerImpl.hasErrors())
+            {
+                validationEventHandlerImpl.getErrors().stream()
+                        .map(e -> new ErrorLogger.ErrorObject(
+                                IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                e.getValidationEventSeverity(),
+                                "Line Number : " + e.getLineNumber().toString() + " - " + e.getErrorMessage()))
+                        .forEach(imfErrorLogger::addError);
+
+                throw new IMFException(validationEventHandlerImpl.toString(), imfErrorLogger);
+            }
+
+            return jaxbCpl.getValue();
+        }
+        catch(JAXBException e)
+        {
+            throw new IMFException("Error when unmarshalling org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType", e, imfErrorLogger);
+        }
+    }
+
+    // Parse the list of ApplicationIdentification values
+    @Nonnull private static Set<String> parseApplicationIds(@Nonnull org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        if (compositionPlaylistType.getExtensionProperties() == null)
+            return Collections.emptySet();
+
+        return compositionPlaylistType.getExtensionProperties().getAny().stream()
+                .filter(JAXBElement.class::isInstance).map(JAXBElement.class::cast)
+                .filter(extProp -> extProp.getName().getLocalPart().equals("ApplicationIdentification")).map(JAXBElement::getValue)
+                .filter(List.class::isInstance).map(appIdList -> (List<?>) appIdList)
+                .findAny().orElse(Collections.emptyList()).stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType
+    // Into a canonical, version-independent, instance of IMFEssenceDescriptorBaseType
+    @Nonnull private static IMFEssenceDescriptorBaseType parseEssenceDescriptor(@Nonnull org.smpte_ra.schemas.st2067_2_2016.EssenceDescriptorBaseType essenceDescriptor, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        return new IMFEssenceDescriptorBaseType(essenceDescriptor.getId(), essenceDescriptor.getAny());
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.SegmentType
+    // Into a canonical, version-independent, instance of IMFSegmentType
+    @Nonnull private static IMFSegmentType parseSegment(@Nonnull org.smpte_ra.schemas.st2067_2_2016.SegmentType segment, @Nonnull List<Long> cplEditRate, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        List<IMFSequenceType> sequenceList = new ArrayList<IMFSequenceType>();
+
+        // Parse the Marker Sequence
+        org.smpte_ra.schemas.st2067_2_2016.SequenceType markerSequence = segment.getSequenceList().getMarkerSequence();
+        if (markerSequence != null)
+        {
+            sequenceList.add(parseMarkerSequence(markerSequence, cplEditRate, imfErrorLogger));
+        }
+
+        /* Parse rest of the sequences */
+        for (Object object : segment.getSequenceList().getAny())
+        {
+            // Ignore unrecognized Sequence types
+            if(!(object instanceof JAXBElement)){
+                String details = "";
+                if(object instanceof Element)
+                {
+                    Element element = Element.class.cast(object);
+                    details = "Tag: " + element.getTagName() + " URI: " + element.getNamespaceURI();
+                }
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
+                        .IMFErrors.ErrorLevels.NON_FATAL, String.format("Unsupported sequence type or schema %s",
+                        details));
+                continue;
+            }
+
+            // Get the JAXB SequenceType object
+            JAXBElement jaxbElement = (JAXBElement)(object);
+            org.smpte_ra.schemas.st2067_2_2016.SequenceType sequence = (org.smpte_ra.schemas.st2067_2_2016.SequenceType) jaxbElement.getValue();
+            // Determine the type of Sequence being parsed
+            Composition.SequenceTypeEnum sequenceType = Composition.SequenceTypeEnum.getSequenceTypeEnum(jaxbElement.getName().getLocalPart());
+            // Parse the Sequence
+            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, imfErrorLogger));
+        }
+        return new IMFSegmentType(segment.getId(), sequenceList);
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.SequenceType
+    // Into a canonical, version-independent, instance of IMFSequenceType
+    @Nonnull private static IMFSequenceType parseMarkerSequence(@Nonnull org.smpte_ra.schemas.st2067_2_2016.SequenceType markerSequence,
+                                                       @Nonnull List<Long> cplEditRate, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        List<IMFBaseResourceType> sequenceResources = new ArrayList<>();
+        for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : markerSequence.getResourceList().getResource())
+        {
+            if (resource instanceof org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType)
+            {
+                try
+                {
+                    IMFMarkerResourceType markerResource = parseMarkerResource(
+                            (org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType) resource, cplEditRate, imfErrorLogger);
+                    sequenceResources.add(markerResource);
+                }
+                catch(IMFException e)
+                {
+                    imfErrorLogger.addAllErrors(e.getErrors());
+                }
+            }
+            else
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "Unsupported Resource type in Marker Sequence");
+            }
+        }
+        return new IMFSequenceType(markerSequence.getId(),
+                markerSequence.getTrackId(),
+                Composition.SequenceTypeEnum.MarkerSequence,
+                sequenceResources);
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.SequenceType
+    // Into a canonical, version-independent, instance of IMFSequenceType
+    @Nonnull private static IMFSequenceType parseSequence(@Nonnull org.smpte_ra.schemas.st2067_2_2016.SequenceType sequence,
+                                                 @Nonnull List<Long> cplEditRate, Composition.SequenceTypeEnum sequenceType, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        List<IMFBaseResourceType> sequenceResources = new ArrayList<>();
+        for (org.smpte_ra.schemas.st2067_2_2016.BaseResourceType resource : sequence.getResourceList().getResource())
+        {
+            if(resource instanceof  org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType)
+            {
+                try
+                {
+                    IMFTrackFileResourceType trackFileResource = parseTrackFileResource(
+                            (org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType) resource, cplEditRate, imfErrorLogger);
+                    sequenceResources.add(trackFileResource);
+                }
+                catch(IMFException e)
+                {
+                    imfErrorLogger.addAllErrors(e.getErrors());
+                }
+            }
+            else
+            {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Unsupported Resource type");
+            }
+        }
+
+        return new IMFSequenceType(sequence.getId(),
+                sequence.getTrackId(),
+                sequenceType,
+                sequenceResources);
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType
+    // Into a canonical, version-independent, instance of IMFMarkerResourceType
+    @Nonnull private static IMFMarkerResourceType parseMarkerResource(@Nonnull org.smpte_ra.schemas.st2067_2_2016.MarkerResourceType markerResource,
+                                                                   @Nonnull List<Long> cplEditRate, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        // Parse each Marker within the MarkerResource
+        List<IMFMarkerType> markerList = new ArrayList<IMFMarkerType>();
+        for (org.smpte_ra.schemas.st2067_2_2016.MarkerType marker : markerResource.getMarker()) {
+            markerList.add(new IMFMarkerType(marker.getAnnotation() == null ? null : marker
+                    .getAnnotation().getValue(),
+                    new IMFMarkerType.Label(marker.getLabel().getValue(), marker.getLabel().getScope()),
+                    marker.getOffset()));
+        }
+
+        return new IMFMarkerResourceType(
+                markerResource.getId(),
+                markerResource.getEditRate().size() != 0 ? markerResource.getEditRate() : cplEditRate,
+                markerResource.getIntrinsicDuration(),
+                markerResource.getEntryPoint(),
+                markerResource.getSourceDuration(),
+                markerResource.getRepeatCount(),
+                markerList);
+    }
+
+    // Converts an instance of the JAXB class org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType
+    // Into a canonical, version-independent, instance of IMFTrackFileResourceType
+    @Nonnull private static IMFTrackFileResourceType parseTrackFileResource(@Nonnull org.smpte_ra.schemas.st2067_2_2016.TrackFileResourceType trackFileResource,
+                                                                   @Nonnull List<Long> cplEditRate, @Nonnull IMFErrorLogger imfErrorLogger)
+    {
+        return new IMFTrackFileResourceType(
+                trackFileResource.getId(),
+                trackFileResource.getTrackFileId(),
+                trackFileResource.getEditRate().size() != 0 ? trackFileResource.getEditRate() : cplEditRate,
+                trackFileResource.getIntrinsicDuration(),
+                trackFileResource.getEntryPoint(),
+                trackFileResource.getSourceDuration(),
+                trackFileResource.getRepeatCount(),
+                trackFileResource.getSourceEncoding(),
+                trackFileResource.getHash(),
+                trackFileResource.getHashAlgorithm() == null?
+                        CompositionPlaylistBuilder_2016.defaultHashAlgorithm : trackFileResource
+                        .getHashAlgorithm().getAlgorithm()
+        );
+    }
+
+    // Singleton to allow a JAXBContext configured for 2016 CPLs to be reused and lazy-loaded
+    private static class CompositionPlaylistType2016_Context
+    {
+        static final JAXBContext INSTANCE = createJAXBContext();
+        private static JAXBContext createJAXBContext()
+        {
+            try
+            {
+                return JAXBContext.newInstance(
+                        org.smpte_ra.schemas.st2067_2_2016.ObjectFactory.class);  // 2016 CPL and Core constraints
+            }
+            catch(JAXBException e)
+            {
+                throw new IMFException("Failed to create JAXBContext needed by CompositionPlaylistType (2016)", e);
+            }
+        }
+    }
+
+    // Singleton to allow the CPL validation Schema object to be reused and lazy-loaded
+    private static class ValidationSchema
+    {
+        static final Schema INSTANCE = createValidationSchema();
+        private static Schema createValidationSchema()
+        {
+            // Load all XSD schemas required to validate a CompositionPlaylist document
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            try (InputStream xsd_xmldsig_core = contextClassLoader.getResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
+                 InputStream xsd_dcmlTypes = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
+                 InputStream xsd_cpl_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
+                 InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
+            )
+            {
+                // Build a schema from all of the XSD files provided
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                return schemaFactory.newSchema(new StreamSource[]{
+                        new StreamSource(xsd_xmldsig_core),
+                        new StreamSource(xsd_dcmlTypes),
+                        new StreamSource(xsd_cpl_2016),
+                        new StreamSource(xsd_core_constraints_2016),
+                });
+            }
+            catch(IOException | SAXException e)
+            {
+                throw new IMFException("Unable to create CPL validation schema", e);
+            }
+        }
     }
 
     /**
      * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
      *
      * @return the uri for the CoreConstraints schema for this CompositionPlaylist
+     * @deprecated This is an instance method of a class declared final, with a private constructor. Should never be callable
      */
+    @Deprecated
     public String getCoreConstraintsVersion() {
         return "org.smpte_ra.schemas.st2067_2_2016";
     }
