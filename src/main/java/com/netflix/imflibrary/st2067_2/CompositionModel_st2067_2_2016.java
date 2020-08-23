@@ -62,6 +62,22 @@ final class CompositionModel_st2067_2_2016 {
         // Parse the ApplicationIdentification values
         Set<String> applicationIDs = parseApplicationIds(compositionPlaylistType, imfErrorLogger);
 
+        // Identify the Core Constraints version
+        String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIDs);
+        if (coreConstraintsSchema == null)
+        {
+            // Get the namespaces of each Sequence being used
+            Set<String> sequenceNamespaces = compositionPlaylistType.getSegmentList().getSegment().get(0)
+                    .getSequenceList().getAny().stream().filter(JAXBElement.class::isInstance)
+                    .map(je -> ((JAXBElement<?>) je).getName().getNamespaceURI()).collect(Collectors.toSet());
+            // Find the Core Constraints version, based on the namespaces of the Sequences
+            coreConstraintsSchema = CoreConstraints.fromElementNamespaces(sequenceNamespaces);
+
+            // If all else fails, assume the minimum version applicable to this CPL version
+            if (coreConstraintsSchema == null)
+                coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2016;
+        }
+
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -71,7 +87,8 @@ final class CompositionModel_st2067_2_2016 {
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 segmentList,
                 essenceDescriptorList,
-                "org.smpte_ra.schemas.st2067_2_2016", applicationIDs
+                coreConstraintsSchema,
+                applicationIDs
                 );
     }
 
@@ -290,7 +307,8 @@ final class CompositionModel_st2067_2_2016 {
             try
             {
                 return JAXBContext.newInstance(
-                        org.smpte_ra.schemas.st2067_2_2016.ObjectFactory.class);  // 2016 CPL and Core constraints
+                        org.smpte_ra.schemas.st2067_2_2016.ObjectFactory.class, // 2016 CPL and Core constraints
+                        org.smpte_ra.schemas.st2067_2_2020.ObjectFactory.class); // 2020 Core constraints also use 2016 CPL
             }
             catch(JAXBException e)
             {
@@ -311,6 +329,7 @@ final class CompositionModel_st2067_2_2016 {
                  InputStream xsd_dcmlTypes = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
                  InputStream xsd_cpl_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                  InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
+                 InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd")
             )
             {
                 // Build a schema from all of the XSD files provided
@@ -320,6 +339,7 @@ final class CompositionModel_st2067_2_2016 {
                         new StreamSource(xsd_dcmlTypes),
                         new StreamSource(xsd_cpl_2016),
                         new StreamSource(xsd_core_constraints_2016),
+                        new StreamSource(xsd_core_constraints_2020),
                 });
             }
             catch(IOException | SAXException e)
@@ -327,16 +347,5 @@ final class CompositionModel_st2067_2_2016 {
                 throw new IMFException("Unable to create CPL validation schema", e);
             }
         }
-    }
-
-    /**
-     * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
-     *
-     * @return the uri for the CoreConstraints schema for this CompositionPlaylist
-     * @deprecated This is an instance method of a class declared final, with a private constructor. Should never be callable
-     */
-    @Deprecated
-    public String getCoreConstraintsVersion() {
-        return "org.smpte_ra.schemas.st2067_2_2016";
     }
 }

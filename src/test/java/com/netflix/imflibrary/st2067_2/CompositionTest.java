@@ -333,4 +333,35 @@ public class CompositionTest
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
+
+    @Test
+    public void composition2020Test() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IMF-2020/CPL-2020_updated-core-constraints.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+    }
+
+    @Test
+    public void composition2020WithoutAudioTrackTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IMF-2020/CPL-2020_no-audio-track.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+    }
+
+    @Test
+    public void composition2016WithoutAudioTrackNegativeTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IMF-2020/CPL-2016_no-audio-track.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertTrue(imfErrorLogger.getErrors().stream().anyMatch(e ->
+                e.getErrorCode() == IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR));
+        Assert.assertNull(applicationComposition);
+    }
 }

@@ -23,6 +23,9 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
  * A class that models Composition with Application 2Extended constraints from 2067-21 specification
  */
 public class Application2ExtendedComposition extends AbstractApplicationComposition {
+    public static final String SCHEMA_URI_APP2E_2014 = "http://www.smpte-ra.org/schemas/2067-21/2014";
+    public static final String SCHEMA_URI_APP2E_2016 = "http://www.smpte-ra.org/schemas/2067-21/2016";
+    public static final String SCHEMA_URI_APP2E_2020 = "http://www.smpte-ra.org/ns/2067-21/2020";
     public static final Integer MAX_YUV_IMAGE_FRAME_WIDTH = 3840;
     public static final Integer MAX_YUV_IMAGE_FRAME_HEIGHT = 2160;
     public static final Integer MAX_RGB_IMAGE_FRAME_WIDTH = 4096;

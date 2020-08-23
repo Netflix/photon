@@ -25,6 +25,8 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
  * A class that models Composition with Application 2 constraints from 2067-20 specification
  */
 public class Application2Composition extends AbstractApplicationComposition {
+    public static final String SCHEMA_URI_APP2_2013 = "http://www.smpte-ra.org/schemas/2067-20/2013";
+    public static final String SCHEMA_URI_APP2_2016 = "http://www.smpte-ra.org/schemas/2067-20/2016";
     public static final Integer MAX_IMAGE_FRAME_WIDTH = 1920;
     public static final Integer MAX_IMAGE_FRAME_HEIGHT = 1080;
     public static final Set<Fraction>progressiveSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{

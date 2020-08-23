@@ -44,6 +44,7 @@ public class ApplicationCompositionFactory {
     private static final Set<String> namespacesApplication2EComposition = Collections.unmodifiableSet(new HashSet<String>() {{
         add("http://www.smpte-ra.org/schemas/2067-21/2014");
         add("http://www.smpte-ra.org/schemas/2067-21/2016");
+        add("http://www.smpte-ra.org/ns/2067-21/2020");
     }});
 
     private static final Set<String> namespacesApplication5Composition = Collections.unmodifiableSet(new HashSet<String>() {{

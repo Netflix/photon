@@ -17,6 +17,7 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
@@ -228,16 +229,18 @@ public class IMPFixer {
                     Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap.keySet();
                         if(versionCPLSchema.equals(""))
                         {
-                            if (applicationComposition.getCoreConstraintsVersion().contains("st2067_2_2013")) {
+                            String coreConstraintsSchema = applicationComposition.getCoreConstraintsSchema();
+                            if (coreConstraintsSchema.equals(CoreConstraints.NAMESPACE_IMF_2013)) {
                                 versionCPLSchema = "2013";
                             }
-                            else if (applicationComposition.getCoreConstraintsVersion().contains("st2067_2_2016")) {
+                            else if (coreConstraintsSchema.equals(CoreConstraints.NAMESPACE_IMF_2016)
+                                    || coreConstraintsSchema.equals(CoreConstraints.NAMESPACE_IMF_2020)) {
                                 versionCPLSchema = "2016";
                             }
                             else {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR,
                                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                        String.format("Input package CoreConstraintsVersion %s not supported", applicationComposition.getCoreConstraintsVersion().toString()));
+                                        String.format("Input package CoreConstraints Schema %s not supported", applicationComposition.getCoreConstraintsSchema()));
                             }
                         }
 

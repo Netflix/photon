@@ -62,6 +62,22 @@ final class CompositionModel_st2067_2_2013 {
         // Parse the ApplicationIdentification values
         Set<String> applicationIDs = parseApplicationIds(compositionPlaylistType, imfErrorLogger);
 
+        // Identify the Core Constraints version
+        String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIDs);
+        if (coreConstraintsSchema == null)
+        {
+            // Get the namespaces of each Sequence being used
+            Set<String> sequenceNamespaces = compositionPlaylistType.getSegmentList().getSegment().get(0)
+                    .getSequenceList().getAny().stream().filter(JAXBElement.class::isInstance)
+                    .map(je -> ((JAXBElement<?>) je).getName().getNamespaceURI()).collect(Collectors.toSet());
+            // Find the Core Constraints version, based on the namespaces of the Sequences
+            coreConstraintsSchema = CoreConstraints.fromElementNamespaces(sequenceNamespaces);
+
+            // If all else fails, assume the minimum version applicable to this CPL version
+            if (coreConstraintsSchema == null)
+                coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2013;
+        }
+
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -71,7 +87,8 @@ final class CompositionModel_st2067_2_2013 {
                 (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
                 segmentList,
                 essenceDescriptorList,
-                "org.smpte_ra.schemas.st2067_2_2013", applicationIDs
+                coreConstraintsSchema,
+                applicationIDs
         );
     }
 
