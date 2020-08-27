@@ -1320,6 +1320,9 @@ public final class HeaderPartition
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.SubtitlesEssence);
             }
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.ForcedNarrativeSequence);
+            }
         }
 
         if (essenceTypes.size() == 0){
@@ -1344,6 +1347,7 @@ public final class HeaderPartition
         VisuallyImpairedTextEssence(Composition.SequenceTypeEnum.VisuallyImpairedTextSequence),
         CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
         KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        ForcedNarrativeSequence(Composition.SequenceTypeEnum.ForcedNarrativeSequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
         IABEssence(Composition.SequenceTypeEnum.IABSequence),
         UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
@@ -1377,6 +1381,8 @@ public final class HeaderPartition
                     return CommentaryEssence;
                 case "KaraokeEssence":
                     return KaraokeEssence;
+                case "ForcedNarrativeSequence":
+                    return ForcedNarrativeSequence;
                 case "AncillaryDataEssence":
                     return AncillaryDataEssence;
                 case "IABEssence":
@@ -1407,6 +1413,8 @@ public final class HeaderPartition
                     return "CommentaryEssence";
                 case KaraokeSequence:
                     return "KaraokeEssence";
+                case ForcedNarrativeSequence:
+                    return "ForcedNarrativeSequence";
                 case AncillaryDataSequence:
                     return "AncillaryDataEssence";
                 case IABSequence:
