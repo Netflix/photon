@@ -274,7 +274,11 @@ final class IMFCoreConstraintsChecker {
         }
 
         //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
-        if(!foundMainAudioEssence){
+        //Section 6.3.2 st2067-2:2020 allows CPLs without Audio Virtual Tracks
+        if(!foundMainAudioEssence
+                && (compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2013)
+                || compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2016)))
+        {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", compositionPlaylistType.getId().toString()));
         }
 

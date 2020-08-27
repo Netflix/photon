@@ -60,7 +60,7 @@ final class IMFCompositionPlaylistType {
     private final List<IMFSegmentType> segmentList;
     private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
     private final IMFErrorLogger imfErrorLogger;
-    private final String coreConstraintsVersion;
+    private final String coreConstraintsSchema;
     private final Set<String> applicationIdSet;
 
     /**
@@ -79,10 +79,10 @@ final class IMFCompositionPlaylistType {
                                       String contentTitle,
                                       List<IMFSegmentType> segmentList,
                                       List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
-                                      String coreConstraintsVersion,
+                                      String coreConstraintsSchema,
                                       String applicationId)
     {
-        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsVersion, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
     }
 
     public IMFCompositionPlaylistType(String id,
@@ -94,7 +94,7 @@ final class IMFCompositionPlaylistType {
                                    String contentTitle,
                                    List<IMFSegmentType> segmentList,
                                    List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
-                                   String coreConstraintsVersion,
+                                   String coreConstraintsSchema,
                                    @Nonnull Set<String> applicationIds)
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
@@ -117,7 +117,7 @@ final class IMFCompositionPlaylistType {
         this.contentTitle      = contentTitle;
         this.segmentList       = Collections.unmodifiableList(segmentList);
         this.essenceDescriptorList  = Collections.unmodifiableList(essenceDescriptorList);
-        this.coreConstraintsVersion = coreConstraintsVersion;
+        this.coreConstraintsSchema = coreConstraintsSchema;
         this.applicationIdSet = Collections.unmodifiableSet(applicationIds);
 
         if(imfErrorLogger.hasFatalErrors())
@@ -318,12 +318,12 @@ final class IMFCompositionPlaylistType {
     }
 
     /**
-     * Getter for the CoreConstraintsURI corresponding to this CompositionPlaylist
+     * Getter for the CoreConstraints URI corresponding to this CompositionPlaylist
      *
      * @return the uri for the CoreConstraints schema for this CompositionPlaylist
      */
-    public String getCoreConstraintsVersion() {
-        return this.coreConstraintsVersion;
+    @Nonnull public String getCoreConstraintsSchema() {
+        return this.coreConstraintsSchema;
     }
 
     /**
