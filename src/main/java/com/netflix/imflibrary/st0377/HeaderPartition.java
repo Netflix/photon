@@ -1207,7 +1207,7 @@ public final class HeaderPartition
     }
 
     /*
-        L ← Empty list that will contain the sorted nodes
+        L <- Empty list that will contain the sorted nodes
     while there are unmarked nodes do
         select an unmarked node n
         visit(n)
