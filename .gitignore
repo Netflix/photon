@@ -70,3 +70,6 @@ bin/
 # Scala build
 *.cache
 /.nb-gradle/private/
+
+# publishing secrets
+secrets/signing-key
