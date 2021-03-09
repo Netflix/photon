@@ -22,17 +22,11 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import org.xml.sax.SAXException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FilenameFilter;
+import com.netflix.imflibrary.utils.Locator;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * This class is an immutable implementation of the Mapped File Set concept defined in Section A.1 in Annex A of st0429-9:2014.
@@ -50,9 +44,9 @@ public final class BasicMapProfileV2MappedFileSet
     /**
      * Constructor for a MappedFileSet object from a file representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @throws IOException - forwarded from {@link AssetMap#AssetMap(com.netflix.imflibrary.utils.Locator) AssetMap} constructor
      */
-    public BasicMapProfileV2MappedFileSet(File rootFile) throws IOException
+    public BasicMapProfileV2MappedFileSet(Locator rootFile) throws IOException
     {
         imfErrorLogger = new IMFErrorLoggerImpl();
         if (!rootFile.isDirectory())
@@ -65,16 +59,10 @@ public final class BasicMapProfileV2MappedFileSet
             throw new IMFException(message, imfErrorLogger);
         }
 
-        FilenameFilter filenameFilter = new FilenameFilter()
-        {
-            @Override
-            public boolean accept(File rootFile, String name)
-            {
-                return name.equals(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME);
-            }
-        };
-
-        File[] files = rootFile.listFiles(filenameFilter);
+        Locator[] files = rootFile.listFiles(l -> {
+            return l.getName().equals(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME);
+        });
+        
         if ((files == null) || (files.length != 1))
         {
             String message = String.format("Found %d files with name %s in mapped file set rooted at %s, " +

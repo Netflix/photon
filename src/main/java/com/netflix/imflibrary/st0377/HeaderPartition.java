@@ -26,6 +26,7 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.ContentStorage;
@@ -37,12 +38,8 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericStreamTextBasedSet;
 import com.netflix.imflibrary.st0377.header.GenericTrack;
-import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
-import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
-import com.netflix.imflibrary.st0377.header.StaticTrack;
-import com.netflix.imflibrary.st0377.header.TargetFrameSubDescriptor;
 import com.netflix.imflibrary.st0377.header.MaterialPackage;
 import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
 import com.netflix.imflibrary.st0377.header.Preface;
@@ -51,8 +48,10 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourceClip;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.StaticTrack;
 import com.netflix.imflibrary.st0377.header.StructuralComponent;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
+import com.netflix.imflibrary.st0377.header.TargetFrameSubDescriptor;
 import com.netflix.imflibrary.st0377.header.TextBasedDMFramework;
 import com.netflix.imflibrary.st0377.header.TextBasedObject;
 import com.netflix.imflibrary.st0377.header.TimeTextResourceSubDescriptor;
@@ -66,15 +65,8 @@ import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.Locator;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -89,6 +81,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
@@ -1471,8 +1468,8 @@ public final class HeaderPartition
      * @return an HeaderPartition object constructed from the file
      * @throws IOException any I/O related error will be exposed through an IOException
      */
-    public static HeaderPartition fromFile(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+    public static HeaderPartition fromFile(Locator inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
+        ResourceByteRangeProvider resourceByteRangeProvider = inputFile.getResourceByteRangeProvider();
 
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
         long rangeEnd = archiveFileSize - 1;

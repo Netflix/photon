@@ -20,10 +20,9 @@ package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
-
-import javax.annotation.concurrent.Immutable;
-import java.io.File;
+import com.netflix.imflibrary.utils.Locator;
 import java.net.URI;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * This class represents a thin, immutable wrapper around a PackingList {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset}. It holds
@@ -34,13 +33,16 @@ public final class IMPAsset
 {
     private final URI uri;
     private final PackingList.Asset asset;
+    private final Locator.Configuration configuration;
+    
     /**
      * Constructor for an {@link IMPAsset IMPAsset} from a PackingList Asset and its URI. Construction
      * fails if the URI is not absolute
      * @param uri the absolute URI
      * @param asset the corresponding asset
+     * @param configuration the locator configuration.
      */
-    public IMPAsset(URI uri, PackingList.Asset asset)
+    public IMPAsset(URI uri, PackingList.Asset asset, Locator.Configuration configuration)
     {
         if (!uri.isAbsolute())
         {
@@ -51,7 +53,7 @@ public final class IMPAsset
             throw new IMFException(message, imfErrorLogger);
         }
         this.uri = uri;
-
+        this.configuration = configuration;
         this.asset = asset;
     }
 
@@ -61,7 +63,7 @@ public final class IMPAsset
      */
     public boolean isValid()
     {//TODO: this implementation needs to improve
-        return new File(this.uri).exists();
+        return Locator.of(uri, configuration).exists();
     }
 
     @Override

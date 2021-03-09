@@ -28,16 +28,9 @@ import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.Locator;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.Utilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.annotation.Nullable;
-import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -49,6 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import javax.xml.bind.JAXBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * A RESTful interface for validating an IMF Master Package.
@@ -780,17 +778,18 @@ public class IMPValidator {
 
     public static void main(String args[]) throws IOException, URISyntaxException, SAXException, JAXBException
     {
-        if (args.length != 3)
-        {
-            logger.error(usage());
-            throw new IllegalArgumentException("Invalid parameters");
-        }
         List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
-        File assetMapFile=null, packingListFile=null, compositionPlaylistFile=null;
+        Locator assetMapFile=null, packingListFile=null, compositionPlaylistFile=null;
+        Locator[] locations = Locator.all(args, t -> {
+            if (t != 3) {
+                logger.error(usage());
+                throw new IllegalArgumentException("Invalid parameters");
+            }
+        });
 
-        for(String arg : args) {
-            File inputFile = new File(arg);
-            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        for(Locator location : locations) {
+            Locator inputFile = location;
+            ResourceByteRangeProvider resourceByteRangeProvider = inputFile.getResourceByteRangeProvider();
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
             PayloadRecord.PayloadAssetType payloadAssetType = IMPValidator.getPayloadType(payloadRecord);
@@ -818,11 +817,11 @@ public class IMPValidator {
 
         if(assetMapFile != null
                 && packingListFile != null){
-            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetMapFile);
+            ResourceByteRangeProvider resourceByteRangeProvider = assetMapFile.getResourceByteRangeProvider();
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord assetMapPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
 
-            resourceByteRangeProvider = new FileByteRangeProvider(packingListFile);
+            resourceByteRangeProvider = packingListFile.getResourceByteRangeProvider();
             bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord packingListPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
             List<PayloadRecord> packingListPayloadRecords = new ArrayList<>();

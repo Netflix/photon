@@ -6,6 +6,10 @@ Photon is a Java implementation of the Interoperable Master Format (IMF) standar
 
 The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
 
+## Origins
+
+The code in this repo was originally derived from https://github.com/Netflix/photon.git. This repo adds S3 support to the IMP Analyzer.
+
 ## Build
 
 ### JDK requirements
@@ -98,3 +102,31 @@ java -cp build\libs\*; com.netflix.imflibrary.st2067_2.Composition composition_p
 ```
 java -cp build\libs\*; com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path
 ```
+
+### S3 Support
+
+This repo adds S3 support to the IMPAnalyzer. Extras command lines options can be passed in to specify the AWS credentials when accessing files on S3. If the path beings with `s3://`, `http://` or `https://` it is currently assumed to be on S3. To indicate a directory, a `/` needs to be appended to the path.
+
+**Configures basic S3 credentials**
+`    --aws.accesskey=ACCESS_KEY`
+`    --aws.secretkey=SECRET_KEY`
+`    --aws.token=TOKEN (optional)`
+
+**Uses profile as defined in the aw3 credentials file.**
+`    --aws.profile=PROFILE`
+
+**Specifies a role for accessing the S3 bucket.**
+`    --aws.rolearn=ROLEARN`
+`    --aws.externalid=EXTERNALID (optional)`
+
+**Uses anonymouse credentials.**
+`    --aws.anonymous`
+
+**Specifies the endpoint to use.**
+`    --aws.endpoint=ENPOINT`
+
+All the above are optional. 
+
+E.G:
+
+`java -cp build\libs\*; com.netflix.imflibrary.app.IMPAnalyzer s3://bucket/imp/ --aws.profile=test_profile`

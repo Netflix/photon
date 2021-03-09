@@ -24,19 +24,13 @@ import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.Locator;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -52,10 +46,14 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * This class represents a thin, immutable wrapper around the XML type 'PackingListType' which is defined in Section 7,
@@ -102,8 +100,8 @@ public final class PackingList
      * @param packingListXMLFile the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public PackingList(File packingListXMLFile) throws IOException {
-        this(new FileByteRangeProvider(packingListXMLFile));
+    public PackingList(Locator packingListXMLFile) throws IOException {
+        this(packingListXMLFile.getResourceByteRangeProvider());
     }
 
     /**
@@ -533,18 +531,17 @@ public final class PackingList
 
     public static void main(String args[]) throws IOException, SAXException, JAXBException
     {
-        if (args.length != 1)
-        {
-            logger.error(usage());
-            throw new IllegalArgumentException("Invalid parameters");
-        }
-
-        File inputFile = new File(args[0]);
+        Locator inputFile = Locator.first(args, t -> {
+            if (t != 1) {
+                logger.error(usage());
+                throw new IllegalArgumentException("Invalid parameters");
+            }
+        });
         if(!inputFile.exists()){
             logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        ResourceByteRangeProvider resourceByteRangeProvider = inputFile.getResourceByteRangeProvider();
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validatePKL(payloadRecord);

@@ -1,25 +1,26 @@
 package com.netflix.imflibrary.app;
 
+import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import testUtils.TestHelper;
-
+import com.netflix.imflibrary.utils.FileLocator;
+import com.netflix.imflibrary.utils.S3Locator;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import testUtils.S3TestBase;
+import testUtils.TestHelper;
 
 @Test(groups = "unit")
-public class IMPAnalyzerTest
+public class IMPAnalyzerTest extends S3TestBase
 {
     @Test
     public void IMPAnalyzerTest() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(new FileLocator(inputFile));
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -30,14 +31,31 @@ public class IMPAnalyzerTest
                     }
                 }
         );
+    }
 
+    @Test
+    public void IMPAnalyzerS3Test() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
+        s3uploadFiles(inputFile, "testbucket", "TestImp/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(new S3Locator(endpoint + "/testbucket/TestImp/MERIDIAN_Netflix_Photon_161006/", configuration));
+        Assert.assertEquals(errorMap.size(), 7);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL.*")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
     }
 
     @Test
     public void IMPAnalyzerTestIDMismatches() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(new FileLocator(inputFile));
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {

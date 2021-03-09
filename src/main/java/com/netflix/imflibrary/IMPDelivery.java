@@ -22,18 +22,19 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
+import com.netflix.imflibrary.utils.FileLocator;
+import com.netflix.imflibrary.utils.Locator;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * This class represents the concept of an IMF delivery as defined in Section 8 of st2067-2:2015. Informally, an IMF delivery
@@ -64,14 +65,14 @@ public final class IMPDelivery
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
             URI absolutePackingListURI = basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(packingListAsset.getPath());
-            PackingList packingList = new PackingList(new File(absolutePackingListURI));
+            PackingList packingList = new PackingList(Locator.of(absolutePackingListURI, null));
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())
             {
                 UUID referencedAssetUUID = referencedAsset.getUUID();
                 referencedAssets.add(new IMPAsset(basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(this.assetMap.getPath(referencedAssetUUID)),
-                        referencedAsset));
+                        referencedAsset, null));
 
             }
             interoperableMasterPackages.add(new InteroperableMasterPackage(packingList, absolutePackingListURI, referencedAssets));
@@ -119,7 +120,7 @@ public final class IMPDelivery
     {
         File rootFile = new File(args[0]);
 
-        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
+        BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(new FileLocator(rootFile));
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfileV2FileSet);
 

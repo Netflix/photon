@@ -23,21 +23,19 @@ import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.annotation.Nullable;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import javax.annotation.Nullable;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * Created by svenkatrav on 9/2/16.
@@ -178,18 +176,18 @@ public class IMPFixer {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(File rootFile, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
+    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(FileLocator rootFile, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
             IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
         BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
         AssetMap assetMap = new AssetMap(new File(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
         for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
-            PackingList packingList = new PackingList(new File(rootFile, packingListAsset.getPath().toString()));
+            PackingList packingList = new PackingList(rootFile.getChild(packingListAsset.getPath().toString()));
             Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                File assetFile = new File(rootFile.getFile(), assetMap.getPath(asset.getUUID()).toString());
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
@@ -219,7 +217,7 @@ public class IMPFixer {
 
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
+                File assetFile = new File(rootFile.getFile(), assetMap.getPath(asset.getUUID()).toString());
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
@@ -363,7 +361,7 @@ public class IMPFixer {
         }
         else
         {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
+            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(new FileLocator(inputFile), outputFile, versionCPLSchema, copyTrackFile, generateHash);
             if (errors.size() > 0) {
                 logger.info(String.format("IMPWriter encountered errors:"));
                 for (ErrorLogger.ErrorObject errorObject : errors) {
