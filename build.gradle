@@ -1,5 +1,5 @@
 plugins {
-    id 'nebula.netflixoss' version '8.8.1'
+    id 'nebula.netflixoss' version '9.1.0'
     id 'java'
     id 'pmd'
     id 'com.github.spotbugs' version "4.4.4"
@@ -10,7 +10,6 @@ group = 'com.netflix.photon'
 
 repositories {
     mavenCentral()
-    jcenter()
     /**
      * Following represents the location of SNAPSHOTS of RegXMLLib. It should be enabled only when
      * necessary to verify changes to the library that are not yet committed to Maven Central.
