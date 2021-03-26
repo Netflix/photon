@@ -157,9 +157,9 @@ public class FileLocatorTest {
     public void testReadAllBytes() throws IOException {
         final File tmpFile = File.createTempFile("test_file", ".tmp");
         try {
-            Files.write(tmpFile.toPath(), Arrays.asList("Testing 123"));
+            Files.write(tmpFile.toPath(), "0123456789abcdefghijklmnopqrstuvxyz".getBytes());
             FileLocator targetFile = new FileLocator(tmpFile);
-            Assert.assertEquals(new String(targetFile.readAllBytes()), "Testing 123\r\n");
+            Assert.assertEquals(new String(targetFile.readAllBytes()), "0123456789abcdefghijklmnopqrstuvxyz");
         } finally {
             Assert.assertTrue(tmpFile.delete());
         }
