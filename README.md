@@ -1,4 +1,3 @@
-[![codecov](https://codecov.io/gh/Netflix/photon/branch/master/graph/badge.svg)](https://codecov.io/gh/Netflix/photon)
 
 # Photon
 
