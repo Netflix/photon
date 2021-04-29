@@ -3,8 +3,6 @@ jdk:
 - openjdk8
 install: "./installViaTravis.sh"
 script: "./buildViaTravis.sh"
-after_success:
-- bash <(curl -s https://codecov.io/bash)
 cache:
   directories:
   - "$HOME/.gradle"
