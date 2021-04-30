@@ -8,7 +8,7 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -93,7 +93,7 @@ public class MXFEssenceReader {
      * @return Header partition in the essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public HeaderPartition getHeaderPartition() throws IOException{
+    public HeaderOrFooterPartition getHeaderPartition() throws IOException{
         RandomIndexPack randomIndexPack = this.getRandomIndexPack();
         List<Long> allPartitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
         long inclusiveRangeStart = allPartitionByteOffsets.get(0);
@@ -101,9 +101,9 @@ public class MXFEssenceReader {
 
         File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
         ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, this.imfErrorLogger);
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, this.imfErrorLogger, false);
 
-        return headerPartition;
+        return headerOrFooterPartition;
     }
 
     /**
@@ -184,7 +184,7 @@ public class MXFEssenceReader {
      * @return a list of essence types present in the MXF file
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public List<HeaderPartition.EssenceTypeEnum> getEssenceTypes() throws IOException{
+    public List<HeaderOrFooterPartition.EssenceTypeEnum> getEssenceTypes() throws IOException{
         return this.getHeaderPartition().getEssenceTypes();
     }
 

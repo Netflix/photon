@@ -23,7 +23,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Locator;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -488,11 +488,11 @@ public final class Composition {
      * An object model for a HeaderPartition and access to the raw bytes corresponding to the HeaderPartition
      */
     public static class HeaderPartitionTuple {
-        private final HeaderPartition headerPartition;
+        private final HeaderOrFooterPartition headerOrFooterPartition;
         private final ResourceByteRangeProvider resourceByteRangeProvider;
 
-        public HeaderPartitionTuple(HeaderPartition headerPartition, ResourceByteRangeProvider resourceByteRangeProvider){
-            this.headerPartition = headerPartition;
+        public HeaderPartitionTuple(HeaderOrFooterPartition headerOrFooterPartition, ResourceByteRangeProvider resourceByteRangeProvider){
+            this.headerOrFooterPartition = headerOrFooterPartition;
             this.resourceByteRangeProvider = resourceByteRangeProvider;
         }
 
@@ -509,8 +509,8 @@ public final class Composition {
          * A getter for the HeaderPartition object corresponding to a resource referenced from the Composition
          * @return HeaderPartition of a certain resource in the Composition
          */
-        public HeaderPartition getHeaderPartition(){
-            return this.headerPartition;
+        public HeaderOrFooterPartition getHeaderPartition(){
+            return this.headerOrFooterPartition;
         }
     }
 

@@ -19,8 +19,7 @@ package com.netflix.imflibrary.app;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -86,8 +85,8 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         byte[] headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
         ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
-        List<InterchangeObject.InterchangeObjectBO> list = headerPartition.getEssenceDescriptors();
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger, false);
+        List<InterchangeObject.InterchangeObjectBO> list = headerOrFooterPartition.getEssenceDescriptors();
         List<KLVPacket.Header> essenceDescriptorHeaders = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO descriptorBO : list){
             essenceDescriptorHeaders.add(descriptorBO.getHeader());
@@ -98,8 +97,8 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
         inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
         headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
         byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
-        headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
-        list = headerPartition.getEssenceDescriptors();
+        headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger, false);
+        list = headerOrFooterPartition.getEssenceDescriptors();
         essenceDescriptorHeaders = new ArrayList<>();
         for(InterchangeObject.InterchangeObjectBO descriptorBO : list){
             essenceDescriptorHeaders.add(descriptorBO.getHeader());

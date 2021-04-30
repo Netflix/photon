@@ -7,7 +7,7 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st2067_2.AbstractApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
@@ -566,15 +566,15 @@ public class IMPBuilder {
                 ByteProvider byteProvider = new ByteArrayDataProvider(imfTrackFileMetadata.getHeaderPartition());
                 ResourceByteRangeProvider resourceByteRangeProvider = new ByteArrayByteRangeProvider(imfTrackFileMetadata.getHeaderPartition());
                 //Create the HeaderPartition
-                HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long) imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger);
+                HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, (long) imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger, false);
 
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
                 IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartition.getEssenceDescriptors();
+                List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerOrFooterPartition.getEssenceDescriptors();
                 for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                     KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
                     List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-                    List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
+                    List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerOrFooterPartition.getSubDescriptors(essenceDescriptor);
                     for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
                         if (subDescriptorBO != null) {
                             subDescriptorHeaders.add(subDescriptorBO.getHeader());
@@ -585,7 +585,7 @@ public class IMPBuilder {
                     DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
                     Document document = docBuilder.newDocument();
 
-                    RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(headerPartition.getPrimerPack().getHeader(), getByteProvider(resourceByteRangeProvider, headerPartition.getPrimerPack().getHeader()));
+                    RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(headerOrFooterPartition.getPrimerPack().getHeader(), getByteProvider(resourceByteRangeProvider, headerOrFooterPartition.getPrimerPack().getHeader()));
 
                     DocumentFragment documentFragment = getEssenceDescriptorAsDocumentFragment(regXMLLibHelper, document, essenceDescriptorHeader, subDescriptorHeaders, resourceByteRangeProvider, imfErrorLogger);
                     Node node = documentFragment.getFirstChild();

@@ -7,7 +7,7 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -328,7 +328,7 @@ public class IMPValidator {
         List<VirtualTrack> virtualTracks = new ArrayList<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         virtualTracks.add(virtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
+        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartitionPayloads));
         if(imfErrorLogger.hasFatalErrors()){
             return imfErrorLogger.getErrors();
@@ -344,13 +344,13 @@ public class IMPValidator {
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
      * Virtual Tracks that are a part of the Composition
      * @param cplPayloadRecord a payload record corresponding to the Composition payload
-     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
+     * @param essencesPartitionPayloads list of payload records containing the raw bytes of the Header or Footer Partitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> areAllVirtualTracksInCPLConformed(
             PayloadRecord cplPayloadRecord,
-            List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+            List<PayloadRecord> essencesPartitionPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()), imfErrorLogger);
@@ -359,12 +359,12 @@ public class IMPValidator {
         }
 
         List<VirtualTrack> virtualTracks = new ArrayList<>(applicationComposition.getVirtualTracks());
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartitionPayloads));
+        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesPartitionPayloadRecords(virtualTracks,
+                essencesPartitionPayloads));
         if(imfErrorLogger.hasFatalErrors()){
             return imfErrorLogger.getErrors();
         }
-        imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads,
+        imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesPartitionPayloads,
                 true));
 
         return imfErrorLogger.getErrors();
@@ -400,10 +400,10 @@ public class IMPValidator {
                                     PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                     continue;
                 }
-                headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderOrFooterPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                         0L,
                         (long) payloadRecord.getPayload().length,
-                        imfErrorLogger),
+                        imfErrorLogger, true),
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
 
@@ -584,22 +584,22 @@ public class IMPValidator {
                         .getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
                 continue;
             }
-            HeaderPartition headerPartition = null;
+            HeaderOrFooterPartition headerOrFooterPartition = null;
             try {
-                headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                headerOrFooterPartition = new HeaderOrFooterPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                     0L,
                     (long)payloadRecord.getPayload().length,
-                    imfErrorLogger);
+                    imfErrorLogger, true);
 
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.IABEssence) {
+                if (headerPartitionIMF.getEssenceType() == HeaderOrFooterPartition.EssenceTypeEnum.IABEssence) {
                     IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
                 }
             }
             catch (IMFException | MXFException e){
-                if(headerPartition != null) {
-                    Preface preface = headerPartition.getPreface();
+                if(headerOrFooterPartition != null) {
+                    Preface preface = headerOrFooterPartition.getPreface();
                     GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                     SourcePackage filePackage = (SourcePackage) genericPackage;
                     UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
@@ -635,7 +635,7 @@ public class IMPValidator {
         }
         List<VirtualTrack> virtualTracks = new ArrayList<>();
         virtualTracks.add(audioVirtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
+        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesPartitionPayloadRecords(virtualTracks,
                 essencesHeaderPartition));
         if(imfErrorLogger.hasFatalErrors()){
             throw new IMFException(String.format("Fatal Errors were detected when trying to verify the Virtual Track and Essence Header Partition payloads %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors())));
@@ -647,11 +647,11 @@ public class IMPValidator {
                         payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString
                                 ()), imfErrorLogger);
             }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+            HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                 0L,
                 (long) payloadRecord.getPayload().length,
-                imfErrorLogger);
-            audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
+                imfErrorLogger, true);
+            audioLanguageSet.add(headerOrFooterPartition.getAudioEssenceSpokenLanguage());
         }
 
         if(audioLanguageSet.size() > 1){
@@ -676,23 +676,22 @@ public class IMPValidator {
         return result;
     }
 
-    private static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack>
-                                                                                               virtualTracks,
-                                                                               List<PayloadRecord> essencesHeaderPartition) throws IOException {
+    private static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesPartitionPayloadRecords(List<VirtualTrack> virtualTracks,
+                                                                                                     List<PayloadRecord> essencesPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Set<UUID> trackFileIDsSet = new HashSet<>();
 
-        for (PayloadRecord payloadRecord : essencesHeaderPartition){
+        for (PayloadRecord payloadRecord : essencesPartition){
             if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                 throw new IMFException(String.format("Payload asset type is %s, expected asset type %s",
                         payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString
                                 ()), imfErrorLogger);
             }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+            HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                     0L,
                     (long) payloadRecord.getPayload().length,
-                    imfErrorLogger);
-            Preface preface = headerPartition.getPreface();
+                    imfErrorLogger, true);
+            Preface preface = headerOrFooterPartition.getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
             SourcePackage filePackage = (SourcePackage) genericPackage;
             UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
@@ -703,14 +702,14 @@ public class IMPValidator {
                  * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
                  * are in fact from the constituent resources of the VirtualTack
                  */
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
+                if (headerPartitionIMF.hasMatchingEssence(HeaderOrFooterPartition.EssenceTypeEnum.IABEssence)) {
                     IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
                 }
             }
             catch (IMFException | MXFException e){
-                if(headerPartition != null) {
+                if(headerOrFooterPartition != null) {
 
                 }
                 imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
@@ -939,12 +938,12 @@ public class IMPValidator {
                 continue;
             }
 
-            HeaderPartition headerPartition = null;
+            HeaderOrFooterPartition headerOrFooterPartition = null;
             try {
-                headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPayloadRecord.getPayload()),
-                        0L, (long) headerPayloadRecord.getPayload().length, imfErrorLogger);
+                headerOrFooterPartition = new HeaderOrFooterPartition(new ByteArrayDataProvider(headerPayloadRecord.getPayload()),
+                        0L, (long) headerPayloadRecord.getPayload().length, imfErrorLogger, true);
 
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
 
                 for (PayloadRecord indexPayloadRecord : indexSegmentPayloadRecords) {
@@ -967,7 +966,7 @@ public class IMPValidator {
 
                             if (IndexTableSegment.isValidKey(header.getKey())) {
                                 IndexTableSegment indexTableSegment = new IndexTableSegment(imfEssenceComponentByteProvider, header);
-                                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
+                                if (headerPartitionIMF.hasMatchingEssence(HeaderOrFooterPartition.EssenceTypeEnum.IABEssence)) {
                                     IABTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
                                 }
                             } else {
@@ -979,8 +978,8 @@ public class IMPValidator {
                     }
                 }
             } catch (IMFException | MXFException e){
-                if(headerPartition != null) {
-                    Preface preface = headerPartition.getPreface();
+                if(headerOrFooterPartition != null) {
+                    Preface preface = headerOrFooterPartition.getPreface();
                     GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                     SourcePackage filePackage = (SourcePackage) genericPackage;
                     UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();

@@ -3,7 +3,7 @@ package com.netflix.imflibrary.st2067_201;
 import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericDescriptor;
@@ -33,8 +33,8 @@ public final class IABTrackFileConstraints {
     public IABTrackFileConstraints() {}
 
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
-        HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
-        Preface preface = headerPartition.getPreface();
+        HeaderOrFooterPartition headerOrFooterPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        Preface preface = headerOrFooterPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage;
         filePackage = (SourcePackage) genericPackage;
@@ -116,7 +116,7 @@ public final class IABTrackFileConstraints {
                                 String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s is missing the Reference Audio Alignment Level item.", packageID.toString()));
                     }
 
-                    List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
+                    List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerOrFooterPartition.getSubDescriptors();
                     // Section 5.10.2
                     if (subDescriptors.size() == 0) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
@@ -216,8 +216,8 @@ public final class IABTrackFileConstraints {
     }
 
     public static void checkIndexEditRate(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, IndexTableSegment indexTableSegment, IMFErrorLogger imfErrorLogger) {
-        HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
-        Preface preface = headerPartition.getPreface();
+        HeaderOrFooterPartition headerOrFooterPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        Preface preface = headerOrFooterPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage;
         filePackage = (SourcePackage) genericPackage;

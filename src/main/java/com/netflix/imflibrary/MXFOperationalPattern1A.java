@@ -19,7 +19,7 @@
 package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.ContentStorage;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
@@ -55,15 +55,15 @@ public final class MXFOperationalPattern1A
      * Checks the compliance of an MXF header partition with st378:2004. A runtime
      * exception is thrown in case of non-compliance
      *
-     * @param headerPartition the MXF header partition
+     * @param headerOrFooterPartition the MXF header partition
      * @param imfErrorLogger - an object for logging errors
      * @return the same header partition wrapped in a HeaderPartitionOP1A object
      */
     @SuppressWarnings({"PMD.NcssMethodCount","PMD.CollapsibleIfStatements"})
-    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderPartition headerPartition, @Nonnull IMFErrorLogger imfErrorLogger)
+    public static HeaderPartitionOP1A checkOperationalPattern1ACompliance(@Nonnull HeaderOrFooterPartition headerOrFooterPartition, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
-        Preface preface = headerPartition.getPreface();
+        Preface preface = headerOrFooterPartition.getPreface();
         String trackFileID_Prefix = "";
         if(preface != null) {
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -104,10 +104,10 @@ public final class MXFOperationalPattern1A
         //Content Storage
         {
             //check number of Content Storage sets Section 9.5.2 st377-1:2011
-            if (headerPartition.getContentStorageList().size() != 1)
+            if (headerOrFooterPartition.getContentStorageList().size() != 1)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + trackFileID_Prefix + String.format("Number of Content Storage sets in header partition = %d, is different from 1",
-                        headerPartition.getContentStorageList().size()));
+                        headerOrFooterPartition.getContentStorageList().size()));
             }
 
             if(preface != null) {
@@ -127,23 +127,23 @@ public final class MXFOperationalPattern1A
         //check number of Essence Container Data sets
         {
             //Section 9.4.3 st377-1:2011
-            if (headerPartition.getEssenceContainerDataList().size() != 1)
+            if (headerOrFooterPartition.getEssenceContainerDataList().size() != 1)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + trackFileID_Prefix + String.format("Number of EssenceContainerData sets = %d, is different from 1",
-                        headerPartition.getEssenceContainerDataList().size()));
+                        headerOrFooterPartition.getEssenceContainerDataList().size()));
             }
         }
 
         //check number of Material Packages Section 5.1, Table-1 st378:2004
-        if (headerPartition.getMaterialPackages().size() != 1)
+        if (headerOrFooterPartition.getMaterialPackages().size() != 1)
         {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, MXFOperationalPattern1A.OP1A_EXCEPTION_PREFIX + trackFileID_Prefix + String.format("Number of Material Packages in header partition = %d, is different from 1",
-                    headerPartition.getMaterialPackages().size()));
+                    headerOrFooterPartition.getMaterialPackages().size()));
         }
 
         //Material Package
         {
-            MaterialPackage materialPackage = (MaterialPackage)headerPartition.getMaterialPackages().get(0);
+            MaterialPackage materialPackage = (MaterialPackage) headerOrFooterPartition.getMaterialPackages().get(0);
 
             //check number of source clips per track of Material Package Section 5.1, Table-1 st378:2004
             for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
@@ -221,7 +221,7 @@ public final class MXFOperationalPattern1A
         //check if all tracks across the Material Package and the top-level File Package have the same duration st377-1:2011
         double sequenceDuration = 0.0;
         {
-            MaterialPackage materialPackage = (MaterialPackage)headerPartition.getMaterialPackages().get(0);
+            MaterialPackage materialPackage = (MaterialPackage) headerOrFooterPartition.getMaterialPackages().get(0);
             for (TimelineTrack timelineTrack : materialPackage.getTimelineTracks())
             {
 
@@ -282,7 +282,7 @@ public final class MXFOperationalPattern1A
         if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
             throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate IMF OP1A compliance"), imfErrorLogger);
         }
-        return new HeaderPartitionOP1A(headerPartition);
+        return new HeaderPartitionOP1A(headerOrFooterPartition);
     }
 
     /**
@@ -326,20 +326,20 @@ public final class MXFOperationalPattern1A
      */
     public static class HeaderPartitionOP1A
     {
-        private final HeaderPartition headerPartition;
+        private final HeaderOrFooterPartition headerOrFooterPartition;
 
-        private HeaderPartitionOP1A(HeaderPartition headerPartition)
+        private HeaderPartitionOP1A(HeaderOrFooterPartition headerOrFooterPartition)
         {
-            this.headerPartition = headerPartition;
+            this.headerOrFooterPartition = headerOrFooterPartition;
         }
 
         /**
          * Gets the wrapped MXF header partition object
          * @return the wrapped MXF header partition object
          */
-        public HeaderPartition getHeaderPartition()
+        public HeaderOrFooterPartition getHeaderPartition()
         {
-            return this.headerPartition;
+            return this.headerOrFooterPartition;
         }
 
         /**
@@ -349,7 +349,7 @@ public final class MXFOperationalPattern1A
          */
         public String toString()
         {
-            return this.headerPartition.toString();
+            return this.headerOrFooterPartition.toString();
         }
 
     }

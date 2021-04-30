@@ -25,7 +25,7 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
@@ -913,9 +913,9 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
     }
 
-    private List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
+    private List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderOrFooterPartition headerOrFooterPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerOrFooterPartition.getSubDescriptors(essenceDescriptor);
         for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
             if (subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

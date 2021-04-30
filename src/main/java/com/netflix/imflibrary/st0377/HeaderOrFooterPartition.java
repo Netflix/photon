@@ -92,7 +92,7 @@ import org.slf4j.LoggerFactory;
  */
 @Immutable
 @SuppressWarnings({"PMD.SingularField"})
-public final class HeaderPartition
+public final class HeaderOrFooterPartition
 {
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: ";
     private static final Long IMF_MXF_HEADER_PARTITION_OFFSET = 0L; //The IMF Essence component spec (SMPTE ST-2067-5:2013) constrains the byte offset of the Header Partition to the start of the file
@@ -105,18 +105,23 @@ public final class HeaderPartition
     private final Map<MXFUID, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
     private final IMFErrorLogger imfErrorLogger;
 
-    private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeaderOrFooterPartition.class);
 
     /**
      * Instantiates a new MXF Header partition.
+     *
+     * MXF allows for open header and footers. If the header is open, the location to obtain the correct information for the
+     * descriptor data is generally in the last footer in the file (there should be random index pack that specifies
+     * the offsets for the various partitions).
      *
      * @param byteProvider the input sequence of bytes
      * @param byteOffset the byte offset corresponding to the HeaderPartition
      * @param maxPartitionSize the size of the header partition
      * @param imfErrorLogger an IMFErrorLogger dedicated to this header partition
+     * @param alllowFooter If true, allow footer partition as well as header partition.
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public HeaderPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger) throws IOException
+    public HeaderOrFooterPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger, boolean alllowFooter) throws IOException
     {
         this.imfErrorLogger = imfErrorLogger;
         long numBytesRead = 0;
@@ -130,7 +135,14 @@ public final class HeaderPartition
         this.partitionPack = new PartitionPack(byteProvider, IMF_MXF_HEADER_PARTITION_OFFSET, false, imfErrorLogger);
         if(!this.partitionPack.isValidHeaderPartition())
         {
-            throw new MXFException("Found an invalid header partition");
+            if (!alllowFooter)
+            {
+                throw new MXFException("Found an invalid header partition");
+            }
+            else if (!this.partitionPack.isValidFooterPartition())
+            {
+                throw new MXFException("Found an invalid footer partition");
+            }
         }
         numBytesRead += this.partitionPack.getKLVPacketSize();
         Long byteOffsetOfNextKLVPacket = byteOffset + numBytesRead;
@@ -215,7 +227,7 @@ public final class HeaderPartition
         if (prefaceSetCount != 1)
         {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    HeaderPartition.ERROR_DESCRIPTION_PREFIX + String.format("Found %d Preface sets, only one is allowed in header partition",
+                    HeaderOrFooterPartition.ERROR_DESCRIPTION_PREFIX + String.format("Found %d Preface sets, only one is allowed in header partition",
                             prefaceSetCount));
         }
 
@@ -1468,7 +1480,7 @@ public final class HeaderPartition
      * @return an HeaderPartition object constructed from the file
      * @throws IOException any I/O related error will be exposed through an IOException
      */
-    public static HeaderPartition fromFile(Locator inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
+    public static HeaderOrFooterPartition fromFile(Locator inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
         ResourceByteRangeProvider resourceByteRangeProvider = inputFile.getResourceByteRangeProvider();
 
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
@@ -1490,7 +1502,7 @@ public final class HeaderPartition
         byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
         ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
 
-        return new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
+        return new HeaderOrFooterPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger, false);
     }
 
     /**

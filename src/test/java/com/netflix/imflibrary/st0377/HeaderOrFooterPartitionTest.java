@@ -47,7 +47,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-public class HeaderPartitionTest
+public class HeaderOrFooterPartitionTest
 {
     @Test
     public void audioHeaderPartitionTest() throws IOException
@@ -57,10 +57,10 @@ public class HeaderPartitionTest
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
-        Assert.assertTrue(headerPartition.toString().length() > 0);
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger, false);
+        Assert.assertTrue(headerOrFooterPartition.toString().length() > 0);
 
-        Preface preface = headerPartition.getPreface();
+        Preface preface = headerOrFooterPartition.getPreface();
         Assert.assertTrue(preface.toString().length() > 0);
 
         ContentStorage contentStorage = preface.getContentStorage();
@@ -69,14 +69,14 @@ public class HeaderPartitionTest
 
 
 
-        List<InterchangeObject> materialPackages = headerPartition.getMaterialPackages();
+        List<InterchangeObject> materialPackages = headerOrFooterPartition.getMaterialPackages();
         Assert.assertEquals(materialPackages.size(), 1);
         MaterialPackage materialPackage = (MaterialPackage)materialPackages.get(0);
         Assert.assertTrue(materialPackage.toString().length() > 0);
         MXFUID materialPackageInstanceUID = new MXFUID(new byte[]{
                 0x6a, (byte)0x92, (byte)0xc9, 0x01, 0x13, 0x59, 0x48, 0x42, (byte)0x86, 0x38, (byte)0xdf, (byte)0xa9, 0x3a, 0x08, (byte)0x80, 0x20});
         Assert.assertEquals(materialPackage.getInstanceUID(), materialPackageInstanceUID);
-        Assert.assertSame(materialPackage, headerPartition.getMaterialPackage(materialPackageInstanceUID));
+        Assert.assertSame(materialPackage, headerOrFooterPartition.getMaterialPackage(materialPackageInstanceUID));
 
         List<GenericTrack> genericTracks = materialPackage.getGenericTracks();
         Assert.assertEquals(genericTracks.size(), 2);
@@ -106,7 +106,7 @@ public class HeaderPartitionTest
 
 
 
-        List<InterchangeObject> sourcePackages = headerPartition.getSourcePackages();
+        List<InterchangeObject> sourcePackages = headerOrFooterPartition.getSourcePackages();
         Assert.assertEquals(sourcePackages.size(), 1);
         SourcePackage sourcePackage = (SourcePackage)sourcePackages.get(0);
         Assert.assertTrue(sourcePackage.toString().length() > 0);
@@ -114,7 +114,7 @@ public class HeaderPartitionTest
                 0x54, 0x0b, 0x00, (byte)0xf2, (byte)0xb9, (byte)0x8e, 0x43, 0x7a, (byte)0x8f, (byte)0xa0, 0x3c, (byte)0xe1, (byte)0xa6, 0x1f, 0x25, (byte)0xf9
         });
         Assert.assertEquals(sourcePackage.getInstanceUID(), sourcePackageInstanceUid);
-        Assert.assertSame(sourcePackage, headerPartition.getSourcePackage(sourcePackageInstanceUid));
+        Assert.assertSame(sourcePackage, headerOrFooterPartition.getSourcePackage(sourcePackageInstanceUid));
         Assert.assertEquals(sourcePackage.getPackageUID(), new MXFUID(new byte[]{
                 0x06, 0x0a, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x05, 0x01, 0x01, 0x0f, 0x20, 0x13, 0x00, 0x00, 0x00, (byte)0xcf, (byte)0xbc, (byte)0xf3, (byte)0xb9, 0x62, 0x50, 0x46, 0x7c, (byte)0xbd, 0x18, (byte)0x9f, 0x5d, (byte)0xe0, (byte)0xdf, (byte)0x9f, (byte)0xfb
         }));
@@ -129,11 +129,11 @@ public class HeaderPartitionTest
 
 
 
-        Assert.assertTrue(headerPartition.hasWaveAudioEssenceDescriptor());
-        Assert.assertEquals(headerPartition.getWaveAudioEssenceDescriptors().size(), 1);
-        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
-        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainAudioEssence);
-        WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor)headerPartition.getWaveAudioEssenceDescriptors().get(0);
+        Assert.assertTrue(headerOrFooterPartition.hasWaveAudioEssenceDescriptor());
+        Assert.assertEquals(headerOrFooterPartition.getWaveAudioEssenceDescriptors().size(), 1);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().get(0) == HeaderOrFooterPartition.EssenceTypeEnum.MainAudioEssence);
+        WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) headerOrFooterPartition.getWaveAudioEssenceDescriptors().get(0);
         Assert.assertTrue(waveAudioEssenceDescriptor.toString().length() > 0);
         Assert.assertTrue(waveAudioEssenceDescriptor.equals(waveAudioEssenceDescriptor));
         Assert.assertEquals(waveAudioEssenceDescriptor.getAudioSamplingRateNumerator(), 48000);
@@ -142,20 +142,20 @@ public class HeaderPartitionTest
         Assert.assertEquals(waveAudioEssenceDescriptor.getQuantizationBits(), 24);
         Assert.assertEquals(waveAudioEssenceDescriptor.getBlockAlign(), 6);
 
-        Assert.assertFalse(headerPartition.hasAudioChannelLabelSubDescriptors());
-        Assert.assertFalse(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
-        Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
-        Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
-        Assert.assertEquals(headerPartition.getAudioContentKind(), AudioContentKind.Unknown);
+        Assert.assertFalse(headerOrFooterPartition.hasAudioChannelLabelSubDescriptors());
+        Assert.assertFalse(headerOrFooterPartition.hasSoundFieldGroupLabelSubDescriptor());
+        Assert.assertFalse(headerOrFooterPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertFalse(headerOrFooterPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertEquals(headerOrFooterPartition.getAudioContentKind(), AudioContentKind.Unknown);
 
         MXFUID essenceContainerDataInstanceUID = new MXFUID(new byte[]{
                 0x46, 0x31, (byte)0x9f, 0x11, (byte)0xc9, (byte)0xb1, 0x40, (byte)0xa5, (byte)0xb9, (byte)0xb1, (byte)0x9e, 0x69, (byte)0xda, (byte)0x89, (byte)0xbe, 0x52
         });
-        Assert.assertEquals(headerPartition.getPreface().getContentStorage().getEssenceContainerDataList().size(), 1);
-        EssenceContainerData essenceContainerData = headerPartition.getPreface().getContentStorage().getEssenceContainerDataList().get(0);
-        Assert.assertSame(essenceContainerData, headerPartition.getEssenceContainerData(essenceContainerDataInstanceUID));
+        Assert.assertEquals(headerOrFooterPartition.getPreface().getContentStorage().getEssenceContainerDataList().size(), 1);
+        EssenceContainerData essenceContainerData = headerOrFooterPartition.getPreface().getContentStorage().getEssenceContainerDataList().get(0);
+        Assert.assertSame(essenceContainerData, headerOrFooterPartition.getEssenceContainerData(essenceContainerDataInstanceUID));
 
-        PartitionPack partitionPack = headerPartition.getPartitionPack();
+        PartitionPack partitionPack = headerOrFooterPartition.getPartitionPack();
         Assert.assertFalse(partitionPack.isBodyPartition());
         Assert.assertFalse(partitionPack.isFooterPartition());
         Assert.assertFalse(partitionPack.isValidFooterPartition());
@@ -173,8 +173,8 @@ public class HeaderPartitionTest
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
-        PartitionPack partitionPack = headerPartition.getPartitionPack();
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger, false);
+        PartitionPack partitionPack = headerOrFooterPartition.getPartitionPack();
         partitionPack.getEssenceStreamSegmentStartStreamPosition();
     }
 
@@ -186,21 +186,21 @@ public class HeaderPartitionTest
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
-        Assert.assertTrue(headerPartition.toString().length() > 0);
-        Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
-        Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
-        Assert.assertEquals(headerPartition.getImageColorModel(), Colorimetry.ColorModel.YUV);
-        Assert.assertEquals(headerPartition.getImageCodingEquation(), Colorimetry.CodingEquation.ITU709);
-        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.Unknown);
-        Assert.assertEquals(headerPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.ITU709);
-        Assert.assertEquals(headerPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
-        Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling422);
-        Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 10);
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger, false);
+        Assert.assertTrue(headerOrFooterPartition.toString().length() > 0);
+        Assert.assertFalse(headerOrFooterPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertTrue(headerOrFooterPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertEquals(headerOrFooterPartition.getImageColorModel(), Colorimetry.ColorModel.YUV);
+        Assert.assertEquals(headerOrFooterPartition.getImageCodingEquation(), Colorimetry.CodingEquation.ITU709);
+        Assert.assertEquals(headerOrFooterPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.Unknown);
+        Assert.assertEquals(headerOrFooterPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.ITU709);
+        Assert.assertEquals(headerOrFooterPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
+        Assert.assertEquals(headerOrFooterPartition.getImageSampling(), Colorimetry.Sampling.Sampling422);
+        Assert.assertEquals(headerOrFooterPartition.getImagePixelBitDepth().intValue(), 10);
 
 
-        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
-        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().get(0) == HeaderOrFooterPartition.EssenceTypeEnum.MainImageEssence);
     }
 
     @Test
@@ -208,21 +208,21 @@ public class HeaderPartitionTest
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(new FileLocator(inputFile), imfErrorLogger);
-        Assert.assertTrue(headerPartition.toString().length() > 0);
-        Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
-        Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
-        Assert.assertEquals(headerPartition.getImageColorModel(), Colorimetry.ColorModel.RGB);
-        Assert.assertEquals(headerPartition.getImageCodingEquation(), Colorimetry.CodingEquation.Unknown);
-        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.ITU2020);
-        Assert.assertEquals(headerPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.SMPTEST2084);
-        Assert.assertEquals(headerPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
-        Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling444);
-        Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 12);
+        HeaderOrFooterPartition headerOrFooterPartition = HeaderOrFooterPartition.fromFile(new FileLocator(inputFile), imfErrorLogger);
+        Assert.assertTrue(headerOrFooterPartition.toString().length() > 0);
+        Assert.assertTrue(headerOrFooterPartition.hasRGBAPictureEssenceDescriptor());
+        Assert.assertFalse(headerOrFooterPartition.hasCDCIPictureEssenceDescriptor());
+        Assert.assertEquals(headerOrFooterPartition.getImageColorModel(), Colorimetry.ColorModel.RGB);
+        Assert.assertEquals(headerOrFooterPartition.getImageCodingEquation(), Colorimetry.CodingEquation.Unknown);
+        Assert.assertEquals(headerOrFooterPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.ITU2020);
+        Assert.assertEquals(headerOrFooterPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.SMPTEST2084);
+        Assert.assertEquals(headerOrFooterPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
+        Assert.assertEquals(headerOrFooterPartition.getImageSampling(), Colorimetry.Sampling.Sampling444);
+        Assert.assertEquals(headerOrFooterPartition.getImagePixelBitDepth().intValue(), 12);
 
 
-        Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
-        Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().size() == 1);
+        Assert.assertTrue(headerOrFooterPartition.getEssenceTypes().get(0) == HeaderOrFooterPartition.EssenceTypeEnum.MainImageEssence);
     }
 
     @Test
@@ -233,12 +233,12 @@ public class HeaderPartitionTest
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
-        Assert.assertTrue(headerPartition.toString().length() > 0);
+        HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger, false);
+        Assert.assertTrue(headerOrFooterPartition.toString().length() > 0);
 
-        Assert.assertTrue(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
-        Assert.assertEquals(headerPartition.getSoundFieldGroupLabelSubDescriptors().size(), 1);
-        SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor)headerPartition.getSoundFieldGroupLabelSubDescriptors().get(0);
+        Assert.assertTrue(headerOrFooterPartition.hasSoundFieldGroupLabelSubDescriptor());
+        Assert.assertEquals(headerOrFooterPartition.getSoundFieldGroupLabelSubDescriptors().size(), 1);
+        SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) headerOrFooterPartition.getSoundFieldGroupLabelSubDescriptors().get(0);
         Assert.assertEquals(soundFieldGroupLabelSubDescriptor.getMCALabelDictionaryId(), new MXFUID(new byte[]{
                 0x06, 0x0e, 0x2b, 0x34, 0x04, 0x01, 0x01, 0x0d, 0x03, 0x02, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00
         }));
@@ -247,14 +247,14 @@ public class HeaderPartitionTest
         });
         Assert.assertEquals(soundFieldGroupLabelSubDescriptor.getMCALinkId(), soundFieldGroupMCALinkId);
 
-        Assert.assertTrue(headerPartition.hasAudioChannelLabelSubDescriptors());
-        Assert.assertEquals(headerPartition.getAudioChannelLabelSubDescriptors().size(), 6);
-        if(headerPartition.getAudioChannelLabelSubDescriptors().size() == 0){
+        Assert.assertTrue(headerOrFooterPartition.hasAudioChannelLabelSubDescriptors());
+        Assert.assertEquals(headerOrFooterPartition.getAudioChannelLabelSubDescriptors().size(), 6);
+        if(headerOrFooterPartition.getAudioChannelLabelSubDescriptors().size() == 0){
             throw new MXFException(String.format("Asset seems to be invalid since it does not contain any AudioChannelLabelSubDescriptors"));
         }
-        Assert.assertEquals(headerPartition.getAudioContentKind(), AudioContentKind.Unknown);
+        Assert.assertEquals(headerOrFooterPartition.getAudioContentKind(), AudioContentKind.Unknown);
 
-        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor)headerPartition.getAudioChannelLabelSubDescriptors().get(0);
+        AudioChannelLabelSubDescriptor audioChannelLabelSubDescriptor = (AudioChannelLabelSubDescriptor) headerOrFooterPartition.getAudioChannelLabelSubDescriptors().get(0);
         Assert.assertEquals(audioChannelLabelSubDescriptor.getSoundfieldGroupLinkId(), soundFieldGroupMCALinkId);
         Assert.assertEquals(audioChannelLabelSubDescriptor.getMCALabelDictionaryId(), new MXFUID(new byte[]{
                 0x06, 0x0e, 0x2b, 0x34, 0x04, 0x01, 0x01, 0x0d, 0x03, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00
@@ -269,7 +269,7 @@ public class HeaderPartitionTest
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(new FileLocator(inputFile), imfErrorLogger);
-        Assert.assertEquals(headerPartition.getGenericStreamIdFromGenericStreamTextBaseSetDescription("http://www.dolby.com/schemas/2018/DbmdWrapper"), 3);
+        HeaderOrFooterPartition headerOrFooterPartition = HeaderOrFooterPartition.fromFile(new FileLocator(inputFile), imfErrorLogger);
+        Assert.assertEquals(headerOrFooterPartition.getGenericStreamIdFromGenericStreamTextBaseSetDescription("http://www.dolby.com/schemas/2018/DbmdWrapper"), 3);
     }
 }

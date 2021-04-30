@@ -1,7 +1,7 @@
 package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.testng.Assert;
@@ -30,7 +30,7 @@ public class MXFEssenceReaderTest
         Assert.assertTrue(mxfEssenceReader.toString().length() > 0);
         Assert.assertEquals(mxfEssenceReader.getPartitionPacks().size(), 4);
         Assert.assertEquals(mxfEssenceReader.getEssenceTypes().size(), 1);
-        Assert.assertEquals(mxfEssenceReader.getEssenceTypes().get(0), HeaderPartition.EssenceTypeEnum.MainAudioEssence);
+        Assert.assertEquals(mxfEssenceReader.getEssenceTypes().get(0), HeaderOrFooterPartition.EssenceTypeEnum.MainAudioEssence);
         Assert.assertEquals(mxfEssenceReader.getEssenceDescriptors().size(), 1);
         Assert.assertEquals(mxfEssenceReader.getEssenceDescriptorsDOMNodes().size(), 1);
     }

@@ -3,7 +3,7 @@ package com.netflix.imflibrary.utils;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.sandflow.smpte.klv.Triplet;
@@ -44,15 +44,15 @@ public class DOMNodeObjectModelTest {
         ResourceByteRangeProvider resourceByteRangeProvider1 = new FileByteRangeProvider(inputFile);
         byte[] bytes1 = resourceByteRangeProvider1.getByteRangeAsBytes(0, resourceByteRangeProvider1.getResourceSize() - 1);
         ByteProvider byteProvider1 = new ByteArrayDataProvider(bytes1);
-        HeaderPartition headerPartition1 = new HeaderPartition(byteProvider1,
+        HeaderOrFooterPartition headerOrFooterPartition1 = new HeaderOrFooterPartition(byteProvider1,
                 0L,
                 bytes1.length,
-                imfErrorLogger1);
+                imfErrorLogger1, false);
 
-        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors1 = headerPartition1.getEssenceDescriptors();
+        List<InterchangeObject.InterchangeObjectBO> essenceDescriptors1 = headerOrFooterPartition1.getEssenceDescriptors();
         for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors1) {
             List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition1.getSubDescriptors(essenceDescriptor);
+            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerOrFooterPartition1.getSubDescriptors(essenceDescriptor);
             for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
                 if (subDescriptorBO != null) {
                     subDescriptorHeaders.add(subDescriptorBO.getHeader());
@@ -64,7 +64,7 @@ public class DOMNodeObjectModelTest {
             Document document = docBuilder.newDocument();
 
             //DocumentFragment documentFragment = this.getEssenceDescriptorAsDocumentFragment(document, headerPartitionTuple, essenceDescriptorHeader, subDescriptorHeaders);
-            PrimerPack primerPack = headerPartition1.getPrimerPack();
+            PrimerPack primerPack = headerOrFooterPartition1.getPrimerPack();
 
             RegXMLLibHelper regXMLLibHelper = new RegXMLLibHelper(primerPack.getHeader(), getByteProvider(resourceByteRangeProvider1, primerPack.getHeader()));
 
