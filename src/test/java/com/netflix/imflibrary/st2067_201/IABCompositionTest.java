@@ -25,6 +25,15 @@ public class IABCompositionTest {
     }
 
     @Test
+    public void compositionPositiveTestNonZeroChannelCount() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_valid_non_zero_essence_channelcount.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+    }
+
+    @Test
     public void compositionNegativeTestMissingAudio() throws IOException {
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_missing_audio.xml");
@@ -48,7 +57,9 @@ public class IABCompositionTest {
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_iabsequence_wrong_trackfile.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
+        // Changing expected error count as the channel count is now being ignored as of
+        // SMPTE ST 2067-201:2021, 5.9 IAB Essence Descriptor Constraints
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
     }
 
     @Test
@@ -118,15 +129,6 @@ public class IABCompositionTest {
     public void compositionNegativeTestWrongElectroSpatialFormulation() throws IOException {
         File inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_electro_spatial_formulation.xml");
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
-    }
-
-    @Test
-    public void compositionNegativeTestWrongChannelCount() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
-                ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_channel_count.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);

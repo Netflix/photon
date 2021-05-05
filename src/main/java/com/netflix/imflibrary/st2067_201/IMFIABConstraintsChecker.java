@@ -86,12 +86,6 @@ public class IMFIABConstraintsChecker {
                             "an IAB VirtualTrack Resource has an invalid value of ElectrospatialFormulation: %d vs. %d.", imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsInteger("ElectrospatialFormulation"), MULTI_CHANNEL_MODE.value()));
                 }
 
-                if (domNodeObjectModel.getFieldAsInteger("ChannelCount") != IAB_CHANNEL_COUNT) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an IAB VirtualTrack Resource has invalid ChannelCount field: %s vs. %s",
-                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsInteger("ChannelCount"), IAB_CHANNEL_COUNT));
-                }
-
                 if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an IAB VirtualTrack Resource has no SubDescriptor", imfTrackFileResourceType.getSourceEncoding()));
