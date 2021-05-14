@@ -124,7 +124,7 @@ public class IMPAnalyzer {
     }
 
     @Nullable
-    private static PayloadRecord getFooterPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, List<Long> partitionByteOffsets) throws IOException {
+    private static PayloadRecord getFooterPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, List<Long> partitionByteOffsets, IMFErrorLogger trackFileErrorLogger) throws IOException {
         if (partitionByteOffsets.size() >= 2 && partitionByteOffsets.size() % 2 == 1) {
             long rangeStart = partitionByteOffsets.get(partitionByteOffsets.size()-2);
             long rangeEnd = partitionByteOffsets.get(partitionByteOffsets.size()-1);
@@ -132,6 +132,10 @@ public class IMPAnalyzer {
             byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
             final PartitionPack pp = new PartitionPack(new ByteArrayDataProvider(headerPartitionBytes), 0L, false, null);
             if (pp.isFooterPartition() && pp.isValidFooterPartition() && pp.getHeaderByteCount() > 0) {
+                if (pp.getPartitionStatus() != PartitionPack.PartitionStatus.ClosedComplete && pp.getPartitionStatus() != PartitionPack.PartitionStatus.OpenComplete) {
+                    trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Neither the Header or last Footer Partition in the MXF file is complete, meta data could be incomplete."));
+                }
                 return new PayloadRecord(headerPartitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeStart + pp.getHeaderByteCount());
             }
         }
@@ -255,15 +259,24 @@ public class IMPAnalyzer {
                                 try {
                                     final List<Long> partitionByteOffsets = getPartitionByteOffsets(resourceByteRangeProvider);
                                     final PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, partitionByteOffsets);
-                                    // MXF files allows open header and footers. Will need to obtain the last footer in the MXF file which should be
-                                    // closed and contain any updated meta data. If the RIP does not exist, then usually that indicates that the header
-                                    // is closed, in which case it should contain the correct meta data.
-                                    //
-                                    final PayloadRecord footerPayloadRecord = getFooterPartitionPayloadRecord(resourceByteRangeProvider, partitionByteOffsets);
                                     if (headerPartitionPayloadRecord == null) {
                                         trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                                                 String.format("Failed to get header partition for %s", assetFile.getPath()));
                                     } else {
+                                        // MXF files allows open header and footers. Check whether the Header is closed. If is not, obtain the last
+                                        // footer in the MXF file.
+                                        final PartitionPack headerPP = new PartitionPack(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()), 0L, false, null);
+                                        final PayloadRecord footerPayloadRecord;
+                                        // Check whether the header is complete.
+                                        if (headerPP.getPartitionStatus() == PartitionPack.PartitionStatus.OpenIncomplete || headerPP.getPartitionStatus() == PartitionPack.PartitionStatus.ClosedIncomplete) {
+                                            footerPayloadRecord = getFooterPartitionPayloadRecord(resourceByteRangeProvider, partitionByteOffsets, trackFileErrorLogger);
+                                            if (footerPayloadRecord == null) {
+                                                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The Header Partition in the MXF file is not complete"));
+                                            }
+                                        } else {
+                                            footerPayloadRecord = null;
+                                        }
                                         List<PayloadRecord> payloadRecords = new ArrayList<>();
                                         payloadRecords.add(headerPartitionPayloadRecord);
                                         trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));

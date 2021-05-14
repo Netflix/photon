@@ -312,6 +312,16 @@ public final class KLVPacket
         }
 
         /**
+         * Gets the Package status (open_incomplete (1), closed_incomplete(2), open_complete(3), closed_complete(4))
+         *
+         * @return the status of the Package as an Integer
+         */
+        public Integer getStatus() {
+            Byte status = this.key[14];
+            return status.intValue();
+        }
+
+        /**
          * Gets the RegistryDesignator value in the key
          *
          * @return the pack kind interpreted as an Integer

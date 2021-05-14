@@ -118,10 +118,10 @@ public final class HeaderOrFooterPartition
      * @param byteOffset the byte offset corresponding to the HeaderPartition
      * @param maxPartitionSize the size of the header partition
      * @param imfErrorLogger an IMFErrorLogger dedicated to this header partition
-     * @param alllowFooter If true, allow footer partition as well as header partition.
+     * @param allowFooter If true, allow footer partition as well as header partition.
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public HeaderOrFooterPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger, boolean alllowFooter) throws IOException
+    public HeaderOrFooterPartition(ByteProvider byteProvider, long byteOffset, long maxPartitionSize, IMFErrorLogger imfErrorLogger, boolean allowFooter) throws IOException
     {
         this.imfErrorLogger = imfErrorLogger;
         long numBytesRead = 0;
@@ -135,7 +135,7 @@ public final class HeaderOrFooterPartition
         this.partitionPack = new PartitionPack(byteProvider, IMF_MXF_HEADER_PARTITION_OFFSET, false, imfErrorLogger);
         if(!this.partitionPack.isValidHeaderPartition())
         {
-            if (!alllowFooter)
+            if (!allowFooter)
             {
                 throw new MXFException("Found an invalid header partition");
             }
