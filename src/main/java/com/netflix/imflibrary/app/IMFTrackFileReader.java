@@ -21,7 +21,7 @@ package com.netflix.imflibrary.app;
 import com.netflix.imflibrary.*;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
@@ -103,7 +103,7 @@ final class IMFTrackFileReader
         return this.headerPartition;
     }
 
-    private HeaderPartition getHeaderPartition(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    private HeaderOrFooterPartition getHeaderPartition(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         try {
             IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
@@ -118,19 +118,19 @@ final class IMFTrackFileReader
     {
         File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
         ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
-        HeaderPartition headerPartition = null;
+        HeaderOrFooterPartition headerOrFooterPartition = null;
         try {
-            headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
+            headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger, false);
             //validate header partition
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
             this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
         }
         catch (MXFException | IMFException e){
-            if(headerPartition == null){
+            if(headerOrFooterPartition == null){
                 imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors")));
             }
             else {
-                Preface preface = headerPartition.getPreface();
+                Preface preface = headerOrFooterPartition.getPreface();
                 GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                 SourcePackage filePackage = (SourcePackage) genericPackage;
                 UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
@@ -248,12 +248,12 @@ final class IMFTrackFileReader
     private void setReferencedPartitionPacks(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         List<PartitionPack> allPartitionPacks = getPartitionPacks(imfErrorLogger);
-        HeaderPartition headerPartition = getHeaderPartition(imfErrorLogger);
+        HeaderOrFooterPartition headerOrFooterPartition = getHeaderPartition(imfErrorLogger);
 
         Set<Long> indexSIDs = new HashSet<>();
         Set<Long> bodySIDs = new HashSet<>();
 
-        for (EssenceContainerData essenceContainerData : headerPartition.getPreface().getContentStorage().getEssenceContainerDataList())
+        for (EssenceContainerData essenceContainerData : headerOrFooterPartition.getPreface().getContentStorage().getEssenceContainerDataList())
         {
             indexSIDs.add(essenceContainerData.getIndexSID());
             bodySIDs.add(essenceContainerData.getBodySID());
@@ -485,16 +485,16 @@ final class IMFTrackFileReader
      * @return a String representing the Essence type
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    HeaderPartition.EssenceTypeEnum getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
-        Set<HeaderPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.IABEssence);
-        List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
-        List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
+    HeaderOrFooterPartition.EssenceTypeEnum getEssenceType(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+        Set<HeaderOrFooterPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MainImageEssence);
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MainAudioEssence);
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MarkerEssence);
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.IABEssence);
+        List<HeaderOrFooterPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
+        List<HeaderOrFooterPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 
-        for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
+        for(HeaderOrFooterPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
             if(supportedEssenceComponentTypes.contains(essenceTypeEnum)){
                 supportedEssenceTypesFound.add(essenceTypeEnum);
             }
@@ -511,7 +511,7 @@ final class IMFTrackFileReader
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("IMFTrack file does not seem to have a supported essence component type, essence types supported %n%s, essence types found %n%s"
                             , Utilities.serializeObjectCollectionToString(supportedEssenceComponentTypes), Utilities.serializeObjectCollectionToString(essenceTypes)));
-            return HeaderPartition.EssenceTypeEnum.UnsupportedEssence;
+            return HeaderOrFooterPartition.EssenceTypeEnum.UnsupportedEssence;
         }
     }
 
@@ -707,10 +707,10 @@ final class IMFTrackFileReader
             }
             imfErrorLogger.addAllErrors(imfErrorLogger.getErrors());
         }
-        Set<HeaderPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
+        Set<HeaderOrFooterPartition.EssenceTypeEnum> supportedEssenceComponentTypes = new HashSet<>();
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MainImageEssence);
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MainAudioEssence);
+        supportedEssenceComponentTypes.add(HeaderOrFooterPartition.EssenceTypeEnum.MarkerEssence);
         if(imfTrackFileReader != null
                 && imfTrackFileCPLBuilder != null
                 && supportedEssenceComponentTypes.contains(imfTrackFileReader.getEssenceType(imfErrorLogger))) {

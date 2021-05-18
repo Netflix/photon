@@ -20,12 +20,10 @@ package com.netflix.imflibrary.exceptions;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.IMFErrorLogger.IMFErrors;
-
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Unchecked exception class that is used when a fatal error occurs in processing related to IMF layer
@@ -70,6 +68,23 @@ public class IMFException extends RuntimeException
         if(this.errorLogger != null)
         {
             errorList.addAll(this.errorLogger.getErrors());
+        }
+        // Need to handle cause error. If the xsi:type is not specified correctly
+        // (missing namespace for instance), JAXB may try and create the abstract class instead,
+        // which will fail. This exception is not being recorded; Photon was completing 
+        // successfully and reporting no issues.
+        if (this.getCause() != null)
+        {
+            String message = this.getCause().getMessage();
+            if (message != null && message.contains("Unable to create an instance "))
+            {
+                message += "; Check tags with xsi:type has the right namespace and declared type";
+            }
+            errorList.add(new ErrorLogger.ErrorObject(
+                IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                message
+            ));
         }
 
         return Collections.unmodifiableList(errorList);

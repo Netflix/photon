@@ -67,6 +67,8 @@ public final class  PartitionPack
 
     private final PartitionPackType partitionPackType;
 
+    private final PartitionStatus partitionStatus;
+
     /**
      * An enum to represent the PartitionPackTypes which can be extended only by the PartitionPack class
      */
@@ -135,6 +137,63 @@ public final class  PartitionPack
     }
 
     /**
+     * An enum to represent the status of the partition.
+     */
+    public static enum PartitionStatus {
+        OpenIncomplete(0x01, "OpenIncomplete"),
+        ClosedIncomplete(0x02, "ClosedIncomplete"),
+        OpenComplete(0x03, "OpenComplete"),
+        ClosedComplete(0x04, "ClosedComplete"),
+        ;
+
+        private final Integer status;
+        private final String statusString;
+
+        private PartitionStatus (Integer status, String statusString) {
+            this.status = status;
+            this.statusString = statusString;
+        }
+
+        /**
+         * Accessor for status
+         * @return partition status
+         */
+        public Integer getStatus() {
+            return status;
+        }
+
+        /**
+         * Accessor for statusString
+         * @return string representing the partition status
+         */
+        public String getStatusString() {
+            return statusString;
+        }
+
+        /**
+         * Given a status integer this method returns the corresponding PartitionStatus
+         * @param status the integer corresponding to this Partition Status
+         * @return a PartitionStatus corresponding to the status that was passed in.
+         * @throws MXFException if an invalid status was passed in.
+         */
+        public static PartitionStatus getPartitionStatus(Integer status) {
+            if (status.equals (OpenIncomplete.status)) {
+                return OpenIncomplete;
+            }
+            if (status.equals (ClosedIncomplete.status)) {
+                return ClosedIncomplete;
+            }
+            if (status.equals (OpenComplete.status)) {
+                return OpenComplete;
+            }
+            if (status.equals (ClosedComplete.status)) {
+                return ClosedComplete;
+            }
+            throw new MXFException(String.format("Unrecognized partition status [%d]", status));
+        }
+    }
+
+    /**
      * Instantiates a new Partition pack.
      *
      * @param byteProvider the mxf byte provider
@@ -193,6 +252,11 @@ public final class  PartitionPack
         validateHeaderKey();
 
         this.partitionPackType = PartitionPackType.getPartitionPackTypeKey(this.header.getSetOrPackKindKey());
+        if (this.partitionPackType == PartitionPackType.HeaderPartitionPack || this.partitionPackType == PartitionPackType.FooterPartitionPack) {
+            this.partitionStatus = PartitionStatus.getPartitionStatus(this.header.getStatus());
+        } else {
+            this.partitionStatus = null;
+        }
 
         MXFPropertyPopulator.populateField(byteProvider, this, "major_version");
         MXFPropertyPopulator.populateField(byteProvider, this, "minor_version");
@@ -312,6 +376,15 @@ public final class  PartitionPack
     public PartitionPackType getPartitionPackType()
     {
         return (this.partitionPackType);
+    }
+
+    /**
+     * Partition status of this package. This is only set for header and footer partitions.
+     *
+     * @return PartitionStatus
+     */
+    public PartitionStatus getPartitionStatus() {
+        return partitionStatus;
     }
 
     /**
@@ -556,6 +629,10 @@ public final class  PartitionPack
         StringBuilder sb = new StringBuilder();
         sb.append("================== PartitionPack ======================\n");
         sb.append(this.header.toString());
+        sb.append(String.format("type = %s%n", this.partitionPackType.partitionTypeString));
+        if (this.partitionStatus != null) {
+            sb.append(String.format("status = %s%n", this.partitionStatus.statusString));
+        }
         sb.append(String.format("major_version = %d%n", this.major_version));
         sb.append(String.format("minor_version = %d%n", this.minor_version));
         sb.append(String.format("KAG_size = %d%n", this.KAG_size));

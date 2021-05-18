@@ -23,7 +23,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
@@ -215,11 +215,11 @@ public class IMPBuilderFunctionalTest {
             resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
-            HeaderPartition headerPartition = new HeaderPartition(byteProvider,
+            HeaderOrFooterPartition headerOrFooterPartition = new HeaderOrFooterPartition(byteProvider,
                     0L,
                     bytes.length,
-                    imfErrorLogger);
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                    imfErrorLogger, false);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerOrFooterPartition, imfErrorLogger);
             IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
             Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();

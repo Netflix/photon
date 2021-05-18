@@ -20,7 +20,7 @@ package com.netflix.imflibrary;
 
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.HeaderOrFooterPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
@@ -69,9 +69,9 @@ public final class IMFConstraints
     {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
 
-        HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
+        HeaderOrFooterPartition headerOrFooterPartition = headerPartitionOP1A.getHeaderPartition();
 
-        Preface preface = headerPartition.getPreface();
+        Preface preface = headerOrFooterPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage;
         filePackage = (SourcePackage)genericPackage;
@@ -159,12 +159,12 @@ public final class IMFConstraints
                                         waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL), packageID.toString()));
                             }
                             //RFC-5646 spoken language is a part of the MCALabelSubDescriptor and SoundFieldGroupLabelSubdescriptors according to Section 5.3.6.5 st2067-2:2016 has language around RFC-5646 primary spoken language
-                            if (headerPartition.getAudioEssenceSpokenLanguage() == null) {
+                            if (headerOrFooterPartition.getAudioEssenceSpokenLanguage() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s does not have a RFC5646 spoken language indicated, language code shall be set in the SoundFieldGroupLabelSubDescriptor, unless the AudioEssence does not have a primary spoken language.", packageID.toString()));
                             } else {
                                 //Section 6.3.6 st377-4:2012
-                                if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerPartition.getAudioEssenceSpokenLanguage())) {
-                                    List<String> strings = IMFConstraints.getPrimarySpokenLanguageUnicodeString(headerPartition.getAudioEssenceSpokenLanguage());
+                                if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerOrFooterPartition.getAudioEssenceSpokenLanguage())) {
+                                    List<String> strings = IMFConstraints.getPrimarySpokenLanguageUnicodeString(headerOrFooterPartition.getAudioEssenceSpokenLanguage());
                                     imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in SoundFieldGroupLabelSubdescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", strings, packageID.toString())));
                                 }
                             }
@@ -173,14 +173,14 @@ public final class IMFConstraints
                             if (!StructuralMetadata.isAudioWaveClipWrapped(waveAudioEssenceDescriptor.getEssenceContainerUL().getULAsBytes()[14])) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("WaveAudioEssenceDescriptor indicates that the Audio Essence within an Audio Track File is not Wave Clip-Wrapped in the IMFTrackFile represented by ID %s.", packageID.toString()));
                             }
-                            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
+                            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerOrFooterPartition.getSubDescriptors();
                             //Section 5.3.6.2 st2067-2:2016
                             if (subDescriptors.size() == 0) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                         String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", packageID.toString(), waveAudioEssenceDescriptor.getChannelCount(), subDescriptors.size()));
                             } else {
                                 //Section 5.3.6.2 st2067-2:2016
-                                Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = headerPartition.getAudioChannelIDToMCASubDescriptorMap();
+                                Map<Long, AudioChannelLabelSubDescriptor> audioChannelLabelSubDescriptorMap = headerOrFooterPartition.getAudioChannelIDToMCASubDescriptorMap();
                                 if (waveAudioEssenceDescriptor.getChannelCount() == 0 || waveAudioEssenceDescriptor.getChannelCount() != audioChannelLabelSubDescriptorMap.size()) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                             String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s indicates a channel count of %d, however there are %d AudioChannelLabelSubdescriptors, every audio channel should refer to exactly one AudioChannelLabelSubDescriptor and vice versa.", packageID.toString(), waveAudioEssenceDescriptor.getChannelCount(), audioChannelLabelSubDescriptorMap.size()));
@@ -207,9 +207,9 @@ public final class IMFConstraints
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
                                                 String.format("WaveAudioEssenceDescriptor in the IMFTrackFile represented by ID %s refers to a SoundFieldGroupLabelSubDescriptor that is missing one/all of MCATitle, MCATitleVersion, MCAAudioContentKind, MCAAudioElementKind, %n%s.", packageID.toString(), soundFieldGroupLabelSubDescriptorBO.toString()));
                                     }
-                                    SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) headerPartition.getSoundFieldGroupLabelSubDescriptors()
+                                    SoundFieldGroupLabelSubDescriptor soundFieldGroupLabelSubDescriptor = (SoundFieldGroupLabelSubDescriptor) headerOrFooterPartition.getSoundFieldGroupLabelSubDescriptors()
                                             .get(0);
-                                    List<InterchangeObject> audioChannelLabelSubDescriptors = headerPartition.getAudioChannelLabelSubDescriptors();
+                                    List<InterchangeObject> audioChannelLabelSubDescriptors = headerOrFooterPartition.getAudioChannelLabelSubDescriptors();
                                     //Section 6.3.2 st377-4:2012
                                     if (soundFieldGroupLabelSubDescriptor.getMCALinkId() == null) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
@@ -360,12 +360,12 @@ public final class IMFConstraints
      * runtime exception is thrown in case the MXF file contains audio essence that is not clip-wrapped
      * This method does nothing if the MXF file does not contain audio essence
      *
-     * @param headerPartition the header partition
+     * @param headerOrFooterPartition the header partition
      * @param partitionPacks the partition packs
      */
-    public static void checkIMFCompliance(HeaderPartition headerPartition, List<PartitionPack> partitionPacks)
+    public static void checkIMFCompliance(HeaderOrFooterPartition headerOrFooterPartition, List<PartitionPack> partitionPacks)
     {
-        Preface preface = headerPartition.getPreface();
+        Preface preface = headerOrFooterPartition.getPreface();
         MXFDataDefinition filePackageMxfDataDefinition = null;
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -435,18 +435,18 @@ public final class IMFConstraints
             return this.headerPartitionOP1A;
         }
 
-        public boolean hasMatchingEssence(HeaderPartition.EssenceTypeEnum essenceType)
+        public boolean hasMatchingEssence(HeaderOrFooterPartition.EssenceTypeEnum essenceType)
         {
             MXFDataDefinition targetMXFDataDefinition;
-            if (essenceType.equals(HeaderPartition.EssenceTypeEnum.MainImageEssence))
+            if (essenceType.equals(HeaderOrFooterPartition.EssenceTypeEnum.MainImageEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.PICTURE;
             }
-            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence))
+            else if(essenceType.equals(HeaderOrFooterPartition.EssenceTypeEnum.MainAudioEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
             }
-            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.IABEssence))
+            else if(essenceType.equals(HeaderOrFooterPartition.EssenceTypeEnum.IABEssence))
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
             }
@@ -565,9 +565,9 @@ public final class IMFConstraints
          * A method that returns the IMF Essence Component type.
          * @return essenceTypeEnum an enumeration constant corresponding to the IMFEssenceComponent type
          */
-        public HeaderPartition.EssenceTypeEnum getEssenceType(){
-            HeaderPartition headerPartition = this.headerPartitionOP1A.getHeaderPartition();
-            Preface preface = headerPartition.getPreface();
+        public HeaderOrFooterPartition.EssenceTypeEnum getEssenceType(){
+            HeaderOrFooterPartition headerOrFooterPartition = this.headerPartitionOP1A.getHeaderPartition();
+            Preface preface = headerOrFooterPartition.getPreface();
             MXFDataDefinition filePackageMxfDataDefinition = null;
 
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -581,10 +581,10 @@ public final class IMFConstraints
                     filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
                 }
             }
-            List<HeaderPartition.EssenceTypeEnum> essenceTypes = headerPartition.getEssenceTypes();
+            List<HeaderOrFooterPartition.EssenceTypeEnum> essenceTypes = headerOrFooterPartition.getEssenceTypes();
             if(essenceTypes.size() != 1){
                 StringBuilder stringBuilder = new StringBuilder();
-                for(HeaderPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
+                for(HeaderOrFooterPartition.EssenceTypeEnum essenceTypeEnum : essenceTypes){
                     stringBuilder.append(String.format("%s, ", essenceTypeEnum.toString()));
                 }
                 String message = String.format("IMF constrains MXF essences to mono essences only, however more" +

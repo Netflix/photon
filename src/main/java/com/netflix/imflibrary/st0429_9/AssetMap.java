@@ -25,21 +25,19 @@ import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.Locator;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.*;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
@@ -51,15 +49,16 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
+import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
+import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * This class represents a thin, immutable wrapper around the XML type 'AssetMapType' which is defined in Section 11,
@@ -104,6 +103,11 @@ public final class AssetMap
      * @param assetMapXmlFile the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      */
+    public AssetMap(Locator assetMapXmlFile) throws IOException
+    {
+        this(assetMapXmlFile.getResourceByteRangeProvider());
+    }
+    
     public AssetMap(File assetMapXmlFile) throws IOException
     {
         this(getFileAsResourceByteRangeProvider(assetMapXmlFile));
@@ -616,18 +620,17 @@ public final class AssetMap
 
     public static void main(String args[]) throws IOException, URISyntaxException, SAXException, JAXBException
     {
-        if (args.length != 1)
-        {
-            logger.error(usage());
-            throw new IllegalArgumentException("Invalid parameters");
-        }
-
-        File inputFile = new File(args[0]);
+        Locator inputFile = Locator.first(args, t -> {
+            if (t != 1) {
+                logger.error(usage());
+                throw new IllegalArgumentException("Invalid parameters");
+            }
+        });
         if(!inputFile.exists()){
             logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        ResourceByteRangeProvider resourceByteRangeProvider = inputFile.getResourceByteRangeProvider();
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateAssetMap(payloadRecord);
