@@ -101,11 +101,6 @@ public final class IABTrackFileConstraints {
                                 String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the multi-channel mode default value for the Electro-Spatial Formulation item : %d.", packageID.toString(), iabEssenceDescriptor.getElectroSpatialFormulation().value()));
                     }
 
-                    if (iabEssenceDescriptor.getChannelCount() != 0) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Distinguished Value of zero for the ChannelCount item : %d.", packageID.toString(), iabEssenceDescriptor.getChannelCount()));
-                    }
-
                     if (iabEssenceDescriptor.getReferenceImageEditRate() == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
                                 String.format("IABEssenceDescriptor in the IMFTrackFile represented by ID %s is missing the Reference Image Edit Rate item.", packageID.toString()));

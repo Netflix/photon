@@ -22,6 +22,14 @@ public class IABMXFValidationTest {
     }
 
     @Test
+    public void testValidNonZeroChannelCount() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_non_zero_channelcount.mxf");
+        List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
+        Assert.assertEquals(errors.size(), 6);
+    }
+
+    @Test
     public void testInvalidEditRateMismatch() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_editrate_mismatch.mxf");
@@ -43,14 +51,6 @@ public class IABMXFValidationTest {
         File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_no_subdesc.mxf");
         List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
         Assert.assertEquals(errors.size(), 3);
-    }
-
-    @Test
-    public void testInvalidWrongChannelCount() throws IOException
-    {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f_wrong_channelcount.mxf");
-        List<ErrorLogger.ErrorObject> errors = IMPAnalyzer.analyzeFile(inputFile);
-        Assert.assertEquals(errors.size(), 7);
     }
 
     @Test
