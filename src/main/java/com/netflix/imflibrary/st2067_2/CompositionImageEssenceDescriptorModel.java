@@ -29,7 +29,7 @@ import static com.netflix.imflibrary.Colorimetry.*;
 /**
  * Created by svenkatrav on 11/2/16.
  */
-public final class CompositionImageEssenceDescriptorModel {
+public class CompositionImageEssenceDescriptorModel {
     private final UUID imageEssencedescriptorID;
     private final DOMNodeObjectModel imageEssencedescriptorDOMNode;
     private final RegXMLLibDictionary regXMLLibDictionary;
@@ -197,6 +197,18 @@ public final class CompositionImageEssenceDescriptorModel {
 
     public @Nonnull UUID getImageEssencedescriptorID() {
         return imageEssencedescriptorID;
+    }
+
+    protected @Nonnull IMFErrorLogger getImfErrorLogger() {
+        return imfErrorLogger;
+    }
+
+    protected @Nonnull DOMNodeObjectModel getImageEssenceDescriptorDOMNode() {
+        return imageEssencedescriptorDOMNode;
+    }
+
+    protected @Nonnull RegXMLLibDictionary getRegXMLLibDictionary() {
+        return regXMLLibDictionary;
     }
 
     public @Nonnull FrameLayoutType getFrameLayoutType() {
@@ -380,7 +392,7 @@ public final class CompositionImageEssenceDescriptorModel {
         return paletteLayout;
     }
 
-    private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
+    protected @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;
         DOMNodeObjectModel subDescriptors = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
         if (subDescriptors == null) {

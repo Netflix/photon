@@ -20,10 +20,10 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.tsp_2121.ApplicationTsp2121Composition;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -51,10 +51,15 @@ public class ApplicationCompositionFactory {
         add("http://www.smpte-ra.org/ns/2067-50/2017");
     }});
 
+    private static final Set<String> namespacesApplicationTsp2121Composition = Collections.unmodifiableSet(new HashSet<String>() {{
+        add("http://www.digitalproductionpartnership.co.uk/schema/imf/TSP2121-1/2018");
+    }});
+
     public enum ApplicationCompositionType {
         APPLICATION_2_COMPOSITION_TYPE(Application2Composition.class,          namespacesApplication2Composition),
         APPLICATION_2E_COMPOSITION_TYPE(Application2ExtendedComposition.class, namespacesApplication2EComposition),
         APPLICATION_5_COMPOSITION_TYPE(Application5Composition.class,          namespacesApplication5Composition),
+        APPLICATION_TSP_2121_COMPOSITION_TYPE(ApplicationTsp2121Composition.class, namespacesApplicationTsp2121Composition),
         APPLICATION_UNSUPPORTED_COMPOSITION_TYPE(ApplicationUnsupportedComposition.class, Collections.unmodifiableSet(new HashSet<>()));
         private Set<String> nameSpaceSet;
         private Class<?> clazz;
