@@ -656,7 +656,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      *
      * @return a HashMap mapping the UUID to its corresponding EssenceDescriptor in the Composition
      */
-    Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
+    protected Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
         return getEssenceDescriptorListMap(new HashSet<>());
     }
 
