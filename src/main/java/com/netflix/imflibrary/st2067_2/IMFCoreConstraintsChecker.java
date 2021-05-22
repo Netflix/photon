@@ -119,6 +119,8 @@ final class IMFCoreConstraintsChecker {
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
+                    || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
+                        && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon",
@@ -146,6 +148,8 @@ final class IMFCoreConstraintsChecker {
             if((virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
+                    || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
+                            && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))
                     && compositionPlaylistType.getEssenceDescriptorList() != null
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
@@ -171,7 +175,9 @@ final class IMFCoreConstraintsChecker {
                             refSourceEncodingElement = imfTrackFileResourceType.getSourceEncoding();
                             //Section 6.3.1 and 6.3.2 st2067-2:2016 Edit Rate check
                             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence) ||
-                                    virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)) {
+                                    virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence) ||
+                                    (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
+                                            && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))) {
                                 essenceDescriptorField = "SampleRate";
                             } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence) ||
                                         virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
