@@ -1,12 +1,59 @@
 plugins {
-    id 'nebula.netflixoss' version '9.1.0'
+    id 'nebula.netflixoss' version '9.1.0' apply false
     id 'java'
     id 'pmd'
     id 'com.github.spotbugs' version "4.4.4"
     id 'jacoco'
 }
 
-group = 'com.netflix.photon'
+if (project.hasProperty('dalet')) {
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                group='com.dalet.imf'
+                version='4.9.1'
+                artifactId = 'Photon'
+                
+                from components.java
+                
+                pom {
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                url "$System.env.NEXUS_URL" 
+                credentials {
+                    username "$System.env.NEXUS_USER"
+                    password "$System.env.NEXUS_PASSORD"
+                }
+            }
+        }
+    }
+
+    jar {
+        manifest {
+            attributes 'Implementation-Title': 'com.amberfin.photon#Photon;4.9.1'
+            attributes 'Implementation-Version': '4.9.1'
+            attributes 'Module-Origin': 'https://github.com/Netflix/photon.git'
+            attributes 'Build-Date': new java.text.SimpleDateFormat('yyyy-MM-dd_HH:mm:ss').format(new Date())
+            attributes 'Change': 'git rev-parse --short HEAD'.execute().text.trim()
+            attributes 'Full-Change': 'git rev-parse HEAD'.execute().text.trim()
+            attributes 'Branch': 'git branch --show-current'.execute().text.trim()
+        }
+    }
+
+} else {
+    apply plugin: 'nebula.netflixoss'
+}
 
 repositories {
     mavenCentral()
@@ -56,8 +103,8 @@ javadoc {
 
 dependencies {
     compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
-    implementation "org.slf4j:slf4j-api:1.7.+"
-    implementation "org.slf4j:slf4j-log4j12:1.7.+"
+    implementation "org.slf4j:slf4j-api:1.7.30"
+    implementation "org.slf4j:slf4j-log4j12:1.7.30"
     implementation "com.amazonaws:aws-java-sdk-bom:1.11.964"
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
