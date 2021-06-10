@@ -13,7 +13,7 @@ if (project.hasProperty('dalet')) {
         publications {
             maven(MavenPublication) {
                 group='com.dalet.imf'
-                version='4.9.1'
+                version='4.9.2'
                 artifactId = 'Photon'
                 
                 from components.java
@@ -41,8 +41,8 @@ if (project.hasProperty('dalet')) {
 
     jar {
         manifest {
-            attributes 'Implementation-Title': 'com.amberfin.photon#Photon;4.9.1'
-            attributes 'Implementation-Version': '4.9.1'
+            attributes 'Implementation-Title': 'com.amberfin.photon#Photon;4.9.2'
+            attributes 'Implementation-Version': '4.9.2'
             attributes 'Module-Origin': 'https://github.com/Netflix/photon.git'
             attributes 'Build-Date': new java.text.SimpleDateFormat('yyyy-MM-dd_HH:mm:ss').format(new Date())
             attributes 'Change': 'git rev-parse --short HEAD'.execute().text.trim()

@@ -105,6 +105,12 @@ public class S3Locator implements Locator {
 
         static S3Path of(String path) {
             try {
+                // Assume http style paths are already URL encoded, though we need to convert + to %20.
+                if (path.startsWith("http")) {
+                    return of(URI.create(path.replace("+", "%20")));
+                }
+                // If we reach here, then the path is assumed to be s3 style, in which case we assume it is not URL encoded.
+                // In this case we need to URLEncode the path before converting to a URI.
                 return of (URI.create(URLEncoder.encode(path, "UTF-8")
                         .replace("%3A", ":")
                         .replace("%2F", "/")
@@ -232,7 +238,7 @@ public class S3Locator implements Locator {
             final AmazonS3 tmpClient = builder.withRegion(Regions.US_EAST_1).build();
             String region = null;
             try {
-                region = tmpClient.getBucketLocation(s3path.bucket);
+                region = com.amazonaws.services.s3.model.Region.fromValue(tmpClient.getBucketLocation(s3path.bucket)).toAWSRegion().getName();
                 s3path.region = region;
             } catch (AmazonS3Exception e) {
                 if (e.getAdditionalDetails() != null) {
