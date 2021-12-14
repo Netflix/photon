@@ -27,8 +27,8 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
@@ -47,7 +47,7 @@ import java.util.List;
  */
 @Immutable
 public final class Composition {
-    private static final Logger logger = LoggerFactory.getLogger(Composition.class);
+    private static final Logger logger = LogManager.getLogger(Composition.class);
 
     private Composition() {
 

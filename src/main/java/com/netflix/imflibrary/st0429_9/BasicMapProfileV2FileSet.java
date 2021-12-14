@@ -21,8 +21,8 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
@@ -40,7 +40,7 @@ import java.net.URISyntaxException;
 @Immutable
 public final class BasicMapProfileV2FileSet
 {
-    private static final Logger logger = LoggerFactory.getLogger(BasicMapProfileV2FileSet.class);
+    private static final Logger logger = LogManager.getLogger(BasicMapProfileV2FileSet.class);
     private final BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet;
     private final IMFErrorLogger imfErrorLogger;
     /**

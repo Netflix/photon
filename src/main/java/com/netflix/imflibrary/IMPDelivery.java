@@ -22,8 +22,8 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
@@ -42,7 +42,7 @@ import java.util.*;
 @Immutable
 public final class IMPDelivery
 {
-    private static final Logger logger = LoggerFactory.getLogger(IMPDelivery.class);
+    private static final Logger logger = LogManager.getLogger(IMPDelivery.class);
 
     private final AssetMap assetMap;
     private final List<InteroperableMasterPackage> interoperableMasterPackages = new ArrayList<>();

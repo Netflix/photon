@@ -23,8 +23,8 @@ import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
@@ -45,7 +45,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class IMPFixer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
-    private static final Logger logger = LoggerFactory.getLogger(IMPFixer.class);
+    private static final Logger logger = LogManager.getLogger(IMPFixer.class);
 
     private static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
             IOException {

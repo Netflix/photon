@@ -28,8 +28,8 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.smpte_ra.schemas.st0429_8_2007.PKL.PackingListType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -65,7 +65,7 @@ import java.util.*;
 @Immutable
 public final class PackingList
 {
-    private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
+    private static final Logger logger = LogManager.getLogger(PackingList.class);
     private final IMFErrorLogger imfErrorLogger;
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
     public static final List<String> supportedPKLNamespaces = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");

@@ -2,8 +2,8 @@ package com.netflix.imflibrary.utils;
 
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class IMFTrackFilePartitionsExtractor {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFilePartitionsExtractor.class);
+    private static final Logger logger = LogManager.getLogger(IMFTrackFilePartitionsExtractor.class);
 
     private static File extractHeaderPartition(File input, File workingDirectory) throws IOException {
 
