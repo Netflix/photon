@@ -37,8 +37,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFConstraints.class);
+    private static final Logger logger = LogManager.getLogger(IMFConstraints.class);
 
     @Test
     public void getPayloadTypeTest() throws IOException {

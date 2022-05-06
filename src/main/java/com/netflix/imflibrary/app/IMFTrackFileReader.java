@@ -39,8 +39,8 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.Utilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import javax.annotation.Nonnull;
@@ -73,7 +73,7 @@ final class IMFTrackFileReader
     private volatile List<IndexTableSegment> indexTableSegments = null;
 
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
+    private static final Logger logger = LogManager.getLogger(IMFTrackFileReader.class);
 
     /**
      * Lazily creates a model instance corresponding to a st2067-5 compliant MXF file

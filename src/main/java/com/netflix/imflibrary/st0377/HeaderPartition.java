@@ -68,8 +68,8 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,7 +108,7 @@ public final class HeaderPartition
     private final Map<MXFUID, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
     private final IMFErrorLogger imfErrorLogger;
 
-    private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
+    private static final Logger logger = LogManager.getLogger(HeaderPartition.class);
 
     /**
      * Instantiates a new MXF Header partition.

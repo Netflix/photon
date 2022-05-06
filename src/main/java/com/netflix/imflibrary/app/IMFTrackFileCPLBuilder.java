@@ -27,6 +27,8 @@ import com.sandflow.smpte.klv.Triplet;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.smpte_ra.schemas.st2067_2_2013.ObjectFactory;
 import org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType;
 import org.smpte_ra.schemas.st2067_2_2013.BaseResourceType;
@@ -46,8 +48,6 @@ import com.netflix.imflibrary.writerTools.IMFCPLObjectFieldsFactory;
 import com.netflix.imflibrary.utils.RegXMLLibHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -80,7 +80,7 @@ import java.util.List;
 @Immutable
 final class IMFTrackFileCPLBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
+    private static final Logger logger = LogManager.getLogger(IMFTrackFileReader.class);
     private final IMFTrackFileReader imfTrackFileReader;
     private final RegXMLLibHelper regXMLLibHelper;
     private final File workingDirectory;

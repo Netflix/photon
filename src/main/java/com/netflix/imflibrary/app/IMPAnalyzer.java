@@ -25,8 +25,8 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -54,7 +54,7 @@ import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validatePKL;
 public class IMPAnalyzer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
-    private static final Logger logger = LoggerFactory.getLogger(IMPAnalyzer.class);
+    private static final Logger logger = LogManager.getLogger(IMPAnalyzer.class);
 
     private static UUID getTrackFileId(PayloadRecord payloadRecord, IMFErrorLogger imfErrorLogger) throws
             IOException {

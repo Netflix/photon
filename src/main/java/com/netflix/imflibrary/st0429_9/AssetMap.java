@@ -29,8 +29,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
 import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
@@ -76,7 +76,7 @@ public final class AssetMap
     private final List<Asset> assetList = new ArrayList<>();
     private final List<Asset> packingListAssets = new ArrayList<>();
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
+    private static final Logger logger = LogManager.getLogger(AssetMap.class);
     public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
