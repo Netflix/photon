@@ -9,7 +9,7 @@ import com.netflix.imflibrary.st0377.header.MCALabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
 import java.util.Map;

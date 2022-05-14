@@ -23,7 +23,7 @@ import com.netflix.imflibrary.st2067_100.macro.scale.ScaleAlgorithm;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleInputImageSequence;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleMacro;
 import com.netflix.imflibrary.st2067_100.macro.scale.ScaleOutputImageSequence;
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 import org.smpte_ra.schemas._2067_100._2014.OutputProfileListType.AliasList.Alias;
 import org.smpte_ra.schemas._2067_100._2014.PresetMacroType;
 import org.smpte_ra.schemas._2067_101._2014.crop_macro.ImageCropMacroType;
