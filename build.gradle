@@ -8,6 +8,14 @@ plugins {
 
 group = 'com.netflix.photon'
 
+javadoc {
+    options.encoding = 'UTF-8'
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
 repositories {
     mavenCentral()
     /**
