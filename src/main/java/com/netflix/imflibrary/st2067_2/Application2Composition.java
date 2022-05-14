@@ -27,6 +27,7 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 public class Application2Composition extends AbstractApplicationComposition {
     public static final String SCHEMA_URI_APP2_2013 = "http://www.smpte-ra.org/schemas/2067-20/2013";
     public static final String SCHEMA_URI_APP2_2016 = "http://www.smpte-ra.org/schemas/2067-20/2016";
+    public static final UL JPEG2000PICTURECODINGSCHEME = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
     public static final Integer MAX_IMAGE_FRAME_WIDTH = 1920;
     public static final Integer MAX_IMAGE_FRAME_HEIGHT = 1080;
     public static final Set<Fraction>progressiveSampleRateSupported = Collections.unmodifiableSet(new HashSet<Fraction>() {{
@@ -263,6 +264,43 @@ public class Application2Composition extends AbstractApplicationComposition {
                     String.format("EssenceDescriptor with ID %s has invalid combination of quantization(%s)-Sampling(%s)-colorModel(%s)-color(%s) as per %s",
                             imageEssenceDescriptorID.toString(), quantization.name(), sampling.name(), colorModel.name(), color.name(), applicationCompositionType.toString()));
         }
+
+        //Coding
+        UL pictureEssenceCoding = imageEssenceDescriptorModel.getPictureEssenceCodingUL();
+
+        if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
+            boolean validProfile = false;
+
+            if (pictureEssenceCoding.getByte(14) == 0x01) {
+                switch (pictureEssenceCoding.getByte(15)) {
+                    case 0x11: /* JPEG2000BroadcastContributionSingleTileProfileLevel1 */
+                    case 0x12: /* JPEG2000BroadcastContributionSingleTileProfileLevel2 */
+                    case 0x13: /* JPEG2000BroadcastContributionSingleTileProfileLevel3 */
+                    case 0x14: /* JPEG2000BroadcastContributionSingleTileProfileLevel4 */
+                    case 0x15: /* JPEG2000BroadcastContributionSingleTileProfileLevel5 */
+                    case 0x16: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel6 */
+                    case 0x17: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel7 */
+                        validProfile = true;
+                        break;
+                    default:
+                }
+            }
+
+            if (! validProfile) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Invalid JPEG 2000 profile: %s", pictureEssenceCoding.toString()
+                ));
+            }
+
+        } else {
+
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("Image codec must be JPEG 2000. Found %s instead.", pictureEssenceCoding.toString()
+            ));
+        }
+        
     }
 
     public ApplicationCompositionType getApplicationCompositionType() {
