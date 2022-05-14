@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_2;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
@@ -51,6 +52,7 @@ public final class CompositionImageEssenceDescriptorModel {
     private final TransferCharacteristic transferCharacteristic;
     private final ColorPrimaries colorPrimaries;
     private final UL essenceContainerFormatUL;
+    private final UL pictureEssenceCodingUL;
     // items constrained in 2065-5
     private final Integer signalStandard;
     private final Integer sampledXOffset;
@@ -125,6 +127,8 @@ public final class CompositionImageEssenceDescriptorModel {
         }
 
         this.essenceContainerFormatUL = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(containerFormatUL));
+
+        this.pictureEssenceCodingUL = imageEssencedescriptorDOMNode.getFieldAsUL(regXMLLibDictionary.getSymbolNameFromURN(GenericPictureEssenceDescriptor.pictureEssenceCodingUL));
         
         // begin Items constrained in ST2065-5
         this.signalStandard = getFieldAsInteger(signalStandardUL);
@@ -270,6 +274,10 @@ public final class CompositionImageEssenceDescriptorModel {
 
     public @Nullable UL getEssenceContainerFormatUL() {
         return essenceContainerFormatUL;
+    }
+
+    public @Nullable UL getPictureEssenceCodingUL() {
+        return pictureEssenceCodingUL;
     }
 
     private @Nullable String getFieldAsString(@Nonnull String urn) {
