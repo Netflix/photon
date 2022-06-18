@@ -226,22 +226,22 @@ class OutputProfileListModel_st2067_100_2014 {
                 input, output);
     }
 
-    private AudioRoutingMixingMacro createAudioRoutingMixingMacro(AudioRoutingMixingMacroType AudioRoutingMixingMacroType) {
-        if(AudioRoutingMixingMacroType.getOutputEntityList() == null) {
+    private AudioRoutingMixingMacro createAudioRoutingMixingMacro(AudioRoutingMixingMacroType audioRoutingMixingMacroType) {
+        if(audioRoutingMixingMacroType.getOutputEntityList() == null) {
             this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("Missing OutputEntityList in %s macro", AudioRoutingMixingMacroType.getName()));
+                    String.format("Missing OutputEntityList in %s macro", audioRoutingMixingMacroType.getName()));
         }
 
-        AudioRoutingMixingMacroType.OutputEntityList outputEntityList = AudioRoutingMixingMacroType.getOutputEntityList();
+        AudioRoutingMixingMacroType.OutputEntityList outputEntityList = audioRoutingMixingMacroType.getOutputEntityList();
         List<OutputAudioChannel> outputAudioChannels = new ArrayList<>();
         for(OutputAudioChannelType outputAudioChannelType: outputEntityList.getOutputAudioChannel()) {
             List<InputEntity> inputEntityList = outputAudioChannelType.getInputEntityList().getInputEntity().stream().map(e -> new InputEntity( "", e.getHandle(), e.getGain())).collect(Collectors.toList());
             outputAudioChannels.add(new OutputAudioChannel( outputAudioChannelType.getAnnotation() != null ? outputAudioChannelType.getAnnotation().getValue() : null,
-                    "macros/" + AudioRoutingMixingMacroType.getName() + "/outputs/" + outputAudioChannelType.getHandle(), inputEntityList));
+                    "macros/" + audioRoutingMixingMacroType.getName() + "/outputs/" + outputAudioChannelType.getHandle(), inputEntityList));
         }
 
-        return new AudioRoutingMixingMacro(AudioRoutingMixingMacroType.getName(),
-                AudioRoutingMixingMacroType.getAnnotation() != null ? AudioRoutingMixingMacroType.getAnnotation().getValue() : null,
+        return new AudioRoutingMixingMacro(audioRoutingMixingMacroType.getName(),
+                audioRoutingMixingMacroType.getAnnotation() != null ? audioRoutingMixingMacroType.getAnnotation().getValue() : null,
                 outputAudioChannels);
     }
 
