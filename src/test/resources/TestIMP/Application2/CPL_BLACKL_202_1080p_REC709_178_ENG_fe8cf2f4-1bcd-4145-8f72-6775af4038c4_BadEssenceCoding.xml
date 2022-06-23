@@ -23,7 +23,7 @@
       <Id>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</Id>
       <m:CDCIDescriptor>
         <m:InstanceUID>b3fb64fd-3f32-41d8-852a-4f30c83fa554</m:InstanceUID>
-        <m:SampleRate>60000 1001</m:SampleRate>
+        <m:SampleRate>24000 1001</m:SampleRate>
         <m:EssenceLength>7148</m:EssenceLength>
         <m:ComponentDepth>10</m:ComponentDepth>
         <m:HorizontalSubsampling>2</m:HorizontalSubsampling>
@@ -33,7 +33,7 @@
         <m:ColorRange>897</m:ColorRange>
         <m:VerticalSubsampling>1</m:VerticalSubsampling>
         <m:ContainerFormat>urn:uuid:060e2b34-0401-0107-0d01-0301020c0100</m:ContainerFormat>
-        <m:FrameLayout>SeparateFields</m:FrameLayout>
+        <m:FrameLayout>FullFrame</m:FrameLayout>
         <m:StoredWidth>1920</m:StoredWidth>
         <m:StoredHeight>1080</m:StoredHeight>
         <m:ActiveWidth>1920</m:ActiveWidth>
@@ -42,7 +42,7 @@
         <m:ActiveYOffset>0</m:ActiveYOffset>
         <m:DisplayF2Offset>0</m:DisplayF2Offset>
         <m:ImageAspectRatio>16/9</m:ImageAspectRatio>
-        <m:PictureCompression>urn:smpte:ul:060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
+        <m:PictureCompression>060e2b34.0401.010d.04010202.03010112</m:PictureCompression>
         <m:TransferCharacteristic>urn:smpte:ul:060e2b34.0401.0101.04010101.01020000</m:TransferCharacteristic>
         <m:ColorPrimaries>urn:smpte:ul:060e2b34.04010106.04010101.03030000</m:ColorPrimaries>
         <m:CodingEquations>urn:smpte:ul:060e2b34.04010101.04010101.02020000</m:CodingEquations>
@@ -114,7 +114,7 @@
         <m:ChannelCount>6</m:ChannelCount>
         <m:QuantizationBits>24</m:QuantizationBits>
         <m:DialNorm>0</m:DialNorm>
-        <m:ReferenceImageEditRate>30000/1001</m:ReferenceImageEditRate>
+        <m:ReferenceImageEditRate>24000/1001</m:ReferenceImageEditRate>
         <m:BlockAlign>6</m:BlockAlign>
         <m:SequenceOffset>0</m:SequenceOffset>
         <m:AverageBytesPerSecond>864000</m:AverageBytesPerSecond>
@@ -193,7 +193,7 @@
         <m:ChannelCount>2</m:ChannelCount>
         <m:QuantizationBits>24</m:QuantizationBits>
         <m:DialNorm>0</m:DialNorm>
-        <m:ReferenceImageEditRate>30000/1001</m:ReferenceImageEditRate>
+        <m:ReferenceImageEditRate>24000/1001</m:ReferenceImageEditRate>
         <m:BlockAlign>6</m:BlockAlign>
         <m:SequenceOffset>0</m:SequenceOffset>
         <m:AverageBytesPerSecond>288000</m:AverageBytesPerSecond>
@@ -235,7 +235,7 @@
 		<r0:DCTimedTextDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012">
 		  <r1:InstanceID>urn:uuid:3febc096-8727-495d-8715-bb5398d98cfe</r1:InstanceID>
 		  <r1:LinkedTrackID>2</r1:LinkedTrackID>
-		  <r1:SampleRate>30000/1001</r1:SampleRate>
+		  <r1:SampleRate>24000/1001</r1:SampleRate>
 		  <r1:EssenceLength>6381</r1:EssenceLength>
 		  <r1:ContainerFormat>urn:smpte:ul:060e2b34.0401010a.0d010301.02130101</r1:ContainerFormat>
 		  <r1:DataEssenceCoding>urn:smpte:ul:00000000.00000000.00000000.00000000</r1:DataEssenceCoding>
@@ -250,7 +250,7 @@
     <TimecodeRate>24</TimecodeRate>
     <TimecodeStartAddress>00:00:00:00</TimecodeStartAddress>
   </CompositionTimecode>
-  <EditRate>30000 1001</EditRate>
+  <EditRate>24000 1001</EditRate>
   <LocaleList>
     <Locale>
       <Annotation/>
@@ -270,7 +270,7 @@
     </Locale>
   </LocaleList>
   <ExtensionProperties>
-    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-20/2013</ApplicationIdentification>
+    <ApplicationIdentification xmlns="http://www.smpte-ra.org/schemas/2067-2/2013">http://www.smpte-ra.org/schemas/2067-21/2014</ApplicationIdentification>
   </ExtensionProperties>  
   <SegmentList>
     <Segment>
@@ -444,10 +444,10 @@
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:ec9f8003-655e-438a-b30a-d7700ec4cb6f</Id>
               <Annotation>Netflix_Plugfest_Oct2015.mxf</Annotation>
-              <EditRate>30000 1001</EditRate>
-              <IntrinsicDuration>8935</IntrinsicDuration>
+              <EditRate>24000 1001</EditRate>
+              <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>8935</SourceDuration>
+              <SourceDuration>7148</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:3d3a369d-bce0-4347-8c45-ac527451a0f2</SourceEncoding>
               <TrackFileId>urn:uuid:ea05e7ab-5ee2-4ac7-ab41-6c3a2cf78a0b</TrackFileId>
@@ -514,10 +514,10 @@
             <Resource xsi:type="TrackFileResourceType">
               <Id>urn:uuid:dc20d8ec-5e14-479e-b3ea-7fc993daaaf1</Id>
               <Annotation>Netflix_Plugfest_Oct2015_FULL_Vers_IMSC</Annotation>
-              <EditRate>30000 1001</EditRate>
-              <IntrinsicDuration>8935</IntrinsicDuration>
+              <EditRate>24000 1001</EditRate>
+              <IntrinsicDuration>7148</IntrinsicDuration>
               <EntryPoint>0</EntryPoint>
-              <SourceDuration>8935</SourceDuration>
+              <SourceDuration>7148</SourceDuration>
               <RepeatCount>1</RepeatCount>
               <SourceEncoding>urn:uuid:3febc096-8727-495d-8715-bb5398d98cfe</SourceEncoding>
               <TrackFileId>urn:uuid:85b67cbd-2c87-4dfc-ab7a-23876e3c28cb</TrackFileId>

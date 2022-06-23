@@ -169,4 +169,13 @@ public class Application2ExtendedCompositionTest
         Assert.assertTrue(applicationComposition.getCompositionImageEssenceDescriptorModel().getStoredWidth() <= Application2ExtendedComposition.MAX_RGB_IMAGE_FRAME_WIDTH);
 
     }
+
+    @Test
+    public void app2ExtendedCompositionPictureEssenceCodingErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_EssenceCodingError.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
 }

@@ -59,6 +59,15 @@ public class UL {
     }
 
     /**
+     * Returns the value of a byte of the UL
+     * @param index Index of a byte within the UL, with 0 corresponding to the first byte
+     * @return byte `index` of the UL
+     */
+    public byte getByte(int index){
+        return this.ul[index];
+    }
+
+    /**
      * Getter for UL length
      * @return length of the UL in bytes
      */
@@ -115,6 +124,25 @@ public class UL {
             bytes[i] = (byte)Integer.parseInt(ulValue.substring(i*2, i*2+2), 16);
         }
         return new UL(bytes);
+    }
+
+    /**
+     * Compares this UL to another UL, ignoring specific bytes based on a mask
+     *
+     * @param ul Other UL to compare
+     * @param byteMask 16-bit mask, where octet[n] of the UL is ignored if bit[15 - n] is 0
+     * @return true if the ULs are equal
+     */
+    public boolean equalsWithMask(UL ul, int byteMask) {
+
+        for (int i = 0; i < 15; i++) {
+            if ((byteMask & 0x8000) != 0 && this.ul[i] != ul.ul[i])
+                return false;
+
+            byteMask = byteMask << 1;
+        }
+
+        return true;
     }
 
     /**
