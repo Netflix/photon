@@ -135,7 +135,7 @@ public class UL {
      */
     public boolean equalsWithMask(UL ul, int byteMask) {
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 16; i++) {
             if ((byteMask & 0x8000) != 0 && this.ul[i] != ul.ul[i])
                 return false;
 
