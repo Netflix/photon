@@ -27,9 +27,6 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 public class Application2E2021 extends AbstractApplicationComposition {
     private static String APP_STRING = ApplicationCompositionType.APPLICATION_2E2021_COMPOSITION_TYPE.toString();
 
-
-    public static final String SCHEMA_URI_APP2E_2021 = "http://www.smpte-ra.org/ns/2067-21/2021";
-
     public static final Set<Fraction> FPS_UHD = Collections.unmodifiableSet(new HashSet<Fraction>(){{
         add(new Fraction(24));
         add(new Fraction(25));
@@ -85,7 +82,17 @@ public class Application2E2021 extends AbstractApplicationComposition {
         put(Colorimetry.Color8, new HashSet<Integer>(){{ add(10); add(12); }});
     }});
 
-    private static final Set<String> ignoreSet=Collections.unmodifiableSet(new HashSet<String>(){{add("SignalStandard");add("ActiveFormatDescriptor");add("VideoLineMap");add("AlphaTransparency");add("PixelLayout");add("ActiveHeight");add("ActiveWidth");add("ActiveXOffset");add("ActiveYOffset");}});
+    private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>(){{
+        add("SignalStandard");
+        add("ActiveFormatDescriptor");
+        add("VideoLineMap");
+        add("AlphaTransparency");
+        add("PixelLayout");
+        add("ActiveHeight");
+        add("ActiveWidth");
+        add("ActiveXOffset");
+        add("ActiveYOffset");
+    }});
 
     public Application2E2021(@Nonnull IMFCompositionPlaylistType imfCompositionPlaylistType) {
         this(imfCompositionPlaylistType, new HashSet<>());
@@ -202,7 +209,6 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Integer depth = imageDescriptor.getPixelBitDepth();
         Colorimetry color = imageDescriptor.getColor();
 
-
         if (Sampling.Sampling422.equals(sampling)) {
             return COLOR_TO_DEPTH_YUV.containsKey(color) && COLOR_TO_DEPTH_YUV.get(color).contains(depth);
         } else if (Sampling.Sampling444.equals(sampling)) {
@@ -266,7 +272,6 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Colorimetry color = imageDescriptor.getColor();
         Quantization quantization = imageDescriptor.getQuantization();
         Fraction fps = imageDescriptor.getSampleRate();
-
 
         if (Colorimetry.Color4.equals(color)) {
             return Quantization.QE1.equals(quantization) && FPS_UHD.contains(fps) && COLOR_TO_DEPTH_XVYCC.containsKey(color) && COLOR_TO_DEPTH_XVYCC.get(color).contains(depth);
