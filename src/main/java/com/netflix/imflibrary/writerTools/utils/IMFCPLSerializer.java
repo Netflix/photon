@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.XMLConstants;
@@ -69,7 +69,7 @@ class IMFCPLSerializer {
             schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
             Schema schema = schemaFactory.newSchema(schemaSources);
 
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas._2067_3._2013");
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);

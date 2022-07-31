@@ -223,14 +223,14 @@ final class IMFCompositionPlaylistType {
 
         if (cplNamespace.equals("http://www.smpte-ra.org/schemas/2067-3/2013"))
         {
-            org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType jaxbCpl
+            org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType jaxbCpl
                     = CompositionModel_st2067_2_2013.unmarshallCpl(resourceByteRangeProvider, imfErrorLogger);
 
             return CompositionModel_st2067_2_2013.getCompositionPlaylist(jaxbCpl, imfErrorLogger);
         }
         else if (cplNamespace.equals("http://www.smpte-ra.org/schemas/2067-3/2016"))
         {
-            org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType jaxbCpl
+            org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType jaxbCpl
                     = CompositionModel_st2067_2_2016.unmarshallCpl(resourceByteRangeProvider, imfErrorLogger);
 
             return CompositionModel_st2067_2_2016.getCompositionPlaylist(jaxbCpl, imfErrorLogger);

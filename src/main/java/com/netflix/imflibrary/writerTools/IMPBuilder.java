@@ -214,9 +214,9 @@ public class IMPBuilder {
                                                                         workingDirectory,
                                                                         imfErrorLogger);
 
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText pklAnnotationText = PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en");
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText pklIssuer = PackingListBuilder.buildPKLUserTextType_2007(issuer, "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText pklAnnotationText = PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText pklIssuer = PackingListBuilder.buildPKLUserTextType_2007(issuer, "en");
         List<PackingListBuilder.PackingListBuilderAsset_2007> packingListBuilderAssets = new ArrayList<>();
         /**
          * Build the CPL asset to be entered into the PackingList
@@ -457,9 +457,9 @@ public class IMPBuilder {
                 workingDirectory,
                 imfErrorLogger);
 
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText pklAnnotationText = PackingListBuilder.buildPKLUserTextType_2016(annotationText, "en");
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText pklIssuer = PackingListBuilder.buildPKLUserTextType_2016(issuer, "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText pklAnnotationText = PackingListBuilder.buildPKLUserTextType_2016(annotationText, "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText pklIssuer = PackingListBuilder.buildPKLUserTextType_2016(issuer, "en");
         List<PackingListBuilder.PackingListBuilderAsset_2016> packingListBuilderAssets = new ArrayList<>();
         /**
          * Build the CPL asset to be entered into the PackingList

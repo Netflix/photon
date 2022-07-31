@@ -34,9 +34,9 @@ import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType;
-import org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType;
-import org.smpte_ra.schemas.st2067_2_2013.ContentVersionType;
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2013.CompositionTimecodeType;
+import org.smpte_ra.schemas._2067_3._2013.ContentVersionType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -78,9 +78,9 @@ import java.util.stream.Collectors;
 public class CompositionPlaylistBuilder_2013 {
 
     private final UUID uuid;
-    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText;
-    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer;
-    private final org.smpte_ra.schemas.st2067_2_2013.UserTextType creator;
+    private final org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText;
+    private final org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer;
+    private final org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator;
     private final XMLGregorianCalendar issueDate;
     private final List<? extends Composition.VirtualTrack> virtualTracks;
     private final List<Long> compositionEditRate;
@@ -89,8 +89,8 @@ public class CompositionPlaylistBuilder_2013 {
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
-    private final List<org.smpte_ra.schemas.st2067_2_2013.SegmentType> segments = new ArrayList<>();
-    private final List<List<org.smpte_ra.schemas.st2067_2_2013.SequenceType>> sequenceList = new ArrayList<>();
+    private final List<org.smpte_ra.schemas._2067_3._2013.SegmentType> segments = new ArrayList<>();
+    private final List<List<org.smpte_ra.schemas._2067_3._2013.SequenceType>> sequenceList = new ArrayList<>();
     private final List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList;
 
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
@@ -116,9 +116,9 @@ public class CompositionPlaylistBuilder_2013 {
      * @param coreConstraintsSchema schema defining core constraints version
      */
     public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
                                            @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            @Nonnull Set<String> applicationIds,
@@ -176,9 +176,9 @@ public class CompositionPlaylistBuilder_2013 {
      */
     @Deprecated
     public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
                                            @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            @Nonnull String applicationId,
@@ -205,9 +205,9 @@ public class CompositionPlaylistBuilder_2013 {
      */
     @Deprecated
     public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas.st2067_2_2013.UserTextType creator,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
+                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
                                            @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
                                            @Nonnull Composition.EditRate compositionEditRate,
                                            @Nonnull String applicationId,
@@ -226,7 +226,7 @@ public class CompositionPlaylistBuilder_2013 {
      *   cannot be created which satisfies the configuration requested
      */
     public List<ErrorLogger.ErrorObject> build() throws IOException, ParserConfigurationException {
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         cplRoot.setId(UUIDHelper.fromUUID(this.uuid));
@@ -237,8 +237,8 @@ public class CompositionPlaylistBuilder_2013 {
         cplRoot.setContentOriginator(null);
         cplRoot.setContentTitle(buildCPLUserTextType_2013("Not Included", "en"));
         cplRoot.setContentKind(null);
-        org.smpte_ra.schemas.st2067_2_2013.ContentVersionType contentVersionType = buildContentVersionType(IMFUUIDGenerator.getInstance().getUrnUUID(), buildCPLUserTextType_2013("Photon CompositionPlaylistBuilder", "en"));
-        List<org.smpte_ra.schemas.st2067_2_2013.ContentVersionType> contentVersionTypeList = new ArrayList<>();
+        org.smpte_ra.schemas._2067_3._2013.ContentVersionType contentVersionType = buildContentVersionType(IMFUUIDGenerator.getInstance().getUrnUUID(), buildCPLUserTextType_2013("Photon CompositionPlaylistBuilder", "en"));
+        List<org.smpte_ra.schemas._2067_3._2013.ContentVersionType> contentVersionTypeList = new ArrayList<>();
         contentVersionTypeList.add(contentVersionType);
         cplRoot.setContentVersionList(buildContentVersionList(contentVersionTypeList));
         cplRoot.setLocaleList(null);
@@ -256,7 +256,7 @@ public class CompositionPlaylistBuilder_2013 {
             /**
              * Build TrackResourceList
              */
-            List<org.smpte_ra.schemas.st2067_2_2013.BaseResourceType> trackResourceList = buildTrackResourceList(virtualTrack);
+            List<org.smpte_ra.schemas._2067_3._2013.BaseResourceType> trackResourceList = buildTrackResourceList(virtualTrack);
             /**
              * Build the Sequence
              */
@@ -265,20 +265,20 @@ public class CompositionPlaylistBuilder_2013 {
             SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
         cplRoot.setEssenceDescriptorList(essenceDescriptorListType);
         UUID segmentId = IMFUUIDGenerator.getInstance().generateUUID();
-        org.smpte_ra.schemas.st2067_2_2013.SegmentType segmentType = buildSegment(segmentId, buildCPLUserTextType_2013("Segment-1", "en"));
+        org.smpte_ra.schemas._2067_3._2013.SegmentType segmentType = buildSegment(segmentId, buildCPLUserTextType_2013("Segment-1", "en"));
         populateSequenceListForSegment(sequenceTypeTuples, segmentType);
-        cplRoot.setSegmentList(buildSegmentList(new ArrayList<org.smpte_ra.schemas.st2067_2_2013.SegmentType>(){{add(segmentType);}}));
+        cplRoot.setSegmentList(buildSegmentList(new ArrayList<org.smpte_ra.schemas._2067_3._2013.SegmentType>(){{add(segmentType);}}));
         cplRoot.setSigner(null);
         cplRoot.setSignature(null);
         if (!this.applicationIds.isEmpty())
         {
-            JAXBElement<List<String>> appIdElement = new org.smpte_ra.schemas.st2067_2_2013.ObjectFactory()
+            JAXBElement<List<String>> appIdElement = new org.smpte_ra.schemas._2067_2._2013.ObjectFactory()
                     .createApplicationIdentification(new ArrayList<>(this.applicationIds));
 
-            org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.ExtensionProperties extensionProperties = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.ExtensionProperties();
+            org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.ExtensionProperties extensionProperties = new org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.ExtensionProperties();
             extensionProperties.getAny().add(appIdElement);
             cplRoot.setExtensionProperties( extensionProperties);
         }
@@ -289,8 +289,8 @@ public class CompositionPlaylistBuilder_2013 {
         return imfErrorLogger.getErrors();
     }
 
-    private List<org.smpte_ra.schemas.st2067_2_2013.BaseResourceType> buildTrackResourceList(Composition.VirtualTrack virtualTrack){
-        List<org.smpte_ra.schemas.st2067_2_2013.BaseResourceType> trackResourceList = new ArrayList<>();
+    private List<org.smpte_ra.schemas._2067_3._2013.BaseResourceType> buildTrackResourceList(Composition.VirtualTrack virtualTrack){
+        List<org.smpte_ra.schemas._2067_3._2013.BaseResourceType> trackResourceList = new ArrayList<>();
 
         // Wrap essence track file resources into the JAXB class
         if (virtualTrack instanceof IMFEssenceComponentVirtualTrack) {
@@ -310,8 +310,7 @@ public class CompositionPlaylistBuilder_2013 {
         return Collections.unmodifiableList(trackResourceList);
     }
 
-    private List<ErrorLogger.ErrorObject> serializeCPLToXML(org.smpte_ra.schemas
-                                                                    .st2067_2_2013.CompositionPlaylistType cplRoot,
+    private List<ErrorLogger.ErrorObject> serializeCPLToXML(org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplRoot,
                                                  File outputFile) throws IOException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -335,7 +334,7 @@ public class CompositionPlaylistBuilder_2013 {
                 schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
                 Schema schema = schemaFactory.newSchema(schemaSources);
 
-                JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st2067_2_2013");
+                JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas._2067_3._2013");
                 Marshaller marshaller = jaxbContext.createMarshaller();
                 ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
                 marshaller.setEventHandler(validationEventHandler);
@@ -373,8 +372,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param language the language code of the annotation text
      * @return a UserTextType conforming to the 2013 schema
      */
-    public static org.smpte_ra.schemas.st2067_2_2013.UserTextType buildCPLUserTextType_2013(String value, String language){
-        org.smpte_ra.schemas.st2067_2_2013.UserTextType userTextType = new org.smpte_ra.schemas.st2067_2_2013.UserTextType();
+    public static org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType buildCPLUserTextType_2013(String value, String language){
+        org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType userTextType = new org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType();
         userTextType.setValue(value);
         userTextType.setLanguage(language);
         return userTextType;
@@ -386,9 +385,9 @@ public class CompositionPlaylistBuilder_2013 {
      * @param scope a string corresponding to the scope attribute of a Content Kind
      * @return a ContentKind object conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.ContentKindType buildContentKindType(@Nonnull String value, String scope)  {
+    public org.smpte_ra.schemas._2067_3._2013.ContentKindType buildContentKindType(@Nonnull String value, String scope)  {
 
-        org.smpte_ra.schemas.st2067_2_2013.ContentKindType contentKindType = new org.smpte_ra.schemas.st2067_2_2013.ContentKindType();
+        org.smpte_ra.schemas._2067_3._2013.ContentKindType contentKindType = new org.smpte_ra.schemas._2067_3._2013.ContentKindType();
         if(!scope.matches("^[a-zA-Z0-9._-]+") == true) {
             this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope)));
             contentKindType.setScope(scope);
@@ -406,7 +405,7 @@ public class CompositionPlaylistBuilder_2013 {
      * @param value a UserTextType representing the value attribute of the ContentVersion
      * @return a content version object conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas.st2067_2_2013.UserTextType value) {
+    public org.smpte_ra.schemas._2067_3._2013.ContentVersionType buildContentVersionType(String id, org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType value) {
         ContentVersionType contentVersionType = new ContentVersionType();
         contentVersionType.setId(id);
         contentVersionType.setLabelText(value);
@@ -418,8 +417,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param contentVersions a list of ContentVersion objects conforming to the 2013 schema
      * @return a content version list object conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.ContentVersionList buildContentVersionList(List<org.smpte_ra.schemas.st2067_2_2013.ContentVersionType> contentVersions){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.ContentVersionList contentVersionList = new CompositionPlaylistType.ContentVersionList();
+    public org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.ContentVersionList buildContentVersionList(List<org.smpte_ra.schemas._2067_3._2013.ContentVersionType> contentVersions){
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.ContentVersionList contentVersionList = new CompositionPlaylistType.ContentVersionList();
         contentVersionList.getContentVersion().addAll(contentVersions);
         return contentVersionList;
     }
@@ -432,8 +431,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param node a regxml representation of an EssenceDescriptor
      * @return a EssenceDescriptorBaseType object conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType buildEssenceDescriptorBaseType(UUID id, Node node){
-        org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType();
+    public org.smpte_ra.schemas._2067_3._2013.EssenceDescriptorBaseType buildEssenceDescriptorBaseType(UUID id, Node node){
+        org.smpte_ra.schemas._2067_3._2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas._2067_3._2013.EssenceDescriptorBaseType();
         essenceDescriptorBaseType.setId(UUIDHelper.fromUUID(id));
         this.essenceDescriptorIDMap.put(node, UUIDHelper.fromUUID(id));
         essenceDescriptorBaseType.getAny().add(node);
@@ -445,10 +444,10 @@ public class CompositionPlaylistBuilder_2013 {
      * @param imfEssenceDescriptorBaseTypeList a list of IMFEssenceDescriptorBaseType objects
      * @return EssenceDescriptorList type object
      */
-    public org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList buildEssenceDescriptorList(List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorList = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.EssenceDescriptorList();
+    public org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList buildEssenceDescriptorList(List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorList = new org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList();
         essenceDescriptorList.getEssenceDescriptor().addAll(imfEssenceDescriptorBaseTypeList.stream().map(e -> {
-            org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas.st2067_2_2013.EssenceDescriptorBaseType();
+            org.smpte_ra.schemas._2067_3._2013.EssenceDescriptorBaseType essenceDescriptorBaseType = new org.smpte_ra.schemas._2067_3._2013.EssenceDescriptorBaseType();
             essenceDescriptorBaseType.setId(UUIDHelper.fromUUID(e.getId()));
             essenceDescriptorBaseType.getAny().addAll(e.getAny());
             return essenceDescriptorBaseType;
@@ -461,8 +460,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param compositionEditRate the EditRate corresponding to the Composition's EditRate
      * @return a CompositionTimecodeType conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType buildCompositionTimeCode(BigInteger compositionEditRate){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionTimecodeType compositionTimecodeType = new CompositionTimecodeType();
+    public org.smpte_ra.schemas._2067_3._2013.CompositionTimecodeType buildCompositionTimeCode(BigInteger compositionEditRate){
+        org.smpte_ra.schemas._2067_3._2013.CompositionTimecodeType compositionTimecodeType = new CompositionTimecodeType();
         compositionTimecodeType.setTimecodeDropFrame(false);/*TimecodeDropFrame set to false by default*/
         compositionTimecodeType.setTimecodeRate(compositionEditRate);
         compositionTimecodeType.setTimecodeStartAddress(IMFUtils.generateTimecodeStartAddress());
@@ -478,19 +477,19 @@ public class CompositionPlaylistBuilder_2013 {
      * @param contentMaturityRatings a list of ContentMaturityRating objects conforming to the 2013 schema
      * @return a LocaleType object conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.LocaleType buildLocaleType(org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText,
+    public org.smpte_ra.schemas._2067_3._2013.LocaleType buildLocaleType(org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
                                                                          List<String> languages,
                                                                          List<String> regions,
-                                                                         List<org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType> contentMaturityRatings){
-        org.smpte_ra.schemas.st2067_2_2013.LocaleType localeType = new org.smpte_ra.schemas.st2067_2_2013.LocaleType();
+                                                                         List<org.smpte_ra.schemas._2067_3._2013.ContentMaturityRatingType> contentMaturityRatings){
+        org.smpte_ra.schemas._2067_3._2013.LocaleType localeType = new org.smpte_ra.schemas._2067_3._2013.LocaleType();
         localeType.setAnnotation(annotationText);
-        org.smpte_ra.schemas.st2067_2_2013.LocaleType.LanguageList languageList = new org.smpte_ra.schemas.st2067_2_2013.LocaleType.LanguageList();
+        org.smpte_ra.schemas._2067_3._2013.LocaleType.LanguageList languageList = new org.smpte_ra.schemas._2067_3._2013.LocaleType.LanguageList();
         languageList.getLanguage().addAll(languages);
         localeType.setLanguageList(languageList);
-        org.smpte_ra.schemas.st2067_2_2013.LocaleType.RegionList regionList = new org.smpte_ra.schemas.st2067_2_2013.LocaleType.RegionList();
+        org.smpte_ra.schemas._2067_3._2013.LocaleType.RegionList regionList = new org.smpte_ra.schemas._2067_3._2013.LocaleType.RegionList();
         regionList.getRegion().addAll(regions);
         localeType.setRegionList(regionList);
-        org.smpte_ra.schemas.st2067_2_2013.LocaleType.ContentMaturityRatingList contentMaturityRatingList = new org.smpte_ra.schemas.st2067_2_2013.LocaleType.ContentMaturityRatingList();
+        org.smpte_ra.schemas._2067_3._2013.LocaleType.ContentMaturityRatingList contentMaturityRatingList = new org.smpte_ra.schemas._2067_3._2013.LocaleType.ContentMaturityRatingList();
         contentMaturityRatingList.getContentMaturityRating().addAll(contentMaturityRatings);
         return localeType;
     }
@@ -503,8 +502,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @return a ContentMaturityRating object conforming to the 2013 schema
      * @throws URISyntaxException any syntax errors with the agency attribute is exposed through a URISyntaxException
      */
-    public org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType buildContentMaturityRatingType(String agency, String rating, org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType.Audience audience) throws URISyntaxException {
-        org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType contentMaturityRatingType = new org.smpte_ra.schemas.st2067_2_2013.ContentMaturityRatingType();
+    public org.smpte_ra.schemas._2067_3._2013.ContentMaturityRatingType buildContentMaturityRatingType(String agency, String rating, org.smpte_ra.schemas._2067_3._2013.ContentMaturityRatingType.Audience audience) throws URISyntaxException {
+        org.smpte_ra.schemas._2067_3._2013.ContentMaturityRatingType contentMaturityRatingType = new org.smpte_ra.schemas._2067_3._2013.ContentMaturityRatingType();
         if(!agency.matches("^[a-zA-Z0-9._-]+") == true) {
             //this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", id)));
             throw new URISyntaxException("Invalid URI", "The ContentMaturityRating agency %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)");
@@ -521,12 +520,12 @@ public class CompositionPlaylistBuilder_2013 {
      * @param annotationText a human readable annotation describing the Segment conforming to the 2013 schema
      * @return a SegmentType conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.SegmentType buildSegment(UUID id,
-                                                                       org.smpte_ra.schemas.st2067_2_2013.UserTextType annotationText){
-        org.smpte_ra.schemas.st2067_2_2013.SegmentType segment = new org.smpte_ra.schemas.st2067_2_2013.SegmentType();
+    public org.smpte_ra.schemas._2067_3._2013.SegmentType buildSegment(UUID id,
+                                                                       org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText){
+        org.smpte_ra.schemas._2067_3._2013.SegmentType segment = new org.smpte_ra.schemas._2067_3._2013.SegmentType();
         segment.setId(UUIDHelper.fromUUID(uuid));
         segment.setAnnotation(annotationText);
-        org.smpte_ra.schemas.st2067_2_2013.SegmentType.SequenceList sequenceList = new org.smpte_ra.schemas.st2067_2_2013.SegmentType.SequenceList();
+        org.smpte_ra.schemas._2067_3._2013.SegmentType.SequenceList sequenceList = new org.smpte_ra.schemas._2067_3._2013.SegmentType.SequenceList();
         segment.setSequenceList(sequenceList);
         this.segments.add(segment);
         return segment;
@@ -537,8 +536,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param segments a list of Segments conforming to the 2013 schema
      * @return a SegmentList conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.SegmentList buildSegmentList(List<org.smpte_ra.schemas.st2067_2_2013.SegmentType> segments){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.SegmentList segmentList = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType.SegmentList();
+    public org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.SegmentList buildSegmentList(List<org.smpte_ra.schemas._2067_3._2013.SegmentType> segments){
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.SegmentList segmentList = new org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.SegmentList();
         segmentList.getSegment().addAll(segments);
         return segmentList;
     }
@@ -556,9 +555,9 @@ public class CompositionPlaylistBuilder_2013 {
      */
     public SequenceTypeTuple buildSequenceTypeTuple(UUID id,
                                                     UUID trackId,
-                                                    org.smpte_ra.schemas.st2067_2_2013.SequenceType.ResourceList resourceList,
+                                                    org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList resourceList,
                                                     Composition.SequenceTypeEnum sequenceType){
-        org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence = new org.smpte_ra.schemas.st2067_2_2013.SequenceType();
+        org.smpte_ra.schemas._2067_3._2013.SequenceType sequence = new org.smpte_ra.schemas._2067_3._2013.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
         sequence.setResourceList(resourceList);
@@ -570,8 +569,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param trackResourceList a list of BaseResourceTypes
      * @return a resource list conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.SequenceType.ResourceList buildResourceList(List<org.smpte_ra.schemas.st2067_2_2013.BaseResourceType> trackResourceList){
-        org.smpte_ra.schemas.st2067_2_2013.SequenceType.ResourceList resourceList = new org.smpte_ra.schemas.st2067_2_2013.SequenceType.ResourceList();
+    public org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList buildResourceList(List<org.smpte_ra.schemas._2067_3._2013.BaseResourceType> trackResourceList){
+        org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList resourceList = new org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList();
         resourceList.getResource().addAll(trackResourceList);
         return resourceList;
     }
@@ -584,9 +583,9 @@ public class CompositionPlaylistBuilder_2013 {
      * @param segment a VirtualTrack Segment conforming to the 2013 schema
      */
     public void populateSequenceListForSegment(List<SequenceTypeTuple> sequenceTypeTuples,
-                                               org.smpte_ra.schemas.st2067_2_2013.SegmentType segment) {
+                                               org.smpte_ra.schemas._2067_3._2013.SegmentType segment) {
 
-        org.smpte_ra.schemas.st2067_2_2013.ObjectFactory objectFactory = new org.smpte_ra.schemas.st2067_2_2013.ObjectFactory();
+        org.smpte_ra.schemas._2067_2._2013.ObjectFactory objectFactory = new org.smpte_ra.schemas._2067_2._2013.ObjectFactory();
         List<Object> any = segment.getSequenceList().getAny();
 
         for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
@@ -612,8 +611,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param trackResource an object that roughly models a TrackFileResourceType
      * @return a BaseResourceType conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.BaseResourceType buildTrackFileResource(IMFTrackFileResourceType trackResource){
-        org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType trackFileResource = new org.smpte_ra.schemas.st2067_2_2013.TrackFileResourceType();
+    public org.smpte_ra.schemas._2067_3._2013.BaseResourceType buildTrackFileResource(IMFTrackFileResourceType trackResource){
+        org.smpte_ra.schemas._2067_3._2013.TrackFileResourceType trackFileResource = new org.smpte_ra.schemas._2067_3._2013.TrackFileResourceType();
         trackFileResource.setId(trackResource.getId());
         trackFileResource.setAnnotation(null);
         trackFileResource.setTrackFileId(trackResource.getTrackFileId());
@@ -634,8 +633,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param markerResource an object that roughly models a MarkerResourceType
      * @return a MarkerResourceType conforming to the 2013 schema
      */
-    public org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType buildMarkerResource(IMFMarkerResourceType markerResource){
-        org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType jaxbMarkerResource = new org.smpte_ra.schemas.st2067_2_2013.MarkerResourceType();
+    public org.smpte_ra.schemas._2067_3._2013.MarkerResourceType buildMarkerResource(IMFMarkerResourceType markerResource){
+        org.smpte_ra.schemas._2067_3._2013.MarkerResourceType jaxbMarkerResource = new org.smpte_ra.schemas._2067_3._2013.MarkerResourceType();
         jaxbMarkerResource.setId(markerResource.getId());
         jaxbMarkerResource.setAnnotation(null);
         jaxbMarkerResource.getEditRate().add(markerResource.getEditRate().getNumerator());
@@ -647,12 +646,12 @@ public class CompositionPlaylistBuilder_2013 {
 
         for(IMFMarkerType marker : markerResource.getMarkerList()) {
             // Wrap each Marker into the JAXB class
-            org.smpte_ra.schemas.st2067_2_2013.MarkerType jaxbMarker = new org.smpte_ra.schemas.st2067_2_2013.MarkerType();
+            org.smpte_ra.schemas._2067_3._2013.MarkerType jaxbMarker = new org.smpte_ra.schemas._2067_3._2013.MarkerType();
             jaxbMarker.setOffset(marker.getOffset());
             if (marker.getAnnotation() != null) {
                 jaxbMarker.setAnnotation(buildCPLUserTextType_2013(marker.getAnnotation(), null));
             }
-            org.smpte_ra.schemas.st2067_2_2013.MarkerType.Label jaxbLabel = new org.smpte_ra.schemas.st2067_2_2013.MarkerType.Label();
+            org.smpte_ra.schemas._2067_3._2013.MarkerType.Label jaxbLabel = new org.smpte_ra.schemas._2067_3._2013.MarkerType.Label();
             jaxbLabel.setValue(marker.getLabel().getValue());
             if (marker.getLabel().getScope() != null) {
                 jaxbLabel.setScope(marker.getLabel().getScope());
@@ -670,8 +669,8 @@ public class CompositionPlaylistBuilder_2013 {
      * A method to construct a Default Digest Method Type with a default HashAlgorithm
      * @return a DigestMethodType object conforming to the 2013 schema with the default HashAlgorithm
      */
-    public org.smpte_ra.schemas.st2067_2_2013.DigestMethodType buildDefaultDigestMethodType(){
-        org.smpte_ra.schemas.st2067_2_2013.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2013.DigestMethodType();
+    public org.w3._2000._09.xmldsig_.DigestMethodType buildDefaultDigestMethodType(){
+        org.w3._2000._09.xmldsig_.DigestMethodType digestMethodType = new org.w3._2000._09.xmldsig_.DigestMethodType();
         digestMethodType.setAlgorithm(CompositionPlaylistBuilder_2013.defaultHashAlgorithm);
         return digestMethodType;
     }
@@ -681,8 +680,8 @@ public class CompositionPlaylistBuilder_2013 {
      * @param algorithm a String representing the alogrithm used for generating the Hash
      * @return a DigestMethodType object conforming to the 2016 schema with the default HashAlgorithm
      */
-    public org.smpte_ra.schemas.st2067_2_2013.DigestMethodType buildDigestMethodType(String algorithm){
-        org.smpte_ra.schemas.st2067_2_2013.DigestMethodType digestMethodType = new org.smpte_ra.schemas.st2067_2_2013.DigestMethodType();
+    public org.w3._2000._09.xmldsig_.DigestMethodType buildDigestMethodType(String algorithm){
+        org.w3._2000._09.xmldsig_.DigestMethodType digestMethodType = new org.w3._2000._09.xmldsig_.DigestMethodType();
         digestMethodType.setAlgorithm(algorithm);
         return digestMethodType;
     }
@@ -702,15 +701,15 @@ public class CompositionPlaylistBuilder_2013 {
      * Its state is opaque to classes outside this builder
      */
     public static class SequenceTypeTuple{
-        private final org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence;
+        private final org.smpte_ra.schemas._2067_3._2013.SequenceType sequence;
         private final Composition.SequenceTypeEnum sequenceType;
 
-        private SequenceTypeTuple(org.smpte_ra.schemas.st2067_2_2013.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
+        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2013.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
             this.sequence = sequence;
             this.sequenceType = sequenceType;
         }
 
-        private org.smpte_ra.schemas.st2067_2_2013.SequenceType getSequence(){
+        private org.smpte_ra.schemas._2067_3._2013.SequenceType getSequence(){
             return this.sequence;
         }
 

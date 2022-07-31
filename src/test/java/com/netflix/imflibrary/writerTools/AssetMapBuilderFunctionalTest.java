@@ -74,10 +74,10 @@ public class AssetMapBuilderFunctionalTest {
             assetMapBuilderAssets.add(assetMapBuilderAsset);
         }
 
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText = AssetMapBuilder.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en");
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText creator = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas._429_9._2007.am.UserText annotationText = AssetMapBuilder.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en");
+        org.smpte_ra.schemas._429_9._2007.am.UserText creator = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText issuer = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas._429_9._2007.am.UserText issuer = AssetMapBuilder.buildAssetMapUserTextType_2007("Netflix", "en");
 
         /**
          * Create a temporary working directory under home
