@@ -1,9 +1,9 @@
 package com.netflix.imflibrary.st2067_100;
 
 import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.st2067_100.macro.AudioRoutingMixing.AudioRoutingMixingMacro;
-import com.netflix.imflibrary.st2067_100.macro.AudioRoutingMixing.InputEntity;
-import com.netflix.imflibrary.st2067_100.macro.AudioRoutingMixing.OutputAudioChannel;
+import com.netflix.imflibrary.st2067_100.macro.audioRoutingMixing.AudioRoutingMixingMacro;
+import com.netflix.imflibrary.st2067_100.macro.audioRoutingMixing.InputEntity;
+import com.netflix.imflibrary.st2067_100.macro.audioRoutingMixing.OutputAudioChannel;
 import com.netflix.imflibrary.st2067_100.macro.ColorEncoding;
 import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.crop.CropInputImageSequence;

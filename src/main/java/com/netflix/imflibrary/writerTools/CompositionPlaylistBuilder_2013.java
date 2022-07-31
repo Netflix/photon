@@ -334,7 +334,8 @@ public class CompositionPlaylistBuilder_2013 {
                 schemaSources[3] = new StreamSource(coreConstraintsSchemaAsAStream);
                 Schema schema = schemaFactory.newSchema(schemaSources);
 
-                JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas._2067_3._2013");
+                JAXBContext jaxbContext = JAXBContext.newInstance(org.smpte_ra.schemas._2067_3._2013.ObjectFactory.class,  // 2013 CPL
+                                                                    org.smpte_ra.schemas._2067_2._2013.ObjectFactory.class);                    // 2013 Core Constraints
                 Marshaller marshaller = jaxbContext.createMarshaller();
                 ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
                 marshaller.setEventHandler(validationEventHandler);

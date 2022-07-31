@@ -307,7 +307,10 @@ final class CompositionModel_st2067_2_2016 {
             try
             {
                 return JAXBContext.newInstance(
-                    org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class); // 2020 Core constraints also use 2016 CPL
+                    org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class,// 2016 2016 CPL
+                                        org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
+                                        org.smpte_ra.ns._2067_2._2020.ObjectFactory.class,      // 2020 Core constraints
+                                        org.smpte_ra.ns._2067_201._2019.ObjectFactory.class);   // IAB plugin 
             }
             catch(JAXBException e)
             {

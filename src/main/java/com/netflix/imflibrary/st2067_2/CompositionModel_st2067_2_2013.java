@@ -305,7 +305,9 @@ final class CompositionModel_st2067_2_2013 {
             try
             {
                 return JAXBContext.newInstance(
-                        org.smpte_ra.schemas._2067_3._2013.ObjectFactory.class);  // 2013 CPL and Core constraints
+                        org.smpte_ra.schemas._2067_3._2013.ObjectFactory.class,  // 2013 CPL
+                                            org.smpte_ra.schemas._2067_2._2013.ObjectFactory.class //Core constraints
+                                            ); 
             }
             catch(JAXBException e)
             {

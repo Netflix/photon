@@ -321,7 +321,10 @@ public class CompositionPlaylistBuilder_2016 {
             Schema schema = schemaFactory.newSchema(schemaSources);
 
             JAXBContext jaxbContext = JAXBContext.newInstance(
-                org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class); // 2020 Core constraints also use 2016 CPL
+                    org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class, // 2016 CPL
+                    org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
+                    org.smpte_ra.ns._2067_2._2020.ObjectFactory.class, // 2020 Core constraints
+                    org.smpte_ra.ns._2067_201._2019.ObjectFactory.class); // IAB
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);
