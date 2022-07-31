@@ -73,3 +73,6 @@ bin/
 
 # publishing secrets
 secrets/signing-key
+
+# generated java classes
+/generated

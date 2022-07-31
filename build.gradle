@@ -12,8 +12,24 @@ javadoc {
     options.encoding = 'UTF-8'
 }
 
+configurations {
+    jaxb
+}
+
+def generated_dir = "generated"
+def xsd_dir = "src/main/resources/org"
+
+task generateSources(type:JavaExec) {
+    inputs.dir "$xsd_dir"
+    outputs.dir "$generated_dir"
+    classpath configurations.jaxb
+    mainClass = 'com.sun.tools.xjc.XJCFacade'
+    args "-d", "$generated_dir", "$xsd_dir"
+}
+
 compileJava {
     options.encoding = 'UTF-8'
+    dependsOn generateSources
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
@@ -71,6 +87,7 @@ javadoc {
 }
 
 dependencies {
+    jaxb "org.glassfish.jaxb:jaxb-xjc:2.2.11"
 
     compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
     implementation "org.apache.logging.log4j:log4j-core:2.17.2"
