@@ -1,55 +1,17 @@
 <FindBugsFilter>
 
-    <!-- Returning a reference to a mutable object. -->
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2013" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
+    <!-- EI_EXPOSE_REP: May expose internal representation by returning reference to mutable object -->
+    <!-- EI_EXPOSE_REP2: May expose internal representation by incorporating reference to mutable object -->
 
     <Match>
-        <Package name="org.smpte_ra.schemas.st0429_8_2007.PKL" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st0429_9_2007.AM" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2016.PKL" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2016" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2013" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st0429_8_2007.PKL" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st0429_9_2007.AM" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2016.PKL" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_2_2016" />
-        <Bug pattern="EI_EXPOSE_REP2" />
+        <Or>
+            <Package name="~org\.smpte_ra\..*"/>
+            <Package name="org.w3._2000._09.xmldsig_"/>
+        </Or>
+        <Or>
+            <Bug pattern="EI_EXPOSE_REP" />
+            <Bug pattern="EI_EXPOSE_REP2" />
+        </Or>
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
@@ -62,66 +24,6 @@
     <Match>
         <Class name="com.netflix.imflibrary.st0377.PartitionPack" />
         <Bug pattern="NP_ALWAYS_NULL" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_101_2014" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_101_2014" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_100_2014" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_100_2014" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_102_2014" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_102_2014" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_103_2014" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas.st2067_103_2014" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas._433._2008.dcmltypes" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.smpte_ra.schemas._433._2008.dcmltypes" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-
-    <Match>
-        <Package name="org.w3._2000._09.xmldsig_" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-
-    <Match>
-        <Package name="org.w3._2000._09.xmldsig_" />
-        <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 
     <!-- Storing a reference to an externally mutable object into the internal representation of the object. -->
