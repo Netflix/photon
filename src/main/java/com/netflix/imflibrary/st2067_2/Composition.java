@@ -174,7 +174,7 @@ public final class Composition {
     }
 
     /**
-     * This class enumerates various types of {@link org.smpte_ra.schemas.st2067_2_2013.SequenceType Sequence} that are valid in
+     * This class enumerates various types of {@link org.smpte_ra.schemas._2067_3._2013.SequenceType Sequence} that are valid in
      * Composition document that is compliant with st2067-2:2013. Such types are mostly defined in Section 6.3 of st2067-2:2013
      */
     public static enum SequenceTypeEnum {

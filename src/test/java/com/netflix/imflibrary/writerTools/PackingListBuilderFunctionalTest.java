@@ -61,8 +61,8 @@ public class PackingListBuilderFunctionalTest {
 
         List<PackingListBuilder.PackingListBuilderAsset_2007> packingListBuilderAssets = new ArrayList<>();
         for(PackingList.Asset asset : assets){
-            org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
-            org.smpte_ra.schemas.st0429_8_2007.PKL.UserText originalFileName = PackingListBuilder.buildPKLUserTextType_2007(asset.getOriginalFilename(), "en");
+            org.smpte_ra.schemas._429_8._2007.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
+            org.smpte_ra.schemas._429_8._2007.pkl.UserText originalFileName = PackingListBuilder.buildPKLUserTextType_2007(asset.getOriginalFilename(), "en");
             PackingListBuilder.PackingListBuilderAsset_2007 asset_2007 =
                     new PackingListBuilder.PackingListBuilderAsset_2007(asset.getUUID(),
                                                                         annotationText,
@@ -81,10 +81,10 @@ public class PackingListBuilderFunctionalTest {
 
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
-        org.smpte_ra.schemas.st0429_8_2007.PKL.UserText issuer = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
+        org.smpte_ra.schemas._429_8._2007.pkl.UserText issuer = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
         new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
 
         imfErrorLogger.addAllErrors(packingList.getErrors());
@@ -124,9 +124,9 @@ public class PackingListBuilderFunctionalTest {
 
         List<PackingListBuilder.PackingListBuilderAsset_2016> packingListBuilderAssets = new ArrayList<>();
         for(PackingList.Asset asset : assets){
-            org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
-            org.smpte_ra.schemas.st2067_2_2016.PKL.UserText originalFileName = PackingListBuilder.buildPKLUserTextType_2016(asset.getOriginalFilename(), "en");
-            org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType hashAlgorithm = new org.smpte_ra.schemas.st2067_2_2016.PKL.DigestMethodType();
+            org.smpte_ra.schemas._2067_2._2016.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
+            org.smpte_ra.schemas._2067_2._2016.pkl.UserText originalFileName = PackingListBuilder.buildPKLUserTextType_2016(asset.getOriginalFilename(), "en");
+            org.w3._2000._09.xmldsig_.DigestMethodType hashAlgorithm = new org.w3._2000._09.xmldsig_.DigestMethodType();
             hashAlgorithm.setAlgorithm(asset.getHashAlgorithm());
             PackingListBuilder.PackingListBuilderAsset_2016 asset_2016 =
                     new PackingListBuilder.PackingListBuilderAsset_2016(asset.getUUID(),
@@ -146,10 +146,10 @@ public class PackingListBuilderFunctionalTest {
         File tempDir = tempPath.toFile();
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
-        org.smpte_ra.schemas.st2067_2_2016.PKL.UserText issuer = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
+        org.smpte_ra.schemas._2067_2._2016.pkl.UserText issuer = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
         new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2016(annotationText, issuer, creator, packingListBuilderAssets);
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){

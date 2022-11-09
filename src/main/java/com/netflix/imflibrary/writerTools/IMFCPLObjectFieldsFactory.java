@@ -34,8 +34,8 @@ public final class IMFCPLObjectFieldsFactory {
      *
      * @return A 2013 schema compliant CompositionPlaylistType object
      */
-    public static org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType constructCompositionPlaylistType_2013(){
-        org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType cplType_2013 = new org.smpte_ra.schemas.st2067_2_2013.CompositionPlaylistType();
+    public static org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType constructCompositionPlaylistType_2013(){
+        org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplType_2013 = new org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType();
         IMFDocumentsObjectFieldsFactory.constructObjectFields(cplType_2013);
         return cplType_2013;
     }
@@ -47,8 +47,8 @@ public final class IMFCPLObjectFieldsFactory {
      *
      * @return A 2016 schema compliant CompositionPlaylistType object
      */
-    public static org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType constructCompositionPlaylistType_2016() {
-        org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType cplType_2016 = new org.smpte_ra.schemas.st2067_2_2016.CompositionPlaylistType();
+    public static org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType constructCompositionPlaylistType_2016() {
+        org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType cplType_2016 = new org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType();
         IMFDocumentsObjectFieldsFactory.constructObjectFields(cplType_2016);
         return cplType_2016;
     }

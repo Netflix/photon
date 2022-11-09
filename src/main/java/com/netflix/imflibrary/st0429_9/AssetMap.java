@@ -31,9 +31,9 @@ import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.smpte_ra.schemas._429_9._2007.am.AssetMapType;
+import org.smpte_ra.schemas._429_9._2007.am.AssetType;
+import org.smpte_ra.schemas._429_9._2007.am.ChunkType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
@@ -80,7 +80,7 @@ public final class AssetMap
     public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
-            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas.st0429_9_2007.AM"));}});
+            (new HashMap<String, AssetMapSchema>() {{ put("http://www.smpte-ra.org/schemas/429-9/2007/AM", new AssetMapSchema("org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd", "org.smpte_ra.schemas._429_9._2007.am"));}});
     private final IMFErrorLogger imfErrorLogger;
     private static class AssetMapSchema {
         private final String assetMapSchemaPath;
@@ -166,15 +166,15 @@ public final class AssetMap
         }
 
         switch(assetMapSchema.getAssetMapContext()) {
-            case "org.smpte_ra.schemas.st0429_9_2007.AM":
+            case "org.smpte_ra.schemas._429_9._2007.am":
                 UUID uuid = null;
-                org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = (org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType) assetMapTypeJAXBElement.getValue();
+                org.smpte_ra.schemas._429_9._2007.am.AssetMapType assetMapType = (org.smpte_ra.schemas._429_9._2007.am.AssetMapType) assetMapTypeJAXBElement.getValue();
 
                 imfErrorLogger.addAllErrors(checkConformance(assetMapType));
 
                 uuid = UUIDHelper.fromUUIDAsURNStringToUUID(assetMapType.getId());
                 this.uuid = uuid;
-                for (org.smpte_ra.schemas.st0429_9_2007.AM.AssetType assetType : assetMapType.getAssetList().getAsset()) {
+                for (org.smpte_ra.schemas._429_9._2007.am.AssetType assetType : assetMapType.getAssetList().getAsset()) {
                     boolean isPackingList = (assetType.isPackingList() != null) ? assetType.isPackingList() : false;
                     String path = assetType.getChunkList().getChunk().get(0).getPath();
                     try
