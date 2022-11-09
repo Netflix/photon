@@ -1,9 +1,9 @@
 package com.netflix.imflibrary.st0429_9;
 
 import com.netflix.imflibrary.exceptions.IMFException;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
-import org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType;
+import org.smpte_ra.schemas._429_9._2007.am.AssetMapType;
+import org.smpte_ra.schemas._429_9._2007.am.AssetType;
+import org.smpte_ra.schemas._429_9._2007.am.ChunkType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

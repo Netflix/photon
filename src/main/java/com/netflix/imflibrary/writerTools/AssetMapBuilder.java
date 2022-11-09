@@ -25,7 +25,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.smpte_ra.schemas.st0429_9_2007.AM.AssetType;
+import org.smpte_ra.schemas._429_9._2007.am.AssetType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
@@ -57,10 +57,10 @@ import java.util.stream.Collectors;
 public class AssetMapBuilder {
 
     private final UUID uuid;
-    private final org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText;
-    private final org.smpte_ra.schemas.st0429_9_2007.AM.UserText creator;
+    private final org.smpte_ra.schemas._429_9._2007.am.UserText annotationText;
+    private final org.smpte_ra.schemas._429_9._2007.am.UserText creator;
     private final XMLGregorianCalendar issueDate;
-    private final org.smpte_ra.schemas.st0429_9_2007.AM.UserText issuer;
+    private final org.smpte_ra.schemas._429_9._2007.am.UserText issuer;
     private final List<AssetMapBuilder.Asset> assets;
     private final File workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
@@ -79,10 +79,10 @@ public class AssetMapBuilder {
      * @param imfErrorLogger a logger object to record errors that occur during the creation of the AssetMap document
      */
     public AssetMapBuilder(@Nonnull UUID uuid,
-                           @Nonnull org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText,
-                           @Nonnull org.smpte_ra.schemas.st0429_9_2007.AM.UserText creator,
+                           @Nonnull org.smpte_ra.schemas._429_9._2007.am.UserText annotationText,
+                           @Nonnull org.smpte_ra.schemas._429_9._2007.am.UserText creator,
                            @Nonnull XMLGregorianCalendar issueDate,
-                           @Nonnull org.smpte_ra.schemas.st0429_9_2007.AM.UserText issuer,
+                           @Nonnull org.smpte_ra.schemas._429_9._2007.am.UserText issuer,
                            @Nonnull List<AssetMapBuilder.Asset> assets,
                            @Nonnull File workingDirectory,
                            @Nonnull IMFErrorLogger imfErrorLogger){
@@ -103,8 +103,8 @@ public class AssetMapBuilder {
      * @param language the language code of the annotation text
      * @return a UserTextType
      */
-    public static org.smpte_ra.schemas.st0429_9_2007.AM.UserText buildAssetMapUserTextType_2007(String value, String language){
-        org.smpte_ra.schemas.st0429_9_2007.AM.UserText userTextType = new org.smpte_ra.schemas.st0429_9_2007.AM.UserText();
+    public static org.smpte_ra.schemas._429_9._2007.am.UserText buildAssetMapUserTextType_2007(String value, String language){
+        org.smpte_ra.schemas._429_9._2007.am.UserText userTextType = new org.smpte_ra.schemas._429_9._2007.am.UserText();
         userTextType.setValue(value);
         userTextType.setLanguage(language);
         return userTextType;
@@ -116,7 +116,7 @@ public class AssetMapBuilder {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public List<ErrorLogger.ErrorObject> build() throws IOException {
-        org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType = IMFAssetMapObjectFieldsFactory.constructAssetMapType_2007();
+        org.smpte_ra.schemas._429_9._2007.am.AssetMapType assetMapType = IMFAssetMapObjectFieldsFactory.constructAssetMapType_2007();
         assetMapType.setId(UUIDHelper.fromUUID(this.uuid));
         assetMapType.setAnnotationText(this.annotationText);
         assetMapType.setCreator(this.creator);
@@ -126,18 +126,18 @@ public class AssetMapBuilder {
         /**
          * Constructing the AssetList attribute of the AssetMap
          */
-        org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType.AssetList assetList = new org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType.AssetList();
-        List<org.smpte_ra.schemas.st0429_9_2007.AM.AssetType> assetMapTypeAssets = assetList.getAsset();
+        org.smpte_ra.schemas._429_9._2007.am.AssetMapType.AssetList assetList = new org.smpte_ra.schemas._429_9._2007.am.AssetMapType.AssetList();
+        List<org.smpte_ra.schemas._429_9._2007.am.AssetType> assetMapTypeAssets = assetList.getAsset();
         for(AssetMapBuilder.Asset assetMapBuilderAsset : this.assets){
-            org.smpte_ra.schemas.st0429_9_2007.AM.AssetType assetType = new AssetType();
+            org.smpte_ra.schemas._429_9._2007.am.AssetType assetType = new AssetType();
             assetType.setId(assetMapBuilderAsset.uuid);
             assetType.setPackingList(assetMapBuilderAsset.packingList);
-            org.smpte_ra.schemas.st0429_9_2007.AM.AssetType.ChunkList chunkList = new org.smpte_ra.schemas.st0429_9_2007.AM.AssetType.ChunkList();
+            org.smpte_ra.schemas._429_9._2007.am.AssetType.ChunkList chunkList = new org.smpte_ra.schemas._429_9._2007.am.AssetType.ChunkList();
             assetType.setChunkList(chunkList);
-            List<org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType> chunkTypes = chunkList.getChunk();
+            List<org.smpte_ra.schemas._429_9._2007.am.ChunkType> chunkTypes = chunkList.getChunk();
             List<AssetMapBuilder.Chunk> chunks = assetMapBuilderAsset.getChunks();
             for(Chunk chunk : chunks){
-                org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType assetMapAssetChunk = new org.smpte_ra.schemas.st0429_9_2007.AM.ChunkType();
+                org.smpte_ra.schemas._429_9._2007.am.ChunkType assetMapAssetChunk = new org.smpte_ra.schemas._429_9._2007.am.ChunkType();
                 assetMapAssetChunk.setPath(chunk.getPath());
                 assetMapAssetChunk.setVolumeIndex(chunk.getVolumeIndex());
                 assetMapAssetChunk.setOffset(chunk.getOffset());
@@ -161,19 +161,19 @@ public class AssetMapBuilder {
     @Immutable
     public static final class Asset{
         private final String uuid;
-        private final org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText;
+        private final org.smpte_ra.schemas._429_9._2007.am.UserText annotationText;
         private final boolean packingList;
         private final List<Chunk> chunks;
 
         /**
          * A constructor of the AssetMapBuilder's Asset class.
          * @param uuid a raw UUID that identifies this Asset in the AssetMap
-         * @param annotationText org.smpte_ra.schemas.st0429_9_2007.AM.UserText type
+         * @param annotationText org.smpte_ra.schemas._429_9._2007.am.UserText type
          * @param packingList a boolean indicating if this Asset is a packing list or not
          * @param chunks a list of AssetMapBuilder.Chunk type roughly modeling an AssetMap Asset's chunk
          */
         public Asset(UUID uuid,
-                     org.smpte_ra.schemas.st0429_9_2007.AM.UserText annotationText,
+                     org.smpte_ra.schemas._429_9._2007.am.UserText annotationText,
                      boolean packingList,
                      List<Chunk> chunks){
             this.uuid = UUIDHelper.fromUUID(uuid);
@@ -192,9 +192,9 @@ public class AssetMapBuilder {
 
         /**
          * Getter for the Asset's annotation text
-         * @return org.smpte_ra.schemas.st0429_9_2007.AM.UserText of the Asset
+         * @return org.smpte_ra.schemas._429_9._2007.am.UserText of the Asset
          */
-        public org.smpte_ra.schemas.st0429_9_2007.AM.UserText getAnnotationText(){
+        public org.smpte_ra.schemas._429_9._2007.am.UserText getAnnotationText(){
             return this.annotationText;
         }
 
@@ -283,7 +283,7 @@ public class AssetMapBuilder {
         }
     }
 
-    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType assetMapType, File outputFile, boolean formatted) throws IOException {
+    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas._429_9._2007.am.AssetMapType assetMapType, File outputFile, boolean formatted) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -294,7 +294,7 @@ public class AssetMapBuilder {
             schemaSources[0] = new StreamSource(assetMapSchemaAsAStream);
             Schema schema = schemaFactory.newSchema(schemaSources);
 
-            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas.st0429_9_2007.AM");
+            JAXBContext jaxbContext = JAXBContext.newInstance("org.smpte_ra.schemas._429_9._2007.am");
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);
@@ -305,7 +305,7 @@ public class AssetMapBuilder {
         workaround for 'Error: unable to marshal type "AssetMapType" as an element because it is missing an @XmlRootElement annotation'
         as found at https://weblogs.java.net/blog/2006/03/03/why-does-jaxb-put-xmlrootelement-sometimes-not-always
          */
-            marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/429-9/2007/AM", "AssetMap"), org.smpte_ra.schemas.st0429_9_2007.AM.AssetMapType.class, assetMapType), outputStream);
+            marshaller.marshal(new JAXBElement<>(new QName("http://www.smpte-ra.org/schemas/429-9/2007/AM", "AssetMap"), org.smpte_ra.schemas._429_9._2007.am.AssetMapType.class, assetMapType), outputStream);
             outputStream.close();
 
             if (validationEventHandler.hasErrors()) {

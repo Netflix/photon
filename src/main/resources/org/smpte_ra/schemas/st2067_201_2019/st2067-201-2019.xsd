@@ -5,7 +5,7 @@
   elementFormDefault="qualified"
   attributeFormDefault="unqualified">
 
-<xs:import namespace="http://www.smpte-ra.org/schemas/2067-3/2016" />
+<xs:import namespace="http://www.smpte-ra.org/schemas/2067-3/2016" schemaLocation="../st2067_3_2016/imf-cpl-20160411.xsd"/>
 
 <xs:element name="IABSequence" type="cpl:SequenceType"/>
 </xs:schema>
