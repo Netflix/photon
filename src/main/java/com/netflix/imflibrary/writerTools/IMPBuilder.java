@@ -9,12 +9,7 @@ import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st2067_2.AbstractApplicationComposition;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.CoreConstraints;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFEssenceDescriptorBaseType;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -432,7 +427,8 @@ public class IMPBuilder {
                 trackFileInfoMap,
                 workingDirectory,
                 imfEssenceDescriptorBaseTypeList,
-                coreConstraintsSchema);
+                coreConstraintsSchema,
+                trackFileIdToEssenceDescriptorIdMap);
 
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2016.build());
 
