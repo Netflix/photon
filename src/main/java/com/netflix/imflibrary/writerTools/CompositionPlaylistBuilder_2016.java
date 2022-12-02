@@ -155,14 +155,15 @@ public class CompositionPlaylistBuilder_2016 {
             IMFEssenceComponentVirtualTrack essenceTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
             for (IMFTrackFileResourceType trackResource : essenceTrack.getTrackFileResourceList()) {
                 UUID sourceEncoding = trackEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
+                // To avoid mismatched essenceDescriptorId and sourceEncodingId, we use the trackFileIdToEssenceDescriptorIdMap. If this function is called by the deprecated constructor,
+                // we run the risk of mismatch ONLY if there are multiple essence descriptors for the same virtualTrackFile in the input CPL.
                 if (sourceEncoding == null) {
                     if (trackFileIdToEssenceDescriptorIdMap != null) {
-                        trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), trackFileIdToEssenceDescriptorIdMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId())) /*UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding())*/);
+                        trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), trackFileIdToEssenceDescriptorIdMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId())));
                     }
                     else {
                         trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
                     }
-                    // trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), trackFileIdToEssenceDescriptorIdMap.get(trackResource.getTrackFileId()) /*UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding())*/);
                 }
             }
         }
