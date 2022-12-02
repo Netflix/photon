@@ -128,7 +128,8 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
                                            @Nonnull File workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList,
-                                           @Nonnull String coreConstraintsSchema){
+                                           @Nonnull String coreConstraintsSchema,
+                                           Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap){
         this.uuid = uuid;
         this.annotationText = annotationText;
         this.issuer = issuer;
@@ -154,8 +155,15 @@ public class CompositionPlaylistBuilder_2016 {
             IMFEssenceComponentVirtualTrack essenceTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
             for (IMFTrackFileResourceType trackResource : essenceTrack.getTrackFileResourceList()) {
                 UUID sourceEncoding = trackEncodingMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()));
+                // To avoid mismatched essenceDescriptorId and sourceEncodingId, we use the trackFileIdToEssenceDescriptorIdMap. If this function is called by the deprecated constructor,
+                // we run the risk of mismatch ONLY if there are multiple essence descriptors for the same virtualTrackFile in the input CPL.
                 if (sourceEncoding == null) {
-                    trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
+                    if (trackFileIdToEssenceDescriptorIdMap != null) {
+                        trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), trackFileIdToEssenceDescriptorIdMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId())));
+                    }
+                    else {
+                        trackEncodingMap.put(UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getTrackFileId()), UUIDHelper.fromUUIDAsURNStringToUUID(trackResource.getSourceEncoding()));
+                    }
                 }
             }
         }
@@ -189,7 +197,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
                                            @Nonnull File workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2016);
+        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2016, null);
     }
 
     /**
