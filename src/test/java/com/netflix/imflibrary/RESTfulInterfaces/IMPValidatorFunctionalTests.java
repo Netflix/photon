@@ -231,7 +231,6 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
-    @Ignore
     public void validateEssencesHeaderPartitionTest() throws IOException {
         List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
 
