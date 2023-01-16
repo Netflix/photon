@@ -339,7 +339,7 @@ public class IMPBuilder {
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
-        UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
+        //UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
         Set<String> applicationIds = Collections.singleton(applicationId);
         String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIds);
         if (coreConstraintsSchema == null)
@@ -405,6 +405,8 @@ public class IMPBuilder {
         /**
          * Build the CPL asset to be entered into the PackingList
          */
+        UUID cplUUID = IMFUtils.extractUUIDFromCPLFile(cplFile, imfErrorLogger);
+
         PackingListBuilder.PackingListBuilderAsset_2007 cplAsset =
                 new PackingListBuilder.PackingListBuilderAsset_2007(cplUUID,
                         PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en"),
@@ -768,7 +770,7 @@ public class IMPBuilder {
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         int numErrors = imfErrorLogger.getNumberOfErrors();
-        UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
+        //UUID cplUUID = IMFUUIDGenerator.getInstance().generateUUID();
         Set<String> applicationIds = Collections.singleton(applicationId);
         String coreConstraintsSchema = CoreConstraints.fromApplicationId(applicationIds);
         if (coreConstraintsSchema == null)
@@ -832,6 +834,8 @@ public class IMPBuilder {
         /**
          * Build the CPL asset to be entered into the PackingList
          */
+
+        UUID cplUUID = IMFUtils.extractUUIDFromCPLFile(cplFile, imfErrorLogger);
         PackingListBuilder.PackingListBuilderAsset_2016 cplAsset =
                 new PackingListBuilder.PackingListBuilderAsset_2016(cplUUID,
                         PackingListBuilder.buildPKLUserTextType_2016(annotationText, "en"),
