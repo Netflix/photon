@@ -18,7 +18,9 @@
 
 package com.netflix.imflibrary.writerTools.utils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas._2067_3._2013.BaseResourceType;
@@ -36,10 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * A class that provides utility methods to help with serializing an IMF CPL to an XML document
@@ -209,6 +208,15 @@ public class IMFUtils {
         }
         catch(SAXException | JAXBException e ){
             throw new IMFException(e);
+        }
+    }
+
+    public static UUID extractUUIDFromCPLFile(File cplFile, IMFErrorLogger imfErrorLogger) {
+        try {
+            ApplicationComposition applicationComposition = com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.getApplicationComposition(cplFile, imfErrorLogger);
+            return applicationComposition.getUUID();
+        } catch (IOException e) {
+            throw new IMFException(String.format("Error occurred while parsing CPL File %s", cplFile.toString()));
         }
     }
 
