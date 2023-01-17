@@ -357,31 +357,6 @@ public class IMPBuilder {
             throw new IMFAuthoringException(String.format("Exactly 1 MainImageSequence virtual track is required to create an IMP, none present"));
         }
 
-        /**
-         * Logic to compute total running time
-         */
-        long totalRunningTime = 0L;
-        long totalNumberOfImageEditUnits = 0L;
-        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)mainImageVirtualTrack.getResourceList()){
-            totalNumberOfImageEditUnits += trackResource.getSourceDuration().longValue() * trackResource.getRepeatCount().longValue();
-        }
-        totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
-
-        List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList = new ArrayList<>();
-        Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap = new HashMap<>();
-        for(AbstractApplicationComposition.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
-            trackFileIdToEssenceDescriptorIdMap.put(resourceIdTuple.getTrackFileId(), resourceIdTuple.getSourceEncoding());
-        }
-        for(Map.Entry<UUID, List<Node>> entry: essenceDescriptorDomNodeMap.entrySet()) {
-            if(trackFileIdToEssenceDescriptorIdMap.containsKey(entry.getKey())) {
-                imfEssenceDescriptorBaseTypeList.add(new IMFEssenceDescriptorBaseType(UUIDHelper.fromUUID(trackFileIdToEssenceDescriptorIdMap.get(entry.getKey())), new ArrayList<>( entry.getValue())));
-            } else {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("Resource = %s is not referenced in the virtual track.", UUIDHelper.fromUUID(entry.getKey())));
-            }
-        }
-
         /* No need to build a new CPL because we already have it in cplFile */
 
         if(!cplFile.exists()){
@@ -786,31 +761,6 @@ public class IMPBuilder {
 
         if(mainImageVirtualTrack == null){
             throw new IMFAuthoringException(String.format("Exactly 1 MainImageSequence virtual track is required to create an IMP, none present"));
-        }
-
-        /**
-         * Logic to compute total running time
-         */
-        long totalRunningTime = 0L;
-        long totalNumberOfImageEditUnits = 0L;
-        for(IMFTrackFileResourceType trackResource : (List<IMFTrackFileResourceType>)mainImageVirtualTrack.getResourceList()){
-            totalNumberOfImageEditUnits += trackResource.getSourceDuration().longValue() * trackResource.getRepeatCount().longValue();
-        }
-        totalRunningTime = totalNumberOfImageEditUnits/(compositionEditRate.getNumerator()/compositionEditRate.getDenominator());
-
-        List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList = new ArrayList<>();
-        Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap = new HashMap<>();
-        for(AbstractApplicationComposition.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
-            trackFileIdToEssenceDescriptorIdMap.put(resourceIdTuple.getTrackFileId(), resourceIdTuple.getSourceEncoding());
-        }
-        for(Map.Entry<UUID, List<Node>> entry: essenceDescriptorDomNodeMap.entrySet()) {
-            if(trackFileIdToEssenceDescriptorIdMap.containsKey(entry.getKey())) {
-                imfEssenceDescriptorBaseTypeList.add(new IMFEssenceDescriptorBaseType(UUIDHelper.fromUUID(trackFileIdToEssenceDescriptorIdMap.get(entry.getKey())), new ArrayList<>( entry.getValue())));
-            } else {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("Resource = %s is not referenced in the virtual track.", UUIDHelper.fromUUID(entry.getKey())));
-            }
         }
 
         if(!cplFile.exists()){
