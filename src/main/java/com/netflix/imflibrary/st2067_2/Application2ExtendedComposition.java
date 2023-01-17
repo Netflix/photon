@@ -11,6 +11,7 @@ import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.Application
 import com.netflix.imflibrary.utils.Fraction;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -188,118 +189,119 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         //Coding
         UL pictureEssenceCoding = imageEssenceDescriptorModel.getPictureEssenceCodingUL();
 
-        if (pictureEssenceCoding == null) {
+        try {
+            if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
+                boolean validProfile = false;
+
+                if (pictureEssenceCoding.getByte(14) == 0x01) {
+                    switch (pictureEssenceCoding.getByte(15)) {
+                        case 0x11: /* JPEG2000BroadcastContributionSingleTileProfileLevel1 */
+                        case 0x12: /* JPEG2000BroadcastContributionSingleTileProfileLevel2 */
+                        case 0x13: /* JPEG2000BroadcastContributionSingleTileProfileLevel3 */
+                        case 0x14: /* JPEG2000BroadcastContributionSingleTileProfileLevel4 */
+                        case 0x15: /* JPEG2000BroadcastContributionSingleTileProfileLevel5 */
+                        case 0x16: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel6 */
+                        case 0x17: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel7 */
+                            validProfile = true;
+                            break;
+                        default:
+                    }
+                } else if (pictureEssenceCoding.getByte(14) == 0x02) {
+                    switch (pictureEssenceCoding.getByte(15)) {
+                        case 0x03: /* J2K_2KIMF_SingleTileLossyProfile_M1S1 */
+                        case 0x05: /* J2K_2KIMF_SingleTileLossyProfile_M2S1 */
+                        case 0x07: /* J2K_2KIMF_SingleTileLossyProfile_M3S1 */
+                        case 0x09: /* J2K_2KIMF_SingleTileLossyProfile_M4S1 */
+                        case 0x0a: /* J2K_2KIMF_SingleTileLossyProfile_M4S2 */
+                        case 0x0c: /* J2K_2KIMF_SingleTileLossyProfile_M5S1 */
+                        case 0x0d: /* J2K_2KIMF_SingleTileLossyProfile_M5S2 */
+                        case 0x0e: /* J2K_2KIMF_SingleTileLossyProfile_M5S3 */
+                        case 0x10: /* J2K_2KIMF_SingleTileLossyProfile_M6S1 */
+                        case 0x11: /* J2K_2KIMF_SingleTileLossyProfile_M6S2 */
+                        case 0x12: /* J2K_2KIMF_SingleTileLossyProfile_M6S3 */
+                        case 0x13: /* J2K_2KIMF_SingleTileLossyProfile_M6S4 */
+                            validProfile = true;
+                            break;
+                        default:
+                    }
+                } else if (pictureEssenceCoding.getByte(14) == 0x03) {
+                    switch (pictureEssenceCoding.getByte(15)) {
+                        case 0x03: /* J2K_4KIMF_SingleTileLossyProfile_M1S1 */
+                        case 0x05: /* J2K_4KIMF_SingleTileLossyProfile_M2S1 */
+                        case 0x07: /* J2K_4KIMF_SingleTileLossyProfile_M3S1 */
+                        case 0x09: /* J2K_4KIMF_SingleTileLossyProfile_M4S1 */
+                        case 0x0a: /* J2K_4KIMF_SingleTileLossyProfile_M4S2 */
+                        case 0x0c: /* J2K_4KIMF_SingleTileLossyProfile_M5S1 */
+                        case 0x0d: /* J2K_4KIMF_SingleTileLossyProfile_M5S2 */
+                        case 0x0e: /* J2K_4KIMF_SingleTileLossyProfile_M5S3 */
+                        case 0x10: /* J2K_4KIMF_SingleTileLossyProfile_M6S1 */
+                        case 0x11: /* J2K_4KIMF_SingleTileLossyProfile_M6S2 */
+                        case 0x12: /* J2K_4KIMF_SingleTileLossyProfile_M6S3 */
+                        case 0x13: /* J2K_4KIMF_SingleTileLossyProfile_M6S4 */
+                        case 0x15: /* J2K_4KIMF_SingleTileLossyProfile_M7S1 */
+                        case 0x16: /* J2K_4KIMF_SingleTileLossyProfile_M7S2 */
+                        case 0x17: /* J2K_4KIMF_SingleTileLossyProfile_M7S3 */
+                        case 0x18: /* J2K_4KIMF_SingleTileLossyProfile_M7S4 */
+                        case 0x19: /* J2K_4KIMF_SingleTileLossyProfile_M7S5 */
+                        case 0x1b: /* J2K_4KIMF_SingleTileLossyProfile_M8S1 */
+                        case 0x1c: /* J2K_4KIMF_SingleTileLossyProfile_M8S2 */
+                        case 0x1d: /* J2K_4KIMF_SingleTileLossyProfile_M8S3 */
+                        case 0x1e: /* J2K_4KIMF_SingleTileLossyProfile_M8S4 */
+                        case 0x1f: /* J2K_4KIMF_SingleTileLossyProfile_M8S5 */
+                        case 0x20: /* J2K_4KIMF_SingleTileLossyProfile_M8S6 */
+                            validProfile = true;
+                            break;
+                        default:
+                    }
+                } else if (pictureEssenceCoding.getByte(14) == 0x05) {
+                    switch (pictureEssenceCoding.getByte(15)) {
+                        case 0x02: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M1S0 */
+                        case 0x04: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M2S0 */
+                        case 0x06: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M3S0 */
+                        case 0x08: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M4S0 */
+                        case 0x0b: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M5S0 */
+                        case 0x0f: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M6S0 */
+                            validProfile = true;
+                            break;
+                        default:
+                    }
+                } else if (pictureEssenceCoding.getByte(14) == 0x06) {
+                    switch (pictureEssenceCoding.getByte(15)) {
+                        case 0x02: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M1S0 */
+                        case 0x04: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M2S0 */
+                        case 0x06: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M3S0 */
+                        case 0x08: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M4S0 */
+                        case 0x0b: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M5S0 */
+                        case 0x0f: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M6S0 */
+                        case 0x14: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M7S0 */
+                        case 0x1a: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M8S0 */
+                            validProfile = true;
+                            break;
+                        default:
+                    }
+                }
+
+                if (! validProfile) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("Invalid JPEG 2000 profile: %s", pictureEssenceCoding.toString()
+                            ));
+                }
+
+            } else {
+
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("Image codec must be JPEG 2000. Found %s instead.", pictureEssenceCoding.toString()
+                        ));
+
+            }
+        } catch (NullPointerException npe) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s is missing pictureEssenceCoding, which is a required field.", imageEssenceDescriptorID.toString()));
         }
 
-        if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
-            boolean validProfile = false;
-
-            if (pictureEssenceCoding.getByte(14) == 0x01) {
-                switch (pictureEssenceCoding.getByte(15)) {
-                    case 0x11: /* JPEG2000BroadcastContributionSingleTileProfileLevel1 */
-                    case 0x12: /* JPEG2000BroadcastContributionSingleTileProfileLevel2 */
-                    case 0x13: /* JPEG2000BroadcastContributionSingleTileProfileLevel3 */
-                    case 0x14: /* JPEG2000BroadcastContributionSingleTileProfileLevel4 */
-                    case 0x15: /* JPEG2000BroadcastContributionSingleTileProfileLevel5 */
-                    case 0x16: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel6 */
-                    case 0x17: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel7 */
-                        validProfile = true;
-                        break;
-                    default:
-                }
-            } else if (pictureEssenceCoding.getByte(14) == 0x02) {
-                switch (pictureEssenceCoding.getByte(15)) {
-                    case 0x03: /* J2K_2KIMF_SingleTileLossyProfile_M1S1 */
-                    case 0x05: /* J2K_2KIMF_SingleTileLossyProfile_M2S1 */
-                    case 0x07: /* J2K_2KIMF_SingleTileLossyProfile_M3S1 */
-                    case 0x09: /* J2K_2KIMF_SingleTileLossyProfile_M4S1 */
-                    case 0x0a: /* J2K_2KIMF_SingleTileLossyProfile_M4S2 */
-                    case 0x0c: /* J2K_2KIMF_SingleTileLossyProfile_M5S1 */
-                    case 0x0d: /* J2K_2KIMF_SingleTileLossyProfile_M5S2 */
-                    case 0x0e: /* J2K_2KIMF_SingleTileLossyProfile_M5S3 */
-                    case 0x10: /* J2K_2KIMF_SingleTileLossyProfile_M6S1 */
-                    case 0x11: /* J2K_2KIMF_SingleTileLossyProfile_M6S2 */
-                    case 0x12: /* J2K_2KIMF_SingleTileLossyProfile_M6S3 */
-                    case 0x13: /* J2K_2KIMF_SingleTileLossyProfile_M6S4 */
-                        validProfile = true;
-                        break;
-                    default:
-                }
-            } else if (pictureEssenceCoding.getByte(14) == 0x03) {
-                switch (pictureEssenceCoding.getByte(15)) {
-                    case 0x03: /* J2K_4KIMF_SingleTileLossyProfile_M1S1 */
-                    case 0x05: /* J2K_4KIMF_SingleTileLossyProfile_M2S1 */
-                    case 0x07: /* J2K_4KIMF_SingleTileLossyProfile_M3S1 */
-                    case 0x09: /* J2K_4KIMF_SingleTileLossyProfile_M4S1 */
-                    case 0x0a: /* J2K_4KIMF_SingleTileLossyProfile_M4S2 */
-                    case 0x0c: /* J2K_4KIMF_SingleTileLossyProfile_M5S1 */
-                    case 0x0d: /* J2K_4KIMF_SingleTileLossyProfile_M5S2 */
-                    case 0x0e: /* J2K_4KIMF_SingleTileLossyProfile_M5S3 */
-                    case 0x10: /* J2K_4KIMF_SingleTileLossyProfile_M6S1 */
-                    case 0x11: /* J2K_4KIMF_SingleTileLossyProfile_M6S2 */
-                    case 0x12: /* J2K_4KIMF_SingleTileLossyProfile_M6S3 */
-                    case 0x13: /* J2K_4KIMF_SingleTileLossyProfile_M6S4 */
-                    case 0x15: /* J2K_4KIMF_SingleTileLossyProfile_M7S1 */
-                    case 0x16: /* J2K_4KIMF_SingleTileLossyProfile_M7S2 */
-                    case 0x17: /* J2K_4KIMF_SingleTileLossyProfile_M7S3 */
-                    case 0x18: /* J2K_4KIMF_SingleTileLossyProfile_M7S4 */
-                    case 0x19: /* J2K_4KIMF_SingleTileLossyProfile_M7S5 */
-                    case 0x1b: /* J2K_4KIMF_SingleTileLossyProfile_M8S1 */
-                    case 0x1c: /* J2K_4KIMF_SingleTileLossyProfile_M8S2 */
-                    case 0x1d: /* J2K_4KIMF_SingleTileLossyProfile_M8S3 */
-                    case 0x1e: /* J2K_4KIMF_SingleTileLossyProfile_M8S4 */
-                    case 0x1f: /* J2K_4KIMF_SingleTileLossyProfile_M8S5 */
-                    case 0x20: /* J2K_4KIMF_SingleTileLossyProfile_M8S6 */
-                        validProfile = true;
-                        break;
-                    default:
-                }
-            } else if (pictureEssenceCoding.getByte(14) == 0x05) {
-                switch (pictureEssenceCoding.getByte(15)) {
-                    case 0x02: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M1S0 */
-                    case 0x04: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M2S0 */
-                    case 0x06: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M3S0 */
-                    case 0x08: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M4S0 */
-                    case 0x0b: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M5S0 */
-                    case 0x0f: /* J2K_2KIMF_SingleMultiTileReversibleProfile_M6S0 */
-                        validProfile = true;
-                        break;
-                    default:
-                }
-            } else if (pictureEssenceCoding.getByte(14) == 0x06) {
-                switch (pictureEssenceCoding.getByte(15)) {
-                    case 0x02: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M1S0 */
-                    case 0x04: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M2S0 */
-                    case 0x06: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M3S0 */
-                    case 0x08: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M4S0 */
-                    case 0x0b: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M5S0 */
-                    case 0x0f: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M6S0 */
-                    case 0x14: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M7S0 */
-                    case 0x1a: /* J2K_4KIMF_SingleMultiTileReversibleProfile_M8S0 */
-                        validProfile = true;
-                        break;
-                    default:
-                }
-            }
-
-            if (! validProfile) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("Invalid JPEG 2000 profile: %s", pictureEssenceCoding.toString()
-                ));
-            }
-
-        } else {
-
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                String.format("Image codec must be JPEG 2000. Found %s instead.", pictureEssenceCoding.toString()
-            ));
-
-        }
 
     }
 
