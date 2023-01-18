@@ -133,9 +133,11 @@ public class IMPBuilder {
         File[] files = workingDirectory.listFiles();
 
         boolean retainCPL = false;
-        if (files.length == 1) {
-            if (files[0].getPath().endsWith("CPL-File.xml")) {
-                retainCPL = true;
+        if (files != null) {
+            if (files.length == 1) {
+                if (files[0].getPath().endsWith("CPL-File.xml")) {
+                    retainCPL = true;
+                }
             }
         }
 
@@ -396,9 +398,12 @@ public class IMPBuilder {
 
         File[] files = workingDirectory.listFiles();
         boolean retainCPL = false;
-        if (files.length == 1) {
-            if (files[0].getPath().endsWith("CPL-File.xml")) {
-                retainCPL = true;
+
+        if (files != null) {
+            if (files.length == 1) {
+                if (files[0].getPath().endsWith("CPL-File.xml")) {
+                    retainCPL = true;
+                }
             }
         }
 
