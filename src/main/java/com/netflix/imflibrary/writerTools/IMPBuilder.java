@@ -101,23 +101,35 @@ public class IMPBuilder {
     }
 
     public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2013(@Nonnull String annotationText,
-                                                              @Nonnull String issuer,
-                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                                              @Nonnull String applicationId,
-                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory,
-                                                              @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
-        if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull Composition.EditRate compositionEditRate,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                                                   @Nonnull File workingDirectory, @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        if (trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
             throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        Map<UUID, IMFTrackFileInfo> trackFileInfoMap = new HashMap<>();
+        Map<UUID, IMFTrackFileInfo> uuidimfTrackFileInfoMap = new HashMap<>();
 
-        for(Map.Entry<UUID, IMFTrackFileMetadata> entry: trackFileHeaderPartitionMap.entrySet()) {
+        for (Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileHeaderPartitionMap.entrySet()) {
             IMFTrackFileInfo imfTrackFileInfo = new IMFTrackFileInfo(entry.getValue().getHash(), entry.getValue().getHashAlgorithm(), entry.getValue().getOriginalFileName(), entry.getValue().getLength(), entry.getValue().isExcludeFromPackage());
-            trackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
+            uuidimfTrackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
         }
+        imfErrorLogger.addAllErrors(buildIMPWithoutCreatingNewCPL_2013(annotationText, issuer, virtualTracks, applicationId, uuidimfTrackFileInfoMap, workingDirectory, cplFile));
+        return imfErrorLogger.getErrors();
+    }
+
+    public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2013(@Nonnull String annotationText,
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileInfo> trackFileInfoMap,
+                                                                                   @Nonnull File workingDirectory,
+                                                                                   @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         Set<String> applicationIds = Collections.singleton(applicationId);
@@ -352,9 +364,9 @@ public class IMPBuilder {
          */
         UUID pklUUID = IMFUUIDGenerator.getInstance().generateUUID();
         PackingListBuilder packingListBuilder = new PackingListBuilder(pklUUID,
-                                                                        IMFUtils.createXMLGregorianCalendar(),
-                                                                        workingDirectory,
-                                                                        imfErrorLogger);
+                IMFUtils.createXMLGregorianCalendar(),
+                workingDirectory,
+                imfErrorLogger);
 
         org.smpte_ra.schemas._429_8._2007.pkl.UserText pklAnnotationText = PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en");
         org.smpte_ra.schemas._429_8._2007.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
@@ -365,21 +377,21 @@ public class IMPBuilder {
          */
         PackingListBuilder.PackingListBuilderAsset_2007 cplAsset =
                 new PackingListBuilder.PackingListBuilderAsset_2007(cplUUID,
-                                                                    PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en"),
-                                                                    Arrays.copyOf(cplHash, cplHash.length),
-                                                                    cplFile.length(),
-                                                                    PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
-                                                                    PackingListBuilder.buildPKLUserTextType_2007(compositionPlaylistBuilder_2013.getCPLFileName(), "en"));
+                        PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en"),
+                        Arrays.copyOf(cplHash, cplHash.length),
+                        cplFile.length(),
+                        PackingListBuilder.PKLAssetTypeEnum.TEXT_XML,
+                        PackingListBuilder.buildPKLUserTextType_2007(compositionPlaylistBuilder_2013.getCPLFileName(), "en"));
         packingListBuilderAssets.add(cplAsset);
         Set<Map.Entry<UUID, IMFTrackFileInfo>> trackFileMetadataEntriesSet = trackFileInfoMap.entrySet().stream().filter( e -> !(e.getValue().isExcludeFromPackage())).collect(Collectors.toSet());
         for(Map.Entry<UUID, IMFTrackFileInfo> entry : trackFileMetadataEntriesSet){
             PackingListBuilder.PackingListBuilderAsset_2007 asset =
                     new PackingListBuilder.PackingListBuilderAsset_2007(entry.getKey(),
-                                                                        PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en"),
-                                                                        Arrays.copyOf(entry.getValue().getHash(), entry.getValue().getHash().length),
-                                                                        entry.getValue().getLength(),
-                                                                        PackingListBuilder.PKLAssetTypeEnum.APP_MXF,
-                                                                        PackingListBuilder.buildPKLUserTextType_2007(entry.getValue().getOriginalFileName(), "en"));
+                            PackingListBuilder.buildPKLUserTextType_2007(annotationText, "en"),
+                            Arrays.copyOf(entry.getValue().getHash(), entry.getValue().getHash().length),
+                            entry.getValue().getLength(),
+                            PackingListBuilder.PKLAssetTypeEnum.APP_MXF,
+                            PackingListBuilder.buildPKLUserTextType_2007(entry.getValue().getOriginalFileName(), "en"));
             packingListBuilderAssets.add(asset);
         }
         imfErrorLogger.addAllErrors(packingListBuilder.buildPackingList_2007(pklAnnotationText, pklIssuer, creator,
@@ -408,9 +420,9 @@ public class IMPBuilder {
             List<AssetMapBuilder.Chunk> chunkList = new ArrayList<>();
             chunkList.add(chunk);
             AssetMapBuilder.Asset amAsset = new AssetMapBuilder.Asset(UUIDHelper.fromUUIDAsURNStringToUUID(pklAsset.getUUID()),
-                                                                        AssetMapBuilder.buildAssetMapUserTextType_2007(pklAsset.getAnnotationText().getValue(), "en"),
-                                                                        false,
-                                                                        chunkList);
+                    AssetMapBuilder.buildAssetMapUserTextType_2007(pklAsset.getAnnotationText().getValue(), "en"),
+                    false,
+                    chunkList);
             assetMapAssets.add(amAsset);
         }
         //Add the PKL as an AssetMap asset
@@ -424,13 +436,13 @@ public class IMPBuilder {
         assetMapAssets.add(amAsset);
 
         AssetMapBuilder assetMapBuilder = new AssetMapBuilder(assetMapUUID,
-                                                                AssetMapBuilder.buildAssetMapUserTextType_2007(annotationText, "en"),
-                                                                AssetMapBuilder.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en"),
-                                                                IMFUtils.createXMLGregorianCalendar(),
-                                                                AssetMapBuilder.buildAssetMapUserTextType_2007(issuer, "en"),
-                                                                assetMapAssets,
-                                                                workingDirectory,
-                                                                imfErrorLogger);
+                AssetMapBuilder.buildAssetMapUserTextType_2007(annotationText, "en"),
+                AssetMapBuilder.buildAssetMapUserTextType_2007("Photon AssetMapBuilder", "en"),
+                IMFUtils.createXMLGregorianCalendar(),
+                AssetMapBuilder.buildAssetMapUserTextType_2007(issuer, "en"),
+                assetMapAssets,
+                workingDirectory,
+                imfErrorLogger);
         assetMapBuilder.build();
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, numErrors, imfErrorLogger.getNumberOfErrors()).size() > 0){
@@ -490,13 +502,12 @@ public class IMPBuilder {
     }
 
     public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2016(@Nonnull String annotationText,
-                                                              @Nonnull String issuer,
-                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                                              @Nonnull Composition.EditRate compositionEditRate,
-                                                              @Nonnull String applicationId,
-                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory,
-                                                              @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull Composition.EditRate compositionEditRate,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                                                   @Nonnull File workingDirectory, @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
         if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
             throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
         }
@@ -507,6 +518,20 @@ public class IMPBuilder {
             IMFTrackFileInfo imfTrackFileInfo = new IMFTrackFileInfo(entry.getValue().getHash(), entry.getValue().getHashAlgorithm(), entry.getValue().getOriginalFileName(), entry.getValue().getLength(), entry.getValue().isExcludeFromPackage());
             trackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
         }
+
+        imfErrorLogger.addAllErrors(buildIMPWithoutCreatingNewCPL_2016(annotationText, issuer, virtualTracks, applicationId, trackFileInfoMap, workingDirectory, cplFile));
+        return imfErrorLogger.getErrors();
+    }
+
+    public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2016(@Nonnull String annotationText,
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileInfo> trackFileInfoMap,
+                                                                                   @Nonnull File workingDirectory,
+                                                                                   @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         Set<String> applicationIds = Collections.singleton(applicationId);
