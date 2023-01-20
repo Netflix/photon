@@ -268,45 +268,44 @@ public class Application2Composition extends AbstractApplicationComposition {
         //Coding
         UL pictureEssenceCoding = imageEssenceDescriptorModel.getPictureEssenceCodingUL();
 
-        try {
-            if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
-                boolean validProfile = false;
-
-                if (pictureEssenceCoding.getByte(14) == 0x01) {
-                    switch (pictureEssenceCoding.getByte(15)) {
-                        case 0x11: /* JPEG2000BroadcastContributionSingleTileProfileLevel1 */
-                        case 0x12: /* JPEG2000BroadcastContributionSingleTileProfileLevel2 */
-                        case 0x13: /* JPEG2000BroadcastContributionSingleTileProfileLevel3 */
-                        case 0x14: /* JPEG2000BroadcastContributionSingleTileProfileLevel4 */
-                        case 0x15: /* JPEG2000BroadcastContributionSingleTileProfileLevel5 */
-                        case 0x16: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel6 */
-                        case 0x17: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel7 */
-                            validProfile = true;
-                            break;
-                        default:
-                    }
-                }
-
-                if (! validProfile) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("Invalid JPEG 2000 profile: %s", pictureEssenceCoding.toString()
-                            ));
-                }
-
-            } else {
-
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Image codec must be JPEG 2000. Found %s instead.", pictureEssenceCoding.toString()
-                        ));
-            }
-        } catch (NullPointerException npe) {
+        if (pictureEssenceCoding == null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("EssenceDescriptor with ID %s is missing pictureEssenceCoding, which is a required field.", imageEssenceDescriptorID.toString()));
         }
 
+        if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
+            boolean validProfile = false;
+
+            if (pictureEssenceCoding.getByte(14) == 0x01) {
+                switch (pictureEssenceCoding.getByte(15)) {
+                    case 0x11: /* JPEG2000BroadcastContributionSingleTileProfileLevel1 */
+                    case 0x12: /* JPEG2000BroadcastContributionSingleTileProfileLevel2 */
+                    case 0x13: /* JPEG2000BroadcastContributionSingleTileProfileLevel3 */
+                    case 0x14: /* JPEG2000BroadcastContributionSingleTileProfileLevel4 */
+                    case 0x15: /* JPEG2000BroadcastContributionSingleTileProfileLevel5 */
+                    case 0x16: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel6 */
+                    case 0x17: /* JPEG2000BroadcastContributionMultiTileReversibleProfileLevel7 */
+                        validProfile = true;
+                        break;
+                    default:
+                }
+            }
+
+            if (! validProfile) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Invalid JPEG 2000 profile: %s", pictureEssenceCoding.toString()
+                ));
+            }
+
+        } else {
+
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("Image codec must be JPEG 2000. Found %s instead.", pictureEssenceCoding.toString()
+            ));
+        }
         
     }
 
