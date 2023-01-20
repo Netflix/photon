@@ -103,21 +103,33 @@ public class IMPBuilder {
     public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2013(@Nonnull String annotationText,
                                                               @Nonnull String issuer,
                                                               @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull Composition.EditRate compositionEditRate,
                                                               @Nonnull String applicationId,
                                                               @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory,
-                                                              @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
-        if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
+                                                              @Nonnull File workingDirectory, @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        if (trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
             throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
         }
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        Map<UUID, IMFTrackFileInfo> trackFileInfoMap = new HashMap<>();
+        Map<UUID, IMFTrackFileInfo> uuidimfTrackFileInfoMap = new HashMap<>();
 
-        for(Map.Entry<UUID, IMFTrackFileMetadata> entry: trackFileHeaderPartitionMap.entrySet()) {
+        for (Map.Entry<UUID, IMFTrackFileMetadata> entry : trackFileHeaderPartitionMap.entrySet()) {
             IMFTrackFileInfo imfTrackFileInfo = new IMFTrackFileInfo(entry.getValue().getHash(), entry.getValue().getHashAlgorithm(), entry.getValue().getOriginalFileName(), entry.getValue().getLength(), entry.getValue().isExcludeFromPackage());
-            trackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
+            uuidimfTrackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
         }
+        imfErrorLogger.addAllErrors(buildIMPWithoutCreatingNewCPL_2013(annotationText, issuer, virtualTracks, applicationId, uuidimfTrackFileInfoMap, workingDirectory, cplFile));
+        return imfErrorLogger.getErrors();
+    }
+
+    public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2013(@Nonnull String annotationText,
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileInfo> trackFileInfoMap,
+                                                                                   @Nonnull File workingDirectory,
+                                                                                   @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         Set<String> applicationIds = Collections.singleton(applicationId);
@@ -490,13 +502,12 @@ public class IMPBuilder {
     }
 
     public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2016(@Nonnull String annotationText,
-                                                              @Nonnull String issuer,
-                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                                              @Nonnull Composition.EditRate compositionEditRate,
-                                                              @Nonnull String applicationId,
-                                                              @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
-                                                              @Nonnull File workingDirectory,
-                                                              @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+                                                                                   @Nonnull String issuer,
+                                                                                   @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                                                   @Nonnull Composition.EditRate compositionEditRate,
+                                                                                   @Nonnull String applicationId,
+                                                                                   @Nonnull Map<UUID, IMFTrackFileMetadata> trackFileHeaderPartitionMap,
+                                                                                   @Nonnull File workingDirectory, @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
         if(trackFileHeaderPartitionMap.entrySet().stream().filter(e -> e.getValue().getHeaderPartition() == null).count() > 0) {
             throw new IMFAuthoringException(String.format("trackFileHeaderPartitionMap has IMFTrackFileMetadata with null header partition"));
         }
@@ -507,6 +518,20 @@ public class IMPBuilder {
             IMFTrackFileInfo imfTrackFileInfo = new IMFTrackFileInfo(entry.getValue().getHash(), entry.getValue().getHashAlgorithm(), entry.getValue().getOriginalFileName(), entry.getValue().getLength(), entry.getValue().isExcludeFromPackage());
             trackFileInfoMap.put(entry.getKey(), imfTrackFileInfo);
         }
+
+        imfErrorLogger.addAllErrors(buildIMPWithoutCreatingNewCPL_2016(annotationText, issuer, virtualTracks, applicationId, trackFileInfoMap, workingDirectory, cplFile));
+        return imfErrorLogger.getErrors();
+    }
+
+    public static List<ErrorLogger.ErrorObject> buildIMPWithoutCreatingNewCPL_2016(@Nonnull String annotationText,
+                                                              @Nonnull String issuer,
+                                                              @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
+                                                              @Nonnull String applicationId,
+                                                              @Nonnull Map<UUID, IMFTrackFileInfo> trackFileInfoMap,
+                                                              @Nonnull File workingDirectory,
+                                                              @Nonnull File cplFile) throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         Set<String> applicationIds = Collections.singleton(applicationId);
