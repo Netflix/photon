@@ -188,12 +188,6 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         //Coding
         UL pictureEssenceCoding = imageEssenceDescriptorModel.getPictureEssenceCodingUL();
 
-        if (pictureEssenceCoding == null) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s is missing pictureEssenceCoding, which is a required field.", imageEssenceDescriptorID.toString()));
-        }
-
         if(pictureEssenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
             boolean validProfile = false;
 
