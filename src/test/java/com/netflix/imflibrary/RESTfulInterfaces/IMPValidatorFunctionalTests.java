@@ -40,7 +40,6 @@ import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
