@@ -36,15 +36,10 @@ jobs:
           restore-keys: |
             - ${{ runner.os }}-gradlewrapper-
       - name: Build with Gradle
-        run: ./gradlew --info --stacktrace --scan build
+        run: ./gradlew --info --stacktrace build
         env:
           CI_NAME: github_actions
           CI_BUILD_NUMBER: ${{ github.sha }}
           CI_BUILD_URL: 'https://github.com/${{ github.repository }}'
           CI_BRANCH: ${{ github.ref }}
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Archive test report
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test report
-          path: build/reports/tests/test
