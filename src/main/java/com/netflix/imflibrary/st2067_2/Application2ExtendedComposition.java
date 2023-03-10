@@ -46,6 +46,7 @@ public class Application2ExtendedComposition extends AbstractApplicationComposit
         put(Colorimetry.Color5, new HashSet<Integer>(){{ add(10); add(12); }});
         put(Colorimetry.Color6, new HashSet<Integer>(){{ add(10); add(12); add(16);}});
         put(Colorimetry.Color7, new HashSet<Integer>(){{ add(10); add(12); add(16); }});
+        put(Colorimetry.Color8, new HashSet<Integer>(){{ add(10); add(12); }});
     }});
     public static final Set<Integer>bitDepthsSupported = Collections.unmodifiableSet(new HashSet<Integer>() {{
         add(8); add(10); add(12); add(16); }});
