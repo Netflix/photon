@@ -7,7 +7,7 @@ public class JPEG2000 {
     public static final UL BROADCAST_PROFILE_NODE_UL = UL
             .fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010100");
     public static final UL J2K_NODE_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
-    public static final UL HTJ2K_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010801");
+    public static final UL HTJ2K_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.04010202.03010801");
 
     public static boolean isBroadcastProfile(UL pictureEssenceCoding) {
         if (!pictureEssenceCoding.equalsWithMask(BROADCAST_PROFILE_NODE_UL, 0b1111111011111110))

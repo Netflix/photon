@@ -12,13 +12,13 @@ import java.io.File;
 import java.io.IOException;
 
 @Test(groups = "unit")
-public class IMPAnalyzerTestApp2E2022
+public class IMPAnalyzerTestApp2E2021
 {
 
     @Test
     public void ValidCPL() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2022/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -29,7 +29,7 @@ public class IMPAnalyzerTestApp2E2022
     @Test
     public void InvalidCPLBadFrameStructure() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2022/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-frame-structure.xml");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-frame-structure.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -39,7 +39,7 @@ public class IMPAnalyzerTestApp2E2022
     @Test
     public void InvalidCPLBadCodec() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2022/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-codec.xml");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-codec.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -49,7 +49,7 @@ public class IMPAnalyzerTestApp2E2022
     @Test
     public void InvalidCPLBadColor() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2022/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-color.xml");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-color.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);

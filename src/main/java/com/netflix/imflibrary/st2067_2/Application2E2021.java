@@ -273,12 +273,8 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Quantization quantization = imageDescriptor.getQuantization();
         Fraction fps = imageDescriptor.getSampleRate();
 
-        if (Colorimetry.Color4.equals(color)) {
-            return Quantization.QE1.equals(quantization) && FPS_UHD.contains(fps) && COLOR_TO_DEPTH_XVYCC.containsKey(color) && COLOR_TO_DEPTH_XVYCC.get(color).contains(depth);
-        } else {
-            return (Quantization.QE2.equals(quantization) || Quantization.QE1.equals(quantization)) &&
-                FPS_RGB.contains(fps) && COLOR_TO_DEPTH_RGB.containsKey(color) && COLOR_TO_DEPTH_RGB.get(color).contains(depth);
-        }
+        return (Quantization.QE2.equals(quantization) || Quantization.QE1.equals(quantization)) &&
+            FPS_RGB.contains(fps) && COLOR_TO_DEPTH_RGB.containsKey(color) && COLOR_TO_DEPTH_RGB.get(color).contains(depth);
     }
 
 
