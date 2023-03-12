@@ -36,7 +36,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         private HashSet<Sampling> samplings;
         private HashSet<Quantization> quantizations;
         private HashSet<ColorModel> colorModels;
-        /* stereoscpic images are not supported */
+        /* Stereoscopic images are not supported */
 
         public CharacteristicsSet(Integer maxWidth,
                 Integer maxHeight,
