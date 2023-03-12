@@ -12,11 +12,10 @@ import com.netflix.imflibrary.JPEG2000;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.Arrays;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 
@@ -27,60 +26,201 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 public class Application2E2021 extends AbstractApplicationComposition {
     private static String APP_STRING = ApplicationCompositionType.APPLICATION_2E2021_COMPOSITION_TYPE.toString();
 
-    public static final Set<Fraction> FPS_UHD = Collections.unmodifiableSet(new HashSet<Fraction>(){{
-        add(new Fraction(24));
-        add(new Fraction(25));
-        add(new Fraction(30));
-        add(new Fraction(50));
-        add(new Fraction(60));
-        add(new Fraction(120));
-        add(new Fraction(24000,1001));
-        add(new Fraction(30000,1001));
-        add(new Fraction(60000,1001));
-    }});
+    static class CharacteristicsSet {
+        private Integer maxWidth;
+        private Integer maxHeight;
+        private HashSet<Colorimetry> colorSystems;
+        private HashSet<Integer> bitDepths;
+        private HashSet<FrameLayoutType> frameStructures;
+        private HashSet<Fraction> frameRates;
+        private HashSet<Sampling> samplings;
+        private HashSet<Quantization> quantizations;
+        private HashSet<ColorModel> colorModels;
+        /* stereoscpic images are not supported */
 
-    public static final Set<Fraction> FPS_RGB = Collections.unmodifiableSet(new HashSet<Fraction>(){{
-        add(new Fraction(24));
-        add(new Fraction(25));
-        add(new Fraction(30));
-        add(new Fraction(50));
-        add(new Fraction(60));
-        add(new Fraction(120));
-        add(new Fraction(24000,1001));
-        add(new Fraction(30000,1001));
-        add(new Fraction(60000,1001));
-        add(new Fraction(120));
-    }});
+        public CharacteristicsSet(Integer maxWidth,
+                Integer maxHeight,
+                List<Colorimetry> colorSystems,
+                List<Integer> bitDepths,
+                List<FrameLayoutType> frameStructures,
+                List<Fraction> frameRates,
+                List<Sampling> samplings,
+                List<Quantization> quantizations,
+                List<ColorModel> colorModels) {
+            this.maxWidth = maxWidth;
+            this.maxHeight = maxHeight;
+            this.colorSystems = new HashSet<Colorimetry>(colorSystems);
+            this.bitDepths = new HashSet<Integer>(bitDepths);
+            this.frameStructures = new HashSet<FrameLayoutType>(frameStructures);
+            this.frameRates = new HashSet<Fraction>(frameRates);
+            this.samplings = new HashSet<Sampling>(samplings);
+            this.quantizations = new HashSet<Quantization>(quantizations);
+            this.colorModels = new HashSet<ColorModel>(colorModels);
+        }
 
-    public static final Set<Fraction> FPS_HD = Collections.unmodifiableSet(new HashSet<Fraction>(){{
-        add(new Fraction(25));
-        add(new Fraction(30));
-        add(new Fraction(30000,1001));
-    }});
+        public boolean has(Integer width,
+                Integer height,
+                Colorimetry colorSystem,
+                Integer bitDepth,
+                FrameLayoutType frameStructure,
+                Fraction frameRate,
+                Sampling sampling,
+                Quantization quantization,
+                ColorModel colorModel) {
+            return width <= this.maxWidth &&
+                    height <= this.maxHeight &&
+                    this.colorSystems.contains(colorSystem) &&
+                    this.bitDepths.contains(bitDepth) &&
+                    this.frameStructures.contains(frameStructure) &&
+                    this.frameRates.contains(frameRate) &&
+                    this.samplings.contains(sampling) &&
+                    this.quantizations.contains(quantization) &&
+                    this.colorModels.contains(colorModel);
+        }
+    }
 
-    public static final Map<Colorimetry, Set<Integer>> COLOR_TO_DEPTH_HD = Collections.unmodifiableMap(new HashMap<Colorimetry,Set<Integer>>(){{
-        put(Colorimetry.Color1,new HashSet<Integer>(){{add(8);add(10);}});
-        put(Colorimetry.Color2,new HashSet<Integer>(){{add(8);add(10);}});
-        put(Colorimetry.Color3,new HashSet<Integer>(){{add(8);add(10);}});}});
+    public static final List<Fraction> FPS_HD = Arrays.asList(
+        new Fraction(25),
+        new Fraction(30),
+        new Fraction(30000, 1001)
+    );
 
-    public static final Map<Colorimetry, Set<Integer>> COLOR_TO_DEPTH_YUV = Collections.unmodifiableMap(new HashMap<Colorimetry, Set<Integer>>() {{
-        put(Colorimetry.Color3, new HashSet<Integer>(){{ add(8); add(10); add(12); add(16);}});
-        put(Colorimetry.Color5, new HashSet<Integer>(){{ add(10); add(12); }});
-        put(Colorimetry.Color7, new HashSet<Integer>(){{ add(10); add(12); add(16); }});
-        put(Colorimetry.Color8, new HashSet<Integer>(){{ add(10); add(12); }});
-    }});
+    public static final List<Fraction> FPS_UHD = Arrays.asList(
+        new Fraction(24),
+        new Fraction(24000, 1001),
+        new Fraction(25),
+        new Fraction(30),
+        new Fraction(30000, 1001),
+        new Fraction(50),
+        new Fraction(60),
+        new Fraction(60000, 1001)
+    );
 
-    public static final Map<Colorimetry, Set<Integer>> COLOR_TO_DEPTH_XVYCC = Collections.unmodifiableMap(new HashMap<Colorimetry, Set<Integer>>() {{
-        put(Colorimetry.Color4, new HashSet<Integer>(){{ add(8); add(10); }});
-    }});
+    public static final List<Fraction> FPS_4K = Arrays.asList(
+        new Fraction(24),
+        new Fraction(24000, 1001),
+        new Fraction(25),
+        new Fraction(30),
+        new Fraction(30000, 1001),
+        new Fraction(50),
+        new Fraction(60),
+        new Fraction(60000, 1001),
+        new Fraction(120)
+    );
 
-    public static final Map<Colorimetry, Set<Integer>> COLOR_TO_DEPTH_RGB = Collections.unmodifiableMap(new HashMap<Colorimetry, Set<Integer>>() {{
-        put(Colorimetry.Color3, new HashSet<Integer>(){{ add(8); add(10); add(12); add(16);}});
-        put(Colorimetry.Color5, new HashSet<Integer>(){{ add(10); add(12); }});
-        put(Colorimetry.Color6, new HashSet<Integer>(){{ add(10); add(12); add(16);}});
-        put(Colorimetry.Color7, new HashSet<Integer>(){{ add(10); add(12); add(16); }});
-        put(Colorimetry.Color8, new HashSet<Integer>(){{ add(10); add(12); }});
-    }});
+    /* Table 3 at SMPTE ST 2067-21:2023 */
+    public static final List<CharacteristicsSet> IMAGE_CHARACTERISTICS = Arrays.asList(
+        new CharacteristicsSet(
+            1920,
+            1080,
+            Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
+            Arrays.asList(8, 10),
+            Arrays.asList(FrameLayoutType.SeparateFields),
+            FPS_HD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            1920,
+            1080,
+            Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
+            Arrays.asList(8, 10),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_HD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            1920,
+            1080,
+            Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
+            Arrays.asList(8, 10, 12),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_HD,
+            Arrays.asList(Sampling.Sampling444),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV, ColorModel.RGB)
+        ),
+        new CharacteristicsSet(
+            3840,
+            2160,
+            Arrays.asList(Colorimetry.Color4),
+            Arrays.asList(8, 10),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_UHD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            3840,
+            2160,
+            Arrays.asList(Colorimetry.Color3),
+            Arrays.asList(8, 10, 12, 16),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_UHD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            3840,
+            2160,
+            Arrays.asList(Colorimetry.Color5, Colorimetry.Color8),
+            Arrays.asList(10, 12),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_UHD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            3840,
+            2160,
+            Arrays.asList(Colorimetry.Color5, Colorimetry.Color7),
+            Arrays.asList(10, 12, 16),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_UHD,
+            Arrays.asList(Sampling.Sampling422),
+            Arrays.asList(Quantization.QE1),
+            Arrays.asList(ColorModel.YUV)
+        ),
+        new CharacteristicsSet(
+            4096,
+            3112,
+            Arrays.asList(Colorimetry.Color3),
+            Arrays.asList(8, 10, 12, 16),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_4K,
+            Arrays.asList(Sampling.Sampling444),
+            Arrays.asList(Quantization.QE1, Quantization.QE2),
+            Arrays.asList(ColorModel.RGB)
+        ),
+        new CharacteristicsSet(
+            4096,
+            3112,
+            Arrays.asList(Colorimetry.Color5, Colorimetry.Color8),
+            Arrays.asList(10, 12),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_4K,
+            Arrays.asList(Sampling.Sampling444),
+            Arrays.asList(Quantization.QE1, Quantization.QE2),
+            Arrays.asList(ColorModel.RGB)
+        ),
+        new CharacteristicsSet(
+            4096,
+            3112,
+            Arrays.asList(Colorimetry.Color6, Colorimetry.Color7),
+            Arrays.asList(10, 12, 16),
+            Arrays.asList(FrameLayoutType.FullFrame),
+            FPS_4K,
+            Arrays.asList(Sampling.Sampling444),
+            Arrays.asList(Quantization.QE1, Quantization.QE2),
+            Arrays.asList(ColorModel.RGB)
+        )
+    );
 
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>(){{
         add("SignalStandard");
@@ -129,215 +269,6 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
-    public static void validateInterlacedImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor,
-            IMFErrorLogger logger) {
-
-        UUID imageDescriptorID = imageDescriptor.getImageEssencedescriptorID();
-
-        // Components
-        if (!ColorModel.YUV.equals(imageDescriptor.getColorModel())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has Invalid color components as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Dimensions
-        if (imageDescriptor.getStoredWidth() > 1920 || imageDescriptor.getStoredWidth() < 1
-                || imageDescriptor.getStoredHeight() > 1080 || imageDescriptor.getStoredHeight() < 1) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid image width or height per %",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sampling
-        if (!Sampling.Sampling422.equals(imageDescriptor.getSampling())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid sampling as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Quantization
-        if (!Quantization.QE1.equals(imageDescriptor.getQuantization())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid quantization as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Pixel Bit Depth and Colorimetry
-        Colorimetry color = imageDescriptor.getColor();
-        if (!COLOR_TO_DEPTH_HD.containsKey(color)
-                || !COLOR_TO_DEPTH_HD.get(color).contains(imageDescriptor.getPixelBitDepth())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s invalid pixel bit depth and colorimetry as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sample rate
-        if (!FPS_HD.contains(imageDescriptor.getSampleRate())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid sample rate fas per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-    }
-
-    public static boolean isValidYUVColor(CompositionImageEssenceDescriptorModel imageDescriptor) {
-        Sampling sampling = imageDescriptor.getSampling();
-        Integer depth = imageDescriptor.getPixelBitDepth();
-        Colorimetry color = imageDescriptor.getColor();
-
-        if (Sampling.Sampling422.equals(sampling)) {
-            return COLOR_TO_DEPTH_YUV.containsKey(color) && COLOR_TO_DEPTH_YUV.get(color).contains(depth);
-        } else if (Sampling.Sampling444.equals(sampling)) {
-            return COLOR_TO_DEPTH_XVYCC.containsKey(color) && COLOR_TO_DEPTH_XVYCC.get(color).contains(depth);
-        }
-
-        return false;
-    }
-
-    public static void validateYUVImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor,
-            IMFErrorLogger logger) {
-        UUID imageDescriptorID = imageDescriptor.getImageEssencedescriptorID();
-
-        // Dimensions
-        if (imageDescriptor.getStoredWidth() > 3840 || imageDescriptor.getStoredWidth() < 1
-                || imageDescriptor.getStoredHeight() > 2160 || imageDescriptor.getStoredHeight() < 1) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid image width or height per %",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sampling, colorimetry, color components and pixel depth
-        if (! isValidYUVColor(imageDescriptor)) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid combination of sampling, colorimetry, color components and pixel depth as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Quantization
-        if (!Quantization.QE1.equals(imageDescriptor.getQuantization())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid quantization as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sample rate
-        if (!FPS_UHD.contains(imageDescriptor.getSampleRate())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid sample rate fas per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-    }
-
-    public static boolean isValidRGBColor(CompositionImageEssenceDescriptorModel imageDescriptor) {
-        Integer depth = imageDescriptor.getPixelBitDepth();
-        Colorimetry color = imageDescriptor.getColor();
-        Quantization quantization = imageDescriptor.getQuantization();
-        Fraction fps = imageDescriptor.getSampleRate();
-
-        return (Quantization.QE2.equals(quantization) || Quantization.QE1.equals(quantization)) &&
-            FPS_RGB.contains(fps) && COLOR_TO_DEPTH_RGB.containsKey(color) && COLOR_TO_DEPTH_RGB.get(color).contains(depth);
-    }
-
-
-    public static void validateRGBImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor,
-            IMFErrorLogger logger) {
-        UUID imageDescriptorID = imageDescriptor.getImageEssencedescriptorID();
-
-        // Dimensions
-        if (imageDescriptor.getStoredWidth() > 4096 || imageDescriptor.getStoredWidth() < 1
-                || imageDescriptor.getStoredHeight() > 3112 || imageDescriptor.getStoredHeight() < 1) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid image width or height per %",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sampling
-        if (!Sampling.Sampling444.equals(imageDescriptor.getSampling())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid sampling and color components as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Components
-        if (!ColorModel.RGB.equals(imageDescriptor.getColorModel())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid color components as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Quantization, frame rate, colorimetry and pixel depth
-        if (! isValidRGBColor(imageDescriptor)) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format(
-                            "EssenceDescriptor with ID %s has invalid combination of quantization, frame rate, colorimetry and pixel depth as per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-
-        // Sample rate
-        if (!FPS_RGB.contains(imageDescriptor.getSampleRate())) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s has invalid sample rate fas per %s",
-                            imageDescriptorID.toString(),
-                            APP_STRING));
-        }
-    }
-
     public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor) {
         UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
         Integer width = imageDescriptor.getStoredWidth();
@@ -369,22 +300,35 @@ public class Application2E2021 extends AbstractApplicationComposition {
                     "Invalid JPEG 2000 profile");
         }
 
-        FrameLayoutType frameLayout = imageDescriptor.getFrameLayoutType();
-        ColorModel color = imageDescriptor.getColorModel();
+        boolean isValid = false;
 
-        if (FrameLayoutType.SeparateFields.equals(frameLayout)) {
-            validateInterlacedImageCharacteristics(imageDescriptor, logger);
-        } else if (FrameLayoutType.FullFrame.equals(frameLayout) && ColorModel.YUV.equals(color)) {
-            validateYUVImageCharacteristics(imageDescriptor, logger);
-        } else if (FrameLayoutType.FullFrame.equals(frameLayout) && ColorModel.RGB.equals(color)) {
-            validateRGBImageCharacteristics(imageDescriptor, logger);
-        } else {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    "Invalid frame structure");
+        for (CharacteristicsSet imgCharacteristicsSet : IMAGE_CHARACTERISTICS) {
+            isValid = imgCharacteristicsSet.has(
+                imageDescriptor.getStoredWidth(),
+                imageDescriptor.getStoredHeight(),
+                imageDescriptor.getColor(),
+                imageDescriptor.getPixelBitDepth(),
+                imageDescriptor.getFrameLayoutType(),
+                imageDescriptor.getSampleRate(),
+                imageDescriptor.getSampling(),
+                imageDescriptor.getQuantization(),
+                imageDescriptor.getColorModel()
+            );
+
+            if (isValid)
+                break;
         }
 
+        if (!isValid) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                String.format(
+                "Invalid image characteristics per %s",
+                    APP_STRING
+                )
+            );
+        }
     }
 
     public ApplicationCompositionType getApplicationCompositionType() {
