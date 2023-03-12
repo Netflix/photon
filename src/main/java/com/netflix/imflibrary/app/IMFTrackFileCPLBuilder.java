@@ -78,7 +78,7 @@ import java.util.List;
  * A class that builds an IMF Composition representation of an IMF Essence
  */
 @Immutable
-final class IMFTrackFileCPLBuilder {
+public final class IMFTrackFileCPLBuilder {
 
     private static final Logger logger = LogManager.getLogger(IMFTrackFileReader.class);
     private final IMFTrackFileReader imfTrackFileReader;
