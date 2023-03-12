@@ -79,13 +79,13 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
-    public static final List<Fraction> FPS_HD = Arrays.asList(
+    static final Fraction[] FPS_HD = {
         new Fraction(25),
         new Fraction(30),
         new Fraction(30000, 1001)
-    );
+    };
 
-    public static final List<Fraction> FPS_UHD = Arrays.asList(
+    static final Fraction[] FPS_UHD = {
         new Fraction(24),
         new Fraction(24000, 1001),
         new Fraction(25),
@@ -94,9 +94,9 @@ public class Application2E2021 extends AbstractApplicationComposition {
         new Fraction(50),
         new Fraction(60),
         new Fraction(60000, 1001)
-    );
+    };
 
-    public static final List<Fraction> FPS_4K = Arrays.asList(
+    static final Fraction[] FPS_4K = {
         new Fraction(24),
         new Fraction(24000, 1001),
         new Fraction(25),
@@ -106,17 +106,17 @@ public class Application2E2021 extends AbstractApplicationComposition {
         new Fraction(60),
         new Fraction(60000, 1001),
         new Fraction(120)
-    );
+    };
 
     /* Table 3 at SMPTE ST 2067-21:2023 */
-    public static final List<CharacteristicsSet> IMAGE_CHARACTERISTICS = Arrays.asList(
+    static final CharacteristicsSet[] IMAGE_CHARACTERISTICS = {
         new CharacteristicsSet(
             1920,
             1080,
             Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
             Arrays.asList(8, 10),
             Arrays.asList(FrameLayoutType.SeparateFields),
-            FPS_HD,
+            Arrays.asList(FPS_HD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -127,7 +127,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
             Arrays.asList(8, 10),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_HD,
+            Arrays.asList(FPS_HD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -138,7 +138,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
             Arrays.asList(8, 10, 12),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_HD,
+            Arrays.asList(FPS_HD),
             Arrays.asList(Sampling.Sampling444),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV, ColorModel.RGB)
@@ -149,7 +149,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color4),
             Arrays.asList(8, 10),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_UHD,
+            Arrays.asList(FPS_UHD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -160,7 +160,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color3),
             Arrays.asList(8, 10, 12, 16),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_UHD,
+            Arrays.asList(FPS_UHD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -171,7 +171,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color5, Colorimetry.Color8),
             Arrays.asList(10, 12),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_UHD,
+            Arrays.asList(FPS_UHD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -182,7 +182,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color5, Colorimetry.Color7),
             Arrays.asList(10, 12, 16),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_UHD,
+            Arrays.asList(FPS_UHD),
             Arrays.asList(Sampling.Sampling422),
             Arrays.asList(Quantization.QE1),
             Arrays.asList(ColorModel.YUV)
@@ -193,7 +193,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color3),
             Arrays.asList(8, 10, 12, 16),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_4K,
+            Arrays.asList(FPS_4K),
             Arrays.asList(Sampling.Sampling444),
             Arrays.asList(Quantization.QE1, Quantization.QE2),
             Arrays.asList(ColorModel.RGB)
@@ -204,7 +204,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color5, Colorimetry.Color8),
             Arrays.asList(10, 12),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_4K,
+            Arrays.asList(FPS_4K),
             Arrays.asList(Sampling.Sampling444),
             Arrays.asList(Quantization.QE1, Quantization.QE2),
             Arrays.asList(ColorModel.RGB)
@@ -215,12 +215,12 @@ public class Application2E2021 extends AbstractApplicationComposition {
             Arrays.asList(Colorimetry.Color6, Colorimetry.Color7),
             Arrays.asList(10, 12, 16),
             Arrays.asList(FrameLayoutType.FullFrame),
-            FPS_4K,
+            Arrays.asList(FPS_4K),
             Arrays.asList(Sampling.Sampling444),
             Arrays.asList(Quantization.QE1, Quantization.QE2),
             Arrays.asList(ColorModel.RGB)
         )
-    );
+    };
 
     private static final Set<String> ignoreSet = Collections.unmodifiableSet(new HashSet<String>(){{
         add("SignalStandard");
