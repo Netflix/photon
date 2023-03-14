@@ -136,7 +136,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             1920,
             1080,
             Arrays.asList(Colorimetry.Color1, Colorimetry.Color2, Colorimetry.Color3),
-            Arrays.asList(8, 10, 12),
+            Arrays.asList(8, 10),
             Arrays.asList(FrameLayoutType.FullFrame),
             Arrays.asList(FPS_HD),
             Arrays.asList(Sampling.Sampling444),
@@ -179,7 +179,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         new CharacteristicsSet(
             3840,
             2160,
-            Arrays.asList(Colorimetry.Color5, Colorimetry.Color7),
+            Arrays.asList(Colorimetry.Color7),
             Arrays.asList(10, 12, 16),
             Arrays.asList(FrameLayoutType.FullFrame),
             Arrays.asList(FPS_UHD),
