@@ -1344,6 +1344,7 @@ public final class HeaderPartition
         VisuallyImpairedTextEssence(Composition.SequenceTypeEnum.VisuallyImpairedTextSequence),
         CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
         KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
+        ForcedNarrativeEssence(Composition.SequenceTypeEnum.ForcedNarrativeSequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
         IABEssence(Composition.SequenceTypeEnum.IABSequence),
         UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
@@ -1377,6 +1378,8 @@ public final class HeaderPartition
                     return CommentaryEssence;
                 case "KaraokeEssence":
                     return KaraokeEssence;
+                case "ForcedNarrativeEssence":
+                    return ForcedNarrativeEssence;
                 case "AncillaryDataEssence":
                     return AncillaryDataEssence;
                 case "IABEssence":
@@ -1407,6 +1410,8 @@ public final class HeaderPartition
                     return "CommentaryEssence";
                 case KaraokeSequence:
                     return "KaraokeEssence";
+                case ForcedNarrativeSequence:
+                    return "ForcedNarrativeEssence";
                 case AncillaryDataSequence:
                     return "AncillaryDataEssence";
                 case IABSequence:

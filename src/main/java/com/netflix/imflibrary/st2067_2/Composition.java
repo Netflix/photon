@@ -186,6 +186,7 @@ public final class Composition {
         VisuallyImpairedTextSequence("VisuallyImpairedTextSequence"),
         CommentarySequence("CommentarySequence"),
         KaraokeSequence("KaraokeSequence"),
+        ForcedNarrativeSequence("ForcedNarrativeSequence"),
         AncillaryDataSequence("AncillaryDataSequence"),
         IABSequence("IABSequence"),
         UnsupportedSequence("UnsupportedSequence");
@@ -220,6 +221,8 @@ public final class Composition {
                     return CommentarySequence;
                 case "KaraokeSequence":
                     return KaraokeSequence;
+                case "ForcedNarrativeSequence":
+                    return ForcedNarrativeSequence;
                 case "AncillaryDataSequence":
                     return AncillaryDataSequence;
                 case "IABSequence":
