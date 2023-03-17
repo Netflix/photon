@@ -1320,9 +1320,6 @@ public final class HeaderPartition
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.SubtitlesEssence);
             }
-            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
-                essenceTypes.add(EssenceTypeEnum.ForcedNarrativeSequence);
-            }
         }
 
         if (essenceTypes.size() == 0){
