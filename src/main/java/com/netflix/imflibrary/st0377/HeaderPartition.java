@@ -1318,7 +1318,7 @@ public final class HeaderPartition
                 essenceTypes.add(EssenceTypeEnum.MainImageEssence);
             }
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
-                essenceTypes.add(EssenceTypeEnum.SubtitlesEssence);
+                essenceTypes.add(EssenceTypeEnum.DataEssence);
             }
         }
 
@@ -1336,27 +1336,13 @@ public final class HeaderPartition
      * An enumeration of all possible essence types that could be contained in a MXF file.
      */
     public enum EssenceTypeEnum {
-        MarkerEssence(Composition.SequenceTypeEnum.MarkerSequence),
-        MainImageEssence(Composition.SequenceTypeEnum.MainImageSequence),
-        MainAudioEssence(Composition.SequenceTypeEnum.MainAudioSequence),
-        SubtitlesEssence(Composition.SequenceTypeEnum.SubtitlesSequence),
-        HearingImpairedCaptionsEssence(Composition.SequenceTypeEnum.HearingImpairedCaptionsSequence),
-        VisuallyImpairedTextEssence(Composition.SequenceTypeEnum.VisuallyImpairedTextSequence),
-        CommentaryEssence(Composition.SequenceTypeEnum.CommentarySequence),
-        KaraokeEssence(Composition.SequenceTypeEnum.CommentarySequence),
-        ForcedNarrativeEssence(Composition.SequenceTypeEnum.ForcedNarrativeSequence),
-        AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
-        IABEssence(Composition.SequenceTypeEnum.IABSequence),
-        UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
+        MarkerEssence,
+        MainImageEssence,
+        MainAudioEssence,
+        DataEssence,
+        IABEssence,
+        UnsupportedEssence;
 
-        private final Composition.SequenceTypeEnum sequenceType;
-        private final String name;
-
-        private EssenceTypeEnum(Composition.SequenceTypeEnum sequenceType)
-        {
-            this.sequenceType = sequenceType;
-            this.name = getEssenceTypeString(sequenceType);
-        }
 
         private static EssenceTypeEnum getEssenceTypeEnum(String name)
         {
@@ -1368,20 +1354,8 @@ public final class HeaderPartition
                     return MainAudioEssence;
                 case "MarkerEssence":
                     return MarkerEssence;
-                case "SubtitlesEssence":
-                    return SubtitlesEssence;
-                case "HearingImpairedCaptionsEssence":
-                    return HearingImpairedCaptionsEssence;
-                case "VisuallyImpairedTextEssence":
-                    return VisuallyImpairedTextEssence;
-                case "CommentaryEssence":
-                    return CommentaryEssence;
-                case "KaraokeEssence":
-                    return KaraokeEssence;
-                case "ForcedNarrativeEssence":
-                    return ForcedNarrativeEssence;
-                case "AncillaryDataEssence":
-                    return AncillaryDataEssence;
+                case "DataEssence":
+                    return DataEssence;
                 case "IABEssence":
                     return IABEssence;
                 case "UnsupportedEssence":
@@ -1401,19 +1375,19 @@ public final class HeaderPartition
                 case MarkerSequence:
                     return "MarkerEssence";
                 case SubtitlesSequence:
-                    return "SubtitlesEssence";
+                    return "DataEssence";
                 case HearingImpairedCaptionsSequence:
-                    return "HearingImpairedCaptionsEssence";
+                    return "DataEssence";
                 case VisuallyImpairedTextSequence:
-                    return "VisuallyImpairedTextEssence";
+                    return "DataEssence";
                 case CommentarySequence:
-                    return "CommentaryEssence";
+                    return "DataEssence";
                 case KaraokeSequence:
-                    return "KaraokeEssence";
+                    return "DataEssence";
                 case ForcedNarrativeSequence:
-                    return "ForcedNarrativeEssence";
+                    return "DataEssence";
                 case AncillaryDataSequence:
-                    return "AncillaryDataEssence";
+                    return "DataEssence";
                 case IABSequence:
                     return "IABEssence";
                 case UnsupportedSequence:
@@ -1423,7 +1397,22 @@ public final class HeaderPartition
         }
 
         public String toString(){
-            return this.name;
+            switch (this)
+            {
+                case MainImageEssence:
+                    return "MainImageEssence";
+                case MainAudioEssence:
+                    return "MainAudioEssence";
+                case MarkerEssence:
+                    return "MarkerEssence";
+                case DataEssence:
+                    return "DataEssence";
+                case IABEssence:
+                    return "IABEssence";
+                case UnsupportedEssence:
+                default:
+                    return "UnsupportedEssence";
+            }
         }
     }
 
