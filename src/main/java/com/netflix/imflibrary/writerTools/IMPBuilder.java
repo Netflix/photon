@@ -342,7 +342,8 @@ public class IMPBuilder {
                 trackFileInfoMap,
                 workingDirectory,
                 imfEssenceDescriptorBaseTypeList,
-                coreConstraintsSchema);
+                coreConstraintsSchema,
+                trackFileIdToEssenceDescriptorIdMap);
 
         imfErrorLogger.addAllErrors(compositionPlaylistBuilder_2013.build());
 
