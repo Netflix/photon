@@ -42,8 +42,8 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -101,7 +101,7 @@ public final class OutputProfileList {
     private static final String opl_102a_schema_path = "org/smpte_ra/schemas/st2067_102_2014/st2067-102a-2014.xsd";
     private static final String opl_103b_schema_path = "org/smpte_ra/schemas/st2067_103_2014/st2067-103b-2014.xsd";
 
-    private static final Logger logger = LogManager.getLogger(OutputProfileList.class);
+    private static final Logger logger = LoggerFactory.getLogger(OutputProfileList.class);
 
     private final UUID                      id;
     private final String                    annotation;

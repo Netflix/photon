@@ -18,7 +18,11 @@
 
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.*;
+import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -39,8 +43,8 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.Utilities;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import javax.annotation.Nonnull;
@@ -56,7 +60,12 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * A simple application to exercise the core logic of Photon for reading and validating IMF Track files.
@@ -73,7 +82,7 @@ final class IMFTrackFileReader
     private volatile List<IndexTableSegment> indexTableSegments = null;
 
 
-    private static final Logger logger = LogManager.getLogger(IMFTrackFileReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
 
     /**
      * Lazily creates a model instance corresponding to a st2067-5 compliant MXF file

@@ -43,8 +43,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.sandflow.smpte.klv.Triplet;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  */
 @Immutable
 public abstract class AbstractApplicationComposition implements ApplicationComposition {
-    private static final Logger logger = LogManager.getLogger(AbstractApplicationComposition.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractApplicationComposition.class);
     private final Set<String> essenceDescriptorKeyIgnoreSet;
 
 

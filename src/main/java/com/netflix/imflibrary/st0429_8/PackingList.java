@@ -28,8 +28,8 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas._429_8._2007.pkl.PackingListType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -55,7 +55,16 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This class represents a thin, immutable wrapper around the XML type 'PackingListType' which is defined in Section 7,
@@ -65,7 +74,7 @@ import java.util.*;
 @Immutable
 public final class PackingList
 {
-    private static final Logger logger = LogManager.getLogger(PackingList.class);
+    private static final Logger logger = LoggerFactory.getLogger(PackingList.class);
     private final IMFErrorLogger imfErrorLogger;
     private static final String xmldsig_core_schema_path = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
     public static final List<String> supportedPKLNamespaces = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-8/2007/PKL");

@@ -26,39 +26,7 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.CDCIPictureEssenceDescriptor;
-import com.netflix.imflibrary.st0377.header.ContentStorage;
-import com.netflix.imflibrary.st0377.header.DMFramework;
-import com.netflix.imflibrary.st0377.header.DescriptiveMarkerSegment;
-import com.netflix.imflibrary.st0377.header.EssenceContainerData;
-import com.netflix.imflibrary.st0377.header.GenericDescriptor;
-import com.netflix.imflibrary.st0377.header.GenericPackage;
-import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
-import com.netflix.imflibrary.st0377.header.GenericStreamTextBasedSet;
-import com.netflix.imflibrary.st0377.header.GenericTrack;
-import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
-import com.netflix.imflibrary.st0377.header.ACESPictureSubDescriptor;
-import com.netflix.imflibrary.st0377.header.StaticTrack;
-import com.netflix.imflibrary.st0377.header.TargetFrameSubDescriptor;
-import com.netflix.imflibrary.st0377.header.MaterialPackage;
-import com.netflix.imflibrary.st0377.header.PHDRMetaDataTrackSubDescriptor;
-import com.netflix.imflibrary.st0377.header.Preface;
-import com.netflix.imflibrary.st0377.header.RGBAPictureEssenceDescriptor;
-import com.netflix.imflibrary.st0377.header.Sequence;
-import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.SourceClip;
-import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st0377.header.StructuralComponent;
-import com.netflix.imflibrary.st0377.header.StructuralMetadata;
-import com.netflix.imflibrary.st0377.header.TextBasedDMFramework;
-import com.netflix.imflibrary.st0377.header.TextBasedObject;
-import com.netflix.imflibrary.st0377.header.TimeTextResourceSubDescriptor;
-import com.netflix.imflibrary.st0377.header.TimedTextDescriptor;
-import com.netflix.imflibrary.st0377.header.TimelineTrack;
-import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
@@ -68,8 +36,8 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,7 +76,7 @@ public final class HeaderPartition
     private final Map<MXFUID, InterchangeObject.InterchangeObjectBO> uidToBOs = new LinkedHashMap<>();
     private final IMFErrorLogger imfErrorLogger;
 
-    private static final Logger logger = LogManager.getLogger(HeaderPartition.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeaderPartition.class);
 
     /**
      * Instantiates a new MXF Header partition.
