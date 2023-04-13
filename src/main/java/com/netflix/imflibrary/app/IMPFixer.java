@@ -19,12 +19,15 @@ import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
@@ -35,7 +38,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -45,7 +54,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class IMPFixer {
 
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
-    private static final Logger logger = LogManager.getLogger(IMPFixer.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPFixer.class);
 
     private static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
             IOException {

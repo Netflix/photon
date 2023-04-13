@@ -31,8 +31,8 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.Utilities;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
@@ -55,7 +55,7 @@ import java.util.UUID;
  */
 public class IMPValidator {
 
-    private static final Logger logger = LogManager.getLogger(IMPValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPValidator.class);
 
     /**
      * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
