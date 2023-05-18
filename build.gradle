@@ -90,7 +90,7 @@ dependencies {
     jaxb "org.glassfish.jaxb:jaxb-xjc:2.2.11"
 
     compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
-    compileOnly "org.slf4j:slf4j-api:latest.release"
+    implementation "org.slf4j:slf4j-api:latest.release"
 
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
