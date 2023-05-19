@@ -488,7 +488,7 @@ public final class AssetMap
 
             if(invalidLengthPathSegments.size() > 0){
                 this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("The Asset path %s has following path segments with invalid length: %s",
+                        String.format("The Asset path %s has the following path segments with a length greater than 100: %s",
                                 path, Utilities.serializeObjectCollectionToString(invalidLengthPathSegments)));
             }
             else if(path.length() > MAX_PATH_ELEMENT_LENGTH) {
