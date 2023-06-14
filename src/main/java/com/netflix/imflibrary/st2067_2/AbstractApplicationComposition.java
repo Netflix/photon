@@ -240,7 +240,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
                     } else {
                         if (!resourceSet.contains(baseResource)) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The CPL contains different resources with the same ID %s in virtual track %s",
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The CPL contains different resources with the same ID %s in virtual track %s",
                                             resourceId,
                                             sequence.getTrackId()));
                         }
