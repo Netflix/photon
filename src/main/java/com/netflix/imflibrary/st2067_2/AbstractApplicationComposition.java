@@ -58,17 +58,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -235,6 +226,25 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 if (virtualTrackResourceMap.get(uuid) == null) {
                     virtualTrackResourceMap.put(uuid, new ArrayList<IMFBaseResourceType>());
+                }
+                /*
+                 Ensure that no two resources use the same ID, unless they are the same resource. ST-2067-3:2020, 6.11.1
+                 */
+                Set<String> resourceIdSet = new HashSet<>();
+                Set<IMFBaseResourceType> resourceSet = new HashSet<>();
+                for (IMFBaseResourceType baseResource : sequence.getResourceList()) {
+                    String resourceId = baseResource.getId();
+                    if (!resourceIdSet.contains(resourceId)) {
+                        resourceIdSet.add(resourceId);
+                        resourceSet.add(baseResource);
+                    } else {
+                        if (!resourceSet.contains(baseResource)) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The CPL contains different resources with the same ID %s in virtual track %s",
+                                            resourceId,
+                                            sequence.getTrackId()));
+                        }
+                    }
                 }
 
                 for (IMFBaseResourceType baseResource : sequence.getResourceList()) {
@@ -577,6 +587,10 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         }
 
         return Collections.unmodifiableList(virtualTrackResourceIDs);
+    }
+
+    public static void validateResourceList(List<IMFBaseResourceType> resourceList, IMFErrorLogger errorLogger) {
+
     }
 
 
@@ -1069,6 +1083,21 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
     public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap() {
         return this.essenceDescriptorDomNodeMap;
+    }
+
+    private static List<String> getDifference(Object s1, Object s2) throws IllegalAccessException {
+        List<String> values = new ArrayList<>();
+        for (Field field : s1.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value1 = field.get(s1);
+            Object value2 = field.get(s2);
+            if (value1 != null && value2 != null) {
+                if (!Objects.equals(value1, value2)) {
+                    values.add(String.valueOf(field.getName()+": "+value1+" -> "+value2));
+                }
+            }
+        }
+        return values;
     }
 
 
