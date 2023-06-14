@@ -588,11 +588,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
         return Collections.unmodifiableList(virtualTrackResourceIDs);
     }
 
-    public static void validateResourceList(List<IMFBaseResourceType> resourceList, IMFErrorLogger errorLogger) {
-
-    }
-
-
     /**
      * This class is a representation of a Resource SourceEncoding element and trackFileId tuple.
      */
