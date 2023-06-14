@@ -1084,21 +1084,4 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     public Map<UUID, List<Node>> getEssenceDescriptorDomNodeMap() {
         return this.essenceDescriptorDomNodeMap;
     }
-
-    private static List<String> getDifference(Object s1, Object s2) throws IllegalAccessException {
-        List<String> values = new ArrayList<>();
-        for (Field field : s1.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value1 = field.get(s1);
-            Object value2 = field.get(s2);
-            if (value1 != null && value2 != null) {
-                if (!Objects.equals(value1, value2)) {
-                    values.add(String.valueOf(field.getName()+": "+value1+" -> "+value2));
-                }
-            }
-        }
-        return values;
-    }
-
-
 }
