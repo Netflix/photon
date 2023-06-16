@@ -123,6 +123,7 @@ public final class IMFTrackFileResourceType extends IMFBaseResourceType {
         result &= sourceEncoding.equals(otherImfTrackFileResourceType.getSourceEncoding());
         result &= Arrays.equals(hash, otherImfTrackFileResourceType.getHash());
         result &= hashAlgorithm.equals(otherImfTrackFileResourceType.getHashAlgorithm());
+        result &= id.equals(otherImfTrackFileResourceType.getId());
 
         return result;
     }
@@ -130,7 +131,7 @@ public final class IMFTrackFileResourceType extends IMFBaseResourceType {
     @Override
     public int hashCode() {
         int hash = 7;
-        // hash = 31 * hash * id.hashCode();
+        hash = 31 * hash * id.hashCode();
         hash = 31 * hash * trackFileId.hashCode();
         hash = 31 * hash * editRate.hashCode();
         hash = 31 * hash * intrinsicDuration.hashCode();
