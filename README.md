@@ -12,14 +12,18 @@ The goal of the Photon is to provide a simple standardized interface to complete
 Photon can be built using JDK-8. Support for earlier jdk versions has not been tested and/or verified.
 
 ### Gradle
-Photon can be built very easily by using the included Gradle wrapper. Having downloaded the sources, simply invoke the following commands inside the folder containing the sources:
+Included Gradle script takes care of dependency downloads and builds. Simply invoke the following commands to build Photon:
 
+```bash
 $ ./gradlew clean
 $ ./gradlew build
+```
 
 For Windows
-$ gradlew.bat clean
-$ gradlew.bat build
+```cmd
+> gradlew.bat clean
+> gradlew.bat build
+```
 
 ## Full Documentation
 
