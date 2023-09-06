@@ -154,7 +154,7 @@ public class IMPBuilder {
         if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist, cannot generate the rest of the documents"));
         }
-        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        byte[] cplHash = IMFUtils.generateSHA1Hash(cplFile);
 
         /**
          * Build the PackingList
@@ -357,7 +357,7 @@ public class IMPBuilder {
         if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
-        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        byte[] cplHash = IMFUtils.generateSHA1Hash(cplFile);
 
 
         /**
@@ -555,7 +555,7 @@ public class IMPBuilder {
         if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
-        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        byte[] cplHash = IMFUtils.generateSHA1Hash(cplFile);
 
         /**
          * Build the PackingList
@@ -756,7 +756,7 @@ public class IMPBuilder {
         if(!cplFile.exists()){
             throw new IMFAuthoringException(String.format("CompositionPlaylist file does not exist in the working directory %s, cannot generate the rest of the documents", workingDirectory.getAbsolutePath()));
         }
-        byte[] cplHash = IMFUtils.generateSHA1HashAndBase64Encode(cplFile);
+        byte[] cplHash = IMFUtils.generateSHA1Hash(cplFile);
 
         /**
          * Build the PackingList
