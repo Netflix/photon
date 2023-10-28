@@ -29,8 +29,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smpte_ra.schemas._429_9._2007.am.AssetMapType;
 import org.smpte_ra.schemas._429_9._2007.am.AssetType;
 import org.smpte_ra.schemas._429_9._2007.am.ChunkType;
@@ -43,7 +43,10 @@ import org.xml.sax.SAXParseException;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -57,9 +60,14 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class represents a thin, immutable wrapper around the XML type 'AssetMapType' which is defined in Section 11,
@@ -76,7 +84,7 @@ public final class AssetMap
     private final List<Asset> assetList = new ArrayList<>();
     private final List<Asset> packingListAssets = new ArrayList<>();
     private final Map<UUID, URI> uuidToPath = new HashMap<>();
-    private static final Logger logger = LogManager.getLogger(AssetMap.class);
+    private static final Logger logger = LoggerFactory.getLogger(AssetMap.class);
     public static final List<String> supportedAssetMapSchemaURIs = Collections.unmodifiableList(new ArrayList<String>(){{ add("http://www.smpte-ra.org/schemas/429-9/2007/AM");}});
 
     public static final Map<String, AssetMapSchema> supportedAssetMapSchemas = Collections.unmodifiableMap
@@ -480,7 +488,7 @@ public final class AssetMap
 
             if(invalidLengthPathSegments.size() > 0){
                 this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        String.format("The Asset path %s has following path segments with invalid length: %s",
+                        String.format("The Asset path %s has the following path segments with a length greater than 100: %s",
                                 path, Utilities.serializeObjectCollectionToString(invalidLengthPathSegments)));
             }
             else if(path.length() > MAX_PATH_ELEMENT_LENGTH) {

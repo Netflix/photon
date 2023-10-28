@@ -27,8 +27,8 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
@@ -36,8 +36,11 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class represents a canonical model of the XML type 'CompositionPlaylistType' defined by SMPTE st2067-3,
@@ -47,7 +50,7 @@ import java.util.List;
  */
 @Immutable
 public final class Composition {
-    private static final Logger logger = LogManager.getLogger(Composition.class);
+    private static final Logger logger = LoggerFactory.getLogger(Composition.class);
 
     private Composition() {
 

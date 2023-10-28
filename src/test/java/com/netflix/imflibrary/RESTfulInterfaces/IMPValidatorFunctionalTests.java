@@ -26,8 +26,8 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -37,8 +37,8 @@ import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
-    private static final Logger logger = LogManager.getLogger(IMFConstraints.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMFConstraints.class);
 
     @Test
     public void getPayloadTypeTest() throws IOException {

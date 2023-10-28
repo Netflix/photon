@@ -22,8 +22,8 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
@@ -33,7 +33,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * This class represents the concept of an IMF delivery as defined in Section 8 of st2067-2:2015. Informally, an IMF delivery
@@ -42,7 +46,7 @@ import java.util.*;
 @Immutable
 public final class IMPDelivery
 {
-    private static final Logger logger = LogManager.getLogger(IMPDelivery.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPDelivery.class);
 
     private final AssetMap assetMap;
     private final List<InteroperableMasterPackage> interoperableMasterPackages = new ArrayList<>();

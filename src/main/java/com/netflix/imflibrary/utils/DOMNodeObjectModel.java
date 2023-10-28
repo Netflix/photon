@@ -21,8 +21,8 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0377.header.UL;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +64,7 @@ public class DOMNodeObjectModel {
     /*Store for the Key-Value pairs corresponding of the Text Nodes of this ElementDOMNode*/
     private final Map<DOMNodeElementTuple, Map<String, Integer>> fields = new HashMap<>();
     private final Map<String, Map<String, Integer>> fieldsLocalNameMap = new HashMap<>();
-    private static final Logger logger = LogManager.getLogger(DOMNodeObjectModel.class);
+    private static final Logger logger = LoggerFactory.getLogger(DOMNodeObjectModel.class);
     private final IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
     /**
      * A constructor for the object model of a DOM Node.
