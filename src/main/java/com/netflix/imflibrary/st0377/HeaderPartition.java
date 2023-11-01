@@ -31,6 +31,10 @@ import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
+import com.netflix.imflibrary.st2067_203.MGAAudioMetadataSubDescriptor;
+import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_203.SADMAudioMetadataSubDescriptor;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -431,6 +435,10 @@ public final class HeaderPartition
                     IABEssenceDescriptor iabEssenceDescriptor = new IABEssenceDescriptor((IABEssenceDescriptor.IABEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(iabEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), iabEssenceDescriptor);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(MGASoundEssenceDescriptor.class)){
+                	MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = new MGASoundEssenceDescriptor((MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(mgaSoundEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), mgaSoundEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){
                     List<TimeTextResourceSubDescriptor> subDescriptorList = new ArrayList<>();
                     for(Node dependent : node.depends) {
@@ -476,7 +484,6 @@ public final class HeaderPartition
      */
     private InterchangeObject.InterchangeObjectBO constructInterchangeObjectBO(Class clazz, KLVPacket.Header header, ByteProvider byteProvider, Map localTagToUIDMap, IMFErrorLogger imfErrorLogger) throws IOException{
         try {
-
             Constructor<?> constructor = clazz.getConstructor(KLVPacket.Header.class, ByteProvider.class, Map.class, IMFErrorLogger.class);
             InterchangeObject.InterchangeObjectBO interchangeObjectBO = (InterchangeObject.InterchangeObjectBO)constructor.newInstance(header, byteProvider, localTagToUIDMap, imfErrorLogger);
             String simpleClassName = interchangeObjectBO.getClass().getSimpleName();
@@ -721,6 +728,16 @@ public final class HeaderPartition
                     this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the IABSoundFieldLabelSubDescriptors", rfc5646SpokenLanguage, iabSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage()));
                 }
             }
+        } else if (this.hasMGASoundEssenceDescriptor()) {
+            List<InterchangeObject> mgaSoundfieldGroupLabelSubDescriptors = this.getMGASoundfieldGroupLabelSubDescriptors();
+            for (InterchangeObject subDescriptor : mgaSoundfieldGroupLabelSubDescriptors) {
+                MGASoundfieldGroupLabelSubDescriptor mgaSoundfieldLabelSubDescriptor = (MGASoundfieldGroupLabelSubDescriptor) subDescriptor;
+                if (rfc5646SpokenLanguage == null) {
+                    rfc5646SpokenLanguage = mgaSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage();
+                } else if (!rfc5646SpokenLanguage.equals(mgaSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage())) {
+                    this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Codes (%s, %s) do not match across the MGASoundfieldGroupLabelSubDescriptor", rfc5646SpokenLanguage, mgaSoundfieldLabelSubDescriptor.getRFC5646SpokenLanguage()));
+                }
+            }
         }
         return rfc5646SpokenLanguage;
     }
@@ -787,6 +804,15 @@ public final class HeaderPartition
     public boolean hasIABEssenceDescriptor()
     {
         return this.hasInterchangeObject(IABEssenceDescriptor.class);
+    }
+
+    /**
+     * Checks if this HeaderPartition object has a MGA Sound Essence Descriptor
+     * @return true/false depending on whether this HeaderPartition contains a MGASoundEssenceDescriptor or not
+     */
+    public boolean hasMGASoundEssenceDescriptor()
+    {
+        return this.hasInterchangeObject(MGASoundEssenceDescriptor.class);
     }
 
     /**
@@ -873,6 +899,15 @@ public final class HeaderPartition
     public List<InterchangeObject> getIABSoundFieldLabelSubDescriptors()
     {
         return this.getInterchangeObjects(IABSoundfieldLabelSubDescriptor.class);
+    }
+
+    /**
+     * Gets all the MGA Soundfield Group Label SubDescriptors associated with this HeaderPartition object
+     * @return list MGA Soundfield Group Label SubDescriptors contained in this header partition
+     */
+    public List<InterchangeObject> getMGASoundfieldGroupLabelSubDescriptors()
+    {
+        return this.getInterchangeObjects(MGASoundfieldGroupLabelSubDescriptor.class);
     }
 
     /**
@@ -1276,8 +1311,11 @@ public final class HeaderPartition
             if(interchangeObjectBO.getClass().getEnclosingClass().equals(WaveAudioEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainAudioEssence);
             }
-            if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(IABEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.IABEssence);
+            }
+            else if(interchangeObjectBO.getClass().getEnclosingClass().equals(MGASoundEssenceDescriptor.class)){
+                essenceTypes.add(EssenceTypeEnum.MGASADMEssence);
             }
             else if(interchangeObjectBO.getClass().getEnclosingClass().equals(CDCIPictureEssenceDescriptor.class)){
                 essenceTypes.add(EssenceTypeEnum.MainImageEssence);
@@ -1315,6 +1353,7 @@ public final class HeaderPartition
         ForcedNarrativeEssence(Composition.SequenceTypeEnum.ForcedNarrativeSequence),
         AncillaryDataEssence(Composition.SequenceTypeEnum.AncillaryDataSequence),
         IABEssence(Composition.SequenceTypeEnum.IABSequence),
+        MGASADMEssence(Composition.SequenceTypeEnum.MGASADMSignalSequence),
         UnsupportedEssence(Composition.SequenceTypeEnum.UnsupportedSequence);
 
         private final Composition.SequenceTypeEnum sequenceType;
@@ -1352,6 +1391,8 @@ public final class HeaderPartition
                     return AncillaryDataEssence;
                 case "IABEssence":
                     return IABEssence;
+                case "MGASADMEssence":
+                    return MGASADMEssence;
                 case "UnsupportedEssence":
                 default:
                     return UnsupportedEssence;
@@ -1384,6 +1425,8 @@ public final class HeaderPartition
                     return "AncillaryDataEssence";
                 case IABSequence:
                     return "IABEssence";
+                case MGASADMSignalSequence:
+                    return "MGASADMEssence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";

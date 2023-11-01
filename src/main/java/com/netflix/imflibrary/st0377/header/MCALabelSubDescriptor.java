@@ -41,6 +41,8 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_title_version = null;
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_audio_content_kind = null;
         @MXFProperty(size=0, charset="UTF-16") protected final String mca_audio_element_kind = null;
+        @MXFProperty(size=0, charset="UTF-16") protected final String mca_content = null;
+        @MXFProperty(size=0, charset="UTF-16") protected final String mca_use_class = null;
 
         /**
          * Constructor for a parsed MCA Label Sub descriptor object
@@ -116,6 +118,22 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
         }
 
         /**
+         * Accessor for the MCA Content of this MCA Label Subdescriptor
+         * @return a String representing the MCA Content
+         */
+        public String getMCAContent(){
+            return this.mca_content;
+        }
+
+        /**
+         * Accessor for the MCA Use Class of this MCA Label Subdescriptor
+         * @return a String representing the MCA Use Class
+         */
+        public String getMCAUseClass(){
+            return this.mca_use_class;
+        }
+
+        /**
          * Accessor for the RFC 5646 Spoken Language of this MCA Label Subdescriptor
          * @return a String representing the RFC 5646 Spoken Language
          */
@@ -173,6 +191,14 @@ public abstract class MCALabelSubDescriptor extends SubDescriptor {
             if (this.mca_audio_element_kind != null)
             {
                 sb.append(String.format("mca_audio_element_kind = %s%n", this.mca_audio_element_kind));
+            }
+            if (this.mca_content != null)
+            {
+                sb.append(String.format("mca_content = %s%n", this.mca_content));
+            }
+            if (this.mca_use_class != null)
+            {
+                sb.append(String.format("mca_use_class = %s%n", this.mca_use_class));
             }
 
             return sb.toString();
