@@ -65,12 +65,12 @@ public class MGASoundEssenceDescriptor extends GenericSoundEssenceDescriptor {
             if (this.mga_sound_essence_block_align == null)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                		MGASoundEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "mga_sound_essence_block_align is null");
+                    MGASoundEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "mga_sound_essence_block_align is null");
             }
             if (this.mga_sound_average_bytes_per_second == null)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                		MGASoundEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "mga_sound_average_bytes_per_second is null");
+                    MGASoundEssenceDescriptor.ERROR_DESCRIPTION_PREFIX + "mga_sound_average_bytes_per_second is null");
             }
         }
 

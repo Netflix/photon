@@ -573,7 +573,7 @@ public final class IMFConstraints
          */
         public @Nullable MGASoundEssenceDescriptor getMGASoundEssenceDescriptor()
         {
-        	MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = null;
+            MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = null;
             GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
                     getEssenceContainerDataList().get(0).getLinkedPackage();
             SourcePackage filePackage = (SourcePackage)genericPackage;
@@ -586,7 +586,7 @@ public final class IMFConstraints
                     GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
                     if (genericDescriptor instanceof MGASoundEssenceDescriptor)
                     {
-                    	mgaSoundEssenceDescriptor = (MGASoundEssenceDescriptor)genericDescriptor;
+                        mgaSoundEssenceDescriptor = (MGASoundEssenceDescriptor)genericDescriptor;
                         break;
                     }
                 }

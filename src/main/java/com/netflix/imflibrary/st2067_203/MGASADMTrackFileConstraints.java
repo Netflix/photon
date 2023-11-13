@@ -56,9 +56,9 @@ public final class MGASADMTrackFileConstraints {
 
 
                     //
-                	// MGASoundEssenceDescriptor
-                	//
-                	MGASoundEssenceDescriptor mgaEssenceDescriptor = (MGASoundEssenceDescriptor) genericDescriptor;
+                    // MGASoundEssenceDescriptor
+                    //
+                    MGASoundEssenceDescriptor mgaEssenceDescriptor = (MGASoundEssenceDescriptor) genericDescriptor;
 
                     // ST 2067-203 section 6.3.2
                     if ( (mgaEssenceDescriptor.getSampleRate().get(0) % timelineTrack.getEditRateNumerator() !=0) || timelineTrack.getEditRateDenominator() != mgaEssenceDescriptor.getSampleRate().get(1)) {
@@ -125,8 +125,8 @@ public final class MGASADMTrackFileConstraints {
                         }
                         
                         //
-                    	// ContainerConstraintsSubDescriptor (ST 379-2)
-                    	//
+                        // ContainerConstraintsSubDescriptor (ST 379-2)
+                        //
                         List<InterchangeObject.InterchangeObjectBO> containerConstraintsSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ContainerConstraintsSubDescriptor.class)).collect(Collectors.toList());
                         if (containerConstraintsSubDescriptors.isEmpty()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -139,94 +139,90 @@ public final class MGASADMTrackFileConstraints {
                         }
                         
                         //
-                    	// MGASoundEssenceDescriptor
-                    	//
+                        // MGASoundEssenceDescriptor
+                        //
                         List<InterchangeObject.InterchangeObjectBO> mgaSoundfieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(MGASoundfieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
                         if (mgaSoundfieldGroupLabelSubDescriptors.size() == 0) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                     String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s refers to zero MGASoundfieldGroupLabelSubDescriptors, 1 is required per Soundfield Group", packageID.toString()));
                         } else {
                             // ST 2067-203 section 5.6.2 Table 3
-                        	MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO mgaSoundfieldGroupLabelSubDescriptorBO = null;
+                            MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO mgaSoundfieldGroupLabelSubDescriptorBO = null;
 
-                        	for (InterchangeObject.InterchangeObjectBO  sub_descriptor : mgaSoundfieldGroupLabelSubDescriptors) {
-                            	mgaSoundfieldGroupLabelSubDescriptorBO = MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class.cast(sub_descriptor);
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagName", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            } else {
-	                                if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME)) {
-	                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have a valid MCATagName: %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName()));
-	                                }
-	                            }
-	
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagSymbol", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            } else {
-	                                if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL)) {
-	                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have a valid MCATagSymbol: %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol()));
-	                                }
-	                            }
-	
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            } else {
-	                                if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL)) {
-	                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have the required MCA Label Dictionary Id %s but %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL, mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().toString()));
-	                                }
-	                            }
-	
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage() != null &&
-	                                    !IMFConstraints.isSpokenLanguageRFC5646Compliant(mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
-	                                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackfile represented by ID %s is not RFC5646 compliant", mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage(), sub_descriptor.getInstanceUID().toString(), packageID.toString())));
-	                            }
-	
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAContent() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAContent", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAUseClass() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAUseClass", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATitle() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATitle", sub_descriptor.getInstanceUID().toString(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATitleVersion() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATitleVersion", sub_descriptor.getInstanceUID().toString(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            // Section C.2
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID() != null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has forbidden MCAChannelID %d", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID()));
-	                            }
-	                            // ST 2067-203 Table 8
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeId() == null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            // ST 2067-203 Table 8
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioContentId() != null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioContentId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-	                            // ST 2067-203 Table 8
-	                            if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioObjectId() != null) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioObjectId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-                        	}
+                            for (InterchangeObject.InterchangeObjectBO  sub_descriptor : mgaSoundfieldGroupLabelSubDescriptors) {
+                                mgaSoundfieldGroupLabelSubDescriptorBO = MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class.cast(sub_descriptor);
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagName", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                } else {
+                                    if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME)) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                                String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have a valid MCATagName: %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagName()));
+                                    }
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagSymbol", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                } else {
+                                    if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL)) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                                String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have a valid MCATagSymbol: %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCATagSymbol()));
+                                    }
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                } else {
+                                    if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL)) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                                String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have the required MCA Label Dictionary Id %s but %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL, mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().toString()));
+                                    }
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage() != null &&
+                                        !IMFConstraints.isSpokenLanguageRFC5646Compliant(mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
+                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackfile represented by ID %s is not RFC5646 compliant", mgaSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage(), sub_descriptor.getInstanceUID().toString(), packageID.toString())));
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAContent() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAContent", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAUseClass() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAUseClass", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATitle() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATitle", sub_descriptor.getInstanceUID().toString(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCATitleVersion() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATitleVersion", sub_descriptor.getInstanceUID().toString(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                // Section C.2
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID() != null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has forbidden MCAChannelID %d", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID()));
+                                }
+                                // ST 2067-203 Table 8
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeId() == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                // ST 2067-203 Table 8
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioContentId() != null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioContentId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                                // ST 2067-203 Table 8
+                                if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioObjectId() != null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioObjectId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                            }
                         }
                         //
-                    	// MGAAudioMetadataSubDescriptor
-                    	//
+                        // MGAAudioMetadataSubDescriptor
+                        //
                         int mgaAudioMetadataPayloadULArrraySize = 0;
                         List<InterchangeObject.InterchangeObjectBO> mgaAudioMetadataSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(MGAAudioMetadataSubDescriptor.class)).collect(Collectors.toList());
                         if (mgaAudioMetadataSubDescriptors.size() != 1) {
@@ -234,7 +230,7 @@ public final class MGASADMTrackFileConstraints {
                                     String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s refers to %d MGAAudioMetadataSubDescriptor, 1 is required per ST 2067-203", packageID.toString(), mgaAudioMetadataSubDescriptors.size()));
                         } else {
                             // ST 2067-203 section 5.6.2 Table 3
-                        	MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO mgaAudioMetadataSubDescriptorBO = MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class.cast(mgaAudioMetadataSubDescriptors.get(0));
+                            MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO mgaAudioMetadataSubDescriptorBO = MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class.cast(mgaAudioMetadataSubDescriptors.get(0));
 
                             if (mgaAudioMetadataSubDescriptorBO.getMGALinkId().length == 0) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
@@ -252,30 +248,30 @@ public final class MGASADMTrackFileConstraints {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                         String.format("MGAAudioMetadataSubDescriptor in the IMFTrackFile represented by ID %s is missing MGAAudioMetadataPayloadULArrray", packageID.toString()));
                             } else {
-                            	mgaAudioMetadataPayloadULArrraySize = mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().size();
-                            	if (mgaAudioMetadataPayloadULArrraySize == 0) {
+                                mgaAudioMetadataPayloadULArrraySize = mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().size();
+                                if (mgaAudioMetadataPayloadULArrraySize == 0) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                             String.format("MGAAudioMetadataSubDescriptor in the IMFTrackFile represented by ID %s has an empty MGAAudioMetadataPayloadULArrray", packageID.toString()));
-                            	}
+                                }
                             }
                         }
                         //
-                    	// SADMAudioMetadataSubDescriptor
-                    	//
+                        // SADMAudioMetadataSubDescriptor
+                        //
                         List<InterchangeObject.InterchangeObjectBO> sadmAudioMetadataSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(SADMAudioMetadataSubDescriptor.class)).collect(Collectors.toList());
                         if (sadmAudioMetadataSubDescriptors.size() != mgaAudioMetadataPayloadULArrraySize) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                     String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s refers to %d SADMAudioMetadataSubDescriptor, %d are required per ST 2127-10 (one for each UL in MGAAudioMetadataPayloadULArray)", packageID.toString(), mgaAudioMetadataSubDescriptors.size(), mgaAudioMetadataPayloadULArrraySize));
                         } else if (mgaAudioMetadataPayloadULArrraySize > 0){
-                        	SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO sadmAudioMetadataSubDescriptorBO = null;
+                            SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO sadmAudioMetadataSubDescriptorBO = null;
 
-                        	for (InterchangeObject.InterchangeObjectBO  sub_descriptor : sadmAudioMetadataSubDescriptors) {
-                        		sadmAudioMetadataSubDescriptorBO = SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class.cast(sub_descriptor);
-	                            if (sadmAudioMetadataSubDescriptorBO.getSADMMetadataSectionLinkId().length == 0) {
-	                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-	                                        String.format("SADMAudioMetadataSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing SADMMetadataSectionLinkId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
-	                            }
-                        	}
+                            for (InterchangeObject.InterchangeObjectBO  sub_descriptor : sadmAudioMetadataSubDescriptors) {
+                                sadmAudioMetadataSubDescriptorBO = SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class.cast(sub_descriptor);
+                                if (sadmAudioMetadataSubDescriptorBO.getSADMMetadataSectionLinkId().length == 0) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
+                                            String.format("SADMAudioMetadataSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing SADMMetadataSectionLinkId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                }
+                            }
                         }
                     }
                 }

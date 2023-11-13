@@ -46,6 +46,8 @@ import com.netflix.imflibrary.utils.Utilities;
 import com.sandflow.smpte.klv.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -369,6 +371,15 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      */
     public UUID getUUID() {
         return this.compositionPlaylistType.getId();
+    }
+
+    /**
+     * Getter for the ExtensionProperties corresponding to this Composition document
+     *
+     * @return value of ExtensionProperties of this Composition object
+     */
+    public org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties getExtensionProperties() {
+        return this.compositionPlaylistType.getExtensionProperties();
     }
 
     /**

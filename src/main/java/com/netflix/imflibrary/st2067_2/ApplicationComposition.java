@@ -22,6 +22,9 @@ import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.Application
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Node;
 
 import javax.annotation.Nonnull;
@@ -104,6 +107,13 @@ public interface ApplicationComposition {
      * @return the uuid of this Composition object
      */
     public UUID getUUID();
+
+    /**
+     * Getter for the ExtensionProperties corresponding to this Composition document
+     *
+     * @return value of ExtensionProperties of this Composition object
+     */
+    public ExtensionProperties getExtensionProperties();
 
     /**
      * Get the Java package string for the Core Constraints version

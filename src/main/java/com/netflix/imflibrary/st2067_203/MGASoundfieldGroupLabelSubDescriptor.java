@@ -31,7 +31,7 @@ public final class MGASoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
      */
     public MGASoundfieldGroupLabelSubDescriptor(MGASoundfieldGroupLabelSubDescriptorBO mgaSoundfieldLabelSubDescriptorBO)
     {
-    	super(mgaSoundfieldLabelSubDescriptorBO);
+        super(mgaSoundfieldLabelSubDescriptorBO);
         this.mgaSoundfieldLabelSubDescriptorBO = mgaSoundfieldLabelSubDescriptorBO;
     }
 

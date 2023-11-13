@@ -81,7 +81,7 @@ public final class ContainerConstraintsSubDescriptor extends SubDescriptor {
             if (this.instance_uid == null)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                		ContainerConstraintsSubDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
+                    ContainerConstraintsSubDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
         }
 

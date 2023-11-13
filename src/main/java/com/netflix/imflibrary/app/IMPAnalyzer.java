@@ -19,7 +19,9 @@ import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.Composition.SequenceTypeEnum;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
+import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -27,13 +29,18 @@ import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smpte_ra.ns._2067_203._2022.MGASADMVirtualTrackParameterSet;
 
 import javax.annotation.Nullable;
+import javax.xml.bind.JAXBElement;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -455,7 +462,32 @@ public class IMPAnalyzer {
                         applicationCompositionList.add(applicationComposition);
                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                 .keySet();
-
+                        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
+                            // ST 2067-203, section 6.3.4, check for a MGA S-ADM Virtual Track Parameter Set for each MGA S-ADM Virtual Track
+                            if (virtualTrack.getSequenceTypeEnum() == SequenceTypeEnum.MGASADMSignalSequence) {
+                                if (applicationComposition.getExtensionProperties() == null) {
+                                    compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
+                                } else {
+                                    boolean trackIdFound = false;
+                                    Set<Object> virtualTrackParameterSet = applicationComposition.getExtensionProperties().getAny().stream().collect(Collectors.toSet());
+                                    Iterator<Object> iterator = virtualTrackParameterSet.iterator();
+                                    while (iterator != null && iterator.hasNext()) {
+                                        Object obj = iterator.next();
+                                        if (obj.getClass() == MGASADMVirtualTrackParameterSet.class) {
+                                            MGASADMVirtualTrackParameterSet vtps = MGASADMVirtualTrackParameterSet.class.cast(obj);
+                                            if (vtps.getTrackId().contains(virtualTrack.getTrackID().toString())) {
+                                                trackIdFound = true;
+                                            }
+                                        }
+                                    }
+                                    if (!trackIdFound) {
+                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
+                                    }
+                                }
+                            }
+                        }
                         try {
                             if (!isCompositionComplete(applicationComposition, trackFileIDsSet, compositionConformanceErrorLogger)) {
                                 for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {

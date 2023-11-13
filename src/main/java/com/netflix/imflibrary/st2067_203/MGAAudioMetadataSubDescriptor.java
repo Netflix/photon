@@ -34,7 +34,7 @@ public final class MGAAudioMetadataSubDescriptor extends SubDescriptor {
      */
     public MGAAudioMetadataSubDescriptor(MGAAudioMetadataSubDescriptorBO mgaAudioMetadataSubDescriptorBO)
     {
-    	super();
+        super();
         this.mgaAudioMetadataSubDescriptorBO = mgaAudioMetadataSubDescriptorBO;
     }
     /**

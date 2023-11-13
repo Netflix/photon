@@ -436,7 +436,7 @@ public final class HeaderPartition
                     this.cacheInterchangeObject(iabEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), iabEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(MGASoundEssenceDescriptor.class)){
-                	MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = new MGASoundEssenceDescriptor((MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO) interchangeObjectBO);
+                    MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = new MGASoundEssenceDescriptor((MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(mgaSoundEssenceDescriptor);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), mgaSoundEssenceDescriptor);
                 } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(TimedTextDescriptor.class)){

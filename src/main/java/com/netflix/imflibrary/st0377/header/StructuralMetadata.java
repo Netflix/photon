@@ -879,16 +879,16 @@ public final class StructuralMetadata
                 case 0x7a :
                     return TargetFrameSubDescriptor.TargetFrameSubDescriptorBO.class;
                 case (byte)0x81 :
-                	switch(key[15]) {
-                	case 0x06:
-                		return MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO.class;
-                	case 0x07:
-                		return MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class;
-                	case 0x08:
-                		return MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class;
-                	case 0x09:
-                		return SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class;
-                	}
+                    switch(key[15]) {
+                    case 0x06:
+                        return MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO.class;
+                    case 0x07:
+                        return MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class;
+                    case 0x08:
+                        return MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class;
+                    case 0x09:
+                        return SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class;
+                    }
                 default :
                     return Object.class;
             }
