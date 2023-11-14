@@ -462,32 +462,59 @@ public class IMPAnalyzer {
                         applicationCompositionList.add(applicationComposition);
                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                 .keySet();
+                        // SMPTE ST 2067-203 checks <begin>
+                        List<String> virtualTrackParameterSetTrackIdList = new ArrayList<>();
+                        List<String> mgaSADMSignalSequenceTrackIds = new ArrayList<>();
+                        Set<Object> virtualTrackParameterSet = Collections.emptySet();
+                        if (applicationComposition.getExtensionProperties() != null) {
+                            virtualTrackParameterSet = applicationComposition.getExtensionProperties().getAny().stream().collect(Collectors.toSet());
+                            Iterator<Object> iterator = virtualTrackParameterSet.iterator();
+                            while (iterator != null && iterator.hasNext()) {
+                                Object obj = iterator.next();
+                                if (obj.getClass() == MGASADMVirtualTrackParameterSet.class) {
+                                    MGASADMVirtualTrackParameterSet vtps = MGASADMVirtualTrackParameterSet.class.cast(obj);
+                                    virtualTrackParameterSetTrackIdList.add(vtps.getTrackId().substring(9));
+                                }
+                            }
+
+                        }
                         for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
                             // ST 2067-203, section 6.3.4, check for a MGA S-ADM Virtual Track Parameter Set for each MGA S-ADM Virtual Track
                             if (virtualTrack.getSequenceTypeEnum() == SequenceTypeEnum.MGASADMSignalSequence) {
+                                mgaSADMSignalSequenceTrackIds.add(virtualTrack.getTrackID().toString());
                                 if (applicationComposition.getExtensionProperties() == null) {
                                     compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
                                 } else {
-                                    boolean trackIdFound = false;
-                                    Set<Object> virtualTrackParameterSet = applicationComposition.getExtensionProperties().getAny().stream().collect(Collectors.toSet());
-                                    Iterator<Object> iterator = virtualTrackParameterSet.iterator();
-                                    while (iterator != null && iterator.hasNext()) {
-                                        Object obj = iterator.next();
-                                        if (obj.getClass() == MGASADMVirtualTrackParameterSet.class) {
-                                            MGASADMVirtualTrackParameterSet vtps = MGASADMVirtualTrackParameterSet.class.cast(obj);
-                                            if (vtps.getTrackId().contains(virtualTrack.getTrackID().toString())) {
-                                                trackIdFound = true;
-                                            }
-                                        }
+                                    int trackIdsFound = 0;
+                                    for (String trackId : virtualTrackParameterSetTrackIdList) {
+                                        if (virtualTrack.getTrackID().toString().matches(trackId)) trackIdsFound++;
                                     }
-                                    if (!trackIdFound) {
+                                    if (trackIdsFound == 0) {
                                         compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
+                                    } else if (trackIdsFound > 1) {
+                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("%d MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present, shall be only 1", trackIdsFound, virtualTrack.getTrackID().toString()));
                                     }
                                 }
                             }
                         }
+                        // Check if any MGASADMVirtualTrackParameterSet items do not correspond to a MGASADMSignalSequence
+                        if (!virtualTrackParameterSetTrackIdList.isEmpty()) {System.out.println("virtualTrackParameterSetTrackIdList"+virtualTrackParameterSetTrackIdList.toString());System.out.println("mgaSADMSignalSequenceTrackIds"+mgaSADMSignalSequenceTrackIds.toString());
+                            for (String vpsTrackID : virtualTrackParameterSetTrackIdList) {
+                                if (mgaSADMSignalSequenceTrackIds.isEmpty()) {
+                                    compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vpsTrackID));
+                                } else {
+                                    if (!mgaSADMSignalSequenceTrackIds.contains(vpsTrackID)) {
+                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vpsTrackID));
+                                    }
+                                }
+                            }
+                        }
+                        // SMPTE ST 2067-203 checks <end>
                         try {
                             if (!isCompositionComplete(applicationComposition, trackFileIDsSet, compositionConformanceErrorLogger)) {
                                 for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
