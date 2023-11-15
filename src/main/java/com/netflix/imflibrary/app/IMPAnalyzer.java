@@ -501,7 +501,7 @@ public class IMPAnalyzer {
                             }
                         }
                         // Check if any MGASADMVirtualTrackParameterSet items do not correspond to a MGASADMSignalSequence
-                        if (!virtualTrackParameterSetTrackIdList.isEmpty()) {System.out.println("virtualTrackParameterSetTrackIdList"+virtualTrackParameterSetTrackIdList.toString());System.out.println("mgaSADMSignalSequenceTrackIds"+mgaSADMSignalSequenceTrackIds.toString());
+                        if (!virtualTrackParameterSetTrackIdList.isEmpty()) {
                             for (String vpsTrackID : virtualTrackParameterSetTrackIdList) {
                                 if (mgaSADMSignalSequenceTrackIds.isEmpty()) {
                                     compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
