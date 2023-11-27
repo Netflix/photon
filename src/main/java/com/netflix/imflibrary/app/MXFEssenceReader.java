@@ -13,6 +13,9 @@ import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.FileDataProvider;
@@ -232,6 +235,20 @@ public class MXFEssenceReader {
     private List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition().getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO> references = new ArrayList<>();
+        for (InterchangeObject.InterchangeObjectBO sub : subDescriptors) {
+            if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
+                ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
+                    for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
+                        references.add(this.getHeaderPartition().getUidToBOs().get(strongRef.getInstanceUID()));
+                    }
+            }
+        }
+        if (!references.isEmpty()) {
+            for (InterchangeObject.InterchangeObjectBO reference: references) {
+                subDescriptors.add(reference);
+            }
+        }
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());
