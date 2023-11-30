@@ -78,10 +78,18 @@ public final class ADMAudioMetadataSubDescriptor extends SubDescriptor {
 
         /**
          * Accessor for the riff_chunk_stream_id_link1 of this ADMAudioMetadataSubDescriptor
-         * @return a byte array representing the riff_chunk_stream_id_link1 for the ADMAudioMetadataSubDescriptor
+         * @return a Long value representing the riff_chunk_stream_id_link1 for the ADMAudioMetadataSubDescriptor
          */
         public Long getRIFFChunkStreamID_link1(){
             return this.riff_chunk_stream_id_link1;
+        }
+
+        /**
+         * Accessor for the adm_profile_level_batch of this ADMAudioMetadataSubDescriptor
+         * @return a collection representing the adm_profile_level_batch for the ADMAudioMetadataSubDescriptor
+         */
+        public  CompoundDataTypes.MXFCollections.MXFCollection<UL>  getADMProfileLevelULBatch(){
+            return this.adm_profile_level_batch;
         }
 
         /**
