@@ -121,10 +121,12 @@ final class IMFCoreConstraintsChecker {
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
                     || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
                         && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))) {
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ADMAudioSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                        String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon",
-                                virtualTrack.getSequenceTypeEnum().toString()));
+                        String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon, NS: %s",
+                                virtualTrack.getSequenceTypeEnum().toString(), compositionPlaylistType.getCoreConstraintsSchema()));
                 continue;
             }
 
@@ -151,6 +153,8 @@ final class IMFCoreConstraintsChecker {
                     || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
                             && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence))
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ADMAudioSequence)
                     && compositionPlaylistType.getEssenceDescriptorList() != null
                     && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
             {
@@ -180,7 +184,9 @@ final class IMFCoreConstraintsChecker {
                                             && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))) {
                                 essenceDescriptorField = "SampleRate";
                             } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence) ||
-                                        virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
+                                       virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)     ||
+                                       virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence) ||
+                                       virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ADMAudioSequence)){
                                 essenceDescriptorField = "SampleRate";
                                 otherEssenceDescriptorField = "AudioSampleRate";
                             }
@@ -239,7 +245,9 @@ final class IMFCoreConstraintsChecker {
                 }
                 else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                         || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
-                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)){
+                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ADMAudioSequence)){
                     boolean isVirtualTrackHomogeneous = true;
                     Set<String> homogeneitySelectionSetAll = new HashSet<>(homogeneitySelectionSet);
                     homogeneitySelectionSetAll.addAll(IMFCoreConstraintsChecker.homogeneitySelectionSet);
@@ -308,6 +316,44 @@ final class IMFCoreConstraintsChecker {
         }
 
         return foundIABEssence;
+    }
+
+    public static boolean hasMGASADMVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                              Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap){
+        boolean foundMGASADMEssence = false;
+        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
+        Iterator iterator = virtualTrackMap.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+            List<ErrorLogger.ErrorObject> errors = checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList);
+            imfErrorLogger.addAllErrors(errors);
+
+            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)) {
+                foundMGASADMEssence = true;
+            }
+        }
+
+        return foundMGASADMEssence;
+    }
+
+    public static boolean hasADMAudioVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
+                                              Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap){
+        boolean foundADMAudioEssence = false;
+        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
+        Iterator iterator = virtualTrackMap.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+            List<ErrorLogger.ErrorObject> errors = checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList);
+            imfErrorLogger.addAllErrors(errors);
+
+            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ADMAudioSequence)) {
+                foundADMAudioEssence = true;
+            }
+        }
+
+        return foundADMAudioEssence;
     }
 
     /**

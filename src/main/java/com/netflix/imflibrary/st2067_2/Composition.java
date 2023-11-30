@@ -192,6 +192,8 @@ public final class Composition {
         ForcedNarrativeSequence("ForcedNarrativeSequence"),
         AncillaryDataSequence("AncillaryDataSequence"),
         IABSequence("IABSequence"),
+        MGASADMSignalSequence("MGASADMSignalSequence"),
+        ADMAudioSequence("ADMAudioSequence"),
         UnsupportedSequence("UnsupportedSequence");
 
         private final String name;
@@ -230,6 +232,10 @@ public final class Composition {
                     return AncillaryDataSequence;
                 case "IABSequence":
                     return IABSequence;
+                case "MGASADMSignalSequence":
+                    return MGASADMSignalSequence;
+                case "ADMAudioSequence":
+                    return ADMAudioSequence;
                 case "UnsupportedSequence":
                 default:
                     return UnsupportedSequence;

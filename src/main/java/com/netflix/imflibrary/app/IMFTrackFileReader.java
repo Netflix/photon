@@ -34,8 +34,11 @@ import com.netflix.imflibrary.st0377.header.EssenceContainerData;
 import com.netflix.imflibrary.st0377.header.FileDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -480,6 +483,20 @@ final class IMFTrackFileReader
     List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO> references = new ArrayList<>();
+        for (InterchangeObject.InterchangeObjectBO sub : subDescriptors) {
+            if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
+                ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
+                    for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
+                        references.add(this.getHeaderPartition(imfErrorLogger).getUidToBOs().get(strongRef.getInstanceUID()));
+                    }
+            }
+        }
+        if (!references.isEmpty()) {
+            for (InterchangeObject.InterchangeObjectBO reference: references) {
+                subDescriptors.add(reference);
+            }
+        }
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());
@@ -500,6 +517,7 @@ final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.IABEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MGASADMEssence);
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 

@@ -6,6 +6,8 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
+
+import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -88,7 +90,8 @@ final class CompositionModel_st2067_2_2013 {
                 segmentList,
                 essenceDescriptorList,
                 coreConstraintsSchema,
-                applicationIDs
+                applicationIDs,
+                null
         );
     }
 

@@ -6,6 +6,9 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
+
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -78,6 +81,8 @@ final class CompositionModel_st2067_2_2016 {
                 coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2016;
         }
 
+        ExtensionProperties extensionProperties = compositionPlaylistType.getExtensionProperties();
+
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -88,7 +93,8 @@ final class CompositionModel_st2067_2_2016 {
                 segmentList,
                 essenceDescriptorList,
                 coreConstraintsSchema,
-                applicationIDs
+                applicationIDs,
+                extensionProperties
                 );
     }
 
@@ -310,7 +316,9 @@ final class CompositionModel_st2067_2_2016 {
                     org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class,// 2016 2016 CPL
                                         org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
                                         org.smpte_ra.ns._2067_2._2020.ObjectFactory.class,      // 2020 Core constraints
-                                        org.smpte_ra.ns._2067_201._2019.ObjectFactory.class);   // IAB plugin 
+                                        org.smpte_ra.ns._2067_201._2019.ObjectFactory.class,    // IAB plugin
+                                        org.smpte_ra.ns._2067_203._2022.ObjectFactory.class,    // MGA S-ADM plugin
+                                        org.smpte_ra.ns._2067_204._2022.ObjectFactory.class);   // MGA S-ADM plugin
             }
             catch(JAXBException e)
             {

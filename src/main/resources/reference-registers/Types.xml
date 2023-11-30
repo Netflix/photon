@@ -10917,5 +10917,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Definition>For use in multimedia research or other limited access, experimental environments</Definition>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ADMChannelMappingStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023300.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ADMChannelMappingStrongReference</Name>
+      <DefiningDocument>SMPTE ST 2131</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810f</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ADMChannelMappingStrongReferenceVector</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05061100.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ADMChannelMappingStrongReferenceVector</Name>
+      <DefiningDocument>SMPTE ST 2131</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>VariableArray</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023300.00000000</BaseType>
+      <TypeQualifiers>isOrdered</TypeQualifiers>
+    </Entry>
   </Entries>
 </TypesRegister>

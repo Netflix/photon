@@ -332,7 +332,9 @@ public class CompositionPlaylistBuilder_2016 {
                     org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class, // 2016 CPL
                     org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
                     org.smpte_ra.ns._2067_2._2020.ObjectFactory.class, // 2020 Core constraints
-                    org.smpte_ra.ns._2067_201._2019.ObjectFactory.class); // IAB
+                    org.smpte_ra.ns._2067_201._2019.ObjectFactory.class, // IAB
+                    org.smpte_ra.ns._2067_203._2022.ObjectFactory.class, // MGA S-ADM
+                    org.smpte_ra.ns._2067_204._2022.ObjectFactory.class); // ADM
             Marshaller marshaller = jaxbContext.createMarshaller();
             ValidationEventHandlerImpl validationEventHandler = new ValidationEventHandlerImpl(true);
             marshaller.setEventHandler(validationEventHandler);
@@ -578,6 +580,8 @@ public class CompositionPlaylistBuilder_2016 {
         {
             org.smpte_ra.ns._2067_2._2020.ObjectFactory objectFactory = new org.smpte_ra.ns._2067_2._2020.ObjectFactory();
             org.smpte_ra.ns._2067_201._2019.ObjectFactory iabFactory = new org.smpte_ra.ns._2067_201._2019.ObjectFactory();
+            org.smpte_ra.ns._2067_203._2022.ObjectFactory mgasadmFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
+            org.smpte_ra.ns._2067_204._2022.ObjectFactory admFactory = new org.smpte_ra.ns._2067_204._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
                     case MainImageSequence:
@@ -590,12 +594,20 @@ public class CompositionPlaylistBuilder_2016 {
                         // JAXB class for IABSequence was generated in the CC 2016 package. Use that
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
+                    case MGASADMSignalSequence:
+                        // JAXB class for MGASADMSignalSequence was generated in the CC 2016 package. Use that
+                        any.add(mgasadmFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
+                        break;
+                    case ADMAudioSequence:
+                        // JAXB class for MGASADMSignalSequence was generated in the CC 2016 package. Use that
+                        any.add(admFactory.createADMAudioSequence(sequenceTypeTuple.getSequence()));
+                        break;
                     case MarkerSequence:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
-                        throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                        throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
+                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.ADMAudioSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }
@@ -603,6 +615,8 @@ public class CompositionPlaylistBuilder_2016 {
         {
             org.smpte_ra.schemas._2067_2._2016.ObjectFactory objectFactory = new org.smpte_ra.schemas._2067_2._2016.ObjectFactory();
             org.smpte_ra.ns._2067_201._2019.ObjectFactory iabFactory = new org.smpte_ra.ns._2067_201._2019.ObjectFactory();
+            org.smpte_ra.ns._2067_203._2022.ObjectFactory mgaFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
+            org.smpte_ra.ns._2067_204._2022.ObjectFactory admFactory = new org.smpte_ra.ns._2067_204._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
                     case MainImageSequence:
@@ -614,12 +628,18 @@ public class CompositionPlaylistBuilder_2016 {
                     case IABSequence:
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
+                    case MGASADMSignalSequence:
+                        any.add(mgaFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
+                        break;
+                    case ADMAudioSequence:
+                        any.add(admFactory.createADMAudioSequence(sequenceTypeTuple.getSequence()));
+                        break;
                     case MarkerSequence:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
-                        throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                        throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
+                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.ADMAudioSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }

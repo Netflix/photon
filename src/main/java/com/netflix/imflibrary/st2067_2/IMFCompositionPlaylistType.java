@@ -25,6 +25,9 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
+
+import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
+import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
@@ -62,6 +65,7 @@ final class IMFCompositionPlaylistType {
     private final IMFErrorLogger imfErrorLogger;
     private final String coreConstraintsSchema;
     private final Set<String> applicationIdSet;
+    private final ExtensionProperties extensionProperties;
 
     /**
      * @deprecated
@@ -80,9 +84,10 @@ final class IMFCompositionPlaylistType {
                                       List<IMFSegmentType> segmentList,
                                       List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                       String coreConstraintsSchema,
-                                      String applicationId)
+                                      String applicationId,
+                                      ExtensionProperties extensionProperties)
     {
-        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))), extensionProperties);
     }
 
     public IMFCompositionPlaylistType(String id,
@@ -95,7 +100,8 @@ final class IMFCompositionPlaylistType {
                                    List<IMFSegmentType> segmentList,
                                    List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                    String coreConstraintsSchema,
-                                   @Nonnull Set<String> applicationIds)
+                                   @Nonnull Set<String> applicationIds,
+                                   ExtensionProperties extensionProperties)
     {
         this.id                = UUIDHelper.fromUUIDAsURNStringToUUID(id);
         Composition.EditRate rate = null;
@@ -119,6 +125,7 @@ final class IMFCompositionPlaylistType {
         this.essenceDescriptorList  = Collections.unmodifiableList(essenceDescriptorList);
         this.coreConstraintsSchema = coreConstraintsSchema;
         this.applicationIdSet = Collections.unmodifiableSet(applicationIds);
+        this.extensionProperties = extensionProperties;
 
         if(imfErrorLogger.hasFatalErrors())
         {
@@ -299,6 +306,15 @@ final class IMFCompositionPlaylistType {
      */
     public String getContentTitle(){
         return this.contentTitle;
+    }
+
+    /**
+     * Getter for the ExtensionProperties corresponding to this Composition document
+     *
+     * @return value of ExtensionProperties of this Composition object
+     */
+    public ExtensionProperties getExtensionProperties() {
+        return this.extensionProperties;
     }
 
     /**
