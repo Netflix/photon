@@ -87,6 +87,14 @@ public final class SADMAudioMetadataSubDescriptor extends SubDescriptor {
         }
 
         /**
+         * Accessor for the adm_profile_level_batch of this ADMAudioMetadataSubDescriptor
+         * @return a collection representing the adm_profile_level_batch for the ADMAudioMetadataSubDescriptor
+         */
+        public  CompoundDataTypes.MXFCollections.MXFCollection<UL>  getSADMProfileLevelULBatch(){
+            return this.sadm_profile_level_batch;
+        }
+
+        /**
          * A method that returns a string representation of the object.
          *
          * @return string representing the object

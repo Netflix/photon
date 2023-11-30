@@ -32,9 +32,7 @@ import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
-import com.netflix.imflibrary.st2067_203.MGAAudioMetadataSubDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.st2067_203.SADMAudioMetadataSubDescriptor;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -61,6 +59,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
@@ -1427,6 +1426,8 @@ public final class HeaderPartition
                     return "IABEssence";
                 case MGASADMSignalSequence:
                     return "MGASADMEssence";
+                case ADMAudioSequence:
+                    return "MainAudioEssence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";
@@ -1539,6 +1540,15 @@ public final class HeaderPartition
             if (sid != -1) break;
         }
         return sid;
+    }
+
+    /**
+     * Getter for a copy of the uidToBOs Hash Map
+     *
+     * @return A copy of the uidToBOs Hash Map
+     */
+    public Map<MXFUID, InterchangeObject.InterchangeObjectBO> getUidToBOs() {
+        return new HashMap<>(this.uidToBOs);
     }
 
 }

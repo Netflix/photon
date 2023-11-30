@@ -48,7 +48,7 @@ public abstract class InterchangeObject
          *
          * @param header the header
          */
-        InterchangeObjectBO(KLVPacket.Header header)
+        protected InterchangeObjectBO(KLVPacket.Header header)
         {
             this.header = header;
         }
