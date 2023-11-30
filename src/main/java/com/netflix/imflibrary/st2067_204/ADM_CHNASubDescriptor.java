@@ -89,8 +89,8 @@ public final class ADM_CHNASubDescriptor extends SubDescriptor {
         }
 
         /**
-         * Accessor for the mga_link_id of this MGAAudioMetadataSubDescriptor
-         * @return a byte array representing the mga_link_id for the MGAAudioMetadataSubDescriptor
+         * Accessor for the adm_channel_mappings_array of this ADM_CHNASubDescriptor
+         * @return a byte array representing the adm_channel_mappings_array for the ADM_CHNASubDescriptor
          */
         public CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> getADMChannelMappingsArray(){
             return this.adm_channel_mappings_array;
