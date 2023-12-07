@@ -20,6 +20,9 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st2067_203.IMFMGASADMConstraintsChecker;
+import com.netflix.imflibrary.st2067_204.IMFADMAudioConstraintsChecker;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
@@ -30,6 +33,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -117,6 +121,12 @@ public class ApplicationCompositionFactory {
                     Constructor<?> constructor = clazz.getConstructor(IMFCompositionPlaylistType.class, Set.class);
                     composition = (ApplicationComposition) constructor.newInstance(imfCompositionPlaylistType, homogeneitySelectionSet);
                     imfErrorLogger.addAllErrors(composition.getErrors());
+                    // ST 2067-203 MGASADMVirtualTrackParameterSet checks
+                    List<ErrorLogger.ErrorObject> errors = IMFMGASADMConstraintsChecker.checkMGASADMVirtualTrackParameterSet(composition, imfErrorLogger);
+                    imfErrorLogger.addAllErrors(errors);
+                    // ST 2067-204 ADMAudioVirtualTrackParameterSet checks
+                    errors = IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrackParameterSet(composition, imfErrorLogger);
+                    imfErrorLogger.addAllErrors(errors);
                 }
             }
         }
