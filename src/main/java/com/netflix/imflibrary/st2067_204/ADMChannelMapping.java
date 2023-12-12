@@ -99,19 +99,19 @@ public final class ADMChannelMapping extends InterchangeObject {
             sb.append(super.toString());
             if (this.local_channel_id != null)
             {
-                sb.append(String.format("LocalChannelID = %d%n", this.local_channel_id.toString()));
+                sb.append(String.format("LocalChannelID = %d%n", this.local_channel_id));
             }
             if (this.adm_audio_track_uid != null)
             {
-                sb.append(String.format("NumADMAudioTrackUIDs = %d%n", this.adm_audio_track_uid.toString()));
+                sb.append(String.format("NumADMAudioTrackUIDs = %s%n", this.adm_audio_track_uid));
             }
             if (this.adm_audio_track_channel_format_uid != null)
             {
-                sb.append(String.format("ADMChannelMappingsArray = %d%n", this.adm_audio_track_channel_format_uid.toString()));
+                sb.append(String.format("ADMChannelMappingsArray = %s%n", this.adm_audio_track_channel_format_uid));
             }
             if (this.adm_audio_pack_format_uid != null)
             {
-                sb.append(String.format("ADMAudioPackFormatID = %d%n", this.adm_audio_pack_format_uid.toString()));
+                sb.append(String.format("ADMAudioPackFormatID = %s%n", this.adm_audio_pack_format_uid));
             }
 
             return sb.toString();
