@@ -1,8 +1,8 @@
 package com.netflix.imflibrary.st0377_41;
 
 /**
- * This enum lists all audio content kinds defined in the following draft specification:
- * "Interoperable Master Format –Specifying Audio Element and Content Kind in Application #2E Compositions"
+ * This enum lists the MCA Content Vocabulary defined in the following specification:
+ * ST 377-41:2021 Table 2
  */
 public enum MCAContent {
 	PRM("Primary"),
@@ -46,7 +46,7 @@ public enum MCAContent {
      * @param value a Symbol representing audio content kind
      * @return AudioContentKind enumeration for the symbol if present otherwise returns Unknown enumeration
      */
-    public static MCAContent getEnumFromSymbol(String value) {
+    public static MCAContent getValueFromSymbol(String value) {
         if(value == null) {
             return Unknown;
         }

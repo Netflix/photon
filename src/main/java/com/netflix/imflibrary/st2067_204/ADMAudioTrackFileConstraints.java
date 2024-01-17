@@ -62,6 +62,17 @@ public final class ADMAudioTrackFileConstraints {
                     //
                 	WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
 
+                    // ST 2067-2:2020 section 5.3.2.2
+                    if ( ((waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()  != 48000) && (waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()  != 96000)) || waveAudioEssenceDescriptor.getAudioSamplingRateDenominator() != 1) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
+                                String.format("Audio Sample rate %d/%d does not match 48 000 Hz oder 96 000 Hz in the IMFTrackFile represented by ID %s.",  waveAudioEssenceDescriptor.getAudioSamplingRateNumerator(), waveAudioEssenceDescriptor.getAudioSamplingRateDenominator(), packageID.toString()));
+                    }
+                    // ST 2067-2:2020 section 5.3.2.3
+                    int bitDepth = waveAudioEssenceDescriptor.getQuantizationBits();
+                    if (bitDepth != 24) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
+                                String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s indicates an Audio Bit Depth = %d, only 24 is allowed.", packageID.toString(), waveAudioEssenceDescriptor.getQuantizationBits()));
+                    }
                     // ST 2067-204 section 4.1
                     if (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(AUDIO_LABELING_FRAMEWORK_ADM_CONTENT_UL.getULAsMXFUid())) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +

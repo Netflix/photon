@@ -1,8 +1,8 @@
 package com.netflix.imflibrary.st0377_41;
 
 /**
- * This enum lists all audio content kinds defined in the following draft specification:
- * "Interoperable Master Format –Specifying Audio Element and Content Kind in Application #2E Compositions"
+ * This enum lists the MCA Use Class Vocabulary defined in the following specification:
+ * ST 377-41:2021 Table 3
  */
 public enum MCAUseClass {
 	FCMP("Finished Composite"),
@@ -29,7 +29,7 @@ public enum MCAUseClass {
      * @param value a Symbol representing audio content kind
      * @return AudioContentKind enumeration for the symbol if present otherwise returns Unknown enumeration
      */
-    public static MCAUseClass getEnumFromSymbol(String value) {
+    public static MCAUseClass getValueFromSymbol(String value) {
         if(value == null) {
             return Unknown;
         }
