@@ -39,6 +39,26 @@ public final class ADMAudioTrackFileConstraints {
     // Prevent instantiation
     public ADMAudioTrackFileConstraints() {}
 
+    public static void checkComplianceFromIMFTrackFileReader(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+        HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
+        if (subDescriptors.isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX + String.format("Not an ADM File (1)."));
+            // Assume this is not ADM Audio file, return silently when called from IMFTrackFileReader
+            return;
+        } else {
+            List<InterchangeObject.InterchangeObjectBO> adm_CHNASubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADM_CHNASubDescriptor.class)).collect(Collectors.toList());
+            List<InterchangeObject.InterchangeObjectBO> admSoundfieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMSoundfieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
+            if (adm_CHNASubDescriptors.isEmpty() && admSoundfieldGroupLabelSubDescriptors.isEmpty()) {
+                // Assume this is not an ADM Audio file, return silently when called from IMFTrackFileReader
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX + String.format("Not an ADM File (2)."));
+                return;
+            } else {
+                checkCompliance(headerPartitionIMF, imfErrorLogger);
+            }
+        }
+    }
+
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         Preface preface = headerPartition.getPreface();
@@ -54,13 +74,14 @@ public final class ADMAudioTrackFileConstraints {
                         timelineTrack.getInstanceUID(), packageID.toString()));
             } else {
                 GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
+                List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
                 if (genericDescriptor instanceof WaveAudioEssenceDescriptor) { // Support for st2067-204
 
 
                     //
                     // WaveAudioEssenceDescriptor
                     //
-                	WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
+                    WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
 
                     // ST 2067-2:2020 section 5.3.2.2
                     if ( ((waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()  != 48000) && (waveAudioEssenceDescriptor.getAudioSamplingRateNumerator()  != 96000)) || waveAudioEssenceDescriptor.getAudioSamplingRateDenominator() != 1) {
@@ -90,7 +111,6 @@ public final class ADMAudioTrackFileConstraints {
                                 String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s is missing the Reference Image Edit Rate item.", packageID.toString()));
                     }
 
-                    List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
                     // Section 5.10.2
                     if (subDescriptors.size() == 0) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
@@ -113,14 +133,14 @@ public final class ADMAudioTrackFileConstraints {
                                     String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s has %d illegal GroupOfSoundFieldGroupLabelSubDescriptor(s)", packageID.toString(), groupOfSoundFieldGroupsLabelSubDescriptors.size()));
                         }
                         
-                        List<InterchangeObject.InterchangeObjectBO> adm_CHNASubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADM_CHNASubDescriptor.class)).collect(Collectors.toList());
                         // ST 2131 section 10.2 ADM_CHNASubDescriptor
-                        if (adm_CHNASubDescriptors.size() != 1) {
+                        List<InterchangeObject.InterchangeObjectBO> adm_CHNASubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADM_CHNASubDescriptor.class)).collect(Collectors.toList());
+                        if (adm_CHNASubDescriptors.isEmpty()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                     String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s shall reference exactly one ADM_CHNASubDescriptor, the actual number is %d", packageID.toString(), adm_CHNASubDescriptors.size()));
                         }
-                        List<InterchangeObject.InterchangeObjectBO> riffChunkReferencesSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(RIFFChunkReferencesSubDescriptor.class)).collect(Collectors.toList());
                         // ST 2131 section 10.2 RIFFChunkReferencesSubDescriptor
+                        List<InterchangeObject.InterchangeObjectBO> riffChunkReferencesSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(RIFFChunkReferencesSubDescriptor.class)).collect(Collectors.toList());
                         if (riffChunkReferencesSubDescriptors.size() != 1) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                     String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s shall reference exactly one RIFFChunkReferencesSubDescriptor, the actual number is %d", packageID.toString(), riffChunkReferencesSubDescriptors.size()));
@@ -192,7 +212,7 @@ public final class ADMAudioTrackFileConstraints {
                                 }
                                 // ST 2067-204 Table 7
                                 if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeId() == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                                 // ST 2067-204 Table 7

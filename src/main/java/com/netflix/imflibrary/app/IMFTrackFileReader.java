@@ -142,7 +142,7 @@ final class IMFTrackFileReader
             if (this.headerPartition != null) {
                 IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
                 MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
-                ADMAudioTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                ADMAudioTrackFileConstraints.checkComplianceFromIMFTrackFileReader(this.headerPartition, imfErrorLogger);
             }
         }
         catch (MXFException | IMFException e){
