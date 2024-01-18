@@ -43,7 +43,6 @@ public final class ADMAudioTrackFileConstraints {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
         if (subDescriptors.isEmpty()) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX + String.format("Not an ADM File (1)."));
             // Assume this is not ADM Audio file, return silently when called from IMFTrackFileReader
             return;
         } else {
@@ -51,7 +50,6 @@ public final class ADMAudioTrackFileConstraints {
             List<InterchangeObject.InterchangeObjectBO> admSoundfieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMSoundfieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
             if (adm_CHNASubDescriptors.isEmpty() && admSoundfieldGroupLabelSubDescriptors.isEmpty()) {
                 // Assume this is not an ADM Audio file, return silently when called from IMFTrackFileReader
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX + String.format("Not an ADM File (2)."));
                 return;
             } else {
                 checkCompliance(headerPartitionIMF, imfErrorLogger);
