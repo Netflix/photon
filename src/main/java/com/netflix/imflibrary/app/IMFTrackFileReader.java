@@ -37,6 +37,9 @@ import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
+import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
+import com.netflix.imflibrary.st2067_204.ADMAudioTrackFileConstraints;
 import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
 import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
@@ -136,6 +139,11 @@ final class IMFTrackFileReader
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
             this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            if (this.headerPartition != null) {
+                IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                ADMAudioTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+            }
         }
         catch (MXFException | IMFException e){
             if(headerPartition == null){
