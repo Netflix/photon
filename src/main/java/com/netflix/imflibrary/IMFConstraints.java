@@ -155,10 +155,8 @@ public final class IMFConstraints
                     if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND)) {
                         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
                         List<InterchangeObject.InterchangeObjectBO> admAudioMetadataSubDescriptors = null;
-                        if (subDescriptors.size() != 0) {
+                        if (subDescriptors.size() > 0) {
                             admAudioMetadataSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMAudioMetadataSubDescriptor.class)).collect(Collectors.toList());
-                                if (admAudioMetadataSubDescriptors.size() > 0) {
-                                }
                         }
                         if (genericDescriptor instanceof WaveAudioEssenceDescriptor && (admAudioMetadataSubDescriptors == null || admAudioMetadataSubDescriptors.size() == 0)) {
                             WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;

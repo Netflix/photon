@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:5b3b15f0-347e-4096-8c1d-53e8192ce1fa</Id>
+  <Creator language="en">IMF-Tool 1.9.371</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-01-19T15:57:04Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:8076c08d-99cb-418b-bec1-908cd2ff698b</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>ST2067-203_audio_track_file__non_compliant_MCATagSymbol_missing.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:f6f0f34c-c7c9-49c3-ab46-673b97838289</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_f6f0f34c-c7c9-49c3-ab46-673b97838289.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:ea28fc8a-729a-44f2-afdd-a8bb181b4711</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_ea28fc8a-729a-44f2-afdd-a8bb181b4711.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

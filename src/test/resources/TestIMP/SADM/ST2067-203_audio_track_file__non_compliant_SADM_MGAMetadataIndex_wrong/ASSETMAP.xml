@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:6dd22be8-6d98-43c0-94ef-0cb5525b013d</Id>
+  <Creator language="en">IMF-Tool 1.9.371</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-01-19T16:01:22Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:80ab140e-b37a-4157-b22e-c2d65bfb42ea</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>ST2067-203_audio_track_file__non_compliant_SADM_MGAMetadataIndex_wrong.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:a9b4c035-3db9-4971-b4ae-46e82742cf59</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_a9b4c035-3db9-4971-b4ae-46e82742cf59.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:4e54173f-b59d-4837-aa29-72d851c9f8bb</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_4e54173f-b59d-4837-aa29-72d851c9f8bb.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

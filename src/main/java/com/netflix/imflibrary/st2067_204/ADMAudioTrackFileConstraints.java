@@ -10,6 +10,8 @@ import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.GenericSoundEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st0377_41.MCAContent;
+import com.netflix.imflibrary.st0377_41.MCAUseClass;
 import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
@@ -47,8 +49,8 @@ public final class ADMAudioTrackFileConstraints {
             return;
         } else {
             List<InterchangeObject.InterchangeObjectBO> adm_CHNASubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADM_CHNASubDescriptor.class)).collect(Collectors.toList());
-            List<InterchangeObject.InterchangeObjectBO> admSoundfieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMSoundfieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
-            if (adm_CHNASubDescriptors.isEmpty() && admSoundfieldGroupLabelSubDescriptors.isEmpty()) {
+            List<InterchangeObject.InterchangeObjectBO> admAudioMetadataSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMAudioMetadataSubDescriptor.class)).collect(Collectors.toList());
+            if (adm_CHNASubDescriptors.isEmpty() && admAudioMetadataSubDescriptors.isEmpty()) {
                 // Assume this is not an ADM Audio file, return silently when called from IMFTrackFileReader
                 return;
             } else {
@@ -191,10 +193,20 @@ public final class ADMAudioTrackFileConstraints {
                                 if (admSoundfieldGroupLabelSubDescriptorBO.getMCAContent() == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAContent", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                } else {
+                                    // Check against ST 377-41:2021 Table 2
+                                    if (MCAContent.getValueFromSymbol(admSoundfieldGroupLabelSubDescriptorBO.getMCAContent()) == MCAContent.Unknown) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has invalid MCA Content (%s)", sub_descriptor.getInstanceUID().toString(), packageID.toString(), admSoundfieldGroupLabelSubDescriptorBO.getMCAContent()));
+                                    }
                                 }
                                 if (admSoundfieldGroupLabelSubDescriptorBO.getMCAUseClass() == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCAUseClass", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                } else {
+                                // Check against ST 377-41:2021 Table 3
+                                    if (MCAUseClass.getValueFromSymbol(admSoundfieldGroupLabelSubDescriptorBO.getMCAUseClass()) == MCAUseClass.Unknown) {
+                                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %shas invalid MCA Use Class (%s)", sub_descriptor.getInstanceUID().toString(), packageID.toString(), admSoundfieldGroupLabelSubDescriptorBO.getMCAUseClass()));
+                                    }
                                 }
                                 if (admSoundfieldGroupLabelSubDescriptorBO.getMCATitle() == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
