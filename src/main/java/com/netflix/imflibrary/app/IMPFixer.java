@@ -56,7 +56,7 @@ public class IMPFixer {
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
     private static final Logger logger = LoggerFactory.getLogger(IMPFixer.class);
 
-    private static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
+    public static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
             IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -93,7 +93,7 @@ public class IMPFixer {
         return packageUUID;
     }
 
-    private static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
+    public static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
                                                                                               headerPartitionPayloadRecords) throws
             IOException {
 
@@ -153,7 +153,7 @@ public class IMPFixer {
     }
 
     @Nullable
-    private static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
+    public static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
         long rangeEnd = archiveFileSize - 1;
         long rangeStart = archiveFileSize - 4;
