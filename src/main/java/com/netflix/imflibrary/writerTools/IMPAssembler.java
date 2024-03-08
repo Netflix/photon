@@ -3,6 +3,7 @@ package com.netflix.imflibrary.writerTools;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
+import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.app.IMPFixer;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -37,7 +40,6 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class IMPAssembler {
 
     private static final Logger logger = LoggerFactory.getLogger(IMPAssembler.class);
-
 
 
     /**
@@ -52,6 +54,8 @@ public class IMPAssembler {
         IMFErrorLogger imfErrors = new IMFErrorLoggerImpl();
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
         Map<UUID, UUID> trackFileIdToResourceMap = new HashMap<>();
+        Map<UUID, List<Long>> sampleRateMap = new HashMap<>();
+        Map<UUID, BigInteger> sampleCountMap = new HashMap<>();
 
 
         for (Track track : simpleTimeline.getTracks()) {
@@ -86,16 +90,58 @@ public class IMPAssembler {
                     Files.copy(trackEntry.getFile().toPath(), outputTrackFile.toPath(), REPLACE_EXISTING);
                 }
 
+                IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(outputDirectory, resourceByteRangeProvider);
+
+                // get sample rate or use cached value
+                List<Long> sampleRate = null;
+                if (trackEntry.getSampleRate() != null) {
+                    // if user provided sample rate, use it
+                    sampleRate = Arrays.asList(trackEntry.getSampleRate().getNumerator(), trackEntry.getSampleRate().getDenominator());
+                    logger.info("Using sample rate from user: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                } else if (!sampleRateMap.containsKey(trackFileId)) {
+                    // sample rate has not already been found, find it
+                    sampleRate = imfTrackFileReader.getEssenceEditRateAsList(imfErrors);
+                    sampleRateMap.put(trackFileId, sampleRate);
+                    logger.info("Found sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                } else {
+                    sampleRate = sampleRateMap.get(trackFileId);
+                    logger.info("Using cached sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                }
+
+
+                // get sample count or use cached value
+                BigInteger sampleCount = null;
+                if (trackEntry.getIntrinsicDuration() != null) {
+                    // use sample count provided by user
+                    sampleCount = trackEntry.getIntrinsicDuration();
+                    logger.info("Intrinsic duration from user: {}", sampleCount);
+                } else if (!sampleCountMap.containsKey(trackFileId)) {
+                    // compute sample count
+                    sampleCount = imfTrackFileReader.getEssenceDuration(imfErrors);
+                    sampleCountMap.put(trackFileId, sampleCount);
+                    logger.info("Found essence duration of: {}", sampleCount);
+                } else {
+                    // use cached sample count
+                    sampleCount = sampleCountMap.get(trackFileId);
+                    logger.info("Using cached intrinsic duration of: {}", sampleCount);
+                }
+
+                // delete temporary file left over from FileByteRangeProvider or ByteArrayByteRangeProvider
+                Path tempFilePath = Paths.get(outputDirectory.getAbsolutePath(), "range");
+                logger.info("Deleting temporary file if it exists: {}", tempFilePath);
+                Files.deleteIfExists(tempFilePath);
+
+
                 // add to resources
                 logger.info("Adding file to resources: {}..", trackEntry.getFile().getName());
                 resources.add(
                         new IMFTrackFileResourceType(
                             UUIDHelper.fromUUID(IMFUUIDGenerator.getInstance().generateUUID()),
                             UUIDHelper.fromUUID(trackFileId),
-                            Arrays.asList(trackEntry.getSampleRate().getNumerator(), trackEntry.getSampleRate().getDenominator()),    // defaults to 1/1
-                            trackEntry.getIntrinsicDuration(),
+                            sampleRate, // defaults to 1/1
+                            sampleCount,
                             trackEntry.getEntryPoint(), // defaults to 0 if null
-                            trackEntry.getDuration(), // defaults to intrinsic duration if null
+                            trackEntry.getDuration() == null ? sampleCount : trackEntry.getDuration(), // defaults to intrinsic duration if null
                             trackEntry.getRepeatCount(), // defaults to 1 if null
                             UUIDHelper.fromUUID(getOrGenerateSourceEncoding(trackFileIdToResourceMap, trackFileId)),   // used as the essence descriptor id
                             hash,
@@ -336,13 +382,13 @@ public class IMPAssembler {
         /**
          * Constructor for a track entry to be used to construct a simple timeline
          * @param file - the MXF file
-         * @param sampleRate - the sample rate
-         * @param intrinsicDuration - the intrinsic duration
-         * @param entryPoint - the entry point (if null, defaults to 0)
-         * @param duration - the duration (if null, defaults to intrinsic duration)
-         * @param repeatCount - the repeat count (if null, defaults to 1)
+         * @param sampleRate - the sample rate, optional, introspected if null
+         * @param intrinsicDuration - the intrinsic duration, optional, introspected if null
+         * @param entryPoint - the entry point, if null, defaults to 0
+         * @param duration - the duration, if null, defaults to intrinsic duration
+         * @param repeatCount - the repeat count, if null, defaults to 1
          */
-        public TrackEntry(@Nonnull File file, @Nonnull Composition.EditRate sampleRate, @Nonnull BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
+        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
             this.file = file;
             this.sampleRate = sampleRate;
             this.intrinsicDuration = intrinsicDuration;

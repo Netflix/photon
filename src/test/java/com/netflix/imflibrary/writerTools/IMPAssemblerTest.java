@@ -5,6 +5,7 @@ import com.netflix.imflibrary.app.IMPAnalyzer;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.slf4j.Logger;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
@@ -27,48 +28,75 @@ public class IMPAssemblerTest {
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(IMPAssemblerTest.class);
 
-    @Test
-    public void testAssembleIMFFromFiles() throws IOException, JAXBException, ParserConfigurationException, URISyntaxException, SAXException {
 
-        IMPAssembler.TrackEntry videoFile1 = new IMPAssembler.TrackEntry(
-                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf"),
-                new Composition.EditRate(60000L, 1001L),
-                BigInteger.valueOf(10),
-                BigInteger.valueOf(0),
-                BigInteger.valueOf(10),
-                BigInteger.valueOf(1)
-        );
+    @DataProvider(name = "trackEntries")
+    private Object[][] trackEntries() {
+        return new Object[][] {
+                {
+                        // video & audio have all values provided by the user
+                        new IMPAssembler.TrackEntry(
+                                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf"),
+                                new Composition.EditRate(60000L, 1001L),
+                                BigInteger.valueOf(10),
+                                BigInteger.valueOf(0),
+                                BigInteger.valueOf(10),
+                                BigInteger.valueOf(1)
+                        ),
+                        new IMPAssembler.TrackEntry(
+                                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_ENG-51_00.mxf"),
+                                new Composition.EditRate(48000L, 1L),
+                                BigInteger.valueOf(8008),
+                                BigInteger.valueOf(0),
+                                BigInteger.valueOf(8008),
+                                BigInteger.valueOf(1)
+                        )
+
+                },
+                {
+                        // video & audio values are left null for Photon to figure out
+                        new IMPAssembler.TrackEntry(
+                                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf"),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        ),
+                        new IMPAssembler.TrackEntry(
+                                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_ENG-51_00.mxf"),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        )
+                }
+
+
+        };
+    }
+
+    @Test(dataProvider = "trackEntries")
+    public void testAssembleIMFFromFiles(IMPAssembler.TrackEntry videoTrackEntry, IMPAssembler.TrackEntry audioTrackEntry) throws IOException, JAXBException, ParserConfigurationException, URISyntaxException, SAXException {
+
         IMPAssembler.Track videoTrack = new IMPAssembler.Track();
-        videoTrack.getTrackEntries().add(videoFile1);
-        videoTrack.getTrackEntries().add(videoFile1);
+        videoTrack.getTrackEntries().add(videoTrackEntry);
+        videoTrack.getTrackEntries().add(videoTrackEntry);
         videoTrack.setSequenceTypeEnum(Composition.SequenceTypeEnum.MainImageSequence);
         List<IMPAssembler.Track> trackList = new ArrayList<>();
         trackList.add(videoTrack);
 
 
-
-        IMPAssembler.TrackEntry audioFile1 = new IMPAssembler.TrackEntry(
-                TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_ENG-51_00.mxf"),
-                new Composition.EditRate(48000L, 1L),
-                BigInteger.valueOf(8008),
-                BigInteger.valueOf(0),
-                BigInteger.valueOf(8008),
-                BigInteger.valueOf(1)
-        );
-
         IMPAssembler.Track audioTrack = new IMPAssembler.Track();
-        audioTrack.getTrackEntries().add(audioFile1);
-        audioTrack.getTrackEntries().add(audioFile1);
+        audioTrack.getTrackEntries().add(audioTrackEntry);
+        audioTrack.getTrackEntries().add(audioTrackEntry);
         audioTrack.setSequenceTypeEnum(Composition.SequenceTypeEnum.MainAudioSequence);
         trackList.add(audioTrack);
 
         IMPAssembler.SimpleTimeline simpleTimeline = new IMPAssembler.SimpleTimeline(trackList, new Composition.EditRate(Arrays.asList(60000L, 1001L)));
 
-
-
         Path outputDirPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMPAssemblerTest");
         File outputDir = outputDirPath.toFile();
-        // File outputDirectory = new File("outputDirectory");
         IMPAssembler impAssembler = new IMPAssembler();
         IMPAssembler.AssembledIMPResult result = impAssembler.assembleIMFFromFiles(simpleTimeline, outputDir, true);
 
@@ -95,7 +123,5 @@ public class IMPAssemblerTest {
         for (File outputTrackFile : result.getTrackFiles()) {
             assert outputTrackFile.exists();
         }
-
-
     }
 }
