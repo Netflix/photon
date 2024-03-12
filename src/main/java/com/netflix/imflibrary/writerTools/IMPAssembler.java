@@ -56,6 +56,7 @@ public class IMPAssembler {
         Map<UUID, UUID> trackFileIdToResourceMap = new HashMap<>();
         Map<UUID, List<Long>> sampleRateMap = new HashMap<>();
         Map<UUID, BigInteger> sampleCountMap = new HashMap<>();
+        Map<UUID, byte[]> hashMap = new HashMap<>();
 
 
         for (Track track : simpleTimeline.getTracks()) {
@@ -70,7 +71,22 @@ public class IMPAssembler {
                     throw new IOException("Could not get header partition for file: " + trackEntry.getFile().getAbsolutePath());
                 }
                 byte[] headerPartitionBytes = headerPartitionPayloadRecord.getPayload();
-                byte[] hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+
+
+                // get sha-1 hash or use cached value
+                byte[] hash = null;
+                if (trackEntry.getHash() != null) {
+                    logger.info("Using hash from user: {}", trackEntry.getHash());
+                    hash = trackEntry.getHash();
+                    hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), trackEntry.getHash());
+                } else if (hashMap.containsKey(IMPFixer.getTrackFileId(headerPartitionPayloadRecord))) {
+                    logger.info("Using cached hash: {}", hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord)));
+                    hash = hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord));
+                } else {
+                    logger.info("Generating hash for file: {}", trackEntry.getFile().getAbsolutePath());
+                    hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+                    hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), hash);
+                }
 
                 UUID trackFileId = IMPFixer.getTrackFileId(headerPartitionPayloadRecord);
                 logger.info("UUID read from file: {}: {}", trackEntry.getFile().getName(), trackFileId.toString());
@@ -78,7 +94,7 @@ public class IMPAssembler {
                 imfTrackFileMetadataMap.put(
                         trackFileId,
                         new IMPBuilder.IMFTrackFileMetadata(headerPartitionBytes,
-                                hash,
+                                hash,   // a byte[] containing the SHA-1, Base64 encoded hash of the IMFTrack file
                                 CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
                                 trackEntry.getFile().getName(),
                                 resourceByteRangeProvider.getResourceSize())
@@ -387,14 +403,30 @@ public class IMPAssembler {
          * @param entryPoint - the entry point, if null, defaults to 0
          * @param duration - the duration, if null, defaults to intrinsic duration
          * @param repeatCount - the repeat count, if null, defaults to 1
+         * @param hash - the SHA-1 hash of the file, optional, introspected if null
          */
-        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
+        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount, @Nullable byte[] hash) {
             this.file = file;
             this.sampleRate = sampleRate;
             this.intrinsicDuration = intrinsicDuration;
             this.entryPoint = entryPoint;
             this.duration = duration;
             this.repeatCount = repeatCount;
+            this.hash = hash;
+        }
+
+        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
+            this(file, sampleRate, intrinsicDuration, entryPoint, duration, repeatCount, null);
+        }
+        
+        public TrackEntry() {
+            this.file = null;
+            this.sampleRate = null;
+            this.intrinsicDuration = null;
+            this.entryPoint = null;
+            this.duration = null;
+            this.repeatCount = null;
+            this.hash = null;
         }
 
         public File getFile() {
@@ -451,5 +483,15 @@ public class IMPAssembler {
         public BigInteger entryPoint;
         public BigInteger duration;
         public BigInteger repeatCount;
+
+        public byte[] getHash() {
+            return hash;
+        }
+
+        public void setHash(byte[] hash) {
+            this.hash = hash;
+        }
+
+        public byte[] hash;
     }
 }

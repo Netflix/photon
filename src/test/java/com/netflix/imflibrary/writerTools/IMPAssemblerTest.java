@@ -40,7 +40,8 @@ public class IMPAssemblerTest {
                                 BigInteger.valueOf(10),
                                 BigInteger.valueOf(0),
                                 BigInteger.valueOf(10),
-                                BigInteger.valueOf(1)
+                                BigInteger.valueOf(1),
+                                java.util.Base64.getDecoder().decode("fL7SnTeNskm71I4otXqr/T0D5LQ=")
                         ),
                         new IMPAssembler.TrackEntry(
                                 TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_ENG-51_00.mxf"),
@@ -48,7 +49,8 @@ public class IMPAssemblerTest {
                                 BigInteger.valueOf(8008),
                                 BigInteger.valueOf(0),
                                 BigInteger.valueOf(8008),
-                                BigInteger.valueOf(1)
+                                BigInteger.valueOf(1),
+                                java.util.Base64.getDecoder().decode("X6GxGHTavnlIRLZiD7hHe5/CUh4=")
                         )
 
                 },
