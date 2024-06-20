@@ -4,9 +4,11 @@ import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.Colorimetry.ColorModel;
 import com.netflix.imflibrary.Colorimetry.Quantization;
 import com.netflix.imflibrary.Colorimetry.Sampling;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
+import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.J2KHeaderParameters;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.JPEG2000;
 
@@ -269,13 +271,22 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
+    private static boolean isValidHT(CompositionImageEssenceDescriptorModel imageDescriptor) {
+        J2KHeaderParameters p = imageDescriptor.getJ2KHeaderParameters();
+
+        if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0)
+            return false;
+
+        return true;
+    }
+
     public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor) {
         UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
         Integer width = imageDescriptor.getStoredWidth();
         Integer height = imageDescriptor.getStoredHeight();
 
         if (JPEG2000.isAPP2HT(essenceCoding))
-            return true;
+            return isValidHT(imageDescriptor);
 
         if (JPEG2000.isIMF4KProfile(essenceCoding))
             return width > 2048 && width <= 4096 && height > 0 && height <= 3112;

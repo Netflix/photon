@@ -677,6 +677,25 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a Short
+     * @param name the LocalName for the field
+     * @return Returns field value as a Short
+     */
+    @Nullable
+    public Short getFieldAsShort(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Short.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+
+    /**
      * A method to obtain value of a field within DOMNodeObjectModel as an Integer
      * @param name the LocalName for the field
      * @return Returns field value as an Integer
@@ -729,7 +748,6 @@ public class DOMNodeObjectModel {
      * @param name the LocalName for the field
      * @return Returns a set of field values
      */
-    @Nullable
     void getFieldsAsStringRecursive(Set<String> values, String name) {
         try {
             Set<String> matchingValues = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).map(Map.Entry::getValue).map(Map::keySet).flatMap(Set::stream).collect(Collectors.toSet());

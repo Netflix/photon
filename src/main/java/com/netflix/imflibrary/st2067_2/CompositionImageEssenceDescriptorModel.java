@@ -1,10 +1,17 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.Colorimetry.CodingEquation;
+import com.netflix.imflibrary.Colorimetry.ColorModel;
+import com.netflix.imflibrary.Colorimetry.ColorPrimaries;
+import com.netflix.imflibrary.Colorimetry.Quantization;
+import com.netflix.imflibrary.Colorimetry.Sampling;
+import com.netflix.imflibrary.Colorimetry.TransferCharacteristic;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -188,6 +195,8 @@ public final class CompositionImageEssenceDescriptorModel {
 
                 this.sampling = parseSampling(this.colorModel);
             }
+
+            this.j2kParameters = parseJ2KParameters();
         }
         else {
             this.pixelBitDepth = null;
@@ -198,6 +207,9 @@ public final class CompositionImageEssenceDescriptorModel {
 
     }
 
+    public J2KHeaderParameters getJ2KHeaderParameters() {
+        return this.j2kParameters;
+    }
 
     public @Nonnull UUID getImageEssencedescriptorID() {
         return imageEssencedescriptorID;
@@ -386,6 +398,107 @@ public final class CompositionImageEssenceDescriptorModel {
 
     public @Nullable String getPaletteLayout() {
         return paletteLayout;
+    }
+
+    static public class J2KHeaderParameters {
+
+        static public class CSiz {
+             short ssiz;
+             short xrsiz;
+             short yrsiz;
+        }
+
+        static public class CAP {
+            long pcap;
+            int[] ccap;
+        }
+
+        Integer rsiz;
+        Long xsiz;
+        Long ysiz;
+        Long xosiz;
+        Long yosiz;
+        Long xtsiz;
+        Long ytsiz;
+        Long xtosiz;
+        Long ytosiz;
+        CSiz[] csiz;
+        byte[] cod;
+        byte[] qcd;
+        CAP cap;
+
+    }
+
+    J2KHeaderParameters j2kParameters;
+
+    private J2KHeaderParameters parseJ2KParameters() {
+        DOMNodeObjectModel sdNode = imageEssencedescriptorDOMNode.getDOMNode("SubDescriptors");
+        if (sdNode == null) {
+            /* missing SubDescriptors */
+            return null;
+        }
+
+        DOMNodeObjectModel j2kNode = sdNode.getDOMNode("JPEG2000SubDescriptor");
+        if (j2kNode == null) {
+            /* missing JPEG2000SubDescriptor */
+            return null;
+        }
+
+        J2KHeaderParameters params = new J2KHeaderParameters();
+
+        params.rsiz = j2kNode.getFieldAsInteger("Rsiz");
+
+        params.xsiz = j2kNode.getFieldAsLong("Xsiz");
+        params.ysiz = j2kNode.getFieldAsLong("Ysiz");
+        params.xosiz = j2kNode.getFieldAsLong("XOsiz");
+        params.yosiz = j2kNode.getFieldAsLong("YOsiz");
+        params.xtsiz = j2kNode.getFieldAsLong("XTsiz");
+        params.ytsiz = j2kNode.getFieldAsLong("YTsiz");
+        params.xtosiz = j2kNode.getFieldAsLong("XTOsiz");
+        params.ytosiz = j2kNode.getFieldAsLong("YTOsiz");
+
+        DOMNodeObjectModel csiziNode = j2kNode.getDOMNode("PictureComponentSizing");
+        if (csiziNode != null) {
+
+            List<DOMNodeObjectModel> csizi = csiziNode.getDOMNodes("J2KComponentSizing");
+            params.csiz = new J2KHeaderParameters.CSiz[csizi.size()];
+
+            for (int i = 0; i < params.csiz.length; i++) {
+
+                params.csiz[i] =  new J2KHeaderParameters.CSiz();
+
+                Short ssiz = csizi.get(i).getFieldAsShort("Ssiz");
+                if (ssiz != null) {
+                    params.csiz[i].ssiz = ssiz;
+                } else {
+                    /* bad ssiz */
+                }
+
+                Short xrsiz = csizi.get(i).getFieldAsShort("XRSiz");
+                if (xrsiz != null) {
+                    params.csiz[i].xrsiz = xrsiz;
+                } else {
+                    /* bad xrsiz */
+                }
+
+                Short yrsiz = csizi.get(i).getFieldAsShort("YRSiz");
+                if (yrsiz != null) {
+                    params.csiz[i].yrsiz = yrsiz;
+                } else {
+                    /* bad yrsiz */
+                }
+            }
+
+            Integer csiz = j2kNode.getFieldAsInteger("Csiz");
+            if (csiz != params.csiz.length) {
+                /* bad csiz */
+            }
+
+        } else {
+            /* missing csizi */
+        }
+
+        return params;
     }
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
