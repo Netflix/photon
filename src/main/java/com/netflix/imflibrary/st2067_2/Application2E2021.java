@@ -271,7 +271,8 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
-    private static boolean isValidHT(CompositionImageEssenceDescriptorModel imageDescriptor) {
+    private static boolean isValidHT(CompositionImageEssenceDescriptorModel imageDescriptor,
+                                     IMFErrorLogger logger) {
         J2KHeaderParameters p = imageDescriptor.getJ2KHeaderParameters();
 
         if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0)
@@ -317,18 +318,35 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         boolean isIRV = (p.cap.ccap[0] & 0b10000) != 0;
 
-        /*  */
+        /* COD */
+
+        if (p.cod == null) {
+            /* COD missing */
+            return false;
+        }
+
+        if (p.cod.scod != 0b01000000) {
+            /* COD missing */
+            return false;
+        }
+
+        if (p.cod.progressionOrder != 0b00000010)
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                "JPEG 2000 progression order is not RPCL");
 
         return true;
     }
 
-    public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor) {
+    public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor,
+                                            IMFErrorLogger logger) {
         UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
         Integer width = imageDescriptor.getStoredWidth();
         Integer height = imageDescriptor.getStoredHeight();
 
         if (JPEG2000.isAPP2HT(essenceCoding))
-            return isValidHT(imageDescriptor);
+            return isValidHT(imageDescriptor, logger);
 
         if (JPEG2000.isIMF4KProfile(essenceCoding))
             return width > 2048 && width <= 4096 && height > 0 && height <= 3112;
@@ -346,7 +364,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             IMFErrorLogger logger) {
 
         // J2K profiles
-        if (!isValidJ2KProfile(imageDescriptor)) {
+        if (!isValidJ2KProfile(imageDescriptor, logger)) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,

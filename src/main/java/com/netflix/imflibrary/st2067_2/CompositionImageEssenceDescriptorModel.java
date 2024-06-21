@@ -413,6 +413,18 @@ public final class CompositionImageEssenceDescriptorModel {
             int[] ccap;
         }
 
+        static public class COD {
+            short scod;
+            short progressionOrder;
+            int numLayers;
+            short multiComponentTransform;
+            short numDecompLevels;
+            short cbWidth;
+            short cbHeight;
+            short transformation;
+            short precinctSize[];
+        }
+
         Integer rsiz;
         Long xsiz;
         Long ysiz;
@@ -423,7 +435,7 @@ public final class CompositionImageEssenceDescriptorModel {
         Long xtosiz;
         Long ytosiz;
         CSiz[] csiz;
-        byte[] cod;
+        COD cod;
         byte[] qcd;
         CAP cap;
 
@@ -532,6 +544,19 @@ public final class CompositionImageEssenceDescriptorModel {
 
         }
 
+        /* COD */
+        String codString = j2kNode.getFieldAsString("CodingStyleDefault");
+
+        if (codString != null && codString.length() >= 18) {
+
+            params.cod = new J2KHeaderParameters.COD();
+
+            params.cod.scod = (short) Integer.parseInt(codString.substring(0, 2), 16);
+            params.cod.progressionOrder = (short) Integer.parseInt(codString.substring(2, 6), 16);
+
+        } else {
+            /* missing COD */
+        }
 
         return params;
     }
