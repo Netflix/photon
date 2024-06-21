@@ -224,6 +224,20 @@ public class Application2ExtendedCompositionTest
         Assert.assertEquals(p.cap.ccap[0], 2);
 
         Assert.assertEquals(p.qcd.sqcd, 0x20);
-        Assert.assertEquals(p.qcd.spqcd, new int[] {0x60, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x68, 0x60, 0x60, 0x68});
+        Assert.assertEquals(p.qcd.spqcd, new int[] { 0x60, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68,
+                0x68, 0x68, 0x60, 0x60, 0x68 });
+
+        /* 01020001010505034001778888888888 */
+        /*  */
+        Assert.assertEquals(p.cod.scod, 0x01);
+        Assert.assertEquals(p.cod.progressionOrder, 0x02);
+        Assert.assertEquals(p.cod.numLayers, 0x0001);
+        Assert.assertEquals(p.cod.multiComponentTransform, 0x01);
+        Assert.assertEquals(p.cod.numDecompLevels, 0x05);
+        Assert.assertEquals(p.cod.cbWidth, 0x05);
+        Assert.assertEquals(p.cod.cbHeight, 0x03);
+        Assert.assertEquals(p.cod.cbStyle, 0x40);
+        Assert.assertEquals(p.cod.transformation, 0x01);
+        Assert.assertEquals(p.cod.precinctSizes, new short[] { 0x77, 0x88, 0x88, 0x88, 0x88, 0x88 });
     }
 }
