@@ -334,6 +334,8 @@ public class Application2E2021 extends AbstractApplicationComposition {
             return false;
         }
 
+        /* progression order */
+
         if (p.cod.progressionOrder != 0b00000010)
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,

@@ -423,7 +423,12 @@ public final class CompositionImageEssenceDescriptorModel {
             short cbHeight;
             short cbStyle;
             short transformation;
-            short precinctSize[];
+            short precinctSizes[];
+        }
+
+        static public class QCD {
+            short sqcd;
+            int spqcd[];
         }
 
         Integer rsiz;
@@ -437,7 +442,7 @@ public final class CompositionImageEssenceDescriptorModel {
         Long ytosiz;
         CSiz[] csiz;
         COD cod;
-        byte[] qcd;
+        QCD qcd;
         CAP cap;
 
     }
@@ -552,7 +557,7 @@ public final class CompositionImageEssenceDescriptorModel {
         /* COD */
         String codString = j2kNode.getFieldAsString("CodingStyleDefault");
 
-        if (codString != null && codString.length() >= 20) {
+        if (codString != null && codString.length() >= 20 && (codString.length() % 2 == 0)) {
 
             params.cod = new J2KHeaderParameters.COD();
 
@@ -566,8 +571,35 @@ public final class CompositionImageEssenceDescriptorModel {
             params.cod.cbStyle = (short) Integer.parseInt(codString.substring(16, 18), 16);
             params.cod.transformation = (short) Integer.parseInt(codString.substring(18, 20), 16);
 
+            params.cod.precinctSizes = new short[(codString.length() - 20)/2];
+
+            for (int i = 0; i < params.cod.precinctSizes.length; i++) {
+                params.cod.precinctSizes[i] = (short) Integer.parseInt(codString.substring(20 + 2 * i, 22 + 2 * i), 16);
+            }
+
         } else {
             /* missing COD */
+        }
+
+        /* QCD */
+        String qcdString = j2kNode.getFieldAsString("QuantizationDefault");
+
+        if (qcdString != null && qcdString.length() >= 2 && (qcdString.length() % 2 == 0)) {
+
+            params.qcd = new J2KHeaderParameters.QCD();
+
+            params.qcd.sqcd = (short) Integer.parseInt(qcdString.substring(0, 2), 16);
+
+            int spqcdSize = (params.qcd.sqcd & 0b11111) == 0 ? 1 : 2;
+
+            params.qcd.spqcd = new int[(qcdString.length() - 2)/(2 * spqcdSize)];
+
+            for (int i = 0; i < params.qcd.spqcd.length; i++) {
+                params.qcd.spqcd[i] = (int) Integer.parseInt(qcdString.substring(2 + 2 * spqcdSize * i, 4 + 2 * spqcdSize * i), 16);
+            }
+
+        } else {
+            /* missing QCD */
         }
 
         return params;

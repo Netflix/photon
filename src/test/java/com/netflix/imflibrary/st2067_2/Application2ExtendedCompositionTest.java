@@ -2,7 +2,10 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.J2KHeaderParameters;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -177,5 +180,24 @@ public class Application2ExtendedCompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void validJ2KHeaderParameters() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
+        FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        IMFErrorLogger logger = new IMFErrorLoggerImpl();
+        IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, logger);
+        Application2E2021 app = new Application2E2021(imfCompositionPlaylistType);
+        CompositionImageEssenceDescriptorModel image = app.getCompositionImageEssenceDescriptorModel();
+
+        Assert.assertNotNull(image);
+
+        @SuppressWarnings("null")
+        J2KHeaderParameters p = image.getJ2KHeaderParameters();
+
+        Assert.assertEquals(p.rsiz, 16384);
+
     }
 }
