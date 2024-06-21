@@ -199,5 +199,31 @@ public class Application2ExtendedCompositionTest
 
         Assert.assertEquals(p.rsiz, 16384);
 
+        Assert.assertEquals(p.xsiz, 1920);
+        Assert.assertEquals(p.ysiz, 1080);
+        Assert.assertEquals(p.xosiz, 0);
+        Assert.assertEquals(p.yosiz, 0);
+        Assert.assertEquals(p.xtsiz, 1920);
+        Assert.assertEquals(p.ytsiz, 1080);
+        Assert.assertEquals(p.xtosiz, 0);
+        Assert.assertEquals(p.ytosiz, 0);
+
+        Assert.assertEquals(p.csiz.length, 3);
+        Assert.assertEquals(p.csiz[0].ssiz, 9);
+        Assert.assertEquals(p.csiz[0].yrsiz, 1);
+        Assert.assertEquals(p.csiz[0].xrsiz, 1);
+        Assert.assertEquals(p.csiz[1].ssiz, 9);
+        Assert.assertEquals(p.csiz[1].yrsiz, 1);
+        Assert.assertEquals(p.csiz[1].xrsiz, 1);
+        Assert.assertEquals(p.csiz[2].ssiz, 9);
+        Assert.assertEquals(p.csiz[2].yrsiz, 1);
+        Assert.assertEquals(p.csiz[2].xrsiz, 1);
+
+        Assert.assertEquals(p.cap.pcap, 131072);
+        Assert.assertEquals(p.cap.ccap.length, 1);
+        Assert.assertEquals(p.cap.ccap[0], 2);
+
+        Assert.assertEquals(p.qcd.sqcd, 0x20);
+        Assert.assertEquals(p.qcd.spqcd, new int[] {0x60, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x68, 0x60, 0x60, 0x68});
     }
 }
