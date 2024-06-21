@@ -744,6 +744,28 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A method to obtain set of Integer values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns a list of field values
+     */
+    public List<Integer> getFieldsAsInteger(String name) {
+
+        List<Integer> values = new ArrayList<Integer>();
+
+        Node child = this.getNode().getFirstChild();
+        while (child != null) {
+            if (child.getNodeType() != Node.ELEMENT_NODE || child.getLocalName() != name)
+                continue;
+
+            values.add(Integer.getInteger(child.getTextContent()));
+
+            child = child.getNextSibling();
+        }
+
+        return values;
+    }
+
+    /**
      * A method to obtain set of String values for a field within DOMNodeObjectModel
      * @param name the LocalName for the field
      * @return Returns a set of field values

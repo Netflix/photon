@@ -457,6 +457,7 @@ public final class CompositionImageEssenceDescriptorModel {
         params.xtosiz = j2kNode.getFieldAsLong("XTOsiz");
         params.ytosiz = j2kNode.getFieldAsLong("YTOsiz");
 
+        /* CSizi */
         DOMNodeObjectModel csiziNode = j2kNode.getDOMNode("PictureComponentSizing");
         if (csiziNode != null) {
 
@@ -497,6 +498,40 @@ public final class CompositionImageEssenceDescriptorModel {
         } else {
             /* missing csizi */
         }
+
+        /* CAP */
+        DOMNodeObjectModel capNode = j2kNode.getDOMNode("J2KExtendedCapabilities");
+        if (capNode != null) {
+
+            Integer pcap = capNode.getFieldAsInteger("Pcap");
+
+            if (pcap != null) {
+
+                DOMNodeObjectModel ccapiNode = capNode.getDOMNode("Ccapi");
+
+                if (ccapiNode != null) {
+
+                    List<Integer> values = ccapiNode.getFieldsAsInteger("UInt16");
+
+                    params.cap.ccap = new int[values.size()];
+
+                    for (int i = 0; i < params.cap.ccap.length; i++) {
+                        if (values.get(i) != null) {
+                            params.cap.ccap[i] = values.get(i);
+                        } else {
+                            /* bad ccapi value */
+                        }
+                    }
+
+                } else {
+                    /* missing Ccapi */
+                }
+            } else {
+                /* missing Pcap */
+            }
+
+        }
+
 
         return params;
     }

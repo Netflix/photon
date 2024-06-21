@@ -277,6 +277,48 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0)
             return false;
 
+        if (p.xtsiz < p.xsiz || p.ytsiz < p.ysiz)
+            return false;
+
+
+        /* components constraints */
+
+        if (p.csiz.length <= 0 || p.csiz.length > 4)
+            return false;
+
+        if (p.csiz[0].ssiz > 15 || p.csiz[0].ssiz < 7)
+            return false;
+
+        for (int i = 0; i < p.csiz.length; i++) {
+            if (p.csiz[i].yrsiz != 1)
+                return false;
+            if (p.csiz[i].xrsiz != 1) {
+                if (i == 2 && p.csiz[i].xrsiz != 2)
+                    return false;
+
+                if (i == 3 && p.csiz[3].xrsiz != p.csiz[2].xrsiz)
+                    return false;
+            }
+            if (p.csiz[i].ssiz != p.csiz[0].ssiz)
+                return false;
+        }
+
+        /* CAP constraints */
+
+        if (p.cap == null || p.cap.pcap != 131072 || p.cap.ccap.length != 1) {
+            /* codestream shall require only Part 15 capabilities */
+            return false;
+        }
+
+        if ((p.cap.ccap[0] & 0b1111000000000000) != 0) {
+            /* Bits 12-15 of Ccap15 shall be 0 */
+            return false;
+        }
+
+        boolean isIRV = (p.cap.ccap[0] & 0b10000) != 0;
+
+        /*  */
+
         return true;
     }
 
