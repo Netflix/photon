@@ -754,8 +754,8 @@ public class DOMNodeObjectModel {
 
         Node child = this.getNode().getFirstChild();
         while (child != null) {
-            if (child.getNodeType() == Node.ELEMENT_NODE && child.getLocalName() == name)
-                values.add(Integer.getInteger(child.getTextContent()));
+            if (child.getNodeType() == Node.ELEMENT_NODE && child.getLocalName().equals(name))
+                values.add(Integer.parseInt(child.getTextContent()));
 
             child = child.getNextSibling();
         }

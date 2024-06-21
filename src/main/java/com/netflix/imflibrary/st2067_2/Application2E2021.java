@@ -325,8 +325,12 @@ public class Application2E2021 extends AbstractApplicationComposition {
             return false;
         }
 
-        if (p.cod.scod != 0b01000000) {
-            /* COD missing */
+        /* no scod constraints? */
+
+        /* code-block style */
+
+        if (p.cod.cbStyle != 0b01000000) {
+            /* bad code-block style */
             return false;
         }
 

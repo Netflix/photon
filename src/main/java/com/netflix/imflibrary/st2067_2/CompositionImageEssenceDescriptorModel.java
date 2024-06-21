@@ -421,6 +421,7 @@ public final class CompositionImageEssenceDescriptorModel {
             short numDecompLevels;
             short cbWidth;
             short cbHeight;
+            short cbStyle;
             short transformation;
             short precinctSize[];
         }
@@ -519,6 +520,10 @@ public final class CompositionImageEssenceDescriptorModel {
 
             if (pcap != null) {
 
+                params.cap = new J2KHeaderParameters.CAP();
+
+                params.cap.pcap = pcap;
+
                 DOMNodeObjectModel ccapiNode = capNode.getDOMNode("Ccapi");
 
                 if (ccapiNode != null) {
@@ -547,12 +552,19 @@ public final class CompositionImageEssenceDescriptorModel {
         /* COD */
         String codString = j2kNode.getFieldAsString("CodingStyleDefault");
 
-        if (codString != null && codString.length() >= 18) {
+        if (codString != null && codString.length() >= 20) {
 
             params.cod = new J2KHeaderParameters.COD();
 
             params.cod.scod = (short) Integer.parseInt(codString.substring(0, 2), 16);
-            params.cod.progressionOrder = (short) Integer.parseInt(codString.substring(2, 6), 16);
+            params.cod.progressionOrder = (short) Integer.parseInt(codString.substring(2, 4), 16);
+            params.cod.numLayers = (int) Integer.parseInt(codString.substring(4, 8), 16);
+            params.cod.multiComponentTransform = (short) Integer.parseInt(codString.substring(8, 10), 16);
+            params.cod.numDecompLevels = (short) Integer.parseInt(codString.substring(10, 12), 16);
+            params.cod.cbWidth = (short) Integer.parseInt(codString.substring(12, 14), 16);
+            params.cod.cbHeight = (short) Integer.parseInt(codString.substring(14, 16), 16);
+            params.cod.cbStyle = (short) Integer.parseInt(codString.substring(16, 18), 16);
+            params.cod.transformation = (short) Integer.parseInt(codString.substring(18, 20), 16);
 
         } else {
             /* missing COD */
