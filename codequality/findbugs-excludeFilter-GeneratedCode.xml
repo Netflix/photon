@@ -38,4 +38,9 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE" />
     </Match>
 
+    <!-- It should be possible to define a class that is tested but not fully used at this time -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD" />
+    </Match>
+
 </FindBugsFilter>
