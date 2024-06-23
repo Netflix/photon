@@ -234,8 +234,8 @@ public class Application2ExtendedCompositionTest
         Assert.assertEquals(p.cod.numLayers, 0x0001);
         Assert.assertEquals(p.cod.multiComponentTransform, 0x01);
         Assert.assertEquals(p.cod.numDecompLevels, 0x05);
-        Assert.assertEquals(p.cod.cbWidth, 0x05);
-        Assert.assertEquals(p.cod.cbHeight, 0x03);
+        Assert.assertEquals(p.cod.xcb, 7);
+        Assert.assertEquals(p.cod.ycb, 5);
         Assert.assertEquals(p.cod.cbStyle, 0x40);
         Assert.assertEquals(p.cod.transformation, 0x01);
         Assert.assertEquals(p.cod.precinctSizes, new short[] { 0x77, 0x88, 0x88, 0x88, 0x88, 0x88 });

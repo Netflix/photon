@@ -419,8 +419,8 @@ public final class CompositionImageEssenceDescriptorModel {
             int numLayers;
             short multiComponentTransform;
             short numDecompLevels;
-            short cbWidth;
-            short cbHeight;
+            short xcb;
+            short ycb;
             short cbStyle;
             short transformation;
             short precinctSizes[];
@@ -566,8 +566,8 @@ public final class CompositionImageEssenceDescriptorModel {
             params.cod.numLayers = (int) Integer.parseInt(codString.substring(4, 8), 16);
             params.cod.multiComponentTransform = (short) Integer.parseInt(codString.substring(8, 10), 16);
             params.cod.numDecompLevels = (short) Integer.parseInt(codString.substring(10, 12), 16);
-            params.cod.cbWidth = (short) Integer.parseInt(codString.substring(12, 14), 16);
-            params.cod.cbHeight = (short) Integer.parseInt(codString.substring(14, 16), 16);
+            params.cod.xcb = (short) (Integer.parseInt(codString.substring(12, 14), 16) + 2);
+            params.cod.ycb = (short) (Integer.parseInt(codString.substring(14, 16), 16) + 2);
             params.cod.cbStyle = (short) Integer.parseInt(codString.substring(16, 18), 16);
             params.cod.transformation = (short) Integer.parseInt(codString.substring(18, 20), 16);
 

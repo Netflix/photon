@@ -342,6 +342,27 @@ public class Application2E2021 extends AbstractApplicationComposition {
                 IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 "JPEG 2000 progression order is not RPCL");
 
+        /* resolution layers */
+        if (p.cod.numDecompLevels == 0)
+            return false;
+
+        long maxSz = Math.max(p.xsiz, p.ysiz);
+        if (maxSz <= 2048 && p.cod.numDecompLevels > 5) {
+            return false;
+        } else if (maxSz <= 4096 && p.cod.numDecompLevels > 6) {
+            return false;
+        } else if (maxSz <= 8192 && p.cod.numDecompLevels > 7) {
+            return false;
+        }
+
+        /* code-block sizes */
+
+        if (p.cod.ycb < 5 || p.cod.ycb > 6)
+            return false;
+
+        if (p.cod.xcb < 5 || p.cod.xcb > 7)
+            return false;
+
         return true;
     }
 
