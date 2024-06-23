@@ -384,6 +384,22 @@ public class Application2E2021 extends AbstractApplicationComposition {
             if (p.cod.precinctSizes[i] != 0x88)
                 return false;
 
+        /* magbp */
+
+        int b = p.csiz[0].ssiz + 2;
+
+        if (isIRV) {
+            b += 2 + p.cod.multiComponentTransform;
+            if (p.cod.numDecompLevels > 5)
+                b += 1;
+        } else {
+            if (p.cod.multiComponentTransform == 1 && p.csiz[0].ssiz > 9)
+                b += 1;
+        }
+
+        if (((p.cap.ccap[0] & 0b11111) + 8) > b)
+            return false;
+
         return true;
     }
 
