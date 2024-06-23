@@ -355,6 +355,11 @@ public class Application2E2021 extends AbstractApplicationComposition {
             return false;
         }
 
+        /* number of layers */
+
+        if (p.cod.numLayers != 1)
+            return false;
+
         /* code-block sizes */
 
         if (p.cod.ycb < 5 || p.cod.ycb > 6)
@@ -362,6 +367,22 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         if (p.cod.xcb < 5 || p.cod.xcb > 7)
             return false;
+
+        /* transformation */
+
+        if ((!isIRV) && p.cod.transformation == 0 /* 9-7 irreversible filter */)
+            return false;
+        else if (isIRV && p.cod.transformation == 1 /* 5-3 reversible filter */)
+            return false;
+
+        /* precinct size */
+
+        if (p.cod.precinctSizes.length == 0 || p.cod.precinctSizes[0] != 0x77)
+            return false;
+
+        for (int i = 1; i < p.cod.precinctSizes.length; i++)
+            if (p.cod.precinctSizes[i] != 0x88)
+                return false;
 
         return true;
     }
