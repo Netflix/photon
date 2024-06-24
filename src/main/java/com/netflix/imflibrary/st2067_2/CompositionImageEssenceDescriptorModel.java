@@ -450,6 +450,8 @@ public final class CompositionImageEssenceDescriptorModel {
     J2KHeaderParameters j2kParameters;
 
     private J2KHeaderParameters parseJ2KParameters() {
+        J2KHeaderParameters params = new J2KHeaderParameters();
+
         DOMNodeObjectModel sdNode = imageEssencedescriptorDOMNode.getDOMNode("SubDescriptors");
         if (sdNode == null) {
             /* missing SubDescriptors */
@@ -462,60 +464,72 @@ public final class CompositionImageEssenceDescriptorModel {
             return null;
         }
 
-        J2KHeaderParameters params = new J2KHeaderParameters();
-
         params.rsiz = j2kNode.getFieldAsInteger("Rsiz");
+        if (params.rsiz == null)
+            return null;
 
         params.xsiz = j2kNode.getFieldAsLong("Xsiz");
+        if (params.xsiz == null)
+            return null;
+
         params.ysiz = j2kNode.getFieldAsLong("Ysiz");
+        if (params.ysiz == null)
+            return null;
+
         params.xosiz = j2kNode.getFieldAsLong("XOsiz");
+        if (params.xosiz == null)
+            return null;
+
         params.yosiz = j2kNode.getFieldAsLong("YOsiz");
+        if (params.yosiz == null)
+            return null;
+
         params.xtsiz = j2kNode.getFieldAsLong("XTsiz");
+        if (params.xtsiz == null)
+            return null;
+
         params.ytsiz = j2kNode.getFieldAsLong("YTsiz");
+        if (params.ytsiz == null)
+            return null;
+
         params.xtosiz = j2kNode.getFieldAsLong("XTOsiz");
+        if (params.xtosiz == null)
+            return null;
+
         params.ytosiz = j2kNode.getFieldAsLong("YTOsiz");
+        if (params.ytosiz == null)
+            return null;
 
         /* CSizi */
         DOMNodeObjectModel csiziNode = j2kNode.getDOMNode("PictureComponentSizing");
-        if (csiziNode != null) {
+        if (csiziNode == null)
+            return null;
 
-            List<DOMNodeObjectModel> csizi = csiziNode.getDOMNodes("J2KComponentSizing");
-            params.csiz = new J2KHeaderParameters.CSiz[csizi.size()];
+        List<DOMNodeObjectModel> csizi = csiziNode.getDOMNodes("J2KComponentSizing");
 
-            for (int i = 0; i < params.csiz.length; i++) {
+        params.csiz = new J2KHeaderParameters.CSiz[csizi.size()];
+        for (int i = 0; i < params.csiz.length; i++) {
+            params.csiz[i] =  new J2KHeaderParameters.CSiz();
 
-                params.csiz[i] =  new J2KHeaderParameters.CSiz();
+            Short ssiz = csizi.get(i).getFieldAsShort("Ssiz");
+            if (ssiz == null)
+                return null;
+            params.csiz[i].ssiz = ssiz;
 
-                Short ssiz = csizi.get(i).getFieldAsShort("Ssiz");
-                if (ssiz != null) {
-                    params.csiz[i].ssiz = ssiz;
-                } else {
-                    /* bad ssiz */
-                }
+            Short xrsiz = csizi.get(i).getFieldAsShort("XRSiz");
+            if (xrsiz == null)
+                return null;
+            params.csiz[i].xrsiz = xrsiz;
 
-                Short xrsiz = csizi.get(i).getFieldAsShort("XRSiz");
-                if (xrsiz != null) {
-                    params.csiz[i].xrsiz = xrsiz;
-                } else {
-                    /* bad xrsiz */
-                }
-
-                Short yrsiz = csizi.get(i).getFieldAsShort("YRSiz");
-                if (yrsiz != null) {
-                    params.csiz[i].yrsiz = yrsiz;
-                } else {
-                    /* bad yrsiz */
-                }
-            }
-
-            Integer csiz = j2kNode.getFieldAsInteger("Csiz");
-            if (csiz != params.csiz.length) {
-                /* bad csiz */
-            }
-
-        } else {
-            /* missing csizi */
+            Short yrsiz = csizi.get(i).getFieldAsShort("YRSiz");
+            if (yrsiz == null)
+                return null;
+            params.csiz[i].yrsiz = yrsiz;
         }
+
+        Integer csiz = j2kNode.getFieldAsInteger("Csiz");
+        if (csiz != params.csiz.length)
+            return null;
 
         /* CAP */
         DOMNodeObjectModel capNode = j2kNode.getDOMNode("J2KExtendedCapabilities");
@@ -526,30 +540,30 @@ public final class CompositionImageEssenceDescriptorModel {
             if (pcap != null) {
 
                 params.cap = new J2KHeaderParameters.CAP();
-
                 params.cap.pcap = pcap;
 
                 DOMNodeObjectModel ccapiNode = capNode.getDOMNode("Ccapi");
-
                 if (ccapiNode != null) {
-
                     List<Integer> values = ccapiNode.getFieldsAsInteger("UInt16");
 
                     params.cap.ccap = new int[values.size()];
-
                     for (int i = 0; i < params.cap.ccap.length; i++) {
-                        if (values.get(i) != null) {
-                            params.cap.ccap[i] = values.get(i);
-                        } else {
-                            /* bad ccapi value */
-                        }
+                        if (values.get(i) == null)
+                            return null;
+                        params.cap.ccap[i] = values.get(i);
                     }
 
-                } else {
-                    /* missing Ccapi */
                 }
+
+                int ccapLength = Long.bitCount(params.cap.pcap);
+                if (ccapLength > 0 && (params.cap.ccap == null || params.cap.ccap.length != ccapLength))
+                    return null;
+                if (ccapLength == 0 && (params.cap.ccap != null && params.cap.ccap.length != 0))
+                    return null;
+
             } else {
-                /* missing Pcap */
+                /* pcap is missing */
+                return null;
             }
 
         }
@@ -560,7 +574,6 @@ public final class CompositionImageEssenceDescriptorModel {
         if (codString != null && codString.length() >= 20 && (codString.length() % 2 == 0)) {
 
             params.cod = new J2KHeaderParameters.COD();
-
             params.cod.scod = (short) Integer.parseInt(codString.substring(0, 2), 16);
             params.cod.progressionOrder = (short) Integer.parseInt(codString.substring(2, 4), 16);
             params.cod.numLayers = (int) Integer.parseInt(codString.substring(4, 8), 16);
@@ -572,13 +585,10 @@ public final class CompositionImageEssenceDescriptorModel {
             params.cod.transformation = (short) Integer.parseInt(codString.substring(18, 20), 16);
 
             params.cod.precinctSizes = new short[(codString.length() - 20)/2];
-
             for (int i = 0; i < params.cod.precinctSizes.length; i++) {
                 params.cod.precinctSizes[i] = (short) Integer.parseInt(codString.substring(20 + 2 * i, 22 + 2 * i), 16);
             }
 
-        } else {
-            /* missing COD */
         }
 
         /* QCD */
@@ -591,15 +601,11 @@ public final class CompositionImageEssenceDescriptorModel {
             params.qcd.sqcd = (short) Integer.parseInt(qcdString.substring(0, 2), 16);
 
             int spqcdSize = (params.qcd.sqcd & 0b11111) == 0 ? 1 : 2;
-
             params.qcd.spqcd = new int[(qcdString.length() - 2)/(2 * spqcdSize)];
-
             for (int i = 0; i < params.qcd.spqcd.length; i++) {
                 params.qcd.spqcd[i] = (int) Integer.parseInt(qcdString.substring(2 + 2 * spqcdSize * i, 4 + 2 * spqcdSize * i), 16);
             }
 
-        } else {
-            /* missing QCD */
         }
 
         return params;

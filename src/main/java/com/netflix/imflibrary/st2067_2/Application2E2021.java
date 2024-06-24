@@ -271,49 +271,105 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
-    private static boolean isValidHT(CompositionImageEssenceDescriptorModel imageDescriptor,
+    private static boolean validateHT(CompositionImageEssenceDescriptorModel imageDescriptor,
                                      IMFErrorLogger logger) {
+        boolean isValid = true;
+
         J2KHeaderParameters p = imageDescriptor.getJ2KHeaderParameters();
 
-        if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0)
+        if (p == null) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Missing or incomplete JPEG 2000 Sub-descriptor");
             return false;
+        }
 
-        if (p.xtsiz < p.xsiz || p.ytsiz < p.ysiz)
-            return false;
+        if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Invalid XOsiz, YOsiz, XTOsiz or YTOsiz");
+            isValid = false;
+        }
 
+        if (p.xtsiz < p.xsiz || p.ytsiz < p.ysiz) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Invalid XTsiz or XYsiz");
+            isValid = false;
+        }
 
         /* components constraints */
 
-        if (p.csiz.length <= 0 || p.csiz.length > 4)
-            return false;
-
-        if (p.csiz[0].ssiz > 15 || p.csiz[0].ssiz < 7)
-            return false;
-
-        for (int i = 0; i < p.csiz.length; i++) {
-            if (p.csiz[i].yrsiz != 1)
-                return false;
-            if (p.csiz[i].xrsiz != 1) {
-                if (i == 2 && p.csiz[i].xrsiz != 2)
-                    return false;
-
-                if (i == 3 && p.csiz[3].xrsiz != p.csiz[2].xrsiz)
-                    return false;
-            }
-            if (p.csiz[i].ssiz != p.csiz[0].ssiz)
-                return false;
+        if (p.csiz.length <= 0 || p.csiz.length > 4) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("APP2.HT: Invalid number (%s) of components", p.csiz.toString()));
+            isValid = false;
         }
 
+        if (p.csiz[0].ssiz > 15 || p.csiz[0].ssiz < 7) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("APP2.HT: Invalid bit depth (%d)", p.csiz[0].ssiz + 1));
+            isValid = false;
+        }
+
+        for (int i = 0; i < p.csiz.length; i++) {
+            if (p.csiz[i].yrsiz != 1) {
+                logger.addError(
+                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("APP2.HT: invalid vertical sub-sampling for component %d", i));
+                isValid = false;
+            }
+            if (p.csiz[i].xrsiz != 1) {
+                if (i == 2 && p.csiz[i].xrsiz != 2) {
+                    logger.addError(
+                            IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            "APP2.HT: invalid horizontal sub-sampling for component 2");
+                    isValid = false;
+                }
+
+                if (i == 3 && p.csiz[3].xrsiz != p.csiz[2].xrsiz) {
+                    logger.addError(
+                            IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            "APP2.HT: invalid horizontal sub-sampling for component 3");
+                    isValid = false;
+                }
+            }
+            if (p.csiz[i].ssiz != p.csiz[0].ssiz) {
+                logger.addError(
+                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        "APP2.HT: all components must have the same bit depth");
+                isValid = false;
+            }
+        }
         /* CAP constraints */
 
         if (p.cap == null || p.cap.pcap != 131072 || p.cap.ccap.length != 1) {
             /* codestream shall require only Part 15 capabilities */
-            return false;
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: missing or invalid CAP marker");
+            isValid = false;
         }
 
         if ((p.cap.ccap[0] & 0b1111000000000000) != 0) {
             /* Bits 12-15 of Ccap15 shall be 0 */
-            return false;
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Bits 12-15 of Ccap15 shall be 0");
+            isValid = false;
         }
 
         boolean isIRV = (p.cap.ccap[0] & 0b10000) != 0;
@@ -321,68 +377,117 @@ public class Application2E2021 extends AbstractApplicationComposition {
         /* COD */
 
         if (p.cod == null) {
-            /* COD missing */
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Missing COD marker");
             return false;
         }
 
-        /* no scod constraints? */
+        /* no scod constraints */
 
         /* code-block style */
-
         if (p.cod.cbStyle != 0b01000000) {
             /* bad code-block style */
-            return false;
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Invalid default code-block style");
+            isValid = false;
         }
 
         /* progression order */
-
         if (p.cod.progressionOrder != 0b00000010)
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                "JPEG 2000 progression order is not RPCL");
+                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                "APP2.HT: JPEG 2000 progression order is not RPCL");
 
         /* resolution layers */
-        if (p.cod.numDecompLevels == 0)
-            return false;
+        if (p.cod.numDecompLevels == 0) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: Number of decomposition levels must be greater than 0");
+            isValid = false;
+        }
+
 
         long maxSz = Math.max(p.xsiz, p.ysiz);
-        if (maxSz <= 2048 && p.cod.numDecompLevels > 5) {
-            return false;
-        } else if (maxSz <= 4096 && p.cod.numDecompLevels > 6) {
-            return false;
-        } else if (maxSz <= 8192 && p.cod.numDecompLevels > 7) {
-            return false;
+        if ((maxSz <= 2048 && p.cod.numDecompLevels > 5) ||
+            (maxSz <= 4096 && p.cod.numDecompLevels > 6) ||
+            (maxSz <= 8192 && p.cod.numDecompLevels > 7)) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: Invalid number of decomposition levels");
+            isValid = false;
         }
 
         /* number of layers */
 
-        if (p.cod.numLayers != 1)
-            return false;
+        if (p.cod.numLayers != 1) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("APP2.HT: Number of layers (%d) is not 1", p.cod.numLayers));
+            isValid = false;
+        }
 
         /* code-block sizes */
 
-        if (p.cod.ycb < 5 || p.cod.ycb > 6)
-            return false;
+        if (p.cod.ycb < 5 || p.cod.ycb > 6) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("APP2.HT: Invalid vertical code-block size (ycb = %d)", p.cod.ycb));
+            isValid = false;
+        }
 
-        if (p.cod.xcb < 5 || p.cod.xcb > 7)
-            return false;
+        if (p.cod.xcb < 5 || p.cod.xcb > 7) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                String.format("APP2.HT: Invalid horizontal code-block size (xcb = %d)", p.cod.xcb));
+            isValid = false;
+        }
+
 
         /* transformation */
 
-        if ((!isIRV) && p.cod.transformation == 0 /* 9-7 irreversible filter */)
-            return false;
-        else if (isIRV && p.cod.transformation == 1 /* 5-3 reversible filter */)
-            return false;
+        if ((!isIRV) && p.cod.transformation == 0 /* 9-7 irreversible filter */) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: 9-7 irreversible filter must be used for APP2.HT.IRV");
+            isValid = false;
+        } else if (isIRV && p.cod.transformation == 1 /* 5-3 reversible filter */) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: 5-3 reversible filter must be used for APP2.HT.REV");
+            isValid = false;
+        }
 
         /* precinct size */
 
-        if (p.cod.precinctSizes.length == 0 || p.cod.precinctSizes[0] != 0x77)
-            return false;
+        if (p.cod.precinctSizes.length == 0 || p.cod.precinctSizes[0] != 0x77) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: Invalid precinct sizes");
+            isValid = false;
+        }
 
         for (int i = 1; i < p.cod.precinctSizes.length; i++)
-            if (p.cod.precinctSizes[i] != 0x88)
-                return false;
+            if (p.cod.precinctSizes[i] != 0x88) {
+                logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Invalid precinct sizes");
+                isValid = false;
+                break;
+            }
 
         /* magbp */
 
@@ -397,10 +502,15 @@ public class Application2E2021 extends AbstractApplicationComposition {
                 b += 1;
         }
 
-        if (((p.cap.ccap[0] & 0b11111) + 8) > b)
-            return false;
+        if (((p.cap.ccap[0] & 0b11111) + 8) > b) {
+            logger.addError(
+                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                "APP2.HT: Parameter B has exceeded its limits");
+            isValid = false;
+        }
 
-        return true;
+        return isValid;
     }
 
     public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor,
@@ -410,7 +520,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Integer height = imageDescriptor.getStoredHeight();
 
         if (JPEG2000.isAPP2HT(essenceCoding))
-            return isValidHT(imageDescriptor, logger);
+            return validateHT(imageDescriptor, logger);
 
         if (JPEG2000.isIMF4KProfile(essenceCoding))
             return width > 2048 && width <= 4096 && height > 0 && height <= 3112;
