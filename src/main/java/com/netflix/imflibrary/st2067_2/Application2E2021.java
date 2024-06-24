@@ -372,7 +372,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             isValid = false;
         }
 
-        boolean isIRV = (p.cap.ccap[0] & 0b10000) != 0;
+        boolean isHTREV = (p.cap.ccap[0] & 0b100000) == 0;
 
         /* COD */
 
@@ -455,17 +455,13 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         /* transformation */
 
-        if ((!isIRV) && p.cod.transformation == 0 /* 9-7 irreversible filter */) {
+        boolean isReversibleFilter = (p.cod.transformation == 1);
+
+        if (isHTREV && !isReversibleFilter) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                "APP2.HT: 9-7 irreversible filter must be used for APP2.HT.IRV");
-            isValid = false;
-        } else if (isIRV && p.cod.transformation == 1 /* 5-3 reversible filter */) {
-            logger.addError(
-                IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                "APP2.HT: 5-3 reversible filter must be used for APP2.HT.REV");
+                "APP2.HT: 9-7 irreversible filter is used but HTREV is signaled in CAP");
             isValid = false;
         }
 
@@ -493,7 +489,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         int b = p.csiz[0].ssiz + 2;
 
-        if (isIRV) {
+        if (isReversibleFilter) {
             b += 2 + p.cod.multiComponentTransform;
             if (p.cod.numDecompLevels > 5)
                 b += 1;
