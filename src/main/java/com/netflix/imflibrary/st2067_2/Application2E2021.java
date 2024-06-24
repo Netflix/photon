@@ -307,7 +307,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("APP2.HT: Invalid number (%s) of components", p.csiz.toString()));
+                    String.format("APP2.HT: Invalid number (%d) of components", p.csiz.length));
             isValid = false;
         }
 
@@ -354,13 +354,13 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
         /* CAP constraints */
 
-        if (p.cap == null || p.cap.pcap != 131072 || p.cap.ccap.length != 1) {
+        if (p.cap == null || p.cap.pcap != 131072 || p.cap.ccap == null || p.cap.ccap.length != 1) {
             /* codestream shall require only Part 15 capabilities */
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     "APP2.HT: missing or invalid CAP marker");
-            isValid = false;
+            return false;
         }
 
         if ((p.cap.ccap[0] & 0b1111000000000000) != 0) {
