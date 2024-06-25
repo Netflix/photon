@@ -487,18 +487,18 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         /* magbp */
 
-        int b = p.csiz[0].ssiz + 2;
 
+        int maxB = p.csiz[0].ssiz + 2;
         if (isReversibleFilter) {
-            b += 2 + p.cod.multiComponentTransform;
+            maxB += 2 + p.cod.multiComponentTransform;
             if (p.cod.numDecompLevels > 5)
-                b += 1;
-        } else {
-            if (p.cod.multiComponentTransform == 1 && p.csiz[0].ssiz > 9)
-                b += 1;
+                maxB += 1;
+        } else if (p.cod.multiComponentTransform == 1 && p.csiz[0].ssiz > 9) {
+            maxB += 1;
         }
 
-        if (((p.cap.ccap[0] & 0b11111) + 8) > b) {
+        int codestreamB = (p.cap.ccap[0] & 0b11111) + 8;
+        if (codestreamB > maxB) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
