@@ -214,4 +214,13 @@ public class IMPAnalyzerTest
 
     }
 
+    @Test
+    public void IMPAnalyzerAnalyzeTrackFileNullTerminatedStrings() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("IMFTrackFiles/AUDIO.null_terminated_strings.mxf");
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        Assert.assertEquals(errorList.size(), 0);
+
+    }
+
 }
