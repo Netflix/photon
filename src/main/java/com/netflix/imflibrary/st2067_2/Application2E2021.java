@@ -311,6 +311,38 @@ public class Application2E2021 extends AbstractApplicationComposition {
             isValid = false;
         }
 
+        /* x sub-sampling */
+        if (p.csiz[0].xrsiz != 1) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: invalid horizontal sub-sampling for component 1");
+            isValid = false;
+        }
+        if (p.csiz.length > 1 && p.csiz[1].xrsiz != 1 &&
+            (p.csiz.length <= 2 || p.csiz[1].xrsiz != 2 || p.csiz[2].xrsiz != 2)) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: invalid horizontal sub-sampling for component 2");
+            isValid = false;
+        }
+        if (p.csiz.length > 2 && p.csiz[2].xrsiz != 1 && (p.csiz[1].xrsiz != 2 || p.csiz[2].xrsiz != 2)) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: invalid horizontal sub-sampling for component 3");
+            isValid = false;
+        }
+        if (p.csiz.length > 3 && p.csiz[3].xrsiz != 1) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: invalid horizontal sub-sampling for component 4");
+            isValid = false;
+        }
+
+        /* y sub-sampling and sample width */
         if (p.csiz[0].ssiz > 15 || p.csiz[0].ssiz < 7) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
@@ -318,7 +350,6 @@ public class Application2E2021 extends AbstractApplicationComposition {
                     String.format("APP2.HT: Invalid bit depth (%d)", p.csiz[0].ssiz + 1));
             isValid = false;
         }
-
         for (int i = 0; i < p.csiz.length; i++) {
             if (p.csiz[i].yrsiz != 1) {
                 logger.addError(
@@ -326,23 +357,6 @@ public class Application2E2021 extends AbstractApplicationComposition {
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format("APP2.HT: invalid vertical sub-sampling for component %d", i));
                 isValid = false;
-            }
-            if (p.csiz[i].xrsiz != 1) {
-                if (i == 2 && p.csiz[i].xrsiz != 2) {
-                    logger.addError(
-                            IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                            "APP2.HT: invalid horizontal sub-sampling for component 2");
-                    isValid = false;
-                }
-
-                if (i == 3 && p.csiz[3].xrsiz != p.csiz[2].xrsiz) {
-                    logger.addError(
-                            IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                            "APP2.HT: invalid horizontal sub-sampling for component 3");
-                    isValid = false;
-                }
             }
             if (p.csiz[i].ssiz != p.csiz[0].ssiz) {
                 logger.addError(
