@@ -91,6 +91,7 @@ dependencies {
 
     compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}"
     compileOnly "org.slf4j:slf4j-api:latest.release"
+    runtimeOnly "org.slf4j:slf4j-simple:latest.release"
 
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
