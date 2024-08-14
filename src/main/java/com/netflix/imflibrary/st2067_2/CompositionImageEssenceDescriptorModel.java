@@ -400,6 +400,22 @@ public final class CompositionImageEssenceDescriptorModel {
         return paletteLayout;
     }
 
+    public enum ProgressionOrder {
+        LRCP((short)0x00000000),    /* Layer-resolution level-component-position progression */
+        RLCP((short)0b00000001),    /* Resolution level-layer-component-position progression */
+        RPCL((short)0b00000010),    /* Resolution level-position-component-layer progression */
+        PCRL((short)0b00000011),    /* Position-component-resolution level-layer progression */
+        CPRL((short)0b00000100);    /* Component-position-resolution level-layer progression */
+
+        private final short value;
+        ProgressionOrder(short value) {
+            this.value = value;
+        }
+        public short value() {
+            return value;
+        }
+    }
+
     static public class J2KHeaderParameters {
 
         static public class CSiz {

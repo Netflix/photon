@@ -9,6 +9,7 @@ import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.J2KHeaderParameters;
+import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.ProgressionOrder;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.JPEG2000;
 
@@ -368,6 +369,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
         /* CAP constraints */
 
+        /* Pcapi is 1 for i = 15, and 0 otherwise, per ST 2067-21 Annex I; therefore, pcap = 2^(32-15) = 131072 */
         if (p.cap == null || p.cap.pcap != 131072 || p.cap.ccap == null || p.cap.ccap.length != 1) {
             /* codestream shall require only Part 15 capabilities */
             logger.addError(
@@ -410,8 +412,8 @@ public class Application2E2021 extends AbstractApplicationComposition {
             isValid = false;
         }
 
-        /* progression order */
-        if (p.cod.progressionOrder != 0b00000010)
+        /* progression order - RPCL is not required, but ST 2067-21:2023 Annex I Note 3 implies a preference */
+        if (p.cod.progressionOrder != ProgressionOrder.RPCL.value())
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                 IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
