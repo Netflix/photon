@@ -272,6 +272,8 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
     }
 
+    /* Validate codestream parameters against constraints listed in SMPTE ST 2067-21:2023 Annex I */
+
     private static boolean validateHT(CompositionImageEssenceDescriptorModel imageDescriptor,
                                      IMFErrorLogger logger) {
         boolean isValid = true;
@@ -501,7 +503,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
                 break;
             }
 
-        /* magbp */
+        /* magbp - calculation according to ITU-T T.814 */
 
 
         int maxB = p.csiz[0].ssiz + 2;
@@ -514,12 +516,26 @@ public class Application2E2021 extends AbstractApplicationComposition {
         }
 
         int codestreamB = (p.cap.ccap[0] & 0b11111) + 8;
-        if (codestreamB > maxB) {
+
+        /*
+        *   NOTE: The Parameter B constraints in ST 2067-21:2023 are arguably too narrow, and existing implementations do violate them under certain circumstances.
+        *   Since practical issues are not expected from software decoders for Parameter B values <= 24, we only raise WARNING for spec violations below that threshold.
+        *
+        *   TODO: This should be revisited as more implementations become available.
+        */
+
+        if (codestreamB > 24) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "APP2.HT: Parameter B has exceeded its limit to an extend that decoder issues are to be expected");
+            isValid = false;
+        } else if (codestreamB > maxB) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                 "APP2.HT: Parameter B has exceeded its limits");
-            isValid = false;
+            isValid = true;
         }
 
         return isValid;
