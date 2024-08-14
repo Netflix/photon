@@ -523,6 +523,14 @@ public class Application2E2021 extends AbstractApplicationComposition {
         return isValid;
     }
 
+    /**
+     * @deprecated Instead use {@link #isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor, IMFErrorLogger logger)}
+     */
+    @Deprecated
+    public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor) {
+        return isValidJ2KProfile(imageDescriptor, new com.netflix.imflibrary.IMFErrorLoggerImpl());
+    }
+
     public static boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor,
                                             IMFErrorLogger logger) {
         UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
