@@ -521,7 +521,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         *   NOTE: The Parameter B constraints in ST 2067-21:2023 are arguably too narrow, and existing implementations do violate them under certain circumstances.
         *   Since practical issues are not expected from software decoders for Parameter B values <= 24, we only raise WARNING for spec violations below that threshold.
         *
-        *   TODO: This should be revisited as more implementations become available.
+        *   TODO: This should be revisited as more implementations become available. Discussion for reference: https://github.com/SMPTE/st2067-21/issues/7
         */
 
         if (codestreamB > 24) {
