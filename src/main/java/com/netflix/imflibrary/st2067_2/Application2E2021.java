@@ -291,7 +291,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Invalid XOsiz, YOsiz, XTOsiz or YTOsiz");
             isValid = false;
         }
@@ -299,7 +299,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.xtsiz < p.xsiz || p.ytsiz < p.ysiz) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Invalid XTsiz or XYsiz");
             isValid = false;
         }
@@ -309,7 +309,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.csiz.length <= 0 || p.csiz.length > 4) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("APP2.HT: Invalid number (%d) of components", p.csiz.length));
             isValid = false;
         }
@@ -318,7 +318,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.csiz[0].xrsiz != 1) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: invalid horizontal sub-sampling for component 1");
             isValid = false;
         }
@@ -326,21 +326,21 @@ public class Application2E2021 extends AbstractApplicationComposition {
             (p.csiz.length <= 2 || p.csiz[1].xrsiz != 2 || p.csiz[2].xrsiz != 2)) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: invalid horizontal sub-sampling for component 2");
             isValid = false;
         }
         if (p.csiz.length > 2 && p.csiz[2].xrsiz != 1 && (p.csiz[1].xrsiz != 2 || p.csiz[2].xrsiz != 2)) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: invalid horizontal sub-sampling for component 3");
             isValid = false;
         }
         if (p.csiz.length > 3 && p.csiz[3].xrsiz != 1) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: invalid horizontal sub-sampling for component 4");
             isValid = false;
         }
@@ -349,7 +349,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.csiz[0].ssiz > 15 || p.csiz[0].ssiz < 7) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("APP2.HT: Invalid bit depth (%d)", p.csiz[0].ssiz + 1));
             isValid = false;
         }
@@ -357,14 +357,14 @@ public class Application2E2021 extends AbstractApplicationComposition {
             if (p.csiz[i].yrsiz != 1) {
                 logger.addError(
                         IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("APP2.HT: invalid vertical sub-sampling for component %d", i));
                 isValid = false;
             }
             if (p.csiz[i].ssiz != p.csiz[0].ssiz) {
                 logger.addError(
                         IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         "APP2.HT: all components must have the same bit depth");
                 isValid = false;
             }
@@ -376,7 +376,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             /* codestream shall require only Part 15 capabilities */
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: missing or invalid CAP marker");
             return false;
         }
@@ -385,7 +385,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             /* Bits 12-15 of Ccap15 shall be 0 */
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Bits 12-15 of Ccap15 shall be 0");
             isValid = false;
         }
@@ -409,7 +409,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             /* bad code-block style */
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Invalid default code-block style");
             isValid = false;
         }
@@ -425,7 +425,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.cod.numDecompLevels == 0) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 "APP2.HT: Number of decomposition levels must be greater than 0");
             isValid = false;
         }
@@ -437,7 +437,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             (maxSz <= 8192 && p.cod.numDecompLevels > 7)) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 "APP2.HT: Invalid number of decomposition levels");
             isValid = false;
         }
@@ -447,7 +447,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.cod.numLayers != 1) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format("APP2.HT: Number of layers (%d) is not 1", p.cod.numLayers));
             isValid = false;
         }
@@ -457,7 +457,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.cod.ycb < 5 || p.cod.ycb > 6) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format("APP2.HT: Invalid vertical code-block size (ycb = %d)", p.cod.ycb));
             isValid = false;
         }
@@ -465,7 +465,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.cod.xcb < 5 || p.cod.xcb > 7) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format("APP2.HT: Invalid horizontal code-block size (xcb = %d)", p.cod.xcb));
             isValid = false;
         }
@@ -478,7 +478,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (isHTREV && !isReversibleFilter) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 "APP2.HT: 9-7 irreversible filter is used but HTREV is signaled in CAP");
             isValid = false;
         }
@@ -488,7 +488,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (p.cod.precinctSizes.length == 0 || p.cod.precinctSizes[0] != 0x77) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 "APP2.HT: Invalid precinct sizes");
             isValid = false;
         }
@@ -497,7 +497,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
             if (p.cod.precinctSizes[i] != 0x88) {
                 logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Invalid precinct sizes");
                 isValid = false;
                 break;
@@ -527,7 +527,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         if (codestreamB > 24) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: Parameter B has exceeded its limit to an extend that decoder issues are to be expected");
             isValid = false;
         } else if (codestreamB > maxB) {
