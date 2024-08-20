@@ -519,23 +519,23 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
         /*
         *   NOTE: The Parameter B constraints in ST 2067-21:2023 are arguably too narrow, and existing implementations do violate them under certain circumstances.
-        *   Since practical issues are not expected from software decoders for Parameter B values <= 24, we only raise WARNING for spec violations below that threshold.
+        *   Since practical issues are not expected from software decoders otherwise, an ERROR is currently returned only for values that exceed the max value (21)
+        *   allowed for any configuration by ST 2067-21:2023. A WARNING is provided for values that exceed the limit stated in ST 2067-21:2023, but not 21.
         *
         *   TODO: This should be revisited as more implementations become available. Discussion for reference: https://github.com/SMPTE/st2067-21/issues/7
         */
 
-        if (codestreamB > 24) {
+        if (codestreamB > 21) {
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    "APP2.HT: Parameter B has exceeded its limit to an extend that decoder issues are to be expected");
+                    "APP2.HT: Parameter B has exceeded its limit to an extent that decoder issues are to be expected");
             isValid = false;
         } else if (codestreamB > maxB) {
             logger.addError(
                 IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                 IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                 "APP2.HT: Parameter B has exceeded its limits");
-            isValid = true;
         }
 
         return isValid;
