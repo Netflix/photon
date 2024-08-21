@@ -677,6 +677,25 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A method to obtain value of a field within DOMNodeObjectModel as a Short
+     * @param name the LocalName for the field
+     * @return Returns field value as a Short
+     */
+    @Nullable
+    public Short getFieldAsShort(String name) {
+        String value = getFieldAsString(name);
+        try {
+            if(value != null)
+                return Short.valueOf(value);
+        }
+        catch(Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+
+    /**
      * A method to obtain value of a field within DOMNodeObjectModel as an Integer
      * @param name the LocalName for the field
      * @return Returns field value as an Integer
@@ -725,11 +744,30 @@ public class DOMNodeObjectModel {
     }
 
     /**
+     * A method to obtain set of Integer values for a field within DOMNodeObjectModel
+     * @param name the LocalName for the field
+     * @return Returns a list of field values
+     */
+    public List<Integer> getFieldsAsInteger(String name) {
+
+        List<Integer> values = new ArrayList<Integer>();
+
+        Node child = this.getNode().getFirstChild();
+        while (child != null) {
+            if (child.getNodeType() == Node.ELEMENT_NODE && child.getLocalName().equals(name))
+                values.add(Integer.parseInt(child.getTextContent()));
+
+            child = child.getNextSibling();
+        }
+
+        return values;
+    }
+
+    /**
      * A method to obtain set of String values for a field within DOMNodeObjectModel
      * @param name the LocalName for the field
      * @return Returns a set of field values
      */
-    @Nullable
     void getFieldsAsStringRecursive(Set<String> values, String name) {
         try {
             Set<String> matchingValues = this.getFields().entrySet().stream().filter(e -> e.getKey().getLocalName().equals(name)).map(Map.Entry::getValue).map(Map::keySet).flatMap(Set::stream).collect(Collectors.toSet());
