@@ -317,8 +317,7 @@ final class CompositionModel_st2067_2_2016 {
                                         org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
                                         org.smpte_ra.ns._2067_2._2020.ObjectFactory.class,      // 2020 Core constraints
                                         org.smpte_ra.ns._2067_201._2019.ObjectFactory.class,    // IAB plugin
-                                        org.smpte_ra.ns._2067_203._2022.ObjectFactory.class,    // MGA S-ADM plugin
-                                        org.smpte_ra.ns._2067_204._2022.ObjectFactory.class);   // MGA S-ADM plugin
+                                        org.smpte_ra.ns._2067_203._2022.ObjectFactory.class);   // MGA S-ADM plugin
             }
             catch(JAXBException e)
             {
@@ -341,7 +340,6 @@ final class CompositionModel_st2067_2_2016 {
                  InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
                  InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
                  InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");
-                 InputStream xsd_adm_2067_204 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_204_2024/st2067-204-2024.xsd");
             )
             {
                 // Build a schema from all of the XSD files provided
@@ -353,7 +351,6 @@ final class CompositionModel_st2067_2_2016 {
                         new StreamSource(xsd_core_constraints_2016),
                         new StreamSource(xsd_core_constraints_2020),
                         new StreamSource(xsd_sadm_2067_203),
-                        new StreamSource(xsd_adm_2067_204),
                 });
             }
             catch(IOException | SAXException e)

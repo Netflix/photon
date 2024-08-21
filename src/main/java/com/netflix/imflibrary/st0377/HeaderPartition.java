@@ -1426,8 +1426,6 @@ public final class HeaderPartition
                     return "IABEssence";
                 case MGASADMSignalSequence:
                     return "MGASADMEssence";
-                case ADMAudioSequence:
-                    return "MainAudioEssence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";
@@ -1540,15 +1538,6 @@ public final class HeaderPartition
             if (sid != -1) break;
         }
         return sid;
-    }
-
-    /**
-     * Getter for a copy of the uidToBOs Hash Map
-     *
-     * @return A copy of the uidToBOs Hash Map
-     */
-    public Map<MXFUID, InterchangeObject.InterchangeObjectBO> getUidToBOs() {
-        return new HashMap<>(this.uidToBOs);
     }
 
 }

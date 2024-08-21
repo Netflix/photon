@@ -31,12 +31,8 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.st2067_203.IMFMGASADMConstraintsChecker;
-import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
-import com.netflix.imflibrary.st2067_204.IMFADMAudioConstraintsChecker;
-import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
@@ -162,11 +158,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
 
         if (IMFCoreConstraintsChecker.hasMGASADMVirtualTracks(compositionPlaylistType, virtualTrackMap)) {
             List<ErrorLogger.ErrorObject> errors = IMFMGASADMConstraintsChecker.checkMGASADMVirtualTrack(compositionPlaylistType.getEditRate(), virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet);
-            imfErrorLogger.addAllErrors(errors);
-        }
-
-        if (IMFCoreConstraintsChecker.hasADMAudioVirtualTracks(compositionPlaylistType, virtualTrackMap)) {
-            List<ErrorLogger.ErrorObject> errors = IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrack(compositionPlaylistType.getEditRate(), virtualTrackMap, essenceDescriptorListMap, this.regXMLLibDictionary, homogeneitySelectionSet);
             imfErrorLogger.addAllErrors(errors);
         }
 
@@ -942,20 +933,6 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
     private List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
-        List<InterchangeObject.InterchangeObjectBO> references = new ArrayList<>();
-        for (InterchangeObject.InterchangeObjectBO sub : subDescriptors) {
-            if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
-                ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
-                    for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
-                        references.add(headerPartition.getUidToBOs().get(strongRef.getInstanceUID()));
-                    }
-            }
-        }
-        if (!references.isEmpty()) {
-            for (InterchangeObject.InterchangeObjectBO reference: references) {
-                subDescriptors.add(reference);
-            }
-        }
         for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
             if (subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

@@ -34,14 +34,10 @@ import com.netflix.imflibrary.st0377.header.EssenceContainerData;
 import com.netflix.imflibrary.st0377.header.FileDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
 import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
-import com.netflix.imflibrary.st2067_204.ADMAudioTrackFileConstraints;
-import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
-import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -142,7 +138,6 @@ public final class IMFTrackFileReader
             if (this.headerPartition != null) {
                 IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
                 MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
-                ADMAudioTrackFileConstraints.checkComplianceFromIMFTrackFileReader(this.headerPartition, imfErrorLogger);
             }
         }
         catch (MXFException | IMFException e){
@@ -491,20 +486,6 @@ public final class IMFTrackFileReader
     List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors(essenceDescriptor);
-        List<InterchangeObject.InterchangeObjectBO> references = new ArrayList<>();
-        for (InterchangeObject.InterchangeObjectBO sub : subDescriptors) {
-            if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
-                ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
-                    for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
-                        references.add(this.getHeaderPartition(imfErrorLogger).getUidToBOs().get(strongRef.getInstanceUID()));
-                    }
-            }
-        }
-        if (!references.isEmpty()) {
-            for (InterchangeObject.InterchangeObjectBO reference: references) {
-                subDescriptors.add(reference);
-            }
-        }
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

@@ -25,8 +25,6 @@ import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
-import com.netflix.imflibrary.st2067_204.ADMAudioMetadataSubDescriptor;
-import com.netflix.imflibrary.st2067_204.ADMAudioTrackFileConstraints;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
@@ -153,12 +151,7 @@ public final class IMFConstraints
                     MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
                     GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
                     if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND)) {
-                        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
-                        List<InterchangeObject.InterchangeObjectBO> admAudioMetadataSubDescriptors = null;
-                        if (subDescriptors.size() > 0) {
-                            admAudioMetadataSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ADMAudioMetadataSubDescriptor.class)).collect(Collectors.toList());
-                        }
-                        if (genericDescriptor instanceof WaveAudioEssenceDescriptor && (admAudioMetadataSubDescriptors == null || admAudioMetadataSubDescriptors.size() == 0)) {
+                        if (genericDescriptor instanceof WaveAudioEssenceDescriptor) {
                             WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
                             if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
                                     (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)))) {
@@ -181,7 +174,7 @@ public final class IMFConstraints
                             if (!StructuralMetadata.isAudioWaveClipWrapped(waveAudioEssenceDescriptor.getEssenceContainerUL().getULAsBytes()[14])) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("WaveAudioEssenceDescriptor indicates that the Audio Essence within an Audio Track File is not Wave Clip-Wrapped in the IMFTrackFile represented by ID %s.", packageID.toString()));
                             }
-                            //List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(); Moved to top!
+                            List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
                             //Section 5.3.6.2 st2067-2:2016
                             if (subDescriptors.size() == 0) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX +
