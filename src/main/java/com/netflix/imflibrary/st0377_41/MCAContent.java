@@ -20,7 +20,7 @@ package com.netflix.imflibrary.st0377_41;
 
 /**
  * This enum lists the MCA Content Vocabulary defined in the following specification:
- * ST 377-41:2021 Table 2
+ * ST 377-41:2023 Table 2
  */
 public enum MCAContent {
 	PRM("Primary"),
@@ -35,14 +35,21 @@ public enum MCAContent {
 	OP("Optional Music and Effects"),
 	MESP("Music and Effects with Optional"),
 	DME("DME"),
-	NDM("NDME"),
-	PNA("Program Narration"),
-	ONA("Optional Narration"),
+	NDME("NDME"),
+	PNAR("Program Narration"),
+	ONAR("Optional Narration"),
 	VO("Voice Over"),
 	VI("Visually Impaired"),
 	CM("Recorded Commentary"),
 	LCM("Live Commentary"),
 	MOS("Silence"),
+	ADR("Automated Dialog Replacement"),
+	GRP("Group"),
+	WLA("Walla"),
+	CRD("Crowd"),
+	VOC("Vocals"),
+	FOL("Foley"),
+	BG("Backgrounds"),
 	x("Custom"),
 	Unknown("Unknown");
 
@@ -52,17 +59,17 @@ public enum MCAContent {
     }
 
     /**
-     * Getter for description for the audio content kind
-     * @return a String describing the audio content kind
+     * Getter for description for the MCA Content
+     * @return a String describing the MCA Content
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * This method map audio content kind symbol to corresponding enum
-     * @param value a Symbol representing audio content kind
-     * @return AudioContentKind enumeration for the symbol if present otherwise returns Unknown enumeration
+     * This method maps an MCA Content symbol to the corresponding enum
+     * @param value a Symbol representing the MCA Content
+     * @return MCAContent enumeration for the symbol if present otherwise returns Unknown enumeration
      */
     public static MCAContent getValueFromSymbol(String value) {
         if(value == null) {
