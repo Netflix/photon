@@ -50,6 +50,9 @@ public final class IMFConstraints
     private static final byte[] IMF_CHANNEL_ASSIGNMENT_UL = {0x06, 0x0e, 0x2b, 0x34, 0x04, 0x01, 0x01, 0x0d, 0x04, 0x02, 0x02, 0x10, 0x04, 0x01, 0x00, 0x00};
     public static final String IMSC1TextProfileDesignator = "http://www.w3.org/ns/ttml/profile/imsc1/text";
     public static final String IMSC1ImageProfileDesignator = "http://www.w3.org/ns/ttml/profile/imsc1/image";
+    // Timed Text profile designators per SMPTE ST 2067-2:2020, section 5.4.2
+    private static final String[] IMSC1TextProfileDesignators2020 = {IMSC1TextProfileDesignator, "http://www.w3.org/ns/ttml/profile/imsc1.1/text", "urn:ebu:tt:distribution:2014-01", "urn:ebu:tt:distribution:2018-04", "http://www.w3.org/ns/ttml/profile/sdp-us", "https://www.netflix.com/ns/imsc1.1/text/1"};
+    private static final String[] IMSC1ImageProfileDesignators2020 = {IMSC1ImageProfileDesignator, "http://www.w3.org/ns/ttml/profile/imsc1.1/image"};
     public static final String IMSC1ImageResourceMimeMediaType = "image/png";
     public static final String IMSC1FontResourceMimeMediaType = "application/x-font-opentype";
     //to prevent instantiation
@@ -278,11 +281,11 @@ public final class IMFConstraints
                                         packageID.toString()));
                             }
                             //https://www.w3.org/TR/ttml-imsc1/ Section 6.3
-                            if (!timedTextDescriptor.getNamespaceURI().equals(IMSC1TextProfileDesignator) && !timedTextDescriptor.getNamespaceURI().equals(IMSC1ImageProfileDesignator)) {
+                            if (!(Arrays.asList(IMSC1TextProfileDesignators2020).contains(timedTextDescriptor.getNamespaceURI()) || Arrays.asList(IMSC1ImageProfileDesignators2020).contains(timedTextDescriptor.getNamespaceURI()))) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints
                                         .IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Invalid NamespaceURI(%s) in TimedTextDescriptor within trackFile represented by ID %s. Valid NamespaceURIs: " +
                                         "{%s}, {%s}",
-                                        timedTextDescriptor.getNamespaceURI(), packageID.toString(), IMSC1TextProfileDesignator, IMSC1ImageProfileDesignator));
+                                        timedTextDescriptor.getNamespaceURI(), packageID.toString(), Arrays.toString(IMSC1TextProfileDesignators2020), Arrays.toString(IMSC1ImageProfileDesignators2020)));
                             }
                             for(TimeTextResourceSubDescriptor textResourceSubDescriptor : timedTextDescriptor.getSubDescriptorList()) {
                                 //Section 5.4.5 and 5.4.6 st2067-2:2016
