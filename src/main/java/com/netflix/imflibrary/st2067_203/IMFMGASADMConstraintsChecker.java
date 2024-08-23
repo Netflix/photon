@@ -51,8 +51,8 @@ import org.smpte_ra.ns._2067_203._2022.MGASADMSoundfieldGroupSelectorType;
 import org.smpte_ra.ns._2067_203._2022.MGASADMVirtualTrackParameterSet;
 
 import static com.netflix.imflibrary.st0377.header.GenericSoundEssenceDescriptor.ElectroSpatialFormulation.MULTI_CHANNEL_MODE;
-import static com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor.IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL;
-import static com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor.MGA_AUDIOESSENCE_UNCOMPRESSED_SOUND_ENCODING_LABEL;
+import static com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING;
+import static com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA;
 
 public class IMFMGASADMConstraintsChecker {
     private static final Integer MGASADM_BIT_DEPTH = 24;
@@ -88,16 +88,16 @@ public class IMFMGASADMConstraintsChecker {
                             imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
                 }
 
-                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL)) {
+                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(MXF_GC_CLIP_WRAPPED_MGA)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an MGA S-ADM VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
-                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL));
+                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), MXF_GC_CLIP_WRAPPED_MGA));
                 }
 
-                if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equals(MGA_AUDIOESSENCE_UNCOMPRESSED_SOUND_ENCODING_LABEL)) {
+                if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equals(MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an MGA S-ADM VirtualTrack Resource does not use the correct Sound Compression UL: %s vs. %s",
-                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("SoundCompression"), MGA_AUDIOESSENCE_UNCOMPRESSED_SOUND_ENCODING_LABEL));
+                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("SoundCompression"), MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING));
                 }
 
                 if (domNodeObjectModel.getFieldAsInteger("QuantizationBits") != MGASADM_BIT_DEPTH.intValue()) {

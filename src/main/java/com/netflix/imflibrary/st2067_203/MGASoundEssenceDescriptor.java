@@ -38,10 +38,8 @@ import java.util.Map;
 @Immutable
 public class MGASoundEssenceDescriptor extends GenericSoundEssenceDescriptor {
 
-    public final static UL MGA_AUDIOESSENCE_UNCOMPRESSED_SOUND_ENCODING_LABEL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.04020201.02010000");
-    public final static UL IMF_MGASADM_ESSENCE_CLIP_WRAPPED_ELEMENT_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060E2B34.01020101.0D010301.16000F00");
-    public final static UL IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.0d010301.02250200");
-    public final static UL MGAAudioEssenceUncompressedSoundCoding = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.04020201.02010000");
+    public final static UL MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.04020201.02010000");
+    public final static UL MXF_GC_CLIP_WRAPPED_MGA = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.0d010301.02250200");
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + MGASoundEssenceDescriptor.class.getSimpleName() + " : ";
 
     public MGASoundEssenceDescriptor(MGASoundEssenceDescriptorBO mgaSoundEssenceDescriptorBO)

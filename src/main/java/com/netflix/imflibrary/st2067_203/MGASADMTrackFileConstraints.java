@@ -99,14 +99,14 @@ public final class MGASADMTrackFileConstraints {
                     }
 
                     // ST 2067-203 section 5.4
-                    if (!mgaEssenceDescriptor.getEssenceContainerUL().equals(MGASoundEssenceDescriptor.IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL)) {
+                    if (!mgaEssenceDescriptor.getEssenceContainerUL().equals(MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not use as Essence Container Label item the IMF Clip-Wrapped MGA Essence Container Label %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.IMF_MGASADM_ESSENCE_CLIP_WRAPPED_CONTAINER_UL, mgaEssenceDescriptor.getEssenceContainerUL().toString()));
+                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not use as Essence Container Label item the IMF Clip-Wrapped MGA Essence Container Label %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA, mgaEssenceDescriptor.getEssenceContainerUL().toString()));
                     }
                     // ST 2127-10, Section 6
-                    if (!mgaEssenceDescriptor.getSoundEssenceCoding().equals(MGASoundEssenceDescriptor.MGAAudioEssenceUncompressedSoundCoding)) {
+                    if (!mgaEssenceDescriptor.getSoundEssenceCoding().equals(MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Immersive Audio Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MGA_AUDIOESSENCE_UNCOMPRESSED_SOUND_ENCODING_LABEL, mgaEssenceDescriptor.getSoundEssenceCoding().toString()));
+                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Immersive Audio Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, mgaEssenceDescriptor.getSoundEssenceCoding().toString()));
                     }
 
                     // ST 2067-203 Table 1
