@@ -593,9 +593,6 @@ public class IMPValidator {
                     0L,
                     (long)payloadRecord.getPayload().length,
                     imfErrorLogger);
-                Preface preface = headerPartition.getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage) genericPackage;
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
                 if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.IABEssence) {
