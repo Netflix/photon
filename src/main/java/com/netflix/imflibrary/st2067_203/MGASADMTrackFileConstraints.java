@@ -163,7 +163,7 @@ public final class MGASADMTrackFileConstraints {
                         }
                         
                         //
-                        // MGASoundEssenceDescriptor
+                        // MGASoundfieldGroupLabelSubDescriptor
                         //
                         List<InterchangeObject.InterchangeObjectBO> mgaSoundfieldGroupLabelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(MGASoundfieldGroupLabelSubDescriptor.class)).collect(Collectors.toList());
                         if (mgaSoundfieldGroupLabelSubDescriptors.size() == 0) {

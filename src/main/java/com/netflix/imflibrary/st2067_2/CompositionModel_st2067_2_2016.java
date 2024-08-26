@@ -6,8 +6,6 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
-
-import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;

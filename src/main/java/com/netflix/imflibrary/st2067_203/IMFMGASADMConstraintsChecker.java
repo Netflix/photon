@@ -164,9 +164,9 @@ public class IMFMGASADMConstraintsChecker {
         }
         return imfErrorLogger.getErrors();
     }
-    public static List<ErrorLogger.ErrorObject> checkMGASADMVirtualTrackParameterSet(ApplicationComposition applicationComposition,
-            IMFErrorLogger compositionErrorLogger) {
+    public static List<ErrorLogger.ErrorObject> checkMGASADMVirtualTrackParameterSet(ApplicationComposition applicationComposition) {
 
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<MGASADMVirtualTrackParameterSet> mgaSADMVirtualTrackParameterSetList = new ArrayList<>();
         List<String> mgaSADMSignalSequenceTrackIds = new ArrayList<>();
         Map<UUID , List<String>> mgaSadmResourceHash = new LinkedHashMap<>();
@@ -181,7 +181,7 @@ public class IMFMGASADMConstraintsChecker {
                     // collect all MGASADMVirtualTrackParameterSet instances
                     mgaSADMVirtualTrackParameterSetList.add(vtps);
                     if (!MGA_SADM_OPERATIONAL_MODES.contains(vtps.getMGASADMOperationalMode())) {
-                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Value %s of Operational Mode not permitted in MGASADMVirtualTrackParameterSet", vtps.getMGASADMOperationalMode()));
                     }
                 }
@@ -204,14 +204,14 @@ public class IMFMGASADMConstraintsChecker {
                         if (UUIDHelper.fromUUID(virtualTrack.getTrackID()).matches(vps.getTrackId())) trackIdsFound++;
                     }
                     if (trackIdsFound == 0) {
-                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
                     } else if (trackIdsFound > 1) {
-                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                 IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("There are %d MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present, shall be only 1", trackIdsFound, virtualTrack.getTrackID().toString()));
                     }
                 } else {
-                    compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
                 }
             }
@@ -219,47 +219,47 @@ public class IMFMGASADMConstraintsChecker {
         // Check if any MGASADMVirtualTrackParameterSet items do not correspond to a MGASADMSignalSequence
         for (MGASADMVirtualTrackParameterSet vps : mgaSADMVirtualTrackParameterSetList) {
             if (mgaSADMSignalSequenceTrackIds.isEmpty()) {
-                compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
             } else {
                 if (!mgaSADMSignalSequenceTrackIds.contains(vps.getTrackId())) {
-                    compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
                 } else {
-	                for (MGASADMSoundfieldGroupSelectorType mga_sg_selector: vps.getMGASADMSoundfieldGroupSelector()) {
-	                    if (!mgaSadmResourceHash.get(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId())).contains(mga_sg_selector.getResourceId())) {
-	                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-	                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references an unknown resource %s", vps.getTrackId(), mga_sg_selector.getResourceId()));
-	                    } else {
-	                        Optional<IMFEssenceComponentVirtualTrack> optional = applicationComposition.getEssenceVirtualTracks().stream().filter(e->e.getTrackID().equals(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId()))).findAny();
-	                        if (optional.isPresent()) {
-	                            IMFEssenceComponentVirtualTrack virtual_track = optional.get();
-	                            Optional<IMFTrackFileResourceType> optional2 = virtual_track.getTrackFileResourceList().stream().filter(e->e.getId().equals(mga_sg_selector.getResourceId())).findAny();
-	                            if (optional2.isPresent()) {
-	                                DOMNodeObjectModel essence_descriptor_dom_node = applicationComposition.getEssenceDescriptor(UUIDHelper.fromUUIDAsURNStringToUUID(optional2.get().getTrackFileId()));
-	                                List<UUID> mca_sg_link_id_list = new ArrayList<>();
-	                                for (Map.Entry<DOMNodeObjectModel, Integer> entry : essence_descriptor_dom_node.getChildrenDOMNodes().entrySet()) {
-	                                    if (!entry.getKey().getLocalName().equals("SubDescriptors")) continue;
+                    for (MGASADMSoundfieldGroupSelectorType mga_sg_selector: vps.getMGASADMSoundfieldGroupSelector()) {
+                        if (!mgaSadmResourceHash.get(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId())).contains(mga_sg_selector.getResourceId())) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references an unknown resource %s", vps.getTrackId(), mga_sg_selector.getResourceId()));
+                        } else {
+                            Optional<IMFEssenceComponentVirtualTrack> optional = applicationComposition.getEssenceVirtualTracks().stream().filter(e->e.getTrackID().equals(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId()))).findAny();
+                            if (optional.isPresent()) {
+                                IMFEssenceComponentVirtualTrack virtual_track = optional.get();
+                                Optional<IMFTrackFileResourceType> optional2 = virtual_track.getTrackFileResourceList().stream().filter(e->e.getId().equals(mga_sg_selector.getResourceId())).findAny();
+                                if (optional2.isPresent()) {
+                                    DOMNodeObjectModel essence_descriptor_dom_node = applicationComposition.getEssenceDescriptor(UUIDHelper.fromUUIDAsURNStringToUUID(optional2.get().getTrackFileId()));
+                                    List<UUID> mca_sg_link_id_list = new ArrayList<>();
+                                    for (Map.Entry<DOMNodeObjectModel, Integer> entry : essence_descriptor_dom_node.getChildrenDOMNodes().entrySet()) {
+                                        if (!entry.getKey().getLocalName().equals("SubDescriptors")) continue;
 
-	                                    for (Map.Entry<DOMNodeObjectModel, Integer> subentry : entry.getKey().getChildrenDOMNodes().entrySet()) {
-	                                        if (subentry.getKey().getLocalName().equals("MGASoundfieldGroupLabelSubDescriptor")) {
-	                                            mca_sg_link_id_list.addAll(subentry.getKey().getFieldsAsUUID("MCALinkID"));
-	                                        }
-	                                    }
-	                                }
-	                                for (String link_id : mga_sg_selector.getMGASoundfieldGroupLinkID()) {
-	                                    if (!mca_sg_link_id_list.contains(UUIDHelper.fromUUIDAsURNStringToUUID(link_id))) {
-	                                        compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-	                                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references unknown MGASoundfieldGroupLinkID %s", vps.getTrackId(), link_id));
-	                                    }
-	                                }
-	                            }
-	                        }
-	                    }
-	                }
+                                        for (Map.Entry<DOMNodeObjectModel, Integer> subentry : entry.getKey().getChildrenDOMNodes().entrySet()) {
+                                            if (subentry.getKey().getLocalName().equals("MGASoundfieldGroupLabelSubDescriptor")) {
+                                                mca_sg_link_id_list.addAll(subentry.getKey().getFieldsAsUUID("MCALinkID"));
+                                            }
+                                        }
+                                    }
+                                    for (String link_id : mga_sg_selector.getMGASoundfieldGroupLinkID()) {
+                                        if (!mca_sg_link_id_list.contains(UUIDHelper.fromUUIDAsURNStringToUUID(link_id))) {
+                                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references unknown MGASoundfieldGroupLinkID %s", vps.getTrackId(), link_id));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-    return compositionErrorLogger.getErrors();
+    return imfErrorLogger.getErrors();
     }
 }
