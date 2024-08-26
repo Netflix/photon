@@ -1,21 +1,3 @@
-/*
- *
- * Copyright 2024 RheinMain University of Applied Sciences, Wiesbaden, Germany.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- *
- */
-
 package com.netflix.imflibrary.st2067_203;
 
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -441,6 +423,72 @@ public class IMPAnalyzerTest
                         Assert.assertEquals(e.getValue().size(), 3);
                     } else if (e.getKey().matches("CPL_9c74b53a-f31d-4189-bb50-ffddf455ed7b.xml")) {
                         Assert.assertEquals(e.getValue().size(), 0);
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+
+    }
+
+    @Test
+    public void IMPAnalyzerTest20() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_no_virtual_track_parameterset/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 5);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL_86bf532c-cdde-46aa-9038-8e5651d0b78d.xml Virtual Track Conformance")) {
+                        Assert.assertEquals(e.getValue().size(), 4);
+                    } else if (e.getKey().matches("ST2067-203_audio_track_file__compliant.mxf")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
+                    } else if (e.getKey().matches("CPL_86bf532c-cdde-46aa-9038-8e5651d0b78d.xml")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+
+    }
+
+    @Test
+    public void IMPAnalyzerTest21() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_unkown_operational_mode/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 5);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL_4c71a219-0a14-4faa-8526-985e48098a97.xml Virtual Track Conformance")) {
+                        Assert.assertEquals(e.getValue().size(), 4);
+                    } else if (e.getKey().matches("ST2067-203_audio_track_file__compliant.mxf")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
+                    } else if (e.getKey().matches("CPL_4c71a219-0a14-4faa-8526-985e48098a97.xml")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+
+    }
+
+    @Test
+    public void IMPAnalyzerTest22() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_wrong_track_id/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 5);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL_8c99c449-9100-4bcc-9c3e-ef8ea6796cde.xml Virtual Track Conformance")) {
+                        Assert.assertEquals(e.getValue().size(), 5);
+                    } else if (e.getKey().matches("ST2067-203_audio_track_file__compliant.mxf")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
+                    } else if (e.getKey().matches("CPL_8c99c449-9100-4bcc-9c3e-ef8ea6796cde.xml")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
