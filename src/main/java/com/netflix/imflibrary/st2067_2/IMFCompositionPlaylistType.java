@@ -84,11 +84,32 @@ final class IMFCompositionPlaylistType {
                                       List<IMFSegmentType> segmentList,
                                       List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
                                       String coreConstraintsSchema,
-                                      String applicationId,
-                                      ExtensionProperties extensionProperties)
+                                      String applicationId)
     {
-        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))), extensionProperties);
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, (applicationId == null ? new HashSet<>() : new HashSet<String>(Arrays.asList(applicationId))));
     }
+
+    /**
+     * @deprecated
+     * This constructor is a legacy constructor without support for extensionProperties.
+     * Use the constructor with support for passing extensionProperties instead.
+     */
+    @Deprecated
+    public IMFCompositionPlaylistType(String id,
+                                      List<Long> editRate,
+                                      String annotation,
+                                      String issuer,
+                                      String creator,
+                                      String contentOriginator,
+                                      String contentTitle,
+                                      List<IMFSegmentType> segmentList,
+                                      List<IMFEssenceDescriptorBaseType> essenceDescriptorList,
+                                      String coreConstraintsSchema,
+                                      @Nonnull Set<String> applicationIds)
+    {
+        this(id, editRate, annotation, issuer, creator, contentOriginator, contentTitle, segmentList, essenceDescriptorList, coreConstraintsSchema, applicationIds, null);
+    }
+
 
     public IMFCompositionPlaylistType(String id,
                                    List<Long> editRate,
