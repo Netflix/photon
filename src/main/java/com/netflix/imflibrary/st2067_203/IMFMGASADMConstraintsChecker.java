@@ -152,7 +152,7 @@ public class IMFMGASADMConstraintsChecker {
                                             "an MGA S-ADM VirtualTrack Resource has invalid MCA Use Class (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAUseClass")));
                                 }
                                 if (subentry.getKey().getFieldAsString("MCAChannelID") != null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource has forbidden MCAChannelID %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAChannelID")));
                                 }
                             }
