@@ -111,7 +111,7 @@ public final class MGASADMTrackFileConstraints {
 
                     // ST 2067-203 Table 1
                     if (mgaEssenceDescriptor.getElectroSpatialFormulation() != null && (mgaEssenceDescriptor.getElectroSpatialFormulation() != GenericSoundEssenceDescriptor.ElectroSpatialFormulation.MULTI_CHANNEL_MODE)) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                 String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the multi-channel mode default value for the Electro-Spatial Formulation item : %d.", packageID.toString(), mgaEssenceDescriptor.getElectroSpatialFormulation().value()));
                     }
 
