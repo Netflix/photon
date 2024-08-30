@@ -148,7 +148,7 @@ public class IMFMGASADMConstraintsChecker {
                                 }
                                 // Check against ST 377-41:2021 Table 3
                                 if (MCAUseClass.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAUseClass")) == MCAUseClass.Unknown) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource has invalid MCA Use Class (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAUseClass")));
                                 }
                                 if (subentry.getKey().getFieldAsString("MCAChannelID") != null) {
