@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Object model corresponding to SADMAudioMetadataSubDescriptor structural metadata set defined in ST 2127-1
+ * Object model corresponding to SADMAudioMetadataSubDescriptor structural metadata set defined in ST 2127-10
  */
 @Immutable
 public final class SADMAudioMetadataSubDescriptor extends SubDescriptor {
@@ -63,7 +63,7 @@ public final class SADMAudioMetadataSubDescriptor extends SubDescriptor {
     }
 
     /**
-     * Object corresponding to a parsed SADMAudioMetadataSubDescriptor structural metadata set defined in st20167-201:201x
+     * Object corresponding to a parsed SADMAudioMetadataSubDescriptor structural metadata set defined in ST 2127-10:2022
      */
     @Immutable
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
