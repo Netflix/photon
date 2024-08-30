@@ -129,27 +129,55 @@ public class IMFMGASADMConstraintsChecker {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an MGA S-ADM VirtualTrack Resource has forbidden %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getLocalName()));
                             } else if (subentry.getKey().getLocalName().equals("MGASoundfieldGroupLabelSubDescriptor")) {
-                                if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL.equals(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
+                                if (subentry.getKey().getFieldAsUL("MCALabelDictionaryID") == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an MGA S-ADM VirtualTrack Resource has invalid MCA Label Dictionary ID (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL));
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCA Label Dictionary ID", imfTrackFileResourceType.getSourceEncoding()));
+
+                                } else if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL.equals(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource does not have the  MCA Label Dictionary ID for MGA (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL));
                                 }
-                                if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL.equals(subentry.getKey().getFieldAsString("MCATagSymbol"))) {
+                                if (subentry.getKey().getFieldAsString("MCATagSymbol") == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an MGA S-ADM VirtualTrack Resource has invalid MCA Tag Symbol (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCATagSymbol"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL));
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCATagSymbol", imfTrackFileResourceType.getSourceEncoding()));
+
+                                } else if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL.equals(subentry.getKey().getFieldAsString("MCATagSymbol"))) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource does not have the MCA Tag Symbol for MGA (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCATagSymbol"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_SYMBOL));
                                 }
-                                if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME.equals(subentry.getKey().getFieldAsString("MCATagName"))) {
+                                if (subentry.getKey().getFieldAsString("MCATagName") == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an MGA S-ADM VirtualTrack Resource has invalid MCA Tag Name (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCATagName"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME));
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCATagName", imfTrackFileResourceType.getSourceEncoding()));
+
+                                } else if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME.equals(subentry.getKey().getFieldAsString("MCATagName"))) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource does not have the MCA Tag Name for MGA (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCATagName"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_TAG_NAME));
                                 }
-                                // Check against ST 377-41:2021 Table 2
-                                if (MCAContent.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAContent")) == MCAContent.Unknown) {
+                                if (subentry.getKey().getFieldAsString("MCAContent") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCAContent", imfTrackFileResourceType.getSourceEncoding()));
+                                } else if (MCAContent.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAContent")) == MCAContent.Unknown) {
+                                    // Check against ST 377-41:2021 Table 2
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource has invalid MCA Content (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAContent")));
                                 }
-                                // Check against ST 377-41:2021 Table 3
-                                if (MCAUseClass.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAUseClass")) == MCAUseClass.Unknown) {
+                                if (subentry.getKey().getFieldAsString("MCAUseClass") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCAUseClass", imfTrackFileResourceType.getSourceEncoding()));
+                                } else if (MCAUseClass.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAUseClass")) == MCAUseClass.Unknown) {
+                                    // Check against ST 377-41:2021 Table 3
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource has invalid MCA Use Class (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAUseClass")));
+                                }
+                                // Check against ST 2067-203:2023 Table 3
+                                if (subentry.getKey().getFieldAsString("MCATitle") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCATitle", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                                // Check against ST 2067-203:2023 Table 3
+                                if (subentry.getKey().getFieldAsString("MCATitleVersion") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MCATitleVersion", imfTrackFileResourceType.getSourceEncoding()));
                                 }
                                 if (subentry.getKey().getFieldAsString("MCAChannelID") != null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
@@ -182,7 +210,7 @@ public class IMFMGASADMConstraintsChecker {
                     mgaSADMVirtualTrackParameterSetList.add(vtps);
                     if (!MGA_SADM_OPERATIONAL_MODES.contains(vtps.getMGASADMOperationalMode())) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Value %s of Operational Mode not permitted in MGASADMVirtualTrackParameterSet", vtps.getMGASADMOperationalMode()));
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Value %s of Operational Mode not permitted in MGASADMVirtualTrackParameterSet", vtps.getMGASADMOperationalMode()));
                     }
                 }
             }
@@ -205,14 +233,14 @@ public class IMFMGASADMConstraintsChecker {
                     }
                     if (trackIdsFound == 0) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
                     } else if (trackIdsFound > 1) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("There are %d MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present, shall be only 1", trackIdsFound, virtualTrack.getTrackID().toString()));
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("There are %d MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present, shall be only 1", trackIdsFound, virtualTrack.getTrackID().toString()));
                     }
                 } else {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("No MGASADMVirtualTrackParameterSet for MGA S-ADM Virtual Track %s present", virtualTrack.getTrackID().toString()));
                 }
             }
         }
@@ -220,16 +248,16 @@ public class IMFMGASADMConstraintsChecker {
         for (MGASADMVirtualTrackParameterSet vps : mgaSADMVirtualTrackParameterSetList) {
             if (mgaSADMSignalSequenceTrackIds.isEmpty()) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
             } else {
                 if (!mgaSADMSignalSequenceTrackIds.contains(vps.getTrackId())) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
+                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MGASADMVirtualTrackParameterSet for Track ID %s does not correspond to an MGA S-ADM Virtual Track", vps.getTrackId()));
                 } else {
                     for (MGASADMSoundfieldGroupSelectorType mga_sg_selector: vps.getMGASADMSoundfieldGroupSelector()) {
                         if (!mgaSadmResourceHash.get(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId())).contains(mga_sg_selector.getResourceId())) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references an unknown resource %s", vps.getTrackId(), mga_sg_selector.getResourceId()));
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references an unknown resource %s", vps.getTrackId(), mga_sg_selector.getResourceId()));
                         } else {
                             Optional<IMFEssenceComponentVirtualTrack> optional = applicationComposition.getEssenceVirtualTracks().stream().filter(e->e.getTrackID().equals(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId()))).findAny();
                             if (optional.isPresent()) {
@@ -250,7 +278,7 @@ public class IMFMGASADMConstraintsChecker {
                                     for (String link_id : mga_sg_selector.getMGASoundfieldGroupLinkID()) {
                                         if (!mca_sg_link_id_list.contains(UUIDHelper.fromUUIDAsURNStringToUUID(link_id))) {
                                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references unknown MGASoundfieldGroupLinkID %s", vps.getTrackId(), link_id));
+                                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references unknown MGASoundfieldGroupLinkID %s", vps.getTrackId(), link_id));
                                         }
                                     }
                                 }

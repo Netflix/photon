@@ -44,7 +44,7 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_bfd4736d-7ab7-4d12-a807-9f2cf4beb587.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 4);
+                        Assert.assertEquals(e.getValue().size(), 5);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_16bit.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 3);
                     } else if (e.getKey().matches("CPL_bfd4736d-7ab7-4d12-a807-9f2cf4beb587.xml")) {
@@ -176,7 +176,7 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_634aab40-cc48-49eb-81bd-8f3119387a4a.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATagName_missing.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_634aab40-cc48-49eb-81bd-8f3119387a4a.xml")) {
@@ -198,7 +198,7 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_e00a7145-9c75-46ee-a781-4abe52aac6bc.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATagName_wrong.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_e00a7145-9c75-46ee-a781-4abe52aac6bc.xml")) {
@@ -220,7 +220,7 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_f6f0f34c-c7c9-49c3-ab46-673b97838289.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATagSymbol_missing.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_f6f0f34c-c7c9-49c3-ab46-673b97838289.xml")) {
@@ -242,7 +242,7 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_764a1add-ee83-4954-86c8-c41850210e1c.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATagSymbol_wrong.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_764a1add-ee83-4954-86c8-c41850210e1c.xml")) {
@@ -264,11 +264,11 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_f1033b99-37e5-4003-8733-eb27da75a63a.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATitle_missing.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_f1033b99-37e5-4003-8733-eb27da75a63a.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 0);
+                        Assert.assertEquals(e.getValue().size(), 1);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
@@ -286,11 +286,11 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_609b7a45-5f0d-483a-9282-9329461a7543.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 7);
+                        Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("ST2067-203_audio_track_file__non_compliant_MCATitleVersion_missing.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 6);
                     } else if (e.getKey().matches("CPL_609b7a45-5f0d-483a-9282-9329461a7543.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 0);
+                        Assert.assertEquals(e.getValue().size(), 1);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
