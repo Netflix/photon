@@ -56,7 +56,7 @@ public final class MGASADMTrackFileConstraints {
     private static final UL SerialAudioDefinitionModelMetadataPayload = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.04040212.00000000");
 
     // Prevent instantiation
-    public MGASADMTrackFileConstraints() {}
+    private MGASADMTrackFileConstraints() {}
 
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
