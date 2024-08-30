@@ -66,7 +66,7 @@ public final class MGAAudioMetadataSubDescriptor extends SubDescriptor {
     }
 
     /**
-     * Object corresponding to a parsed MGAAudioMetadataSubDescriptor structural metadata set defined in st20167-201:201x
+     * Object corresponding to a parsed MGAAudioMetadataSubDescriptor structural metadata set defined in st2127-1:2022
      */
     @Immutable
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
