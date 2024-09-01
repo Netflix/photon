@@ -239,7 +239,7 @@ public final class MGASADMTrackFileConstraints {
                                 // ST 2067-203 Table 8
                                 if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeId() == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                            String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammeId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                                 // ST 2067-203 Table 8
                                 if (mgaSoundfieldGroupLabelSubDescriptorBO.getADMAudioContentId() != null) {
