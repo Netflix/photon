@@ -154,7 +154,7 @@ public final class MGASADMTrackFileConstraints {
                         List<InterchangeObject.InterchangeObjectBO> containerConstraintsSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ContainerConstraintsSubDescriptor.class)).collect(Collectors.toList());
                         if (containerConstraintsSubDescriptors.isEmpty()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                     String.format("Track File with ID %s: A ContainerConstraintsSubDescriptor shall be present per ST 379-2, but is missing", packageID.toString()));
                         } else if (containerConstraintsSubDescriptors.size() != 1) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
