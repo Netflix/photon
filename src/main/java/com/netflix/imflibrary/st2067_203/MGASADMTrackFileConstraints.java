@@ -106,12 +106,12 @@ public final class MGASADMTrackFileConstraints {
                     // ST 2127-10, Section 6
                     if (!mgaEssenceDescriptor.getSoundEssenceCoding().equals(MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
-                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the Immersive Audio Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, mgaEssenceDescriptor.getSoundEssenceCoding().toString()));
+                                String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the MGA Audio Essence Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, mgaEssenceDescriptor.getSoundEssenceCoding().toString()));
                     }
 
                     // ST 2067-203 Table 1
                     if (mgaEssenceDescriptor.getElectroSpatialFormulation() != null && (mgaEssenceDescriptor.getElectroSpatialFormulation() != GenericSoundEssenceDescriptor.ElectroSpatialFormulation.MULTI_CHANNEL_MODE)) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                 String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the multi-channel mode default value for the Electro-Spatial Formulation item : %d.", packageID.toString(), mgaEssenceDescriptor.getElectroSpatialFormulation().value()));
                     }
 
@@ -158,7 +158,7 @@ public final class MGASADMTrackFileConstraints {
                                     String.format("Track File with ID %s: A ContainerConstraintsSubDescriptor shall be present per ST 379-2, but is missing", packageID.toString()));
                         } else if (containerConstraintsSubDescriptors.size() != 1) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                     String.format("Track File with ID %s: One ContainerConstraintsSubDescriptor shall be present per ST 379-2, but %d are present", packageID.toString(), containerConstraintsSubDescriptors.size()));
                         }
                         
@@ -233,7 +233,7 @@ public final class MGASADMTrackFileConstraints {
                                             String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATitleVersion", sub_descriptor.getInstanceUID().toString(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                                 if (mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID() != null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                             String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has forbidden MCAChannelID %d", sub_descriptor.getInstanceUID().toString(), packageID.toString(), mgaSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID()));
                                 }
                                 // ST 2067-203 Table 8

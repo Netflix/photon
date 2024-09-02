@@ -183,6 +183,32 @@ public class IMFMGASADMConstraintsChecker {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource has forbidden MCAChannelID %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAChannelID")));
                                 }
+                            } else if (subentry.getKey().getLocalName().equals("MGAAudioMetadataSubDescriptor")) {
+                                if (subentry.getKey().getFieldAsString("MGALinkID") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MGALinkID", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                                if (subentry.getKey().getFieldAsInteger("MGAAudioMetadataIndex") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MGAAudioMetadataIndex", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                                if (subentry.getKey().getFieldAsInteger("MGAAudioMetadataIdentifier") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MGAAudioMetadataIdentifier", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                                if (subentry.getKey().getFieldsAsUL("MGAAudioMetadataPayloadULArray") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing MGAAudioMetadataPayloadULArray", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                            } else if (subentry.getKey().getLocalName().equals("SADMAudioMetadataSubDescriptor")) {
+                                if (subentry.getKey().getFieldAsString("SADMMetadataSectionLinkID") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing SADMMetadataSectionLinkID", imfTrackFileResourceType.getSourceEncoding()));
+                                }
+                                if (subentry.getKey().getFieldsAsUL("SADMProfileLevelULBatch") == null) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an MGA S-ADM VirtualTrack Resource is missing SADMProfileLevelULBatch", imfTrackFileResourceType.getSourceEncoding()));
+                                }
                             }
                         }
 

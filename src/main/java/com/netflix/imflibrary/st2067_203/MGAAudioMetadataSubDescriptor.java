@@ -24,10 +24,8 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.header.SubDescriptor;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
-import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.UL;
-import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.utils.ByteProvider;
 import javax.annotation.concurrent.Immutable;
 
@@ -74,8 +72,8 @@ public final class MGAAudioMetadataSubDescriptor extends SubDescriptor {
     {
 
         @MXFProperty(size=16) private final byte[] mga_link_id = null; //UUID
-        @MXFProperty(size=1) private final Short mga_audio_metadata_index = null; //UUID
-        @MXFProperty(size=1) private final Short mga_audio_metadata_identifier = null; //UUID
+        @MXFProperty(size=1) private final Short mga_audio_metadata_index = null;
+        @MXFProperty(size=1) private final Short mga_audio_metadata_identifier = null;
         @MXFProperty(size=0) private final CompoundDataTypes.MXFCollections.MXFCollection<UL> mga_audio_metadata_payload_ul_array = null;
 
         /**
