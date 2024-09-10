@@ -88,7 +88,8 @@ final class CompositionModel_st2067_2_2013 {
                 segmentList,
                 essenceDescriptorList,
                 coreConstraintsSchema,
-                applicationIDs
+                applicationIDs,
+                null
         );
     }
 

@@ -22,6 +22,10 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
+import com.netflix.imflibrary.st2067_203.MGAAudioMetadataSubDescriptor;
+import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_203.SADMAudioMetadataSubDescriptor;
 import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
@@ -45,7 +49,7 @@ public final class StructuralMetadata
     }
 
     private static final byte[] KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00};
-    private static final byte[] KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    1,    0,    0,    1};
+    private static final byte[] KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    1,    0,    0,    0};
 
     private static final byte[] DESCRIPTIVE_METADATA_KEY_BASE = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x00, 0x01, 0x00, 0x0d, 0x01, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00};
     private static final byte[] DESCRIPTIVE_METADATA_KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    0,    0,    0,    1};
@@ -393,6 +397,16 @@ public final class StructuralMetadata
             map.put(mxfUL, "mca_audio_element_kind");
         }
         {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x03, 0x02, 0x01, 0x02, 0x22, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mca_content");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x03, 0x02, 0x01, 0x02, 0x23, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mca_use_class");
+        }
+        {
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x06, 0x00, 0x00, 0x00};
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "soundfield_group_link_id");
@@ -639,6 +653,68 @@ public final class StructuralMetadata
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "generic_stream_id");
         }
+        // MGA ST 2127-1
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x04, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_sound_essence_block_align");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x04, 0x02, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_sound_average_bytes_per_second");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x04, 0x03, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_sound_essence_sequence_offset");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x05, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_link_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x05, 0x02, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_audio_metadata_index");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x05, 0x03, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_audio_metadata_identifier");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_audio_metadata_payload_ul_array");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x06, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "mga_metadata_section_link_id");
+        }
+        // MGA S-ADM ST 2127-10
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x06, 0x02, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "adm_audio_programme_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x06, 0x03, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "adm_audio_content_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x07, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "sadm_metadata_section_link_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x07, 0x02, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "sadm_profile_level_batch");
+        }
         ItemULToItemName = Collections.unmodifiableMap(map);
     }
 
@@ -802,6 +878,19 @@ public final class StructuralMetadata
                     return ACESPictureSubDescriptor.ACESPictureSubDescriptorBO.class;
                 case 0x7a :
                     return TargetFrameSubDescriptor.TargetFrameSubDescriptorBO.class;
+                case (byte)0x81 :
+                    switch(key[15]) {
+                    case 0x06:
+                        return MGASoundEssenceDescriptor.MGASoundEssenceDescriptorBO.class;
+                    case 0x07:
+                        return MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class;
+                    case 0x08:
+                        return MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class;
+                    case 0x09:
+                        return SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class;
+                    default :
+                        return Object.class;
+                    }
                 default :
                     return Object.class;
             }

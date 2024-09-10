@@ -31,7 +31,7 @@ import java.util.Map;
  * Object model corresponding to SoundFieldGroupLabelSubDescriptor structural metadata set defined in st377-4:2012
  */
 @Immutable
-public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
+public class SoundFieldGroupLabelSubDescriptor extends MCALabelSubDescriptor
 {
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + SoundFieldGroupLabelSubDescriptor.class.getSimpleName() + " : ";
     private final SoundFieldGroupLabelSubDescriptorBO soundFieldGroupLabelSubDescriptorBO;
@@ -97,7 +97,7 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
      */
     @Immutable
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
-    public static final class SoundFieldGroupLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
+    public static class SoundFieldGroupLabelSubDescriptorBO extends MCALabelSubDescriptor.MCALabelSubDescriptorBO
     {
         //@MXFProperty(size=0, charset="UTF-16") protected final String group_of_soundfield_groups_linkID = null;
         /**
@@ -143,6 +143,14 @@ public final class SoundFieldGroupLabelSubDescriptor extends SubDescriptor
 
         }
 
+        /**
+         * Constructor for a SoundFieldGroupLabelSubDescriptor ByteObject.
+         *
+         * @param header the MXF KLV header (Key and Length field)
+         */
+        public SoundFieldGroupLabelSubDescriptorBO(final KLVPacket.Header header) {
+            super(header);
+        }
     }
 
 

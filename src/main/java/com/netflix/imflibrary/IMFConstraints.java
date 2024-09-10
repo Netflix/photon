@@ -24,6 +24,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
+import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
@@ -450,6 +451,10 @@ public final class IMFConstraints
             {
                 targetMXFDataDefinition = MXFDataDefinition.SOUND;
             }
+            else if(essenceType.equals(HeaderPartition.EssenceTypeEnum.MGASADMEssence))
+            {
+                targetMXFDataDefinition = MXFDataDefinition.SOUND;
+            }
             else{
                 targetMXFDataDefinition = MXFDataDefinition.DATA;
             }
@@ -559,6 +564,35 @@ public final class IMFConstraints
             }
 
             return iabEssenceDescriptor;
+        }
+
+        /**
+         * Gets the first MGASoundEssenceDescriptor structural metadata set from
+         * an OP1A-conformant MXF Header partition. Returns null if none is found
+         * @return returns the first MGASoundEssenceDescriptor
+         */
+        public @Nullable MGASoundEssenceDescriptor getMGASoundEssenceDescriptor()
+        {
+            MGASoundEssenceDescriptor mgaSoundEssenceDescriptor = null;
+            GenericPackage genericPackage = this.headerPartitionOP1A.getHeaderPartition().getPreface().getContentStorage().
+                    getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage)genericPackage;
+            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
+            {
+                Sequence sequence = timelineTrack.getSequence();
+                MXFDataDefinition filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
+                if (filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
+                {
+                    GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
+                    if (genericDescriptor instanceof MGASoundEssenceDescriptor)
+                    {
+                        mgaSoundEssenceDescriptor = (MGASoundEssenceDescriptor)genericDescriptor;
+                        break;
+                    }
+                }
+            }
+
+            return mgaSoundEssenceDescriptor;
         }
 
         /**

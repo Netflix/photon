@@ -6,6 +6,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
+import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -78,6 +79,8 @@ final class CompositionModel_st2067_2_2016 {
                 coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2016;
         }
 
+        ExtensionProperties extensionProperties = compositionPlaylistType.getExtensionProperties();
+
         return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
                 compositionPlaylistType.getEditRate(),
                 (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
@@ -88,7 +91,8 @@ final class CompositionModel_st2067_2_2016 {
                 segmentList,
                 essenceDescriptorList,
                 coreConstraintsSchema,
-                applicationIDs
+                applicationIDs,
+                extensionProperties
                 );
     }
 
@@ -310,7 +314,8 @@ final class CompositionModel_st2067_2_2016 {
                     org.smpte_ra.schemas._2067_3._2016.ObjectFactory.class,// 2016 2016 CPL
                                         org.smpte_ra.schemas._2067_2._2016.ObjectFactory.class, // 2016 Core constraints
                                         org.smpte_ra.ns._2067_2._2020.ObjectFactory.class,      // 2020 Core constraints
-                                        org.smpte_ra.ns._2067_201._2019.ObjectFactory.class);   // IAB plugin 
+                                        org.smpte_ra.ns._2067_201._2019.ObjectFactory.class,    // IAB plugin
+                                        org.smpte_ra.ns._2067_203._2022.ObjectFactory.class);   // MGA S-ADM plugin
             }
             catch(JAXBException e)
             {
@@ -331,7 +336,8 @@ final class CompositionModel_st2067_2_2016 {
                  InputStream xsd_dcmlTypes = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
                  InputStream xsd_cpl_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                  InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
-                 InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd")
+                 InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
+                 InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");
             )
             {
                 // Build a schema from all of the XSD files provided
@@ -342,6 +348,7 @@ final class CompositionModel_st2067_2_2016 {
                         new StreamSource(xsd_cpl_2016),
                         new StreamSource(xsd_core_constraints_2016),
                         new StreamSource(xsd_core_constraints_2020),
+                        new StreamSource(xsd_sadm_2067_203),
                 });
             }
             catch(IOException | SAXException e)

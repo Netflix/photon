@@ -36,6 +36,8 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
+import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -133,6 +135,10 @@ public final class IMFTrackFileReader
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
             this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            if (this.headerPartition != null) {
+                IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+            }
         }
         catch (MXFException | IMFException e){
             if(headerPartition == null){
@@ -500,6 +506,7 @@ public final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.IABEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MGASADMEssence);
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 
@@ -720,6 +727,7 @@ public final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MGASADMEssence);
         if(imfTrackFileReader != null
                 && imfTrackFileCPLBuilder != null
                 && supportedEssenceComponentTypes.contains(imfTrackFileReader.getEssenceType(imfErrorLogger))) {
