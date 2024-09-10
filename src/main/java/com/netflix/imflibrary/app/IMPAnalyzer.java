@@ -359,16 +359,18 @@ public class IMPAnalyzer {
         List<OutputProfileList> outputProfileListTypeList = new ArrayList<>();
 
         for (PackingList.Asset asset : packingList.getAssets()) {
-            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+            // skip MXF files, but don't filter for XML mime type yet
+            if (!asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
+
                 URI path = assetMap.getPath(asset.getUUID());
-                if( path == null) {
+                if (path == null) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
 
-                if(!assetFile.exists()) {
+                if (!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString()));
                     continue;
@@ -376,21 +378,28 @@ public class IMPAnalyzer {
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (OutputProfileList.isOutputProfileList(resourceByteRangeProvider)) {
+
+                    if (!asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+                        packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MIME Type for OPL with UUID %s is \"%s\", expected \"text/xml\"", asset.getUUID().toString(), asset.getType()));
+                    }
+
                     IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
                     try {
                         OutputProfileList outputProfileListType = OutputProfileList.getOutputProfileListType(resourceByteRangeProvider, imfErrorLogger);
-                        if(outputProfileListType == null) {
+                        if (outputProfileListType == null) {
                             continue;
                         }
 
-                        if(!outputProfileListType.getId().equals(asset.getUUID())) {
+                        if (!outputProfileListType.getId().equals(asset.getUUID())) {
                             // ST 2067-2:2016   7.3.1: The value of the Id element shall be extracted from the asset as specified in Table 19 for the OPL asset
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the OPL is not same as UUID %s of the OPL in the AssetMap", outputProfileListType.getId().toString(), asset.getUUID().toString()));
-                        }                        outputProfileListTypeList.add(outputProfileListType);
+                        }
+                        outputProfileListTypeList.add(outputProfileListType);
 
                         Optional<ApplicationComposition> optional = applicationCompositionList.stream().filter(e -> e.getUUID().equals(outputProfileListType.getCompositionPlaylistId())).findAny();
-                        if(!optional.isPresent()) {
+                        if (!optional.isPresent()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Failed to get application composition with ID = %s for OutputProfileList with ID %s",
                                             outputProfileListType.getCompositionPlaylistId().toString(), outputProfileListType.getId().toString()));
@@ -421,16 +430,17 @@ public class IMPAnalyzer {
         List<ApplicationComposition> applicationCompositionList = new ArrayList<>();
 
         for (PackingList.Asset asset : packingList.getAssets()) {
-            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+            // skip MXF files, but don't filter for XML mime type yet
+            if (!asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                 URI path = assetMap.getPath(asset.getUUID());
-                if( path == null) {
+                if (path == null) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
                 File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
 
-                if(!assetFile.exists()) {
+                if (!assetFile.exists()) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString()));
                     continue;
@@ -438,6 +448,12 @@ public class IMPAnalyzer {
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
+                    // verify that MIME type is correctly stated as text/xml in PKL - see https://github.com/Netflix/photon/issues/303
+                    if (!asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+                        packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MIME Type for CPL with UUID %s is \"%s\", expected \"text/xml\"", asset.getUUID().toString(), asset.getType()));
+                    }
+
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
                     PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
@@ -445,10 +461,10 @@ public class IMPAnalyzer {
 
                     try {
                         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, compositionErrorLogger);
-                        if(applicationComposition == null) {
+                        if (applicationComposition == null) {
                             continue;
                         }
-                        if(!applicationComposition.getUUID().equals(asset.getUUID())) {
+                        if (!applicationComposition.getUUID().equals(asset.getUUID())) {
                             // ST 2067-2:2016   7.3.1: The value of the Id element shall be extracted from the asset as specified in Table 19 for the CPL asset
                             compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the CPL is not same as UUID %s of the CPL in the AssetMap", applicationComposition.getUUID().toString(), asset.getUUID().toString()));
@@ -485,7 +501,7 @@ public class IMPAnalyzer {
                                         .stream()
                                         .map(IMFEssenceComponentVirtualTrack::getTrackResourceIds)
                                         .flatMap(Set::stream)
-                                        .map( e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
+                                        .map(e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
                                         .collect(Collectors.toList());
                                 compositionConformanceErrorLogger.addAllErrors(IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, cplHeaderPartitionPayloads));
                             }

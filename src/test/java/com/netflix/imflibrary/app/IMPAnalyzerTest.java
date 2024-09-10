@@ -60,4 +60,25 @@ public class IMPAnalyzerTest
         );
 
     }
+
+    @Test
+    public void IMPAnalyzerTestMimeTypeErrors() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 5);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL.*Virtual Track Conformance")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
+                    } else if (e.getKey().matches("PKL.*")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
+                        e.getValue().get(0).getErrorDescription().contains("ERROR-MIME Type for CPL with UUID cdbc350c-3042-4bb2-849a-43a657455adb is \"application/xml\", expected \"text/xml\"");
+                        e.getValue().get(1).getErrorDescription().contains("ERROR-MIME Type for OPL with UUID 778f1aa6-7764-433f-9db7-f1b2c23a5b20 is \"application/xml\", expected \"text/xml\"");
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+    }
 }
