@@ -34,6 +34,20 @@ public class IMPAnalyzerTest
     }
 
     @Test
+    public void IMPAnalyzerTestPHDR() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 6);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    Assert.assertEquals(e.getValue().size(), 0); // not expecting any errors or warnings
+                }
+        );
+
+    }
+
+    @Test
     public void IMPAnalyzerTestIDMismatches() throws IOException
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
