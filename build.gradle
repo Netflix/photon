@@ -95,7 +95,7 @@ dependencies {
     /**
      * Following includes the RegXMLLib dependency from Maven Central.
      */
-    implementation "com.sandflow:regxmllib:1.1.3"
+    implementation "com.sandflow:regxmllib:1.1.5"
     /**
      * Following should be enabled and the above should be disabled
      * when necessary to verify changes to the RegXMLLib library that are

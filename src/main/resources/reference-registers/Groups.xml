@@ -1,8 +1,8 @@
 <!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000084 -->
+<!-- master_commit_tag=v000000085 -->
 <!-- DO NOT EDIT THIS TAG -->
 <!--
-Copyright (c) 2023 SMPTE All rights reserved.
+Copyright (c) 2024 SMPTE All rights reserved.
 
 The latest version of this document can be retrieved at
 
@@ -2728,6 +2728,39 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Contents>
         <Record>
           <UL>urn:smpte:ul:060e2b34.0101010e.04020901.00000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014</NamespaceName>
+      <Symbol>DataSets</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0c050000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>Data Sets</Name>
+      <Definition>Data Sets</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014</NamespaceName>
+      <Symbol>StreamingData</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0c050101.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Streaming Data</Name>
+      <Definition>Defines a Data Stream Set</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <IsConcrete>false</IsConcrete>
+      <KLVSyntax>53 13</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.0103040b.00000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.07020110.01050000</UL>
           <IsOptional>true</IsOptional>
         </Record>
       </Contents>
@@ -6394,7 +6427,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Definition>DC PCM Sound Descriptor</Definition>
       <Applications>MXF</Applications>
       <DefiningDocument>SMPTE 429-10M</DefiningDocument>
-      <IsDeprecated>false</IsDeprecated>
+      <IsDeprecated>true</IsDeprecated>
       <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01014200</Parent>
       <KLVSyntax>06 53</KLVSyntax>
     </Entry>
@@ -7685,6 +7718,80 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <Record>
           <UL>urn:smpte:ul:060e2b34.0101010e.04020307.02000000</UL>
           <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/aaf</NamespaceName>
+      <Symbol>SupplementalDataEssenceDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810a</UL>
+      <Kind>LEAF</Kind>
+      <Name>Supplemental Data Essence Descriptor</Name>
+      <Definition>Defines a Supplemental Data Descriptor</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01014300</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53 13</KLVSyntax>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/aaf</NamespaceName>
+      <Symbol>DataStreamSubDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810b</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Stream SubDescriptor</Name>
+      <Definition>Defines an Data Stream SubDescriptor</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01015900</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53 13</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04061003.00000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.06010102.07000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.04060103.00000000</UL>
+          <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/13/1/aaf</NamespaceName>
+      <Symbol>DataStreamDeviceSubDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810c</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Stream Device SubDescriptor</Name>
+      <Definition>Defines a Data Stream Device SubDescriptor</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810b</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>53 13</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.05010206.01000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.05010206.02000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.05010206.03000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.0101010e.05010206.04000000</UL>
+          <IsOptional>false</IsOptional>
         </Record>
       </Contents>
     </Entry>
@@ -17626,6 +17733,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Groups</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/395/2014/14/9</NamespaceName>
+      <Symbol>ISXDDataEssenceDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0105.0e090502.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ISXD Data Essence Descriptor</Name>
+      <Definition>Identifies an ISXD Data Essence Descriptor</Definition>
+      <DefiningDocument>SMPTE ST 2067-202</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01014300</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>06 53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010105.0e090400.00000000</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/14/9</NamespaceName>
       <Symbol>IADataEssenceDescriptor</Symbol>
       <UL>urn:smpte:ul:060e2b34.027f0105.0e090603.00000000</UL>
       <Kind>LEAF</Kind>
@@ -17674,6 +17801,34 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <Record>
           <UL>urn:smpte:ul:060e2b34.0101010e.04020301.0f000000</UL>
           <IsOptional>true</IsOptional>
+        </Record>
+      </Contents>
+    </Entry>
+    <Entry>
+      <Register>Groups</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/395/2014/14/9</NamespaceName>
+      <Symbol>PHDRMetadataTrackSubDescriptor</Symbol>
+      <UL>urn:smpte:ul:060e2b34.027f0105.0e090607.01010103</UL>
+      <Kind>LEAF</Kind>
+      <Name>PHDR Metadata Track Sub Descriptor</Name>
+      <Definition>Identifies a PHDR Metadata Track Sub Descriptor</Definition>
+      <DefiningDocument>SMPTE RDD 56</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <Parent>urn:smpte:ul:060e2b34.027f0101.0d010101.01015900</Parent>
+      <IsConcrete>true</IsConcrete>
+      <KLVSyntax>06 53</KLVSyntax>
+      <Contents>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010104</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010105</UL>
+          <IsOptional>false</IsOptional>
+        </Record>
+        <Record>
+          <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010106</UL>
+          <IsOptional>false</IsOptional>
         </Record>
       </Contents>
     </Entry>
