@@ -66,15 +66,12 @@ public class IMPAnalyzerTest
     {
         File inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
-        Assert.assertEquals(errorMap.size(), 5);
+        Assert.assertEquals(errorMap.size(), 2);
         errorMap.entrySet().stream().forEach( e ->
                 {
-                    if (e.getKey().matches("CPL.*Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
-                    } else if (e.getKey().matches("PKL.*")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
-                        e.getValue().get(0).getErrorDescription().contains("ERROR-MIME Type for CPL with UUID cdbc350c-3042-4bb2-849a-43a657455adb is \"application/xml\", expected \"text/xml\"");
-                        e.getValue().get(1).getErrorDescription().contains("ERROR-MIME Type for OPL with UUID 778f1aa6-7764-433f-9db7-f1b2c23a5b20 is \"application/xml\", expected \"text/xml\"");
+                    if (e.getKey().matches("PKL.*")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                        e.getValue().get(0).getErrorDescription().contains("Packing List does not contain any assets of type \"%s\", Photon therefore won't attempt to parse CPL/OPL files.");
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

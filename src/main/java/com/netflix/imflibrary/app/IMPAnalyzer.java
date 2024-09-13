@@ -246,6 +246,7 @@ public class IMPAnalyzer {
                         PackingList packingList = new PackingList(new File(rootFile, packingListAsset.getPath().toString()));
                         packingListErrorLogger.addAllErrors(packingList.getErrors());
                         Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap = new HashMap<>();
+                        int xmlFileCount = 0;
                         for (PackingList.Asset asset : packingList.getAssets()) {
                             if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                                 URI path = assetMap.getPath(asset.getUUID());
@@ -297,13 +298,19 @@ public class IMPAnalyzer {
                                 finally {
                                     errorMap.put(assetFile.getName(), trackFileErrorLogger.getErrors());
                                 }
+                            } else if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+                                xmlFileCount++;
                             }
                         }
 
-                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
-
-                        analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
-
+                        // issue a warning if the PKL does not contain any assets of type text/xml to help troubleshoot non-compliant mime-types for CPL/OPL
+                        if( xmlFileCount == 0) {
+                            packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\", Photon therefore won't attempt to parse CPL/OPL files.", PackingList.Asset.TEXT_XML_TYPE));
+                        } else {
+                            List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
+                            analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
+                        }
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
                     }
@@ -359,9 +366,7 @@ public class IMPAnalyzer {
         List<OutputProfileList> outputProfileListTypeList = new ArrayList<>();
 
         for (PackingList.Asset asset : packingList.getAssets()) {
-            // skip MXF files, but don't filter for XML mime type yet
-            if (!asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
-
+            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
                 URI path = assetMap.getPath(asset.getUUID());
                 if (path == null) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -378,12 +383,6 @@ public class IMPAnalyzer {
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (OutputProfileList.isOutputProfileList(resourceByteRangeProvider)) {
-
-                    if (!asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
-                        packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MIME Type for OPL with UUID %s is \"%s\", expected \"text/xml\"", asset.getUUID().toString(), asset.getType()));
-                    }
-
                     IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
                     try {
                         OutputProfileList outputProfileListType = OutputProfileList.getOutputProfileListType(resourceByteRangeProvider, imfErrorLogger);
@@ -430,8 +429,7 @@ public class IMPAnalyzer {
         List<ApplicationComposition> applicationCompositionList = new ArrayList<>();
 
         for (PackingList.Asset asset : packingList.getAssets()) {
-            // skip MXF files, but don't filter for XML mime type yet
-            if (!asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
+            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
                 URI path = assetMap.getPath(asset.getUUID());
                 if (path == null) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -448,12 +446,6 @@ public class IMPAnalyzer {
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
-                    // verify that MIME type is correctly stated as text/xml in PKL - see https://github.com/Netflix/photon/issues/303
-                    if (!asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
-                        packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                                IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MIME Type for CPL with UUID %s is \"%s\", expected \"text/xml\"", asset.getUUID().toString(), asset.getType()));
-                    }
-
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
                     PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
