@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:913ef906-893f-4851-8664-2d053bd2ec95</Id>
+  <AnnotationText>Untitled Project</AnnotationText>
+  <IssueDate>2024-09-10T14:52:13</IssueDate>
+  <Issuer>Blackmagic Design</Issuer>
+  <Creator>Blackmagic Design DaVinci Resolve Studio 19.0.1.0006</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:23e9a145-f2da-4183-86b2-1c399db41afb</Id>
+      <AnnotationText>VIDEO_23e9a145-f2da-4183-86b2-1c399db41afb.mxf</AnnotationText>
+      <Hash>xPgMogQYs32XxmP7bJOyd8IB8o0=</Hash>
+      <Size>4052278</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>VIDEO_23e9a145-f2da-4183-86b2-1c399db41afb.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:a2a83e0a-a0ac-4785-8685-d868631f493a</Id>
+      <AnnotationText>AUDIO_a2a83e0a-a0ac-4785-8685-d868631f493a.mxf</AnnotationText>
+      <Hash>aXiIcbAxn3Exu8JvNNl8ht/MUM8=</Hash>
+      <Size>1131688</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>AUDIO_a2a83e0a-a0ac-4785-8685-d868631f493a.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:3aa56098-7709-4673-9266-7f0c70ba10d8</Id>
+      <AnnotationText>Untitled Project</AnnotationText>
+      <Hash>gackEBF2o8bvccFNMo53NAH6lg4=</Hash>
+      <Size>17193</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_3aa56098-7709-4673-9266-7f0c70ba10d8.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

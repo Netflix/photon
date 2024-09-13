@@ -1,8 +1,8 @@
 <!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000084 -->
+<!-- master_commit_tag=v000000085 -->
 <!-- DO NOT EDIT THIS TAG -->
 <!--
-Copyright (c) 2023 SMPTE All rights reserved.
+Copyright (c) 2024 SMPTE All rights reserved.
 
 The latest version of this document can be retrieved at
 
@@ -2218,6 +2218,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>UnknownContext</ContextScope>
       <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
       <ValueLength>16 bytes</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DataStreamID</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.0103040b.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Stream ID</Name>
+      <Definition>Unique identifier for this Data Stream</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01030300.00000000</Type>
     </Entry>
     <Entry>
       <Register>Elements</Register>
@@ -17905,6 +17918,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Elements</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DataStreamSampleRate</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.04060103.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Stream Sample Rate</Name>
+      <Definition>Rate at which creator samples data conveyed on the Data Stream, per second</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.03010100.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
       <Symbol>GeneralEssenceContainerCharacteristics</Symbol>
       <UL>urn:smpte:ul:060e2b34.01010104.04060200.00000000</UL>
       <Kind>NODE</Kind>
@@ -18216,6 +18242,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>UnknownContext</ContextScope>
       <Type>urn:smpte:ul:060e2b34.01040101.01010400.00000000</Type>
       <ValueLength>4 bytes</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DataStreamSchemeURI</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.04061003.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Stream Scheme URI</Name>
+      <Definition>URI identifying application of Data Stream</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100200.00000000</Type>
     </Entry>
     <Entry>
       <Register>Elements</Register>
@@ -20516,6 +20555,58 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Name>Data Capture Process</Name>
       <Definition>Information about how data content was captured</Definition>
       <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DeviceCreatorName</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.05010206.01000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Device Creator Name</Name>
+      <Definition>Name of creator of device creating a Data Stream</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100200.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DeviceProductName</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.05010206.02000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Device Product Name</Name>
+      <Definition>Name identifying product creating a Data Stream</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100200.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DeviceVersion</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.05010206.03000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Device Version</Name>
+      <Definition>Version identifier for device creating a Data Stream</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100200.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>DeviceInstanceIdentifier</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.05010206.04000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Device Instance Identifier</Name>
+      <Definition>Unambiguous identifier for device creating a Data Stream, in the context of the application</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100200.00000000</Type>
     </Entry>
     <Entry>
       <Register>Elements</Register>
@@ -23514,6 +23605,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <IsDeprecated>false</IsDeprecated>
       <ContextScope>UnknownContext</ContextScope>
       <Type>urn:smpte:ul:060e2b34.01040101.01010100.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>LinkedDataStreamID</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.06010102.07000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Linked Data Stream ID</Name>
+      <Definition>Unique identifer of Data Stream described by this SubDescriptor</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01030300.00000000</Type>
     </Entry>
     <Entry>
       <Register>Elements</Register>
@@ -30785,6 +30889,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>UnknownContext</ContextScope>
       <Type>urn:smpte:ul:060e2b34.01040101.03010700.00000000</Type>
       <ValueLength>8 bytes</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012</NamespaceName>
+      <Symbol>CreationTimestamp</Symbol>
+      <UL>urn:smpte:ul:060e2b34.0101010e.07020110.01050000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Creation Timestamp</Name>
+      <Definition>IEEE 1588-2019 PTP Timestamp documenting the time at which the data in the data set were created</Definition>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.03011000.00000000</Type>
     </Entry>
     <Entry>
       <Register>Elements</Register>
@@ -47612,6 +47729,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Elements</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/335/2012/14/9</NamespaceName>
+      <Symbol>NamespaceURI</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01010105.0e090400.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Namespace URI</Name>
+      <Definition>Identifies the default namespace of the essence XML documents</Definition>
+      <DefiningDocument>SMPTE ST 2067-202</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01100600.00000000</Type>
+      <ValueLength>variable</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012/14/9</NamespaceName>
       <Symbol>ImmersiveAudioVersion</Symbol>
       <UL>urn:smpte:ul:060e2b34.01010105.0e090506.00000000</UL>
       <Kind>LEAF</Kind>
@@ -47673,6 +47804,48 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <IsDeprecated>false</IsDeprecated>
       <ContextScope>DefinedContext</ContextScope>
       <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012/14/9</NamespaceName>
+      <Symbol>DataDefinition</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010104</UL>
+      <Kind>LEAF</Kind>
+      <Name>Data Definition</Name>
+      <Definition>Identifies the value of PHDR Data Definition</Definition>
+      <DefiningDocument>SMPTE RDD 56</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.04011100.00000000</Type>
+      <ValueLength>16 bytes</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012/14/9</NamespaceName>
+      <Symbol>SourceTrackID</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010105</UL>
+      <Kind>LEAF</Kind>
+      <Name>Source Track ID</Name>
+      <Definition>Identifies the Source Track ID of the PHDR Data Items</Definition>
+      <DefiningDocument>SMPTE RDD 56</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+      <ValueLength>4 bytes</ValueLength>
+    </Entry>
+    <Entry>
+      <Register>Elements</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/335/2012/14/9</NamespaceName>
+      <Symbol>SimplePayloadSID</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01010105.0e090607.01010106</UL>
+      <Kind>LEAF</Kind>
+      <Name>Simple Payload SID</Name>
+      <Definition>Identifies the Source Track ID of the ST 410 GSP as static data</Definition>
+      <DefiningDocument>SMPTE RDD 56</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+      <ValueLength>4 bytes</ValueLength>
     </Entry>
     <Entry>
       <Register>Elements</Register>
