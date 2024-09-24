@@ -34,7 +34,7 @@ public final class J2KExtendedCapabilities {
         /**
          * Instantiates a new parsed J2KExtendedCapabilities object
          *
-         * @param bytes the byte array corresponding to the 4 fields
+         * @param bytes the byte array corresponding to the 2 fields
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
 
