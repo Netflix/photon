@@ -424,6 +424,7 @@ public class IMPAnalyzer {
                                                   Map<String, List<ErrorLogger.ErrorObject>> errorMap,
                                                   Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap) throws IOException {
         List<ApplicationComposition> applicationCompositionList = new ArrayList<>();
+        
         for (PackingList.Asset asset : packingList.getAssets()) {
             if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
                 URI path = assetMap.getPath(asset.getUUID());
@@ -439,7 +440,6 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString()));
                     continue;
                 }
-
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
@@ -458,7 +458,6 @@ public class IMPAnalyzer {
                             compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the CPL is not same as UUID %s of the CPL in the AssetMap", applicationComposition.getUUID().toString(), asset.getUUID().toString()));
                         }
-
                         applicationCompositionList.add(applicationComposition);
                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                 .keySet();
