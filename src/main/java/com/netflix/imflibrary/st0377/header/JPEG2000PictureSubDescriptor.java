@@ -136,6 +136,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
                 quantisationDefaultString = quantisationDefaultString.concat(String.format("%02x", b));
             }
             sb.append(String.format("quantisation_default = %s", quantisationDefaultString));
+            sb.append(String.format("j2k_extended_capabilities = %s", j2k_extended_capabilities));
             return sb.toString();
         }
     }
