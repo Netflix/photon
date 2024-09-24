@@ -58,6 +58,10 @@ public class IMPAnalyzerTest
                     if (e.getKey().matches("CPL.*Virtual Track Conformance")) {
                         Assert.assertEquals(e.getValue().size(), 1);
                     }
+                    else if (e.getKey().matches("ASSETMAP.*")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                        e.getValue().get(0).getErrorDescription().contains("ERROR-AssetMap references PKL with ID f5e93462-aed2-44ad-a4ba-2adb65823e7d, but PKL contains ID f5e93462-aed2-44ad-a4ba-2adb65823e7c");
+                    }
                     else if (e.getKey().matches("CPL.*")) {
                         Assert.assertEquals(e.getValue().size(), 2);
                         e.getValue().get(0).getErrorDescription().contains("ERROR-UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca84 in the CPL is not same as UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85 of the CPL in the AssetMap");
