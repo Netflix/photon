@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM">
+  <Id>urn:uuid:ed9ebdd9-ba03-49de-a88e-489ba3debf94</Id>
+  <AnnotationText>Meridian</AnnotationText>
+  <Creator>Blackmagic Design DaVinci Resolve 19.0.0b.0050</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-07-24T16:54:58</IssueDate>
+  <Issuer>Blackmagic Design</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:c840cf14-d4c1-4960-82d8-e8fac0553ed4</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>VIDEO_c840cf14-d4c1-4960-82d8-e8fac0553ed4.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>55071899</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:eb5765cc-b76b-47c7-bdf3-fc1a7c3d3817</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>AUDIO_eb5765cc-b76b-47c7-bdf3-fc1a7c3d3817.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>651208</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:d96ab03f-9c0b-49a1-ae8a-00e96710dad8</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_d96ab03f-9c0b-49a1-ae8a-00e96710dad8.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>13250</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:40aeb8ba-60d3-4f79-b5b1-329f81d51689</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_40aeb8ba-60d3-4f79-b5b1-329f81d51689.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>1693</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

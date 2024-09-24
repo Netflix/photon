@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:40aeb8ba-60d3-4f79-b5b1-329f81d51689</Id>
+  <AnnotationText>Meridian</AnnotationText>
+  <IssueDate>2024-07-24T16:54:58</IssueDate>
+  <Issuer>Blackmagic Design</Issuer>
+  <Creator>Blackmagic Design DaVinci Resolve 19.0.0b.0050</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:c840cf14-d4c1-4960-82d8-e8fac0553ed4</Id>
+      <AnnotationText>VIDEO_c840cf14-d4c1-4960-82d8-e8fac0553ed4.mxf</AnnotationText>
+      <Hash>L1Ofug8R6uipG8gkbqYrELs6w7c=</Hash>
+      <Size>55071899</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>VIDEO_c840cf14-d4c1-4960-82d8-e8fac0553ed4.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:eb5765cc-b76b-47c7-bdf3-fc1a7c3d3817</Id>
+      <AnnotationText>AUDIO_eb5765cc-b76b-47c7-bdf3-fc1a7c3d3817.mxf</AnnotationText>
+      <Hash>4lh3WweP6n7fZpYG8LkR5lJ/BVM=</Hash>
+      <Size>651208</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>AUDIO_eb5765cc-b76b-47c7-bdf3-fc1a7c3d3817.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:d96ab03f-9c0b-49a1-ae8a-00e96710dad8</Id>
+      <AnnotationText>Meridian</AnnotationText>
+      <Hash>JtWarQSySWGhy1v4B/oboG2PD40=</Hash>
+      <Size>13250</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_d96ab03f-9c0b-49a1-ae8a-00e96710dad8.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
