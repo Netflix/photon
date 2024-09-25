@@ -230,9 +230,9 @@ public class HeaderPartitionTest
         GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO descriptorBO = (GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO) TestHelper.getValue(pictureEssenceDescriptor, "rgbaPictureEssenceDescriptorBO");
         InterchangeObject.InterchangeObjectBO jpeg2000SubDescriptor = headerPartition.getSubDescriptors(descriptorBO).get(0);
         JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO jpeg2000PictureSubDescriptorBO = (JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO) jpeg2000SubDescriptor;
-        J2KExtendedCapabilities.J2KExtendedCapabilitiesB0 j2KExtendedCapabilitiesB0 = (J2KExtendedCapabilities.J2KExtendedCapabilitiesB0) TestHelper.getValue(jpeg2000PictureSubDescriptorBO, "j2k_extended_capabilities");
-        Integer pCap = (Integer) TestHelper.getValue(j2KExtendedCapabilitiesB0, "pCap");
-        List<Short> cCap = ((CompoundDataTypes.MXFCollections.MXFCollection<Short>) TestHelper.getValue(j2KExtendedCapabilitiesB0, "cCapi")).getEntries();
+        J2KExtendedCapabilities j2KExtendedCapabilities = (J2KExtendedCapabilities) TestHelper.getValue(jpeg2000PictureSubDescriptorBO, "j2k_extended_capabilities");
+        Integer pCap = (Integer) TestHelper.getValue(j2KExtendedCapabilities, "pCap");
+        List<Short> cCap = ((CompoundDataTypes.MXFCollections.MXFCollection<Short>) TestHelper.getValue(j2KExtendedCapabilities, "cCapi")).getEntries();
 
         Assert.assertEquals(pCap, 131072);
         Assert.assertEquals(cCap.size(), 1);

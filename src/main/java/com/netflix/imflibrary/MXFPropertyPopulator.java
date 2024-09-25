@@ -112,9 +112,9 @@ public final class MXFPropertyPopulator
                 CompoundDataTypes.Timestamp timestamp = new CompoundDataTypes.Timestamp(byteProvider);
                 field.set(object, timestamp);
             }
-            else if (field.getType() == J2KExtendedCapabilities.J2KExtendedCapabilitiesB0.class) {
-                J2KExtendedCapabilities.J2KExtendedCapabilitiesB0 j2KExtendedCapabilitiesB0 = new J2KExtendedCapabilities.J2KExtendedCapabilitiesB0(byteProvider.getBytes(byteArraySize));
-                field.set(object, j2KExtendedCapabilitiesB0);
+            else if (field.getType() == J2KExtendedCapabilities.class) {
+                J2KExtendedCapabilities j2KExtendedCapabilities = new J2KExtendedCapabilities(byteProvider);
+                field.set(object, j2KExtendedCapabilities);
             }
             else if (field.getType() == CompoundDataTypes.MXFCollections.MXFCollection.class)
             {
