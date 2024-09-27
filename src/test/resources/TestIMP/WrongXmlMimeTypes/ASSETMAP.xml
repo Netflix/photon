@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM">
+  <Id>urn:uuid:27d179c3-bf36-4c62-a2a5-d84d5750b188</Id>
+  <AnnotationText>Untitled Project</AnnotationText>
+  <Creator>TextEditor</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-08-22T10:47:34</IssueDate>
+  <Issuer>TextEditor</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:cdbc350c-3042-4bb2-849a-43a657455adb</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_cdbc350c-3042-4bb2-849a-43a657455adb.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>12108</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:d54a68ed-332e-4ddd-b163-c0317abb1e52</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_d54a68ed-332e-4ddd-b163-c0317abb1e52.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>1715</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:778f1aa6-7764-433f-9db7-f1b2c23a5b20</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>OPL_778f1aa6-7764-433f-9db7-f1b2c23a5b20.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>706</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

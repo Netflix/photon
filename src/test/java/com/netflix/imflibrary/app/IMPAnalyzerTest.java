@@ -78,4 +78,22 @@ public class IMPAnalyzerTest
         );
 
     }
+
+    @Test
+    public void IMPAnalyzerTestMimeTypeErrors() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Assert.assertEquals(errorMap.size(), 2);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("PKL.*")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                        Assert.assertTrue(e.getValue().get(0).getErrorDescription().contains("Packing List does not contain any assets of type"));
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+    }
 }
