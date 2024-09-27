@@ -8,16 +8,14 @@ import com.netflix.imflibrary.app.IMPFixer;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
+import com.netflix.imflibrary.writerTools.utils.SequenceDurationValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -57,6 +55,7 @@ public class IMPAssembler {
         Map<UUID, List<Long>> sampleRateMap = new HashMap<>();
         Map<UUID, BigInteger> sampleCountMap = new HashMap<>();
         Map<UUID, byte[]> hashMap = new HashMap<>();
+
 
 
         for (Track track : simpleTimeline.getTracks()) {
@@ -165,12 +164,16 @@ public class IMPAssembler {
                         )
                 );
             }
+
+            // Validate and adjust the durations of the resources in the track
+            List<IMFTrackFileResourceType> adjustedResources = SequenceDurationValidator.validateAndAdjustResourceDurations(resources, simpleTimeline.getEditRate().getNumerator(), simpleTimeline.getEditRate().getDenominator());
+
             // add to virtual tracks
             logger.info("Creating virtual track..");
             Composition.VirtualTrack virtualTrack = new IMFEssenceComponentVirtualTrack(
                     IMFUUIDGenerator.getInstance().generateUUID(),
                     track.getSequenceTypeEnum(),
-                    resources,
+                    adjustedResources,
                     simpleTimeline.getEditRate()
             );
             virtualTracks.add(virtualTrack);
