@@ -307,10 +307,11 @@ public class IMPAnalyzer {
                         if( xmlFileCount == 0) {
                             packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\", Photon therefore won't attempt to parse CPL/OPL files.", PackingList.Asset.TEXT_XML_TYPE));
-                        } else {
-                            List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
-                            analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
                         }
+
+                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
+                        analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
+
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
                     }
