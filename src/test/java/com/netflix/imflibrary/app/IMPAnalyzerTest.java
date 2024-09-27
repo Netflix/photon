@@ -71,7 +71,7 @@ public class IMPAnalyzerTest
                 {
                     if (e.getKey().matches("PKL.*")) {
                         Assert.assertEquals(e.getValue().size(), 1);
-                        e.getValue().get(0).getErrorDescription().contains("Packing List does not contain any assets of type \"%s\", Photon therefore won't attempt to parse CPL/OPL files.");
+                        Assert.assertTrue(e.getValue().get(0).getErrorDescription().contains("Packing List does not contain any assets of type"));
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
