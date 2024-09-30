@@ -23,19 +23,7 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.MXFException;
-import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.ContentStorage;
-import com.netflix.imflibrary.st0377.header.EssenceContainerData;
-import com.netflix.imflibrary.st0377.header.GenericTrack;
-import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.st0377.header.MaterialPackage;
-import com.netflix.imflibrary.st0377.header.Preface;
-import com.netflix.imflibrary.st0377.header.Sequence;
-import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.SourceClip;
-import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st0377.header.TimelineTrack;
-import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -47,6 +35,7 @@ import testUtils.TestHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -227,6 +216,27 @@ public class HeaderPartitionTest
 
         Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
         Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
+    }
+
+    @Test
+    public void videoHeaderPartitionTest3() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
+        Assert.assertTrue(headerPartition.toString().length() > 0);
+        Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
+        GenericPictureEssenceDescriptor pictureEssenceDescriptor = ((GenericPictureEssenceDescriptor)((SourcePackage) headerPartition.getSourcePackages().get(0)).getGenericDescriptor());
+        GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO descriptorBO = (GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO) TestHelper.getValue(pictureEssenceDescriptor, "rgbaPictureEssenceDescriptorBO");
+        InterchangeObject.InterchangeObjectBO jpeg2000SubDescriptor = headerPartition.getSubDescriptors(descriptorBO).get(0);
+        JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO jpeg2000PictureSubDescriptorBO = (JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO) jpeg2000SubDescriptor;
+        J2KExtendedCapabilities j2KExtendedCapabilities = (J2KExtendedCapabilities) TestHelper.getValue(jpeg2000PictureSubDescriptorBO, "j2k_extended_capabilities");
+        Integer pCap = (Integer) TestHelper.getValue(j2KExtendedCapabilities, "pCap");
+        List<Short> cCap = ((CompoundDataTypes.MXFCollections.MXFCollection<Short>) TestHelper.getValue(j2KExtendedCapabilities, "cCap")).getEntries();
+
+        Assert.assertEquals(pCap, 131072);
+        Assert.assertEquals(cCap.size(), 1);
+        Assert.assertTrue(cCap.get(0) == 38);
     }
 
     @Test

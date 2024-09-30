@@ -74,6 +74,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
         @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<JPEG2000PictureComponent.JPEG2000PictureComponentBO> picture_component_sizing = null;
         @MXFProperty(size=0, depends=false) private final byte[] coding_style_default = null;
         @MXFProperty(size=0, depends=false) private final byte[] quantisation_default = null;
+        @MXFProperty(size=0, depends=false) private final J2KExtendedCapabilities j2k_extended_capabilities = null;
 
         /**
          * Instantiates a new JPEG2000 picture sub descriptor ByteObject.
@@ -135,6 +136,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
                 quantisationDefaultString = quantisationDefaultString.concat(String.format("%02x", b));
             }
             sb.append(String.format("quantisation_default = %s", quantisationDefaultString));
+            sb.append(String.format("j2k_extended_capabilities = %s", j2k_extended_capabilities));
             return sb.toString();
         }
     }
