@@ -232,7 +232,7 @@ public class HeaderPartitionTest
         JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO jpeg2000PictureSubDescriptorBO = (JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO) jpeg2000SubDescriptor;
         J2KExtendedCapabilities j2KExtendedCapabilities = (J2KExtendedCapabilities) TestHelper.getValue(jpeg2000PictureSubDescriptorBO, "j2k_extended_capabilities");
         Integer pCap = (Integer) TestHelper.getValue(j2KExtendedCapabilities, "pCap");
-        List<Short> cCap = ((CompoundDataTypes.MXFCollections.MXFCollection<Short>) TestHelper.getValue(j2KExtendedCapabilities, "cCapi")).getEntries();
+        List<Short> cCap = ((CompoundDataTypes.MXFCollections.MXFCollection<Short>) TestHelper.getValue(j2KExtendedCapabilities, "cCap")).getEntries();
 
         Assert.assertEquals(pCap, 131072);
         Assert.assertEquals(cCap.size(), 1);

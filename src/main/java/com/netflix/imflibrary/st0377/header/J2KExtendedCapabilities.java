@@ -18,7 +18,7 @@ import java.util.List;
 public final class J2KExtendedCapabilities {
 
     @MXFProperty(size=4) protected final Integer pCap = null;
-    @MXFProperty(size=0, depends=true) protected final CompoundDataTypes.MXFCollections.MXFCollection<Short> cCapi = null;
+    @MXFProperty(size=0, depends=true) protected final CompoundDataTypes.MXFCollections.MXFCollection<Short> cCap = null;
 
     /**
      * Instantiates a new parsed J2KExtendedCapabilities object
@@ -29,6 +29,6 @@ public final class J2KExtendedCapabilities {
 
     public J2KExtendedCapabilities(ByteProvider byteProvider) throws IOException {
         MXFPropertyPopulator.populateField(byteProvider, this, "pCap");
-        MXFPropertyPopulator.populateField(byteProvider, this, "cCapi");
+        MXFPropertyPopulator.populateField(byteProvider, this, "cCap");
     }
 }
