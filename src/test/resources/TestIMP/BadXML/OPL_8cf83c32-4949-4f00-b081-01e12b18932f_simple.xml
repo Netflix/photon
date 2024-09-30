@@ -1,0 +1,25 @@
+<OutputProfileList
+        xmlns="http://www.smpte-ra.org/schemas/2067-100/2014"
+        xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/"
+        xmlns:ism="http://www.smpte-ra.org/schemas/2067-101/2014/scale-macro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pdec="http://www.smpte-ra.org/schemas/2067-101/2014/pixel-decoder"
+        xmlns:crop="http://www.smpte-ra.org/schemas/2067-101/2014/crop-macro"
+        xmlns:penc="http://www.smpte-ra.org/schemas/2067-101/2014/pixel-encoder"
+        xmlns:cipcs="http://www.smpte-ra.org/schemas/2067-102/2014"
+        xmlns:arm="http://www.smpte-ra.org/schemas/2067-103/2014"
+        xmlns:lanc="http://www.smpte-ra.org/schemas/2067-101/2014/lanczos">
+    <Id>urn:uuid:8cf83c32-4949-4f00-b081-01e12b18932f</Id>
+    <Annotation>Non-compliant test file with missing xml elements</Annotation>
+    <IssueDate>2016-06-14T19:22:37-00:00</IssueDate>
+    <Issuer>Clipster 5.9.3.7 (build 96012)</Issuer>
+    <Creator>Clipster 5.9.3.7 (build 96012)</Creator>
+    <CompositionPlaylistId>urn:uuid:0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85</CompositionPlaylistId>
+    <AliasList/>
+        <Macro xsi:type="PresetMacroType">
+            <Name>preset-macro</Name>
+            <Preset>playback_cpl</Preset>
+        </Macro>
+</OutputProfileList>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:c458a5c8-8700-4c1c-aa41-f31cb9f6018e</Id>
+  <AnnotationText language="en">Untitled Project</AnnotationText>
+  <IssueDate>2024-09-25T23:32:57Z</IssueDate>
+  <Issuer language="en">Netflix</Issuer>
+  <Creator language="en">IMF-Tool 1.9.383</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:a3542de6-5010-41aa-8ab0-d90b90b7f5dc</Id>
+      <AnnotationText language="en">VIDEO_a3542de6-5010-41aa-8ab0-d90b90b7f5dc.mxf</AnnotationText>
+      <Hash>9CvhM78J7Bl/fonMe69HZLnheVA=</Hash>
+      <Size>16678385</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">VIDEO_a3542de6-5010-41aa-8ab0-d90b90b7f5dc.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:bc1a3912-a90a-41b2-b16c-0915a2a1e088</Id>
+      <AnnotationText language="en">AUDIO_bc1a3912-a90a-41b2-b16c-0915a2a1e088.mxf</AnnotationText>
+      <Hash>v6LR7Ncfszh6u9l9FqDU2WJa9bI=</Hash>
+      <Size>555112</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">AUDIO_bc1a3912-a90a-41b2-b16c-0915a2a1e088.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:ab38ef76-30fa-4b18-91d2-1ef95e206b46</Id>
+      <AnnotationText language="en">Untitled Project</AnnotationText>
+      <Hash>bU5Z+D2dduCdhnpYVvIilCHUPoU=</Hash>
+      <Size>20915</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_ab38ef76-30fa-4b18-91d2-1ef95e206b46.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e87f8de9-fb88-42fc-b19b-1a088ef1609c</Id>
+      <Hash>Ei1U/9G4RJnMlvi9BhrLTP0PsT8=</Hash>
+      <Size>37246</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">Plugfest_IMSC_text_IMP1_01_en_tt.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0a5b9152-4030-46ce-93f3-1208ff1dbdc7</Id>
+      <Hash>zqv6Yal8MJY3w5zNG7y56IpKO9k=</Hash>
+      <Size>146839</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">Image-IMP1_01_tt.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

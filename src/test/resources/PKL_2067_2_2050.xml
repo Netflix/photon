@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2050/PKL">
+  <Id>urn:uuid:7281a71b-0dcb-4ed7-93a4-97b7929e2a7c</Id>
+  <AnnotationText>Test file with invalid namespace</AnnotationText>
+  <IssueDate>2016-06-30T18:19:27-00:00</IssueDate>
+  <Issuer>Netflix</Issuer>
+  <Creator>Netflix</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:88b5b453-a342-46eb-bc0a-4c9645f4d627</Id>
+      <AnnotationText>1.mxf</AnnotationText>
+      <Hash>oQjE4GVsXTeawQOL//tMJ3HAMzk=</Hash>
+      <Size>19139240035</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>1.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e7d1ba66-84ad-4974-8d9d-a1e6d2431a9c</Id>
+      <AnnotationText>2.mxf</AnnotationText>
+      <Hash>CDh8VxZEyF9pQ1vtuqtUWwsTwz4=</Hash>
+      <Size>112457857</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>2.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
