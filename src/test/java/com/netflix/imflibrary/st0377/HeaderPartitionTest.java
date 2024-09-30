@@ -221,7 +221,7 @@ public class HeaderPartitionTest
     @Test
     public void videoHeaderPartitionTest3() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_c840cf14-d4c1-4960-82d8-e8fac0553ed4.mxf");
+        File inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
