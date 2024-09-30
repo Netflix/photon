@@ -481,7 +481,7 @@
                             <TrackFileId>urn:uuid:61d91654-2650-4abf-abbc-ad2c7f640bf8</TrackFileId>
                         </Resource>
                         <Resource xsi:type="TrackFileResourceType">
-                            <Id>urn:uuid:a5586a0b-1e3f-4c99-9de5-5a66f20cbaf8</Id>
+                            <Id>urn:uuid:a5586a0b-1e3f-4c99-9de5-5a66f20cbaf9</Id>
                             <EditRate>60000 1001</EditRate>
                             <IntrinsicDuration>40</IntrinsicDuration>
                             <EntryPoint>20</EntryPoint>
