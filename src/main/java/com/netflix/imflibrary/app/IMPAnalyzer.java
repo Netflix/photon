@@ -557,7 +557,7 @@ public class IMPAnalyzer {
             default:
                 errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Unknown  AssetType"));
+                        String.format("Unknown AssetType"));
         }
 
         return errorLogger.getErrors();

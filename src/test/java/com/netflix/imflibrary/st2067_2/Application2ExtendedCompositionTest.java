@@ -154,6 +154,9 @@ public class Application2ExtendedCompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
 
+        /* Make sure its 2013 core constraints */
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2013");
+
         /* Make sure its APP2#E Composition */
         Assert.assertEquals(applicationComposition.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE);
 
@@ -240,4 +243,23 @@ public class Application2ExtendedCompositionTest
         Assert.assertEquals(p.cod.transformation, 0x01);
         Assert.assertEquals(p.cod.precinctSizes, new short[] { 0x77, 0x88, 0x88, 0x88, 0x88, 0x88 });
     }
+
+    @Test
+    public void app2ExtendedCompositionEssenceCodingErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_CodecError.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void app2ExtendedCompositionJ2kProfileErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_J2kProfileError.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:d54a68ed-332e-4ddd-b163-c0317abb1e52</Id>
+  <AnnotationText>Non-compliant test file with missing hash elements</AnnotationText>
+  <IssueDate>2024-08-22T10:47:34</IssueDate>
+  <Issuer>TextEditor</Issuer>
+  <Creator>TextEditor</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:cdbc350c-3042-4bb2-849a-43a657455adb</Id>
+      <AnnotationText>Untitled Project</AnnotationText>
+      <Hash>wYTaAgLyhm57girgc3W2GxH2fGU=</Hash>
+      <Size>12108</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_cdbc350c-3042-4bb2-849a-43a657455adb.xml</OriginalFileName>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:778f1aa6-7764-433f-9db7-f1b2c23a5b20</Id>
+      <AnnotationText>Original Version</AnnotationText>
+      <Hash>jLIZhhYZ3YKcO68vRZV+XbEaDJo=</Hash>
+      <Size>706</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>OPL_778f1aa6-7764-433f-9db7-f1b2c23a5b20.xml</OriginalFileName>
+    </Asset>
+  </AssetList>
+</PackingList>

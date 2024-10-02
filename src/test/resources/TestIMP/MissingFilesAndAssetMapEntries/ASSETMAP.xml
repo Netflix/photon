@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:4c49d7b6-8004-452b-a562-0c8d3db1761e</Id>
+  <AnnotationText language="en">Untitled Project</AnnotationText>
+  <Creator language="en">IMF-Tool 1.9.383</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-09-25T23:32:57Z</IssueDate>
+  <Issuer language="en">Blackmagic Design</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:a3542de6-5010-41aa-8ab0-d90b90b7f5dc</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>VIDEO_a3542de6-5010-41aa-8ab0-d90b90b7f5dc.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:8cf83c32-4949-4f00-b081-01e12b18932f</Id>
+      <ChunkList>
+          <Chunk>
+              <Path>OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml</Path>
+              <VolumeIndex>1</VolumeIndex>
+          </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e87f8de9-fb88-42fc-b19b-1a088ef1609c</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>Plugfest_IMSC_text_IMP1_01_en_tt.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:0a5b9152-4030-46ce-93f3-1208ff1dbdc7</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>Image-IMP1_01_tt.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:c458a5c8-8700-4c1c-aa41-f31cb9f6018e</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_c458a5c8-8700-4c1c-aa41-f31cb9f6018e.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>
