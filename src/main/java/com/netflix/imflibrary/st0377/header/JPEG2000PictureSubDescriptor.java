@@ -78,6 +78,16 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
         @MXFProperty(size=0, depends=false) private final byte[] quantisation_default = null;
         @MXFProperty(size=0, depends=false) private final J2KExtendedCapabilities j2k_extended_capabilities = null;
 
+        /**
+         * Instantiates a new JPEG2000 picture sub descriptor ByteObject.
+         *
+         * @param header the header
+         * @param byteProvider the mxf byte provider
+         * @param localTagToUIDMap the local tag to uID map
+         * @param imfErrorLogger the imf error logger
+         * @throws IOException - any I/O related error will be exposed through an IOException
+         */
+
         public JPEG2000PictureSubDescriptorBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
                 throws IOException {
             super(header);
@@ -145,6 +155,12 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
         public J2KExtendedCapabilities getJ2kExtendedCapabilities() {
             return j2k_extended_capabilities;
         }
+
+        /**
+         * A method that returns a string representation of a JPEG2000PictureSubDescriptorBO object
+         *
+         * @return string representing the object
+         */
 
         @Override
         public String toString() {
