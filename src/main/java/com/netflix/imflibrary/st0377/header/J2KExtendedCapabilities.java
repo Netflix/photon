@@ -20,6 +20,14 @@ public final class J2KExtendedCapabilities {
     @MXFProperty(size=4) protected final Integer pCap = null;
     @MXFProperty(size=0, depends=true) protected final CompoundDataTypes.MXFCollections.MXFCollection<Short> cCap = null;
 
+    public Integer getpCap() {
+        return pCap;
+    }
+
+    public CompoundDataTypes.MXFCollections.MXFCollection<Short> getcCap() {
+        return cCap;
+    }
+
     /**
      * Instantiates a new parsed J2KExtendedCapabilities object
      *

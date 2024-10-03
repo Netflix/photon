@@ -9,6 +9,7 @@ import com.netflix.imflibrary.Colorimetry.Sampling;
 import com.netflix.imflibrary.Colorimetry.TransferCharacteristic;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
@@ -196,7 +197,7 @@ public final class CompositionImageEssenceDescriptorModel {
                 this.sampling = parseSampling(this.colorModel);
             }
 
-            this.j2kParameters = parseJ2KParameters();
+            this.j2kParameters = J2KHeaderParameters.fromDOMNode(imageEssencedescriptorDOMNode);
         }
         else {
             this.pixelBitDepth = null;
@@ -416,216 +417,7 @@ public final class CompositionImageEssenceDescriptorModel {
         }
     }
 
-    static public class J2KHeaderParameters {
-
-        static public class CSiz {
-             short ssiz;
-             short xrsiz;
-             short yrsiz;
-        }
-
-        static public class CAP {
-            long pcap;
-            int[] ccap;
-        }
-
-        static public class COD {
-            short scod;
-            short progressionOrder;
-            int numLayers;
-            short multiComponentTransform;
-            short numDecompLevels;
-            short xcb;
-            short ycb;
-            short cbStyle;
-            short transformation;
-            short precinctSizes[];
-        }
-
-        static public class QCD {
-            short sqcd;
-            int spqcd[];
-        }
-
-        Integer rsiz;
-        Long xsiz;
-        Long ysiz;
-        Long xosiz;
-        Long yosiz;
-        Long xtsiz;
-        Long ytsiz;
-        Long xtosiz;
-        Long ytosiz;
-        CSiz[] csiz;
-        COD cod;
-        QCD qcd;
-        CAP cap;
-
-    }
-
     J2KHeaderParameters j2kParameters;
-
-    private J2KHeaderParameters parseJ2KParameters() {
-        J2KHeaderParameters params = new J2KHeaderParameters();
-
-        DOMNodeObjectModel sdNode = imageEssencedescriptorDOMNode.getDOMNode("SubDescriptors");
-        if (sdNode == null) {
-            /* missing SubDescriptors */
-            return null;
-        }
-
-        DOMNodeObjectModel j2kNode = sdNode.getDOMNode("JPEG2000SubDescriptor");
-        if (j2kNode == null) {
-            /* missing JPEG2000SubDescriptor */
-            return null;
-        }
-
-        params.rsiz = j2kNode.getFieldAsInteger("Rsiz");
-        if (params.rsiz == null)
-            return null;
-
-        params.xsiz = j2kNode.getFieldAsLong("Xsiz");
-        if (params.xsiz == null)
-            return null;
-
-        params.ysiz = j2kNode.getFieldAsLong("Ysiz");
-        if (params.ysiz == null)
-            return null;
-
-        params.xosiz = j2kNode.getFieldAsLong("XOsiz");
-        if (params.xosiz == null)
-            return null;
-
-        params.yosiz = j2kNode.getFieldAsLong("YOsiz");
-        if (params.yosiz == null)
-            return null;
-
-        params.xtsiz = j2kNode.getFieldAsLong("XTsiz");
-        if (params.xtsiz == null)
-            return null;
-
-        params.ytsiz = j2kNode.getFieldAsLong("YTsiz");
-        if (params.ytsiz == null)
-            return null;
-
-        params.xtosiz = j2kNode.getFieldAsLong("XTOsiz");
-        if (params.xtosiz == null)
-            return null;
-
-        params.ytosiz = j2kNode.getFieldAsLong("YTOsiz");
-        if (params.ytosiz == null)
-            return null;
-
-        /* CSizi */
-        DOMNodeObjectModel csiziNode = j2kNode.getDOMNode("PictureComponentSizing");
-        if (csiziNode == null)
-            return null;
-
-        List<DOMNodeObjectModel> csizi = csiziNode.getDOMNodes("J2KComponentSizing");
-
-        params.csiz = new J2KHeaderParameters.CSiz[csizi.size()];
-        for (int i = 0; i < params.csiz.length; i++) {
-            params.csiz[i] =  new J2KHeaderParameters.CSiz();
-
-            Short ssiz = csizi.get(i).getFieldAsShort("Ssiz");
-            if (ssiz == null)
-                return null;
-            params.csiz[i].ssiz = ssiz;
-
-            Short xrsiz = csizi.get(i).getFieldAsShort("XRSiz");
-            if (xrsiz == null)
-                return null;
-            params.csiz[i].xrsiz = xrsiz;
-
-            Short yrsiz = csizi.get(i).getFieldAsShort("YRSiz");
-            if (yrsiz == null)
-                return null;
-            params.csiz[i].yrsiz = yrsiz;
-        }
-
-        Integer csiz = j2kNode.getFieldAsInteger("Csiz");
-        if (csiz != params.csiz.length)
-            return null;
-
-        /* CAP */
-        DOMNodeObjectModel capNode = j2kNode.getDOMNode("J2KExtendedCapabilities");
-        if (capNode != null) {
-
-            Integer pcap = capNode.getFieldAsInteger("Pcap");
-
-            if (pcap != null) {
-
-                params.cap = new J2KHeaderParameters.CAP();
-                params.cap.pcap = pcap;
-
-                DOMNodeObjectModel ccapiNode = capNode.getDOMNode("Ccapi");
-                if (ccapiNode != null) {
-                    List<Integer> values = ccapiNode.getFieldsAsInteger("UInt16");
-
-                    params.cap.ccap = new int[values.size()];
-                    for (int i = 0; i < params.cap.ccap.length; i++) {
-                        if (values.get(i) == null)
-                            return null;
-                        params.cap.ccap[i] = values.get(i);
-                    }
-
-                }
-
-                int ccapLength = Long.bitCount(params.cap.pcap);
-                if (ccapLength > 0 && (params.cap.ccap == null || params.cap.ccap.length != ccapLength))
-                    return null;
-                if (ccapLength == 0 && (params.cap.ccap != null && params.cap.ccap.length != 0))
-                    return null;
-
-            } else {
-                /* pcap is missing */
-                return null;
-            }
-
-        }
-
-        /* COD */
-        String codString = j2kNode.getFieldAsString("CodingStyleDefault");
-
-        if (codString != null && codString.length() >= 20 && (codString.length() % 2 == 0)) {
-
-            params.cod = new J2KHeaderParameters.COD();
-            params.cod.scod = (short) Integer.parseInt(codString.substring(0, 2), 16);
-            params.cod.progressionOrder = (short) Integer.parseInt(codString.substring(2, 4), 16);
-            params.cod.numLayers = (int) Integer.parseInt(codString.substring(4, 8), 16);
-            params.cod.multiComponentTransform = (short) Integer.parseInt(codString.substring(8, 10), 16);
-            params.cod.numDecompLevels = (short) Integer.parseInt(codString.substring(10, 12), 16);
-            params.cod.xcb = (short) (Integer.parseInt(codString.substring(12, 14), 16) + 2);
-            params.cod.ycb = (short) (Integer.parseInt(codString.substring(14, 16), 16) + 2);
-            params.cod.cbStyle = (short) Integer.parseInt(codString.substring(16, 18), 16);
-            params.cod.transformation = (short) Integer.parseInt(codString.substring(18, 20), 16);
-
-            params.cod.precinctSizes = new short[(codString.length() - 20)/2];
-            for (int i = 0; i < params.cod.precinctSizes.length; i++) {
-                params.cod.precinctSizes[i] = (short) Integer.parseInt(codString.substring(20 + 2 * i, 22 + 2 * i), 16);
-            }
-
-        }
-
-        /* QCD */
-        String qcdString = j2kNode.getFieldAsString("QuantizationDefault");
-
-        if (qcdString != null && qcdString.length() >= 2 && (qcdString.length() % 2 == 0)) {
-
-            params.qcd = new J2KHeaderParameters.QCD();
-
-            params.qcd.sqcd = (short) Integer.parseInt(qcdString.substring(0, 2), 16);
-
-            int spqcdSize = (params.qcd.sqcd & 0b11111) == 0 ? 1 : 2;
-            params.qcd.spqcd = new int[(qcdString.length() - 2)/(2 * spqcdSize)];
-            for (int i = 0; i < params.qcd.spqcd.length; i++) {
-                params.qcd.spqcd[i] = (int) Integer.parseInt(qcdString.substring(2 + 2 * spqcdSize * i, 4 + 2 * spqcdSize * i), 16);
-            }
-
-        }
-
-        return params;
-    }
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;
