@@ -15,10 +15,9 @@ public final class CoreConstraints
     public static final String NAMESPACE_IMF_2013 = "http://www.smpte-ra.org/schemas/2067-2/2013";
     public static final String NAMESPACE_IMF_2016 = "http://www.smpte-ra.org/schemas/2067-2/2016";
     public static final String NAMESPACE_IMF_2020 = "http://www.smpte-ra.org/ns/2067-2/2020";
-    public static final String NAMESPACE_IMF_2021 = "http://www.smpte-ra.org/ns/2067-2/2021";
 
     static final List<String> SUPPORTED_NAMESPACES = Collections.unmodifiableList(Arrays.asList(
-            NAMESPACE_IMF_2013, NAMESPACE_IMF_2016, NAMESPACE_IMF_2020, NAMESPACE_IMF_2021));
+            NAMESPACE_IMF_2013, NAMESPACE_IMF_2016, NAMESPACE_IMF_2020));
 
     /**
      * @deprecated Remove once all deprecated, package-based, 'getCoreConstraintsVersion' methods are removed.
@@ -30,7 +29,7 @@ public final class CoreConstraints
             return "org.smpte_ra.schemas._2067_3._2013";
         else if (coreConstraintsSchema.equals(NAMESPACE_IMF_2016))
             return "org.smpte_ra.schemas.st2067_2_2016";
-        else if (coreConstraintsSchema.equals(NAMESPACE_IMF_2020) || coreConstraintsSchema.equals(NAMESPACE_IMF_2021))
+        else if (coreConstraintsSchema.equals(NAMESPACE_IMF_2020))
             return "org.smpte_ra.schemas.st2067_2_2020";
         else
             return coreConstraintsSchema; // No mapping, just return the schema value
