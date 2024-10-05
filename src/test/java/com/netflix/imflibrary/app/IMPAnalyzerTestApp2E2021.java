@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -63,4 +64,18 @@ public class IMPAnalyzerTestApp2E2021
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
         Assert.assertNotEquals(logger.getErrors().size(), 0);
     }
+
+    @Test
+    public void CoreConstraintsSchemaFromApplicationIdentification() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_3714715a-af0c-4a89-9cc9-c99f61e7eb6d_CC-Namespaces.xml");
+        IMFErrorLogger logger = new IMFErrorLoggerImpl();
+
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
+        Assert.assertNotNull(applicationComposition);
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+        Assert.assertEquals(logger.getErrors().size(), 0);
+    }
+
+
 }

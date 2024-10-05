@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Arrays;
 
-import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
-
 /**
  * A class that models Composition with Application 2Extended constraints from
  * 2067-21 specification
  */
 public class Application2E2021 extends AbstractApplicationComposition {
+    public static final String APP_IDENTIFICATION = "http://www.smpte-ra.org/ns/2067-21/2021";
     private static String APP_STRING = ApplicationCompositionType.APPLICATION_2E2021_COMPOSITION_TYPE.toString();
+
 
     static class CharacteristicsSet {
         private Integer maxWidth;
@@ -606,7 +606,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
                 IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format(
                 "Invalid image characteristics per %s",
-                    APP_STRING
+                APP_STRING
                 )
             );
         }
