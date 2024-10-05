@@ -25,7 +25,9 @@ import java.util.Arrays;
  * 2067-21 specification
  */
 public class Application2E2021 extends AbstractApplicationComposition {
-    public static final String APP_IDENTIFICATION = ApplicationCompositionType.APPLICATION_2E2021_COMPOSITION_TYPE.toString();
+    public static final String APP_IDENTIFICATION = "http://www.smpte-ra.org/ns/2067-21/2021";
+    private static String APP_STRING = ApplicationCompositionType.APPLICATION_2E2021_COMPOSITION_TYPE.toString();
+
 
     static class CharacteristicsSet {
         private Integer maxWidth;
@@ -604,7 +606,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
                 IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                 String.format(
                 "Invalid image characteristics per %s",
-                        APP_IDENTIFICATION
+                APP_STRING
                 )
             );
         }

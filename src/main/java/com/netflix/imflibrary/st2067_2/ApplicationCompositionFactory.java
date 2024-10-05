@@ -77,8 +77,6 @@ public class ApplicationCompositionFactory {
             return nameSpaceSet;
         }
 
-        public String toString() { return String.join(",", nameSpaceSet); }
-
         public static ApplicationCompositionType fromApplicationID(String applicationIdentification) {
 
             for(ApplicationCompositionType applicationCompositionType : ApplicationCompositionType.values()) {
