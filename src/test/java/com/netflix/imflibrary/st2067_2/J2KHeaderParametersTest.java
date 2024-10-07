@@ -44,6 +44,7 @@ public class J2KHeaderParametersTest {
         J2KHeaderParameters fromMXF = J2KHeaderParameters.fromJPEG2000PictureSubDescriptorBO(jpeg2000PictureSubDescriptorBO);
         J2KHeaderParameters fromCPL = image.getJ2KHeaderParameters();
 
+        // ...and validate that they are the same.
         Assert.assertTrue(fromCPL.equals(fromMXF));
     }
 

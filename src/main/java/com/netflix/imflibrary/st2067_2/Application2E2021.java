@@ -274,7 +274,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
     /* Validate codestream parameters against constraints listed in SMPTE ST 2067-21:2023 Annex I */
 
-    public static boolean validateHT(J2KHeaderParameters p,
+    public static boolean validateHTConstraints(J2KHeaderParameters p,
                                      IMFErrorLogger logger) {
         boolean isValid = true;
 
@@ -554,7 +554,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Integer height = imageDescriptor.getStoredHeight();
 
         if (JPEG2000.isAPP2HT(essenceCoding))
-            return validateHT(imageDescriptor.getJ2KHeaderParameters(), logger);
+            return validateHTConstraints(imageDescriptor.getJ2KHeaderParameters(), logger);
 
         if (JPEG2000.isIMF4KProfile(essenceCoding))
             return width > 2048 && width <= 4096 && height > 0 && height <= 3112;
