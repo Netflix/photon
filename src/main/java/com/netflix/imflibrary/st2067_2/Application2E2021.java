@@ -8,7 +8,7 @@ import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.Fram
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
-import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.J2KHeaderParameters;
+import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.ProgressionOrder;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.JPEG2000;
@@ -274,11 +274,9 @@ public class Application2E2021 extends AbstractApplicationComposition {
 
     /* Validate codestream parameters against constraints listed in SMPTE ST 2067-21:2023 Annex I */
 
-    private static boolean validateHT(CompositionImageEssenceDescriptorModel imageDescriptor,
+    public static boolean validateHTConstraints(J2KHeaderParameters p,
                                      IMFErrorLogger logger) {
         boolean isValid = true;
-
-        J2KHeaderParameters p = imageDescriptor.getJ2KHeaderParameters();
 
         if (p == null) {
             logger.addError(
@@ -556,7 +554,7 @@ public class Application2E2021 extends AbstractApplicationComposition {
         Integer height = imageDescriptor.getStoredHeight();
 
         if (JPEG2000.isAPP2HT(essenceCoding))
-            return validateHT(imageDescriptor, logger);
+            return validateHTConstraints(imageDescriptor.getJ2KHeaderParameters(), logger);
 
         if (JPEG2000.isIMF4KProfile(essenceCoding))
             return width > 2048 && width <= 4096 && height > 0 && height <= 3112;
