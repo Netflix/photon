@@ -1408,19 +1408,19 @@ public final class HeaderPartition
                 case MarkerSequence:
                     return "MarkerEssence";
                 case SubtitlesSequence:
-                    return "DataEssence";
+                    return "SubtitlesEssence";
                 case HearingImpairedCaptionsSequence:
-                    return "DataEssence";
+                    return "HearingImpairedCaptionsEssence";
                 case VisuallyImpairedTextSequence:
-                    return "DataEssence";
+                    return "VisuallyImpairedTextEssence";
                 case CommentarySequence:
-                    return "DataEssence";
+                    return "CommentaryEssence";
                 case KaraokeSequence:
-                    return "DataEssence";
+                    return "KaraokeEssence";
                 case ForcedNarrativeSequence:
-                    return "DataEssence";
+                    return "ForcedNarrativeEssence";
                 case AncillaryDataSequence:
-                    return "DataEssence";
+                    return "AncillaryDataEssence";
                 case IABSequence:
                     return "IABEssence";
                 case MGASADMSignalSequence:
@@ -1432,7 +1432,7 @@ public final class HeaderPartition
         }
 
         public String toString(){
-        	return this.name;
+            return this.name;
         }
     }
 
