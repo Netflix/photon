@@ -10,8 +10,12 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
+import com.netflix.imflibrary.st2067_2.IMFMarkerResourceType;
+import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
+import com.netflix.imflibrary.st2067_2.IMFMarkerType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
@@ -57,122 +61,165 @@ public class IMPAssembler {
         Map<UUID, List<Long>> sampleRateMap = new HashMap<>();
         Map<UUID, BigInteger> sampleCountMap = new HashMap<>();
         Map<UUID, byte[]> hashMap = new HashMap<>();
+        long videoIntrinsicDuration = 0;
 
 
-        for (Track track : simpleTimeline.getTracks()) {
+        for (Track track : simpleTimeline.getEssenceTracks()) {
             // build cpl track here
-            List<IMFTrackFileResourceType> resources = new ArrayList<>();
+            List<IMFTrackFileResourceType> trackFileResources = new ArrayList<>();
 
             for (TrackEntry trackEntry : track.getTrackEntries()) {
-                logger.info("track: {}, file: {}: path: {}", simpleTimeline.getTracks().indexOf(track), track.getTrackEntries().indexOf(trackEntry), trackEntry.getFile().getAbsolutePath());
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(trackEntry.getFile());
-                PayloadRecord headerPartitionPayloadRecord = IMPFixer.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, imfErrors);
-                if (headerPartitionPayloadRecord == null) {
-                    throw new IOException("Could not get header partition for file: " + trackEntry.getFile().getAbsolutePath());
+                if (trackEntry instanceof EssenceTrackEntry) {
+                    EssenceTrackEntry essenceTrackEntry = (EssenceTrackEntry) trackEntry;
+                    logger.info("track: {}, file: {}: path: {}", simpleTimeline.getEssenceTracks().indexOf(track), track.getTrackEntries().indexOf(trackEntry), essenceTrackEntry.getFile().getAbsolutePath());
+                    ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceTrackEntry.getFile());
+                    PayloadRecord headerPartitionPayloadRecord = IMPFixer.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, imfErrors);
+                    if (headerPartitionPayloadRecord == null) {
+                        throw new IOException("Could not get header partition for file: " + essenceTrackEntry.getFile().getAbsolutePath());
+                    }
+                    byte[] headerPartitionBytes = headerPartitionPayloadRecord.getPayload();
+
+
+                    // get sha-1 hash or use cached value
+                    byte[] hash = null;
+                    if (essenceTrackEntry.getHash() != null) {
+                        logger.info("Using hash from user: {}", essenceTrackEntry.getHash());
+                        hash = essenceTrackEntry.getHash();
+                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), essenceTrackEntry.getHash());
+                    } else if (hashMap.containsKey(IMPFixer.getTrackFileId(headerPartitionPayloadRecord))) {
+                        logger.info("Using cached hash: {}", hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord)));
+                        hash = hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord));
+                    } else {
+                        logger.info("Generating hash for file: {}", essenceTrackEntry.getFile().getAbsolutePath());
+                        hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
+                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), hash);
+                    }
+
+                    UUID trackFileId = IMPFixer.getTrackFileId(headerPartitionPayloadRecord);
+                    logger.info("UUID read from file: {}: {}", essenceTrackEntry.getFile().getName(), trackFileId.toString());
+                    logger.info("Adding file {} to imfTrackFileMetadataMap", essenceTrackEntry.getFile().getName());
+                    imfTrackFileMetadataMap.put(
+                            trackFileId,
+                            new IMPBuilder.IMFTrackFileMetadata(headerPartitionBytes,
+                                    hash,   // a byte[] containing the SHA-1, Base64 encoded hash of the IMFTrack file
+                                    CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
+                                    essenceTrackEntry.getFile().getName(),
+                                    resourceByteRangeProvider.getResourceSize())
+                    );
+
+                    if (copyTrackFiles) {
+                        File outputTrackFile = new File(outputDirectory.getAbsolutePath() + File.separator + essenceTrackEntry.getFile().getName());
+                        logger.info("Copying track file from\n{} to\n{}", essenceTrackEntry.getFile().getAbsolutePath(), outputTrackFile.getAbsolutePath());
+                        Files.copy(essenceTrackEntry.getFile().toPath(), outputTrackFile.toPath(), REPLACE_EXISTING);
+                    }
+
+                    IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(outputDirectory, resourceByteRangeProvider);
+
+                    // get sample rate or use cached value
+                    List<Long> sampleRate = null;
+                    if (essenceTrackEntry.getSampleRate() != null) {
+                        // if user provided sample rate, use it
+                        sampleRate = Arrays.asList(essenceTrackEntry.getSampleRate().getNumerator(), essenceTrackEntry.getSampleRate().getDenominator());
+                        logger.info("Using sample rate from user: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                    } else if (!sampleRateMap.containsKey(trackFileId)) {
+                        // sample rate has not already been found, find it
+                        sampleRate = imfTrackFileReader.getEssenceEditRateAsList(imfErrors);
+                        sampleRateMap.put(trackFileId, sampleRate);
+                        logger.info("Found sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                    } else {
+                        sampleRate = sampleRateMap.get(trackFileId);
+                        logger.info("Using cached sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
+                    }
+
+
+                    // get sample count or use cached value
+                    BigInteger sampleCount = null;
+                    if (essenceTrackEntry.getIntrinsicDuration() != null) {
+                        // use sample count provided by user
+                        sampleCount = essenceTrackEntry.getIntrinsicDuration();
+                        logger.info("Intrinsic duration from user: {}", sampleCount);
+                    } else if (!sampleCountMap.containsKey(trackFileId)) {
+                        // compute sample count
+                        sampleCount = imfTrackFileReader.getEssenceDuration(imfErrors);
+                        sampleCountMap.put(trackFileId, sampleCount);
+                        logger.info("Found essence duration of: {}", sampleCount);
+                    } else {
+                        // use cached sample count
+                        sampleCount = sampleCountMap.get(trackFileId);
+                        logger.info("Using cached intrinsic duration of: {}", sampleCount);
+                    }
+
+                    // delete temporary file left over from FileByteRangeProvider or ByteArrayByteRangeProvider
+                    Path tempFilePath = Paths.get(outputDirectory.getAbsolutePath(), "range");
+                    logger.info("Deleting temporary file if it exists: {}", tempFilePath);
+                    Files.deleteIfExists(tempFilePath);
+
+
+                    // add to resources
+                    logger.info("Adding file to resources: {}..", essenceTrackEntry.getFile().getName());
+
+                    if (track.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                        videoIntrinsicDuration += sampleCount.longValue();
+                    }
+
+                    trackFileResources.add(
+                            new IMFTrackFileResourceType(
+                                    UUIDHelper.fromUUID(IMFUUIDGenerator.getInstance().generateUUID()),
+                                    UUIDHelper.fromUUID(trackFileId),
+                                    sampleRate, // defaults to 1/1
+                                    sampleCount,
+                                    essenceTrackEntry.getEntryPoint(), // defaults to 0 if null
+                                    essenceTrackEntry.getDuration() == null ? sampleCount : essenceTrackEntry.getDuration(), // defaults to intrinsic duration if null
+                                    essenceTrackEntry.getRepeatCount(), // defaults to 1 if null
+                                    UUIDHelper.fromUUID(getOrGenerateSourceEncoding(trackFileIdToResourceMap, trackFileId)),   // used as the essence descriptor id
+                                    hash,
+                                    CompositionPlaylistBuilder_2016.defaultHashAlgorithm
+                            )
+                    );
                 }
-                byte[] headerPartitionBytes = headerPartitionPayloadRecord.getPayload();
-
-
-                // get sha-1 hash or use cached value
-                byte[] hash = null;
-                if (trackEntry.getHash() != null) {
-                    logger.info("Using hash from user: {}", trackEntry.getHash());
-                    hash = trackEntry.getHash();
-                    hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), trackEntry.getHash());
-                } else if (hashMap.containsKey(IMPFixer.getTrackFileId(headerPartitionPayloadRecord))) {
-                    logger.info("Using cached hash: {}", hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord)));
-                    hash = hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord));
-                } else {
-                    logger.info("Generating hash for file: {}", trackEntry.getFile().getAbsolutePath());
-                    hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
-                    hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), hash);
-                }
-
-                UUID trackFileId = IMPFixer.getTrackFileId(headerPartitionPayloadRecord);
-                logger.info("UUID read from file: {}: {}", trackEntry.getFile().getName(), trackFileId.toString());
-                logger.info("Adding file {} to imfTrackFileMetadataMap", trackEntry.getFile().getName());
-                imfTrackFileMetadataMap.put(
-                        trackFileId,
-                        new IMPBuilder.IMFTrackFileMetadata(headerPartitionBytes,
-                                hash,   // a byte[] containing the SHA-1, Base64 encoded hash of the IMFTrack file
-                                CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                                trackEntry.getFile().getName(),
-                                resourceByteRangeProvider.getResourceSize())
-                );
-
-                if (copyTrackFiles) {
-                    File outputTrackFile = new File(outputDirectory.getAbsolutePath() + File.separator + trackEntry.getFile().getName());
-                    logger.info("Copying track file from\n{} to\n{}", trackEntry.getFile().getAbsolutePath(), outputTrackFile.getAbsolutePath());
-                    Files.copy(trackEntry.getFile().toPath(), outputTrackFile.toPath(), REPLACE_EXISTING);
-                }
-
-                IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(outputDirectory, resourceByteRangeProvider);
-
-                // get sample rate or use cached value
-                List<Long> sampleRate = null;
-                if (trackEntry.getSampleRate() != null) {
-                    // if user provided sample rate, use it
-                    sampleRate = Arrays.asList(trackEntry.getSampleRate().getNumerator(), trackEntry.getSampleRate().getDenominator());
-                    logger.info("Using sample rate from user: {}/{}", sampleRate.get(0), sampleRate.get(1));
-                } else if (!sampleRateMap.containsKey(trackFileId)) {
-                    // sample rate has not already been found, find it
-                    sampleRate = imfTrackFileReader.getEssenceEditRateAsList(imfErrors);
-                    sampleRateMap.put(trackFileId, sampleRate);
-                    logger.info("Found sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
-                } else {
-                    sampleRate = sampleRateMap.get(trackFileId);
-                    logger.info("Using cached sample rate of: {}/{}", sampleRate.get(0), sampleRate.get(1));
-                }
-
-
-                // get sample count or use cached value
-                BigInteger sampleCount = null;
-                if (trackEntry.getIntrinsicDuration() != null) {
-                    // use sample count provided by user
-                    sampleCount = trackEntry.getIntrinsicDuration();
-                    logger.info("Intrinsic duration from user: {}", sampleCount);
-                } else if (!sampleCountMap.containsKey(trackFileId)) {
-                    // compute sample count
-                    sampleCount = imfTrackFileReader.getEssenceDuration(imfErrors);
-                    sampleCountMap.put(trackFileId, sampleCount);
-                    logger.info("Found essence duration of: {}", sampleCount);
-                } else {
-                    // use cached sample count
-                    sampleCount = sampleCountMap.get(trackFileId);
-                    logger.info("Using cached intrinsic duration of: {}", sampleCount);
-                }
-
-                // delete temporary file left over from FileByteRangeProvider or ByteArrayByteRangeProvider
-                Path tempFilePath = Paths.get(outputDirectory.getAbsolutePath(), "range");
-                logger.info("Deleting temporary file if it exists: {}", tempFilePath);
-                Files.deleteIfExists(tempFilePath);
-
-
-                // add to resources
-                logger.info("Adding file to resources: {}..", trackEntry.getFile().getName());
-                resources.add(
-                        new IMFTrackFileResourceType(
-                            UUIDHelper.fromUUID(IMFUUIDGenerator.getInstance().generateUUID()),
-                            UUIDHelper.fromUUID(trackFileId),
-                            sampleRate, // defaults to 1/1
-                            sampleCount,
-                            trackEntry.getEntryPoint(), // defaults to 0 if null
-                            trackEntry.getDuration() == null ? sampleCount : trackEntry.getDuration(), // defaults to intrinsic duration if null
-                            trackEntry.getRepeatCount(), // defaults to 1 if null
-                            UUIDHelper.fromUUID(getOrGenerateSourceEncoding(trackFileIdToResourceMap, trackFileId)),   // used as the essence descriptor id
-                            hash,
-                            CompositionPlaylistBuilder_2016.defaultHashAlgorithm
-                        )
-                );
             }
+
             // add to virtual tracks
             logger.info("Creating virtual track..");
-            Composition.VirtualTrack virtualTrack = new IMFEssenceComponentVirtualTrack(
-                    IMFUUIDGenerator.getInstance().generateUUID(),
+            Composition.VirtualTrack  virtualTrack = new IMFEssenceComponentVirtualTrack(
+                        IMFUUIDGenerator.getInstance().generateUUID(),
+                        track.getSequenceTypeEnum(),
+                        trackFileResources,
+                        simpleTimeline.getEditRate()
+                );
+            virtualTracks.add(virtualTrack);
+        }
+
+        for (Track track: simpleTimeline.getMarkerTracks()){
+
+            List<IMFMarkerResourceType> markerResources = new ArrayList<>();
+            List<IMFMarkerType> markerList = new ArrayList<>();
+
+            for (TrackEntry trackEntry : track.getTrackEntries()) {
+                if (trackEntry instanceof MarkerTrackEntry) {
+                    MarkerTrackEntry markerTrackEntry = (MarkerTrackEntry) trackEntry;
+                    IMFMarkerType marker = new IMFMarkerType(markerTrackEntry.getAnnotation(), markerTrackEntry.getLabel(), markerTrackEntry.getOffset());
+                    markerList.add(marker);
+                }
+            }
+            List<Long> editRate = new ArrayList<>();
+            editRate.add(0, simpleTimeline.getEditRate().getNumerator());
+            editRate.add(1, simpleTimeline.getEditRate().getDenominator());
+
+            markerResources.add(new IMFMarkerResourceType(
+                    UUIDHelper.fromUUID(IMFUUIDGenerator.getInstance().generateUUID()),
+                    editRate,
+                    BigInteger.valueOf(videoIntrinsicDuration),
+                    BigInteger.ZERO,
+                    BigInteger.valueOf(videoIntrinsicDuration), // source duration may not be necessary
+                    BigInteger.ONE,
+                    markerList));
+
+            logger.info("Creating marker track..");
+            Composition.VirtualTrack virtualTrack = new IMFMarkerVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(),
                     track.getSequenceTypeEnum(),
-                    resources,
-                    simpleTimeline.getEditRate()
-            );
+                    markerResources,
+                    simpleTimeline.getEditRate());
             virtualTracks.add(virtualTrack);
         }
 
@@ -326,36 +373,47 @@ public class IMPAssembler {
 
     public static class SimpleTimeline {
         public SimpleTimeline() {
-            this.tracks = new ArrayList<>();
+            this.essenceTracks = new ArrayList<>();
+            this.markerTracks = new ArrayList<>();
         }
 
         /**
          * Constructor for a simple timeline
-         * @param tracks - a list of tracks to use in the timeline
+         * @param essenceTracks - a list of tracks to use in the timeline
          * @param editRate - the edit rate, must match the video frame rate
          */
-        public SimpleTimeline(List<Track> tracks, Composition.EditRate editRate) {
-            this.tracks = tracks;
+        public SimpleTimeline(List<Track> essenceTracks, List<Track> markerTracks,Composition.EditRate editRate) {
+            this.essenceTracks = essenceTracks;
+            this.markerTracks = markerTracks;
             this.editRate = editRate;
         }
 
-        public void setTracks(List<Track> tracks) {
-            this.tracks = tracks;
+        public void setEssenceTracks(List<Track> essenceTracks) {
+            this.essenceTracks = essenceTracks;
         }
 
         public void setEditRate(Composition.EditRate editRate) {
             this.editRate = editRate;
         }
 
-        public List<Track> getTracks() {
-            return tracks;
+        public List<Track> getEssenceTracks() {
+            return essenceTracks;
         }
 
         public Composition.EditRate getEditRate() {
             return editRate;
         }
 
-        private List<Track> tracks;
+        public List<Track> getMarkerTracks() {
+            return markerTracks;
+        }
+
+        public void setMarkerTracks(List<Track> markerTracks) {
+            this.markerTracks = markerTracks;
+        }
+
+        private List<Track> essenceTracks;
+        private List<Track> markerTracks;
         public Composition.EditRate editRate;
     }
 
@@ -390,11 +448,11 @@ public class IMPAssembler {
             this.trackEntries = trackEntries;
         }
 
-        public Composition.SequenceTypeEnum sequenceTypeEnum;
-        public List<TrackEntry> trackEntries;
+        private Composition.SequenceTypeEnum sequenceTypeEnum;
+        private List<TrackEntry> trackEntries;
     }
 
-    public static class TrackEntry {
+    public static class EssenceTrackEntry extends TrackEntry{
         /**
          * Constructor for a track entry to be used to construct a simple timeline
          * @param file - the MXF file
@@ -405,7 +463,7 @@ public class IMPAssembler {
          * @param repeatCount - the repeat count, if null, defaults to 1
          * @param hash - the SHA-1 hash of the file, optional, introspected if null
          */
-        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount, @Nullable byte[] hash) {
+        public EssenceTrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount, @Nullable byte[] hash) {
             this.file = file;
             this.sampleRate = sampleRate;
             this.intrinsicDuration = intrinsicDuration;
@@ -415,11 +473,11 @@ public class IMPAssembler {
             this.hash = hash;
         }
 
-        public TrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
+        public EssenceTrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
             this(file, sampleRate, intrinsicDuration, entryPoint, duration, repeatCount, null);
         }
-        
-        public TrackEntry() {
+
+        public EssenceTrackEntry() {
             this.file = null;
             this.sampleRate = null;
             this.intrinsicDuration = null;
@@ -477,21 +535,48 @@ public class IMPAssembler {
             this.repeatCount = repeatCount;
         }
 
-        public File file;
-        public Composition.EditRate sampleRate;
-        public BigInteger intrinsicDuration;
-        public BigInteger entryPoint;
-        public BigInteger duration;
-        public BigInteger repeatCount;
+        private File file;
+        private Composition.EditRate sampleRate;
+        private BigInteger intrinsicDuration;
+        private BigInteger entryPoint;
+        private BigInteger duration;
+        private BigInteger repeatCount;
 
         public byte[] getHash() {
             return hash;
         }
 
-        public void setHash(byte[] hash) {
+        private void setHash(byte[] hash) {
             this.hash = hash;
         }
 
         public byte[] hash;
+    }
+
+    public static class MarkerTrackEntry extends TrackEntry{
+        private String annotation;
+        private IMFMarkerType.Label label;
+        private BigInteger offset;
+
+        public MarkerTrackEntry(String annotation, IMFMarkerType.Label label, BigInteger offset) {
+            this.annotation = annotation;
+            this.label = label;
+            this.offset = offset;
+        }
+
+        public String getAnnotation() {
+            return annotation;
+        }
+
+        public IMFMarkerType.Label getLabel() {
+            return label;
+        }
+
+        public BigInteger getOffset() {
+            return offset;
+        }
+    }
+    public static abstract class TrackEntry {
+
     }
 }
