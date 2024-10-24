@@ -48,12 +48,25 @@ public final class JPEG2000PictureComponent {
         @MXFProperty(size=1) protected final Short xrSiz;
         @MXFProperty(size=1) protected final Short yrSiz;
 
+        public Short getSSiz() {
+            return sSiz;
+        }
+
+        public Short getXrSiz() {
+            return xrSiz;
+        }
+
+        public Short getYrSiz() {
+            return yrSiz;
+        }
+
         /**
          * Instantiates a new parsed JPEG2000PictureComponent object
          *
          * @param bytes the byte array corresponding to the 3 fields
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
+
         public JPEG2000PictureComponentBO(byte[] bytes)
                 throws IOException
         {

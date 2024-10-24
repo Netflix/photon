@@ -26,6 +26,7 @@ import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.utils.ByteProvider;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.Map;
 
@@ -59,7 +60,8 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
      * Object corresponding to a parsed JPEG2000PictureSubDescriptor as defined in st429-4-2006
      */
     @Immutable
-    public static final class JPEG2000PictureSubDescriptorBO extends SubDescriptorBO{
+    public static final class JPEG2000PictureSubDescriptorBO extends SubDescriptorBO {
+
         @MXFProperty(size=16) protected final byte[] generation_uid = null;
         @MXFProperty(size=2) protected final Short rSiz = null;
         @MXFProperty(size=4) protected final Integer xSiz = null;
@@ -74,6 +76,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
         @MXFProperty(size=0, depends=true) private final CompoundDataTypes.MXFCollections.MXFCollection<JPEG2000PictureComponent.JPEG2000PictureComponentBO> picture_component_sizing = null;
         @MXFProperty(size=0, depends=false) private final byte[] coding_style_default = null;
         @MXFProperty(size=0, depends=false) private final byte[] quantisation_default = null;
+        @MXFProperty(size=0, depends=false) private final J2KExtendedCapabilities j2k_extended_capabilities = null;
 
         /**
          * Instantiates a new JPEG2000 picture sub descriptor ByteObject.
@@ -84,19 +87,73 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
          * @param imfErrorLogger the imf error logger
          * @throws IOException - any I/O related error will be exposed through an IOException
          */
+
         public JPEG2000PictureSubDescriptorBO(KLVPacket.Header header, ByteProvider byteProvider, Map<Integer, MXFUID> localTagToUIDMap, IMFErrorLogger imfErrorLogger)
-                throws IOException
-        {
+                throws IOException {
             super(header);
             long numBytesToRead = this.header.getVSize();
-
             StructuralMetadata.populate(this, byteProvider, numBytesToRead, localTagToUIDMap);
 
-            if (this.instance_uid == null)
-            {
+            if (this.instance_uid == null) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         JPEG2000PictureSubDescriptor.ERROR_DESCRIPTION_PREFIX + "instance_uid is null");
             }
+        }
+
+        public Short getRSiz() {
+            return rSiz;
+        }
+
+        public Integer getXSiz() {
+            return xSiz;
+        }
+
+        public Integer getYSiz() {
+            return ySiz;
+        }
+
+        public Integer getXoSiz() {
+            return xoSiz;
+        }
+
+        public Integer getYoSiz() {
+            return yoSiz;
+        }
+
+        public Integer getXtSiz() {
+            return xtSiz;
+        }
+
+        public Integer getYtSiz() {
+            return ytSiz;
+        }
+
+        public Integer getXtoSiz() {
+            return xtoSiz;
+        }
+
+        public Integer getYtoSiz() {
+            return ytoSiz;
+        }
+
+        public Short getCSiz() {
+            return cSiz;
+        }
+
+        public CompoundDataTypes.MXFCollections.MXFCollection<JPEG2000PictureComponent.JPEG2000PictureComponentBO> getPictureComponentSizing() {
+            return picture_component_sizing;
+        }
+
+        public String getCodingStyleDefaultString() {
+            return DatatypeConverter.printHexBinary(coding_style_default);
+        }
+
+        public String getQuantisationDefaultString() {
+            return DatatypeConverter.printHexBinary(quantisation_default);
+        }
+
+        public J2KExtendedCapabilities getJ2kExtendedCapabilities() {
+            return j2k_extended_capabilities;
         }
 
         /**
@@ -104,8 +161,9 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
          *
          * @return string representing the object
          */
-        public String toString()
-        {
+
+        @Override
+        public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("================== JPEG2000PictureSubDescriptor ======================\n");
             sb.append(this.header.toString());
@@ -135,6 +193,7 @@ public final class JPEG2000PictureSubDescriptor extends SubDescriptor {
                 quantisationDefaultString = quantisationDefaultString.concat(String.format("%02x", b));
             }
             sb.append(String.format("quantisation_default = %s", quantisationDefaultString));
+            sb.append(String.format("j2k_extended_capabilities = %s", j2k_extended_capabilities));
             return sb.toString();
         }
     }

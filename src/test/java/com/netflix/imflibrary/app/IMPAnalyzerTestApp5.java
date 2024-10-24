@@ -17,6 +17,10 @@
  */
 package com.netflix.imflibrary.app;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.testng.Assert;
@@ -50,4 +54,25 @@ public class IMPAnalyzerTestApp5
         );
 
     }
+
+    @Test
+    public void ValidApplicationTypeCPL() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml");
+        IMFErrorLogger logger = new IMFErrorLoggerImpl();
+
+        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
+
+        /* Make sure its 2020 core constraints */
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2016");
+
+        /* Make sure its APP #5 Composition */
+        Assert.assertEquals(applicationComposition.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
+
+        logger.getErrors().forEach(e -> {System.out.println(e.getErrorDescription());});
+        Assert.assertEquals(logger.getErrors().size(), 3);
+    }
+
+
+
 }

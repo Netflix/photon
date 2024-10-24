@@ -23,6 +23,7 @@ import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
+import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -592,11 +593,13 @@ public class IMPValidator {
                     0L,
                     (long)payloadRecord.getPayload().length,
                     imfErrorLogger);
-
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
                 if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.IABEssence) {
                     IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
+                }
+                if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.MGASADMEssence) {
+                    MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
                 }
             }
             catch (IMFException | MXFException e){
@@ -709,6 +712,9 @@ public class IMPValidator {
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
                 if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
                     IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
+                }
+                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.MGASADMEssence)) {
+                    MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
                 }
             }
             catch (IMFException | MXFException e){
@@ -922,7 +928,7 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method, used for IMP containing IAB tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7 of SMPTE ST 2067-201:2019)
+     * A stateless method, used for IMP containing IAB and/or MGA S-ADM tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7 of SMPTE ST 2067-201:2019)
      * @param headerPartitionPayloadRecords - a list of IMF Essence Component partition payloads for header partitions
      * @param indexSegmentPayloadRecords - a list of IMF Essence Component partition payloads for index partitions
      * @return list of error messages encountered while validating
@@ -970,6 +976,8 @@ public class IMPValidator {
                                 IndexTableSegment indexTableSegment = new IndexTableSegment(imfEssenceComponentByteProvider, header);
                                 if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
                                     IABTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
+                                } else if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.MGASADMEssence)) {
+                                    MGASADMTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
                                 }
                             } else {
                                 imfEssenceComponentByteProvider.skipBytes(header.getVSize());

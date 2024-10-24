@@ -2,7 +2,10 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -151,6 +154,9 @@ public class Application2ExtendedCompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
 
+        /* Make sure its 2013 core constraints */
+        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2013");
+
         /* Make sure its APP2#E Composition */
         Assert.assertEquals(applicationComposition.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE);
 
@@ -178,4 +184,82 @@ public class Application2ExtendedCompositionTest
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
+
+    @Test
+    public void validJ2KHeaderParameters() throws IOException
+    {
+        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
+        FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        IMFErrorLogger logger = new IMFErrorLoggerImpl();
+        IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, logger);
+        Application2E2021 app = new Application2E2021(imfCompositionPlaylistType);
+        CompositionImageEssenceDescriptorModel image = app.getCompositionImageEssenceDescriptorModel();
+
+        Assert.assertNotNull(image);
+
+        @SuppressWarnings("null")
+        J2KHeaderParameters p = image.getJ2KHeaderParameters();
+
+        Assert.assertEquals(p.rsiz, 16384);
+
+        Assert.assertEquals(p.xsiz, 1920);
+        Assert.assertEquals(p.ysiz, 1080);
+        Assert.assertEquals(p.xosiz, 0);
+        Assert.assertEquals(p.yosiz, 0);
+        Assert.assertEquals(p.xtsiz, 1920);
+        Assert.assertEquals(p.ytsiz, 1080);
+        Assert.assertEquals(p.xtosiz, 0);
+        Assert.assertEquals(p.ytosiz, 0);
+
+        Assert.assertEquals(p.csiz.length, 3);
+        Assert.assertEquals(p.csiz[0].ssiz, 9);
+        Assert.assertEquals(p.csiz[0].yrsiz, 1);
+        Assert.assertEquals(p.csiz[0].xrsiz, 1);
+        Assert.assertEquals(p.csiz[1].ssiz, 9);
+        Assert.assertEquals(p.csiz[1].yrsiz, 1);
+        Assert.assertEquals(p.csiz[1].xrsiz, 1);
+        Assert.assertEquals(p.csiz[2].ssiz, 9);
+        Assert.assertEquals(p.csiz[2].yrsiz, 1);
+        Assert.assertEquals(p.csiz[2].xrsiz, 1);
+
+        Assert.assertEquals(p.cap.pcap, 131072);
+        Assert.assertEquals(p.cap.ccap.length, 1);
+        Assert.assertEquals(p.cap.ccap[0], 2);
+
+        Assert.assertEquals(p.qcd.sqcd, 0x20);
+        Assert.assertEquals(p.qcd.spqcd, new int[] { 0x60, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68, 0x68, 0x70, 0x68,
+                0x68, 0x68, 0x60, 0x60, 0x68 });
+
+        /* 01020001010505034001778888888888 */
+        /*  */
+        Assert.assertEquals(p.cod.scod, 0x01);
+        Assert.assertEquals(p.cod.progressionOrder, 0x02);
+        Assert.assertEquals(p.cod.numLayers, 0x0001);
+        Assert.assertEquals(p.cod.multiComponentTransform, 0x01);
+        Assert.assertEquals(p.cod.numDecompLevels, 0x05);
+        Assert.assertEquals(p.cod.xcb, 7);
+        Assert.assertEquals(p.cod.ycb, 5);
+        Assert.assertEquals(p.cod.cbStyle, 0x40);
+        Assert.assertEquals(p.cod.transformation, 0x01);
+        Assert.assertEquals(p.cod.precinctSizes, new short[] { 0x77, 0x88, 0x88, 0x88, 0x88, 0x88 });
+    }
+
+    @Test
+    public void app2ExtendedCompositionEssenceCodingErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_CodecError.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void app2ExtendedCompositionJ2kProfileErrorTest() throws IOException {
+        File inputFile = TestHelper.findResourceByPath
+                ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_J2kProfileError.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
 }

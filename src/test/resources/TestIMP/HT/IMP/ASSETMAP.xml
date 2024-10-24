@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM">
+  <Id>urn:uuid:49e02e84-fee5-430a-8f0d-0063ff9f0e46</Id>
+  <AnnotationText>Untitled Project</AnnotationText>
+  <Creator>Blackmagic Design DaVinci Resolve 19.0.0b.0050</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-09-30T13:25:04</IssueDate>
+  <Issuer>Blackmagic Design</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:6ed567b7-c030-46d6-9c1c-0f09bab4b962</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>3651582</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:b285d8f3-0294-4207-8ea8-4f0b72314213</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>AUDIO_b285d8f3-0294-4207-8ea8-4f0b72314213.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>651208</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:67be5fc8-87f1-4172-8d52-819ca14c7a20</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>13275</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:52f61ec0-1517-49b7-a8e2-941c0200c69a</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_52f61ec0-1517-49b7-a8e2-941c0200c69a.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>1708</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

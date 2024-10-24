@@ -1,7 +1,14 @@
 
 # Photon
 
-Photon is a Java implementation of the [Interoperable Master Format (IMF)](https://www.imfug.com/explainer/imf-explainer-en/#what-is-imf) standard. IMF core constraints are defined by [SMPTE](https://www.smpte.org/who-we-are) specification [st2067-2:2013](https://ieeexplore.ieee.org/document/7291584) (paywall). Photon offers tools for parsing, interpreting and validating constituent files that make an Interoperable Master Package (IMP). These include AssetMap (st429-9:2014), PackingList (st429-8:2007), Composition Playlist (st2067-3:2013), and the essence containing IMF track file (st2067-5:2013) which follows the Material eXchange Format (MXF) format (st377-1:2011). Specifically, Photon parses and completely reads an MXF file containing a single audio or video essence as defined by the IMF Essence Component specification (st2067-5:2013) and serializes the metadata into the IMF Composition Playlist structure.
+Photon is a Java implementation of the [Interoperable Master Format (IMF)](https://www.smpte.org/standards/st2067) standard. Photon offers tools for parsing, interpreting and validating constituent files that make an Interoperable Master Package (IMP). These include:
+
+- AssetMap (ST 429-9)
+- PackingList (ST 429-8) 
+- Composition Playlist (ST 2067-3) 
+- IMF track files (ST 2067-5)
+
+Photon parses and reads IMF track files and serializes the metadata into the IMF Composition Playlist structure. Currently, Photon provides support for IMF Application #2E (ST 2067-21) and Application #5 ACES (ST 2067-50), and the Immersive Audio Bitstream (IAB) Plug-in (ST 2067-201).
 
 The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
 
@@ -14,12 +21,16 @@ Photon can be built using JDK-8. Support for earlier jdk versions has not been t
 ### Gradle
 Photon can be built very easily by using the included Gradle wrapper. Having downloaded the sources, simply invoke the following commands inside the folder containing the sources:
 
+```
 $ ./gradlew clean
 $ ./gradlew build
+```
 
 For Windows
+```
 $ gradlew.bat clean
 $ gradlew.bat build
+```
 
 ## Full Documentation
 

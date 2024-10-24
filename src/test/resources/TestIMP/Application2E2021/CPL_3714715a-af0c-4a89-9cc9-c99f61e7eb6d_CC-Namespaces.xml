@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:ns4="http://www.smpte-ra.org/ns/2067-2/2020" xmlns:ns5="http://www.smpte-ra.org/ns/2067-203/2022" xmlns:ns6="http://www.smpte-ra.org/ns/2067-201/2019">
+    <Id>urn:uuid:ca3e808a-43ea-4e49-92ff-35bc8bc016aa</Id>
+    <Annotation language="en">Netflix</Annotation>
+    <IssueDate>2024-10-04T18:18:20.576Z</IssueDate>
+    <Issuer language="en">Netflix - PhotonService</Issuer>
+    <Creator language="en">Photon PackingListBuilder</Creator>
+    <ContentTitle language="en">Not Included</ContentTitle>
+    <ContentVersionList>
+        <ContentVersion>
+            <Id>urn:uuid:aa8b1162-185e-4f29-845a-07ac8eb21c9d</Id>
+            <LabelText language="en">Photon CompositionPlaylistBuilder</LabelText>
+        </ContentVersion>
+    </ContentVersionList>
+    <EssenceDescriptorList>
+        <EssenceDescriptor>
+            <Id>urn:uuid:7c73c158-b8e8-41d6-b84b-c54998378315</Id>
+            <r0:IABEssenceDescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <r1:InstanceID>urn:uuid:f7f35b93-e78e-43ec-b21e-5ed9ccc074d5</r1:InstanceID>
+                <r1:LinkedTrackID>1</r1:LinkedTrackID>
+                <r1:SampleRate>24/1</r1:SampleRate>
+                <r1:AudioSampleRate>48000/1</r1:AudioSampleRate>
+                <r1:ChannelCount>0</r1:ChannelCount>
+                <r1:ContainerFormat>urn:smpte:ul:060e2b34.0401010d.0d010301.021d0101</r1:ContainerFormat>
+                <r1:EssenceLength>56904</r1:EssenceLength>
+                <r1:QuantizationBits>24</r1:QuantizationBits>
+                <r1:SoundCompression>urn:smpte:ul:060e2b34.04010105.0e090604.00000000</r1:SoundCompression>
+                <r1:Locked>False</r1:Locked>
+                <r1:SubDescriptors>
+                    <r0:IABSoundfieldLabelSubDescriptor>
+                        <r1:InstanceID>urn:uuid:88bb7e2f-aeaa-498f-8dbc-f5c9ab6f40ac</r1:InstanceID>
+                        <r1:MCALabelDictionaryID>urn:smpte:ul:060e2b34.0401010d.03020221.00000000</r1:MCALabelDictionaryID>
+                        <r1:MCALinkID>urn:uuid:d75c4593-0e65-4a5a-8566-e922cac41a54</r1:MCALinkID>
+                        <r1:MCAAudioContentKind>PRM</r1:MCAAudioContentKind>
+                        <r1:MCAAudioElementKind>FCMP</r1:MCAAudioElementKind>
+                        <r1:MCATagSymbol>IAB</r1:MCATagSymbol>
+                        <r1:MCATagName>IAB</r1:MCATagName>
+                        <r1:RFC5646SpokenLanguage>pl</r1:RFC5646SpokenLanguage>
+          </r0:IABSoundfieldLabelSubDescriptor>
+        </r1:SubDescriptors>
+      </r0:IABEssenceDescriptor>
+        </EssenceDescriptor>
+        <EssenceDescriptor>
+            <Id>urn:uuid:b8f9c9cd-50c0-481f-b34e-a7b05664d7ec</Id>
+            <r0:RGBADescriptor xmlns:r0="http://www.smpte-ra.org/reg/395/2014/13/1/aaf" xmlns:r1="http://www.smpte-ra.org/reg/335/2012" xmlns:r2="http://www.smpte-ra.org/reg/2003/2012" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <r1:PixelLayout>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompRed</r2:Code>
+                        <r2:ComponentSize>12</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompGreen</r2:Code>
+                        <r2:ComponentSize>12</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompBlue</r2:Code>
+                        <r2:ComponentSize>12</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompFill</r2:Code>
+                        <r2:ComponentSize>4</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompNull</r2:Code>
+                        <r2:ComponentSize>0</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompNull</r2:Code>
+                        <r2:ComponentSize>0</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompNull</r2:Code>
+                        <r2:ComponentSize>0</r2:ComponentSize>
+          </r2:RGBAComponent>
+                    <r2:RGBAComponent>
+                        <r2:Code>CompNull</r2:Code>
+                        <r2:ComponentSize>0</r2:ComponentSize>
+          </r2:RGBAComponent>
+        </r1:PixelLayout>
+                <r1:ComponentMinRef>0</r1:ComponentMinRef>
+                <r1:ComponentMaxRef>4095</r1:ComponentMaxRef>
+                <r1:ScanningDirection>ScanningDirection_LeftToRightTopToBottom</r1:ScanningDirection>
+                <r1:LinkedTrackID>2</r1:LinkedTrackID>
+                <r1:InstanceID>urn:uuid:5e668179-f35d-9b40-9d30-c5bf5df4837b</r1:InstanceID>
+                <r1:VideoLineMap>
+                    <r2:Int32>0</r2:Int32>
+                    <r2:Int32>0</r2:Int32>
+        </r1:VideoLineMap>
+                <r1:DisplayYOffset>0</r1:DisplayYOffset>
+                <r1:DisplayXOffset>0</r1:DisplayXOffset>
+                <r1:SampledYOffset>0</r1:SampledYOffset>
+                <r1:SampledXOffset>0</r1:SampledXOffset>
+                <r1:DisplayWidth>3840</r1:DisplayWidth>
+                <r1:DisplayHeight>2160</r1:DisplayHeight>
+                <r1:StoredWidth>3840</r1:StoredWidth>
+                <r1:StoredHeight>2160</r1:StoredHeight>
+                <r1:SampledWidth>3840</r1:SampledWidth>
+                <r1:SampledHeight>2160</r1:SampledHeight>
+                <r1:FrameLayout>FullFrame</r1:FrameLayout>
+                <r1:ImageAspectRatio>16/9</r1:ImageAspectRatio>
+                <r1:ActiveFormatDescriptor>66</r1:ActiveFormatDescriptor>
+                <r1:SampleRate>24/1</r1:SampleRate>
+                <r1:TransferCharacteristic>urn:smpte:ul:060e2b34.0401010d.04010101.010a0000</r1:TransferCharacteristic>
+                <r1:ColorPrimaries>urn:smpte:ul:060e2b34.0401010d.04010101.03060000</r1:ColorPrimaries>
+                <r1:ContainerFormat>urn:smpte:ul:060e2b34.0401010d.0d010301.020c0600</r1:ContainerFormat>
+                <r1:PictureCompression>urn:smpte:ul:060e2b34.0401010d.04010202.03010312</r1:PictureCompression>
+                <r1:EssenceLength>56904</r1:EssenceLength>
+                <r1:MasteringDisplayMinimumLuminance>1</r1:MasteringDisplayMinimumLuminance>
+                <r1:MasteringDisplayMaximumLuminance>10000000</r1:MasteringDisplayMaximumLuminance>
+                <r1:MasteringDisplayWhitePointChromaticity>
+                    <r2:X>15635</r2:X>
+                    <r2:Y>16450</r2:Y>
+        </r1:MasteringDisplayWhitePointChromaticity>
+                <r1:MasteringDisplayPrimaries>
+                    <r2:ColorPrimary>
+                        <r2:X>34000</r2:X>
+                        <r2:Y>16000</r2:Y>
+          </r2:ColorPrimary>
+                    <r2:ColorPrimary>
+                        <r2:X>13250</r2:X>
+                        <r2:Y>34500</r2:Y>
+          </r2:ColorPrimary>
+                    <r2:ColorPrimary>
+                        <r2:X>7500</r2:X>
+                        <r2:Y>3000</r2:Y>
+          </r2:ColorPrimary>
+        </r1:MasteringDisplayPrimaries>
+                <r1:SubDescriptors>
+                    <r0:JPEG2000SubDescriptor>
+                        <r1:InstanceID>urn:uuid:027d8675-d522-4d46-863f-4731205abdbc</r1:InstanceID>
+                        <r1:Rsiz>1334</r1:Rsiz>
+                        <r1:Xsiz>3840</r1:Xsiz>
+                        <r1:Ysiz>2160</r1:Ysiz>
+                        <r1:XOsiz>0</r1:XOsiz>
+                        <r1:YOsiz>0</r1:YOsiz>
+                        <r1:XTsiz>3840</r1:XTsiz>
+                        <r1:YTsiz>2160</r1:YTsiz>
+                        <r1:XTOsiz>0</r1:XTOsiz>
+                        <r1:YTOsiz>0</r1:YTOsiz>
+                        <r1:Csiz>3</r1:Csiz>
+                        <r1:CodingStyleDefault>0104000101060303000077888888888888</r1:CodingStyleDefault>
+                        <r1:QuantizationDefault>229f1e9eea9eea9ebc96ea96ea96bc8f008f008ee2874c874c876470037003704577d277d27761</r1:QuantizationDefault>
+                        <r1:PictureComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>11</r2:Ssiz>
+<r2:XRSiz>1</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>11</r2:Ssiz>
+<r2:XRSiz>1</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+                            <r2:J2KComponentSizing>
+<r2:Ssiz>11</r2:Ssiz>
+<r2:XRSiz>1</r2:XRSiz>
+<r2:YRSiz>1</r2:YRSiz>
+              </r2:J2KComponentSizing>
+            </r1:PictureComponentSizing>
+                        <r1:J2CLayout>
+                            <r2:RGBAComponent>
+<r2:Code>CompRed</r2:Code>
+<r2:ComponentSize>12</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompGreen</r2:Code>
+<r2:ComponentSize>12</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompBlue</r2:Code>
+<r2:ComponentSize>12</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+                            <r2:RGBAComponent>
+<r2:Code>CompNull</r2:Code>
+<r2:ComponentSize>0</r2:ComponentSize>
+              </r2:RGBAComponent>
+            </r1:J2CLayout>
+          </r0:JPEG2000SubDescriptor>
+                    <r2:PHDRMetadataTrackSubDescriptor>
+                        <r1:InstanceID>urn:uuid:db965338-b65d-bb4b-acaa-8e7611c85eae</r1:InstanceID>
+                        <r2:PHDRMetadataTrackSubDescriptor_DataDefinition>urn:smpte:ul:060e2b34.04010105.0e090607.01010101</r2:PHDRMetadataTrackSubDescriptor_DataDefinition>
+                        <r2:PHDRMetadataTrackSubDescriptor_SimplePayloadSID>2</r2:PHDRMetadataTrackSubDescriptor_SimplePayloadSID>
+                        <r2:PHDRMetadataTrackSubDescriptor_SourceTrackID>3</r2:PHDRMetadataTrackSubDescriptor_SourceTrackID>
+          </r2:PHDRMetadataTrackSubDescriptor>
+        </r1:SubDescriptors>
+      </r0:RGBADescriptor>
+        </EssenceDescriptor>
+    </EssenceDescriptorList>
+    <EditRate>24 1</EditRate>
+    <TotalRunningTime>00:39:31</TotalRunningTime>
+    <ExtensionProperties>
+        <ns3:ApplicationIdentification>http://www.smpte-ra.org/ns/2067-21/2021</ns3:ApplicationIdentification>
+    </ExtensionProperties>
+    <SegmentList>
+        <Segment>
+            <Id>urn:uuid:ca3e808a-43ea-4e49-92ff-35bc8bc016aa</Id>
+            <Annotation language="en">Segment-1</Annotation>
+            <SequenceList>
+                <ns6:IABSequence>
+                    <Id>urn:uuid:edd24f83-5690-45e7-96e4-cef73e70da6d</Id>
+                    <TrackId>urn:uuid:6ce04db7-a68b-44bb-9af5-597c7285ced4</TrackId>
+                    <ResourceList>
+                        <Resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="TrackFileResourceType">
+                            <Id>urn:uuid:be0f4305-7294-4a7a-ae08-db9cde235851</Id>
+                            <EditRate>24 1</EditRate>
+                            <IntrinsicDuration>56904</IntrinsicDuration>
+                            <EntryPoint>0</EntryPoint>
+                            <SourceDuration>56904</SourceDuration>
+                            <RepeatCount>1</RepeatCount>
+                            <SourceEncoding>urn:uuid:7c73c158-b8e8-41d6-b84b-c54998378315</SourceEncoding>
+                            <TrackFileId>urn:uuid:c8f83d37-51bc-4b3a-a114-2883914f8658</TrackFileId>
+                            <Hash>FPZiENHFRJkbdil+IYXqca+xiIk=</Hash>
+                            <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        </Resource>
+                    </ResourceList>
+                </ns6:IABSequence>
+                <ns3:MainImageSequence>
+                    <Id>urn:uuid:ecc2b3d1-69a7-4a2b-af74-205cc2e5b05f</Id>
+                    <TrackId>urn:uuid:b00a70b4-55f9-49ea-81a0-11ef74dc9407</TrackId>
+                    <ResourceList>
+                        <Resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="TrackFileResourceType">
+                            <Id>urn:uuid:5fd4587b-469a-4c8f-84ba-28ba52312d40</Id>
+                            <EditRate>24 1</EditRate>
+                            <IntrinsicDuration>56904</IntrinsicDuration>
+                            <EntryPoint>0</EntryPoint>
+                            <SourceDuration>56904</SourceDuration>
+                            <RepeatCount>1</RepeatCount>
+                            <SourceEncoding>urn:uuid:b8f9c9cd-50c0-481f-b34e-a7b05664d7ec</SourceEncoding>
+                            <TrackFileId>urn:uuid:e01dd09d-e0ec-4f73-a4c0-aea8ddeeed50</TrackFileId>
+                            <Hash>qX2KBRL4GQO6L1pThk6LC5qvApo=</Hash>
+                            <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        </Resource>
+                    </ResourceList>
+                </ns3:MainImageSequence>
+            </SequenceList>
+        </Segment>
+    </SegmentList>
+</CompositionPlaylist>

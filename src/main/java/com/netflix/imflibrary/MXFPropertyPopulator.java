@@ -22,6 +22,7 @@ import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.J2KExtendedCapabilities;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureComponent;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -111,6 +112,10 @@ public final class MXFPropertyPopulator
                 CompoundDataTypes.Timestamp timestamp = new CompoundDataTypes.Timestamp(byteProvider);
                 field.set(object, timestamp);
             }
+            else if (field.getType() == J2KExtendedCapabilities.class) {
+                J2KExtendedCapabilities j2KExtendedCapabilities = new J2KExtendedCapabilities(byteProvider);
+                field.set(object, j2KExtendedCapabilities);
+            }
             else if (field.getType() == CompoundDataTypes.MXFCollections.MXFCollection.class)
             {
                 CompoundDataTypes.MXFCollections.Header cHeader = new CompoundDataTypes.MXFCollections.Header(byteProvider);
@@ -127,6 +132,14 @@ public final class MXFPropertyPopulator
                     for (long i=0; i<cHeader.getNumberOfElements(); i++)
                     {
                         cList.add(byteProvider.getBytes((int)cHeader.getSizeOfElement()));
+                    }
+                    field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
+                }
+                else if (parameterizedType.getActualTypeArguments()[0] == Short.class) {
+                    List<Short> cList = new ArrayList<>();
+                    for (long i=0; i <cHeader.getNumberOfElements(); i++)
+                    {
+                        cList.add(getShort(byteProvider.getBytes(2), KLVPacket.BYTE_ORDER));
                     }
                     field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
                 }

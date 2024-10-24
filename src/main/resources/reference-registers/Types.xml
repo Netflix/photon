@@ -1,8 +1,8 @@
 <!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000084 -->
+<!-- master_commit_tag=v000000085 -->
 <!-- DO NOT EDIT THIS TAG -->
 <!--
-Copyright (c) 2023 SMPTE All rights reserved.
+Copyright (c) 2024 SMPTE All rights reserved.
 
 The latest version of this document can be retrieved at
 
@@ -168,6 +168,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <TypeKind>Integer</TypeKind>
       <TypeSize>8</TypeSize>
       <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>UInt48</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.01010900.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>UInt48</Name>
+      <DefiningDocument>IEEE 1588-2019</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Integer</TypeKind>
+      <TypeSize>6</TypeSize>
+      <TypeQualifiers>isNumeric</TypeQualifiers>
     </Entry>
     <Entry>
       <Register>Types</Register>
@@ -366,6 +380,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <TypeKind>Integer</TypeKind>
       <TypeSize>2</TypeSize>
       <TypeQualifiers>isNumeric</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>SingleFloat</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.01020500.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SingleFloat</Name>
+      <DefiningDocument>IEEE 754-2019</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Integer</TypeKind>
+      <TypeSize>4</TypeSize>
+      <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
     </Entry>
     <Entry>
       <Register>Types</Register>
@@ -3991,6 +4019,32 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>PTPTimestamp</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.03011000.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>PTP Timestamp</Name>
+      <DefiningDocument>IEEE 1588-2019</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Record</TypeKind>
+      <Facets>
+        <Facet>
+          <Symbol>Seconds</Symbol>
+          <Name>Seconds</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01010900.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>Nanoseconds</Symbol>
+          <Name>Nanoseconds</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>Multiples</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.04000000.00000000</UL>
       <Kind>NODE</Kind>
@@ -4302,6 +4356,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>UnknownContext</ContextScope>
       <TypeKind>VariableArray</TypeKind>
       <BaseType>urn:smpte:ul:060e2b34.01040101.01020300.00000000</BaseType>
+      <TypeQualifiers>isOrdered</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>SingleFloatArray</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.04011700.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>SingleFloatArray</Name>
+      <DefiningDocument>SMPTE RDD 55</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>VariableArray</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01020500.00000000</BaseType>
       <TypeQualifiers>isOrdered</TypeQualifiers>
     </Entry>
     <Entry>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OutputProfileList xmlns="http://www.smpte-ra.org/schemas/2067-100/2014">
+  <Id>urn:uuid:778f1aa6-7764-433f-9db7-f1b2c23a5b20</Id>
+  <Annotation>Original Version</Annotation>
+  <IssueDate>2020-01-16T10:30:34-00:00</IssueDate>
+  <Issuer>TextEditor</Issuer>
+  <Creator>TextEditor</Creator>
+  <CompositionPlaylistId>urn:uuid:cdbc350c-3042-4bb2-849a-43a657455adb</CompositionPlaylistId>
+  <AliasList/>
+  <MacroList>
+    <Macro xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PresetMacroType">
+      <Name>empty</Name>
+      <Annotation>empty</Annotation>
+      <Preset>http://uri</Preset>
+    </Macro>
+  </MacroList>
+</OutputProfileList>

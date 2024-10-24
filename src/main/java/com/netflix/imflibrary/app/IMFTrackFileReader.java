@@ -36,6 +36,8 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
+import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -71,7 +73,7 @@ import java.util.UUID;
  * A simple application to exercise the core logic of Photon for reading and validating IMF Track files.
  */
 @ThreadSafe
-final class IMFTrackFileReader
+public final class IMFTrackFileReader
 {
     private final File workingDirectory;
     private final ResourceByteRangeProvider resourceByteRangeProvider;
@@ -89,7 +91,7 @@ final class IMFTrackFileReader
      * @param workingDirectory the working directory
      * @param resourceByteRangeProvider the MXF file represented as a {@link com.netflix.imflibrary.utils.ResourceByteRangeProvider}
      */
-    IMFTrackFileReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
+    public IMFTrackFileReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
     {
         this.workingDirectory = workingDirectory;
         this.resourceByteRangeProvider = resourceByteRangeProvider;
@@ -133,6 +135,10 @@ final class IMFTrackFileReader
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
             this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            if (this.headerPartition != null) {
+                IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+            }
         }
         catch (MXFException | IMFException e){
             if(headerPartition == null){
@@ -500,7 +506,7 @@ final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.IABEssence);
-        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.DataEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MGASADMEssence);
         List<HeaderPartition.EssenceTypeEnum> supportedEssenceTypesFound = new ArrayList<>();
         List<HeaderPartition.EssenceTypeEnum> essenceTypes = this.getHeaderPartitionIMF(imfErrorLogger).getHeaderPartitionOP1A().getHeaderPartition().getEssenceTypes();
 
@@ -603,7 +609,7 @@ final class IMFTrackFileReader
      * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return editRate of the essence as a List of Long Integers
      */
-    List<Long> getEssenceEditRateAsList(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public List<Long> getEssenceEditRateAsList(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         if(!(this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().size() > 0)){
             throw new MXFException(String.format("No EssenceDescriptors were found in the MXF essence"));
         }
@@ -616,7 +622,7 @@ final class IMFTrackFileReader
      * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @return essenceDuration
      */
-    BigInteger getEssenceDuration(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public BigInteger getEssenceDuration(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         return this.getHeaderPartition(imfErrorLogger).getEssenceDuration();
     }
 
@@ -721,6 +727,7 @@ final class IMFTrackFileReader
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainImageEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MainAudioEssence);
         supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MarkerEssence);
+        supportedEssenceComponentTypes.add(HeaderPartition.EssenceTypeEnum.MGASADMEssence);
         if(imfTrackFileReader != null
                 && imfTrackFileCPLBuilder != null
                 && supportedEssenceComponentTypes.contains(imfTrackFileReader.getEssenceType(imfErrorLogger))) {

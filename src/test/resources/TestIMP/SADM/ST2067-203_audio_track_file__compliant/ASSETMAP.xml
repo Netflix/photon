@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:7353868a-57c6-49d3-8a2d-32827d21b364</Id>
+  <Creator language="en">IMF-Tool 1.9.371</Creator>
+  <VolumeCount>1</VolumeCount>
+  <IssueDate>2024-01-19T15:48:42Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:7f8c0ad3-1b06-4f6b-be23-cc7ae3fca304</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>ST2067-203_audio_track_file__compliant.mxf</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:3a8d80e8-80ab-4152-be80-3ba86c032ead</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_3a8d80e8-80ab-4152-be80-3ba86c032ead.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:15e778c6-e524-4425-bc55-55ca602d84f9</Id>
+      <PackingList>true</PackingList>
+      <ChunkList>
+        <Chunk>
+          <Path>PKL_15e778c6-e524-4425-bc55-55ca602d84f9.xml</Path>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+  </AssetList>
+</AssetMap>

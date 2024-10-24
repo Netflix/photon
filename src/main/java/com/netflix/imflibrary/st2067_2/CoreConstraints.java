@@ -40,7 +40,7 @@ public final class CoreConstraints
     {
         // NOTE- When adding new namespaces or core constraint versions, be sure that the most recent core constraints
         // are checked first. That way if there are multiple ApplicationIdentifications, the newest version is returned.
-        if (applicationIds.contains(Application2ExtendedComposition.SCHEMA_URI_APP2E_2020))
+        if (applicationIds.contains(Application2ExtendedComposition.SCHEMA_URI_APP2E_2020) || (applicationIds.contains(Application2E2021.APP_IDENTIFICATION)))
         {
             return CoreConstraints.NAMESPACE_IMF_2020;
         }

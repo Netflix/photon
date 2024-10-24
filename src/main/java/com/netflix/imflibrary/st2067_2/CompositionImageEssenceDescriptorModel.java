@@ -1,10 +1,18 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.Colorimetry.CodingEquation;
+import com.netflix.imflibrary.Colorimetry.ColorModel;
+import com.netflix.imflibrary.Colorimetry.ColorPrimaries;
+import com.netflix.imflibrary.Colorimetry.Quantization;
+import com.netflix.imflibrary.Colorimetry.Sampling;
+import com.netflix.imflibrary.Colorimetry.TransferCharacteristic;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.FrameLayoutType;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -188,6 +196,8 @@ public final class CompositionImageEssenceDescriptorModel {
 
                 this.sampling = parseSampling(this.colorModel);
             }
+
+            this.j2kParameters = J2KHeaderParameters.fromDOMNode(imageEssencedescriptorDOMNode);
         }
         else {
             this.pixelBitDepth = null;
@@ -198,6 +208,9 @@ public final class CompositionImageEssenceDescriptorModel {
 
     }
 
+    public J2KHeaderParameters getJ2KHeaderParameters() {
+        return this.j2kParameters;
+    }
 
     public @Nonnull UUID getImageEssencedescriptorID() {
         return imageEssencedescriptorID;
@@ -387,6 +400,24 @@ public final class CompositionImageEssenceDescriptorModel {
     public @Nullable String getPaletteLayout() {
         return paletteLayout;
     }
+
+    public enum ProgressionOrder {
+        LRCP((short)0x00000000),    /* Layer-resolution level-component-position progression */
+        RLCP((short)0b00000001),    /* Resolution level-layer-component-position progression */
+        RPCL((short)0b00000010),    /* Resolution level-position-component-layer progression */
+        PCRL((short)0b00000011),    /* Position-component-resolution level-layer progression */
+        CPRL((short)0b00000100);    /* Component-position-resolution level-layer progression */
+
+        private final short value;
+        ProgressionOrder(short value) {
+            this.value = value;
+        }
+        public short value() {
+            return value;
+        }
+    }
+
+    J2KHeaderParameters j2kParameters;
 
     private @Nonnull Integer parsePixelBitDepth(@Nonnull ColorModel colorModel) {
         Integer refPixelBitDepth = null;

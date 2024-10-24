@@ -16,10 +16,13 @@
 
 package testUtils;
 
+import com.netflix.imflibrary.exceptions.MXFException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 
 import static org.testng.Assert.assertNotNull;
@@ -57,5 +60,39 @@ public final class TestHelper
         }
 
         return baos.toByteArray();
+    }
+
+    public static Object getValue(Object obj, String fieldName)
+    {
+        try
+        {
+            Field field = getField(obj.getClass(), fieldName);
+            field.setAccessible(true);
+            return field.get(obj);
+        }
+        catch (IllegalAccessException | NoSuchFieldException e)
+        {
+            throw new MXFException(String.format("Parsing failure due to reflection error, reading property {}", fieldName), e);
+        }
+    }
+
+    public static Field getField(Class<?> aClass, String fieldName) throws NoSuchFieldException
+    {
+        try
+        {
+            return aClass.getDeclaredField(fieldName);
+        }
+        catch (NoSuchFieldException e)
+        {
+            Class<?> superClass = aClass.getSuperclass();
+            if (superClass == null)
+            {
+                throw e;
+            }
+            else
+            {
+                return getField(superClass, fieldName);
+            }
+        }
     }
 }
