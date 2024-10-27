@@ -177,7 +177,6 @@ public final class CompositionImageEssenceDescriptorModel {
                     this.sampling = Sampling.Unknown;
                     parseApp5SubDescriptors();
                     parseApp5PixelLayout();
-                    parseApp5VideoLineMap();
                 } else {
                     this.pixelBitDepth = null;
                     this.quantization = Quantization.Unknown;
@@ -196,7 +195,7 @@ public final class CompositionImageEssenceDescriptorModel {
 
                 this.sampling = parseSampling(this.colorModel);
             }
-
+            parseVideoLineMap();
             this.j2kParameters = J2KHeaderParameters.fromDOMNode(imageEssencedescriptorDOMNode);
         }
         else {
@@ -707,7 +706,7 @@ public final class CompositionImageEssenceDescriptorModel {
         return;
     }
 
-    private void parseApp5VideoLineMap() {
+    private void parseVideoLineMap() {
         DOMNodeObjectModel videoLineMap = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(videoLineMapUL));
         if (videoLineMap == null) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
