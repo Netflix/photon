@@ -230,6 +230,7 @@ public class IMPAnalyzer {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format("Root folder does not exist: %s.", rootPath));
+            errorMap.put(rootPath.toString(), imfErrorLogger.getErrors());
             return errorMap;
         }
 
@@ -245,7 +246,7 @@ public class IMPAnalyzer {
                     assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                             String.format("AssetMap file not found: %s.", mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
-
+                    errorMap.put(assetMapPath.toString(), assetMapErrorLogger.getErrors());
                     return errorMap;
                 }
 
@@ -356,7 +357,7 @@ public class IMPAnalyzer {
             }
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-            errorMap.put(Utilities.getFilenameFromPath(rootPath), imfErrorLogger.getErrors());
+            errorMap.put(rootPath.toString(), imfErrorLogger.getErrors());
         }
 
         return errorMap;
@@ -552,6 +553,7 @@ public class IMPAnalyzer {
             errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format("File %s does not exist", input));
+            return errorLogger.getErrors();
         }
 
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
