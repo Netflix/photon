@@ -6,12 +6,11 @@ import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @Test(groups = "unit")
 public class IMPAnalyzerTestApp2E2021
@@ -20,7 +19,7 @@ public class IMPAnalyzerTestApp2E2021
     @Test
     public void ValidCPL() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -38,7 +37,7 @@ public class IMPAnalyzerTestApp2E2021
     @Test
     public void InvalidCPLBadFrameStructure() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-frame-structure.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-frame-structure.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -48,7 +47,7 @@ public class IMPAnalyzerTestApp2E2021
     @Test
     public void InvalidCPLBadCodec() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-codec.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-codec.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -58,7 +57,7 @@ public class IMPAnalyzerTestApp2E2021
     @Test
     public void InvalidCPLBadColor() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-color.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e-bad-color.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
@@ -68,7 +67,7 @@ public class IMPAnalyzerTestApp2E2021
     @Test
     public void CoreConstraintsSchemaFromApplicationIdentification() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_3714715a-af0c-4a89-9cc9-c99f61e7eb6d_CC-Namespaces.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_3714715a-af0c-4a89-9cc9-c99f61e7eb6d_CC-Namespaces.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);

@@ -8,9 +8,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -23,9 +23,9 @@ public class MXFEssenceReaderTest
     @Test
     public void MXFAudioEssenceReaderTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        Path inputPath = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputPath);
         MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(workingDirectory, resourceByteRangeProvider);
         Assert.assertTrue(mxfEssenceReader.toString().length() > 0);
         Assert.assertEquals(mxfEssenceReader.getPartitionPacks().size(), 4);
@@ -38,11 +38,11 @@ public class MXFEssenceReaderTest
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "randomIndexPackSize = .*")
     public void badRandomIndexPackLength() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
         ResourceByteRangeProvider resourceByteRangeProvider = mock(ResourceByteRangeProvider.class);
         when(resourceByteRangeProvider.getResourceSize()).thenReturn(16L);
-        when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(File.class))).thenReturn(inputFile);
+        when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(Path.class))).thenReturn(inputFile);
         MXFEssenceReader mxfEssenceReader = new MXFEssenceReader(workingDirectory, resourceByteRangeProvider);
         mxfEssenceReader.getRandomIndexPack();
     }

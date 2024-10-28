@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.io.File;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -1479,14 +1479,14 @@ public final class HeaderPartition
     }
 
     /**
-     * A static method to get the Header Partition from a file
-     * @param inputFile source file to get the Header Partition from
+     * A static method to get the Header Partition from a path
+     * @param input source path to get the Header Partition from
      * @param imfErrorLogger logging object
-     * @return an HeaderPartition object constructed from the file
+     * @return an HeaderPartition object constructed from the path
      * @throws IOException any I/O related error will be exposed through an IOException
      */
-    public static HeaderPartition fromFile(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+    public static HeaderPartition fromPath(Path input, IMFErrorLogger imfErrorLogger) throws IOException {
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
 
         long archiveFileSize = resourceByteRangeProvider.getResourceSize();
         long rangeEnd = archiveFileSize - 1;

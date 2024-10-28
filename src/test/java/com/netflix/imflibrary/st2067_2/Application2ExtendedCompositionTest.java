@@ -10,20 +10,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.lang.Boolean.TRUE;
 
 @Test(groups = "unit")
 public class Application2ExtendedCompositionTest
 {
     @Test
     public void app2ExtendedCompositionCDCIPositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -32,7 +29,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionRGBPositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -41,7 +38,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionInterlacePositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_Interlace.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -50,7 +47,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionInterlaceErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_InterlaceError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -59,7 +56,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionRGBErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85_Error.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -68,7 +65,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionColorSpaceErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_ColorSpaceError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -77,7 +74,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionColorErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_ColorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -86,7 +83,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionQuantizationErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_QuantizationError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -95,7 +92,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionSamplingErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SamplingError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -104,7 +101,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionSubDescriptorsErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_SubDescriptorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -113,7 +110,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionJPEG2000SubDescriptorErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_JPEG2000SubDescriptorError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -122,7 +119,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionJ2CLayoutErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_J2CLayoutError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -131,7 +128,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionRGBAComponentError1Test() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_RGBAComponentError1.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -140,7 +137,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionRGBAComponentError2Test() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_RGBAComponentError2.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -149,7 +146,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionYUV4KTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_4k.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -178,7 +175,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionPictureEssenceCodingErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_EssenceCodingError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -188,7 +185,7 @@ public class Application2ExtendedCompositionTest
     @Test
     public void validJ2KHeaderParameters() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2021/CPL_b2e1ace2-9c7d-4c12-b2f7-24bde303869e.xml");
         FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, logger);
@@ -246,7 +243,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionEssenceCodingErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_CodecError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
@@ -255,7 +252,7 @@ public class Application2ExtendedCompositionTest
 
     @Test
     public void app2ExtendedCompositionJ2kProfileErrorTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_J2kProfileError.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);

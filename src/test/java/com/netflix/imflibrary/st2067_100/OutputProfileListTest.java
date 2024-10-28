@@ -10,7 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
+import java.nio.file.Path;
 
 @Test(groups = "unit")
 public class OutputProfileListTest
@@ -18,7 +18,7 @@ public class OutputProfileListTest
     @Test
     public void testSimpleOutputProfileList() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         OutputProfileList outputProfileList = OutputProfileList.getOutputProfileListType(new FileByteRangeProvider(inputFile), imfErrorLogger);
 
@@ -34,7 +34,7 @@ public class OutputProfileListTest
     @Test
     public void testOutputProfileList() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         OutputProfileList outputProfileList = OutputProfileList.getOutputProfileListType(new FileByteRangeProvider(inputFile), imfErrorLogger);
 
@@ -50,10 +50,10 @@ public class OutputProfileListTest
     @Test
     public void testOutputProfileListOnCOmposition() throws Exception
     {
-        File inputFileCPL = TestHelper.findResourceByPath("TestIMP/OPL/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
+        Path inputFileCPL = TestHelper.findResourceByPath("TestIMP/OPL/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFileCPL, new IMFErrorLoggerImpl());
 
-        File inputFileOPL = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml");
+        Path inputFileOPL = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         OutputProfileList outputProfileList = OutputProfileList.getOutputProfileListType(new FileByteRangeProvider(inputFileOPL), imfErrorLogger);
         outputProfileList.applyOutputProfileOnComposition(applicationComposition);

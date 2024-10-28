@@ -22,8 +22,9 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0429_8.PackingList;
 
 import javax.annotation.concurrent.Immutable;
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * This class represents a thin, immutable wrapper around a PackingList {@link com.netflix.imflibrary.st0429_8.PackingList.Asset Asset}. It holds
@@ -61,7 +62,7 @@ public final class IMPAsset
      */
     public boolean isValid()
     {//TODO: this implementation needs to improve
-        return new File(this.uri).exists();
+        return Files.isRegularFile(Paths.get(this.uri));
     }
 
     @Override

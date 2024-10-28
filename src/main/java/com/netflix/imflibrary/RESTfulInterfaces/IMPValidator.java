@@ -38,10 +38,11 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -792,43 +793,44 @@ public class IMPValidator {
             throw new IllegalArgumentException("Invalid parameters");
         }
         List<ErrorLogger.ErrorObject> errors = new ArrayList<>();
-        File assetMapFile=null, packingListFile=null, compositionPlaylistFile=null;
+        Path assetMap=null, packingList=null, compositionPlaylist=null;
 
         for(String arg : args) {
-            File inputFile = new File(arg);
-            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+            Path input = Paths.get(arg);
+            String filename = Utilities.getFilenameFromPath(input);
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
             PayloadRecord.PayloadAssetType payloadAssetType = IMPValidator.getPayloadType(payloadRecord);
             payloadRecord = new PayloadRecord(bytes, payloadAssetType, 0L, resourceByteRangeProvider.getResourceSize());
             switch (payloadAssetType) {
                 case PackingList:
-                    packingListFile = inputFile;
-                    logger.info(String.format("File %s was identified as a PackingList document.", packingListFile.getName()));
+                    packingList = input;
+                    logger.info(String.format("File %s was identified as a PackingList document.", filename));
                     errors.addAll(validatePKL(payloadRecord));
                     break;
                 case AssetMap:
-                    assetMapFile = inputFile;
-                    logger.info(String.format("File %s was identified as a AssetMap document.", assetMapFile.getName()));
+                    assetMap = input;
+                    logger.info(String.format("File %s was identified as a AssetMap document.", filename));
                     errors.addAll(validateAssetMap(payloadRecord));
                     break;
                 case CompositionPlaylist:
-                    compositionPlaylistFile = inputFile;
-                    logger.info(String.format("File %s was identified as a CompositionPlaylist document.", compositionPlaylistFile.getName()));
+                    compositionPlaylist = input;
+                    logger.info(String.format("File %s was identified as a CompositionPlaylist document.", filename));
                     errors.addAll(validateCPL(payloadRecord));
                     break;
                 default:
-                    throw new IllegalArgumentException(String.format("UnsupportedSequence AssetType for file %s", inputFile.getName()));
+                    throw new IllegalArgumentException(String.format("UnsupportedSequence AssetType for path %s", filename));
             }
         }
 
-        if(assetMapFile != null
-                && packingListFile != null){
-            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetMapFile);
+        if(assetMap != null
+                && packingList != null){
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetMap);
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord assetMapPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
 
-            resourceByteRangeProvider = new FileByteRangeProvider(packingListFile);
+            resourceByteRangeProvider = new FileByteRangeProvider(packingList);
             bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             PayloadRecord packingListPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.PackingList, 0L, resourceByteRangeProvider.getResourceSize());
             List<PayloadRecord> packingListPayloadRecords = new ArrayList<>();

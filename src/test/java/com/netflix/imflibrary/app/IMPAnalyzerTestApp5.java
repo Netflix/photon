@@ -21,14 +21,13 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class IMPAnalyzerTestApp5
     @Test
     public void IMPAnalyzerTestApp5() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
@@ -58,7 +57,7 @@ public class IMPAnalyzerTestApp5
     @Test
     public void ValidApplicationTypeCPL() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);

@@ -20,7 +20,6 @@ package com.netflix.imflibrary.writerTools;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.exceptions.IMFAuthoringException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.utils.Utilities;
@@ -37,18 +36,21 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * A class that implements the logic to build a SMPTE st0429-9:2007 schema compliant AssetMap document.
@@ -62,7 +64,7 @@ public class AssetMapBuilder {
     private final XMLGregorianCalendar issueDate;
     private final org.smpte_ra.schemas._429_9._2007.am.UserText issuer;
     private final List<AssetMapBuilder.Asset> assets;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final String assetMapFileName;
 
@@ -84,7 +86,7 @@ public class AssetMapBuilder {
                            @Nonnull XMLGregorianCalendar issueDate,
                            @Nonnull org.smpte_ra.schemas._429_9._2007.am.UserText issuer,
                            @Nonnull List<AssetMapBuilder.Asset> assets,
-                           @Nonnull File workingDirectory,
+                           @Nonnull Path workingDirectory,
                            @Nonnull IMFErrorLogger imfErrorLogger){
         this.uuid = uuid;
         this.annotationText = annotationText;
@@ -148,8 +150,8 @@ public class AssetMapBuilder {
         }
         assetMapType.setAssetList(assetList);
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.assetMapFileName);
-        List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputFile, true);
+        Path outputPath = Paths.get(this.workingDirectory.toString(), this.assetMapFileName);
+        List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputPath, true);
         this.imfErrorLogger.addAllErrors(errors);
 
         return imfErrorLogger.getErrors();
@@ -283,12 +285,18 @@ public class AssetMapBuilder {
         }
     }
 
-    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas._429_9._2007.am.AssetMapType assetMapType, File outputFile, boolean formatted) throws IOException {
+    private List<IMFErrorLogger.ErrorObject> serializeAssetMapToXML(org.smpte_ra.schemas._429_9._2007.am.AssetMapType assetMapType, Path outputPath, boolean formatted) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             InputStream assetMapSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0429_9_2007/AM/assetMap_schema.xsd");
-            OutputStream outputStream = new FileOutputStream(outputFile);
+
+            SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
+
+            OutputStream outputStream = Channels.newOutputStream(byteChannel);
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             StreamSource[] schemaSources = new StreamSource[1];
             schemaSources[0] = new StreamSource(assetMapSchemaAsAStream);

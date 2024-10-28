@@ -25,10 +25,7 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.RegXMLLibHelper;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.IMFCPLObjectFieldsFactory;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -63,9 +60,15 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -80,9 +83,9 @@ public final class IMFTrackFileCPLBuilder {
     private static final Logger logger = LoggerFactory.getLogger(IMFTrackFileReader.class);
     private final IMFTrackFileReader imfTrackFileReader;
     private final RegXMLLibHelper regXMLLibHelper;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplRoot;
-    private final File mxfFile;
+    private final Path mxfFile;
     private final String fileName;
 
 
@@ -90,11 +93,16 @@ public final class IMFTrackFileCPLBuilder {
      * A constructor for the IMFTrackFileCPLBuilder class. This class creates an IMF CPL representation of an IMF Essence
      * @param workingDirectory - A location on a file system used for processing the essence.
      *                         This would also be the location where the CPL representation of the IMFEssence would be written into.
-     * @param essenceFile - File representing an IMF Essence
+     * @param essencePath - File representing an IMF Essence
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public IMFTrackFileCPLBuilder(File workingDirectory, File essenceFile) throws IOException {
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceFile);
+    public IMFTrackFileCPLBuilder(Path workingDirectory, Path essencePath) throws IOException {
+
+        if (!Files.exists(workingDirectory) || (!Files.isDirectory(workingDirectory))) {
+            throw new IOException("Working Directory does not exist: " + workingDirectory);
+        }
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essencePath);
         this.imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         KLVPacket.Header primerPackHeader = this.imfTrackFileReader.getPrimerPackHeader(imfErrorLogger);
@@ -102,8 +110,8 @@ public final class IMFTrackFileCPLBuilder {
         this.workingDirectory = workingDirectory;
         /*Peek into the CompositionPlayListType and recursively construct its constituent fields*/
         this.cplRoot = IMFCPLObjectFieldsFactory.constructCompositionPlaylistType_2013();
-        this.mxfFile = essenceFile;
-        this.fileName = this.mxfFile.getName();
+        this.mxfFile = essencePath;
+        this.fileName = Utilities.getFilenameFromPath(essencePath);
     }
 
     /**
@@ -112,7 +120,7 @@ public final class IMFTrackFileCPLBuilder {
      * @param imfErrorLogger an error logger for recording any errors - cannot be null
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getCompositionPlaylist(IMFErrorLogger imfErrorLogger) throws IOException {
+    public Path getCompositionPlaylist(IMFErrorLogger imfErrorLogger) throws IOException {
 
         this.cplRoot.setId(IMFUUIDGenerator.getInstance().getUrnUUID());
         /*CPL Annotation*/
@@ -159,8 +167,8 @@ public final class IMFTrackFileCPLBuilder {
         return this.serializeCPL();
     }
 
-    private File serializeCPL() throws IOException {
-        File outputFile = new File(this.workingDirectory + "/" + this.mxfFile.getName() + ".xml");
+    private Path serializeCPL() throws IOException {
+        Path outputFile = Paths.get(this.workingDirectory.toString(), this.fileName + ".xml");
         IMFUtils.writeCPLToFile(this.cplRoot, outputFile);
         return outputFile;
     }
@@ -364,13 +372,18 @@ public final class IMFTrackFileCPLBuilder {
      * @throws MXFException - any MXF standard related non-compliance will be exposed through a MXF exception
      * @throws TransformerException - any XML transformation critical error will be exposed through a TransformerException
      */
-    File getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws MXFException, IOException,
+    Path getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws MXFException, IOException,
             TransformerException {
 
-        File outputFile = new File(this.workingDirectory + "/" + "EssenceDescriptor.xml");
+        Path outputPath = Paths.get(this.workingDirectory.toString(), "EssenceDescriptor.xml");
+        SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE);
+
+        OutputStream outputStream = Channels.newOutputStream(byteChannel);
 
         document.setXmlStandalone(true);
-
 
         DocumentFragment documentFragment = getEssenceDescriptorAsDocumentFragment(document, essenceDescriptor, subDescriptors, imfErrorLogger);
         document.appendChild(documentFragment);
@@ -388,11 +401,11 @@ public final class IMFTrackFileCPLBuilder {
 
         tr.transform(
                 new DOMSource(document),
-                new StreamResult(outputFile)
+                new StreamResult(outputStream)
         );
 
 
-        return outputFile;
+        return outputPath;
     }
 
     private DocumentFragment getEssenceDescriptorAsDocumentFragment(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws
@@ -425,22 +438,34 @@ public final class IMFTrackFileCPLBuilder {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path input = Paths.get(args[0]);
+        if (!Files.isRegularFile(input)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        File workingDirectory = new File(args[1]);
 
-        logger.info(String.format("File Name is %s", inputFile.getName()));
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        Path workingDirectory = Paths.get(args[1]);
+        if (!Files.isDirectory(workingDirectory)) {
+            logger.error(String.format("Output folder %s does not exist", args[0]));
+            System.exit(-1);
+        }
+
+        logger.info(String.format("File Name is %s", input.getFileName()));
+        ResourceByteRangeProvider resourceByteRangeProvider = null;
+        try {
+            resourceByteRangeProvider = new FileByteRangeProvider(input);
+        } catch (IOException e) {
+            Path filename = input.getFileName();
+            logger.error(String.format("Exception occurred while attempting to load path %s", filename != null ? filename : ""));
+            System.exit(-1);
+        }
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         StringBuilder sb = new StringBuilder();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         try
         {
-            IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
+            IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, input);
             sb.append(imfTrackFileReader.getRandomIndexPack(imfErrorLogger));
             logger.info(String.format("%s", sb.toString()));
 

@@ -19,10 +19,7 @@ import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
@@ -33,10 +30,12 @@ import org.xml.sax.SAXException;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -187,19 +186,54 @@ public class IMPFixer {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(File rootFile, File targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
+    public static List<ErrorLogger.ErrorObject> analyzePackageAndWrite(Path rootPath, Path targetFile, String versionCPLSchema, Boolean copyTrackfile, Boolean generateHash) throws
             IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
+
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        if (!Files.isDirectory(rootPath)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Root path invalid: %s", rootPath));
+            return imfErrorLogger.getErrors();
+        }
+
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
-        BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
-        AssetMap assetMap = new AssetMap(new File(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
+        BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootPath);
+
+        Path amPath = Paths.get(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI());
+        if (!Files.isRegularFile(amPath)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("AssetMap path invalid: %s", mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
+            return imfErrorLogger.getErrors();
+        }
+
+        AssetMap assetMap = new AssetMap(amPath);
         for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
-            PackingList packingList = new PackingList(new File(rootFile, packingListAsset.getPath().toString()));
+
+            Path pklPath = Paths.get(rootPath.toString(), packingListAsset.getPath().toString());
+            if (!Files.isRegularFile(pklPath)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("PackingList path invalid: %s", rootPath.toString() + packingListAsset.getPath().toString()));
+                continue;
+            }
+
+            PackingList packingList = new PackingList(pklPath);
             Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+
+                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                if (!Files.isRegularFile(assetPath)) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("Path for asset with ID %s is invalid: %s", asset.getUUID(), rootPath.toString() + assetMap.getPath(asset.getUUID()).toString()));
+                    continue;
+                }
+
+                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
 
                 if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, new IMFErrorLoggerImpl());
@@ -213,12 +247,23 @@ public class IMPFixer {
                             new IMPBuilder.IMFTrackFileMetadata(bytes,
                                     hash,
                                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                                    assetFile.getName(),
+                                    Utilities.getFilenameFromPath(assetPath),
                                     resourceByteRangeProvider.getResourceSize())
                     );
-                    if(copyTrackfile) {
-                        File outputFile = new File(targetFile.toString() + File.separator + assetFile.getName());
-                        Files.copy(assetFile.toPath(), outputFile.toPath(), REPLACE_EXISTING);
+
+                    if (copyTrackfile) {
+                        try {
+                            Path output = Paths.get(targetFile.toString(), Utilities.getFilenameFromPath(assetPath));
+                            Files.copy(assetPath, output, REPLACE_EXISTING);
+                        } catch (InvalidPathException e) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                    String.format("Invalid output path for Track File: " + Utilities.getFilenameFromPath(assetPath)));
+                        } catch (IOException e) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                    String.format(e.toString()));
+                        }
                     }
                 }
             }
@@ -226,10 +271,16 @@ public class IMPFixer {
             Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap =
                     getTrackFileIdToHeaderPartitionPayLoadMap(headerPartitionPayloadRecords);
 
-
             for (PackingList.Asset asset : packingList.getAssets()) {
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                if (!Files.isRegularFile(assetPath)) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("Path for asset with ID %s is invalid: %s", rootPath.toString() + assetMap.getPath(asset.getUUID()).toString() ,rootPath.toString() + packingListAsset.getPath().toString()));
+                    continue;
+                }
+
+                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
                 if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
                     if(applicationComposition == null){
@@ -324,17 +375,20 @@ public class IMPFixer {
             System.exit(-1);
         }
 
-        String inputFileName = args[0];
-        File inputFile = new File(inputFileName);
-        if (!inputFile.exists()) {
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        String inputFolderName = args[0];
+        Path inputPath = Paths.get(inputFolderName);
+
+        if (!Files.isDirectory(inputPath)) {
+            logger.error(String.format("Invalid input package path: %s", inputFolderName));
             System.exit(-1);
         }
 
-        String outputFileName = args[1];
-        File outputFile = new File(outputFileName);
-        if (!outputFile.exists() && !outputFile.mkdir()) {
-            logger.error(String.format("Directory %s cannot be created", outputFile.getAbsolutePath()));
+        String outputFolderName = args[1];
+        Path outputPath = Paths.get(outputFolderName);
+        try {
+            Files.createDirectories(outputPath);
+        } catch (IOException e) {
+            logger.error(String.format("Directory %s cannot be created", outputFolderName));
             System.exit(-1);
         }
 
@@ -366,26 +420,19 @@ public class IMPFixer {
             }
         }
 
-        if (!inputFile.exists() || !inputFile.isDirectory()) {
-            logger.error(String.format("Invalid input package path"));
-            System.exit(-1);
-        }
-        else
-        {
-            List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputFile, outputFile, versionCPLSchema, copyTrackFile, generateHash);
-            if (errors.size() > 0) {
-                logger.info(String.format("IMPWriter encountered errors:"));
-                for (ErrorLogger.ErrorObject errorObject : errors) {
-                    if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.error(errorObject.toString());
-                    } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
-                        logger.warn(errorObject.toString());
-                    }
+        List<ErrorLogger.ErrorObject> errors = analyzePackageAndWrite(inputPath, outputPath, versionCPLSchema, copyTrackFile, generateHash);
+        if (errors.size() > 0) {
+            logger.info(String.format("IMPWriter encountered errors:"));
+            for (ErrorLogger.ErrorObject errorObject : errors) {
+                if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.error(errorObject.toString());
+                } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
+                    logger.warn(errorObject.toString());
                 }
-                System.exit(-1);
-            } else {
-                logger.info(String.format("Created %s IMP successfully", outputFile.getName()));
             }
+            System.exit(-1);
+        } else {
+            logger.info(String.format("Created %s IMP successfully", outputFolderName));
         }
     }
 

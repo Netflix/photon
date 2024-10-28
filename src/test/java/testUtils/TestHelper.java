@@ -19,11 +19,12 @@ package testUtils;
 import com.netflix.imflibrary.exceptions.MXFException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.testng.Assert.assertNotNull;
 
@@ -37,7 +38,7 @@ public final class TestHelper
         //to prevent instantiation
     }
 
-    public static File findResourceByPath(String resourcePath)
+    public static Path findResourceByPath(String resourcePath)
     {
         URL resource = TestHelper.class.getClassLoader().getResource(resourcePath);
         if (resource == null) {
@@ -45,7 +46,7 @@ public final class TestHelper
         }
 
         assertNotNull(resource, String.format("Resource %s does not exist", resourcePath));
-        return new File(resource.getPath());
+        return Paths.get(resource.getPath());
     }
 
     public static byte[] toByteArray(InputStream inputStream) throws IOException

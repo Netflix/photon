@@ -23,19 +23,21 @@ import org.testng.annotations.Test;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 @Test(groups = "unit")
 public class FileByteRangeProviderTest
 {
-    private File file;
+    private Path file;
     private FileByteRangeProvider fileByteRangeProvider;
 
     @BeforeClass
     public void setUp() throws Exception
     {
         String keyboard = "qwertyuiopasdfghjklzxcvbnm";
-        this.file = File.createTempFile("test_file",".tmp");
-        FileWriter fileWriter = new FileWriter(this.file);
+        this.file = Files.createTempFile("test_file",".tmp");
+        BufferedWriter fileWriter = Files.newBufferedWriter(this.file);
         try
         {
             fileWriter.write(keyboard);
@@ -53,7 +55,7 @@ public class FileByteRangeProviderTest
     @AfterClass
     public void tearDown() throws Exception
     {
-        Assert.assertTrue(this.file.delete());
+        Assert.assertTrue(Files.deleteIfExists(this.file));
     }
 
     @Test
@@ -65,21 +67,21 @@ public class FileByteRangeProviderTest
     @Test
     public void testGetByteRangeWithRangeStart() throws IOException
     {
-        File workingDirectory = Files.createTempDirectory(null).toFile();
-        File file = this.fileByteRangeProvider.getByteRange(24, workingDirectory);
-        Assert.assertEquals(2L, file.length());
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        Assert.assertEquals("nm", bufferedReader.readLine());
+        Path workingDirectory = Files.createTempDirectory(null);
+        Path path = this.fileByteRangeProvider.getByteRange(24, workingDirectory);
+        Assert.assertEquals(2L, Files.size(path));
+        List<String> lines = Files.readAllLines(path);
+        Assert.assertEquals("nm", lines.get(0));
     }
 
     @Test
     public void testGetByteRange() throws IOException
     {
-        File workingDirectory = Files.createTempDirectory(null).toFile();
-        File file = this.fileByteRangeProvider.getByteRange(3, 9, workingDirectory);
-        Assert.assertEquals(7L, file.length());
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        Assert.assertEquals("rtyuiop", bufferedReader.readLine());
+        Path workingDirectory = Files.createTempDirectory(null);
+        Path path = this.fileByteRangeProvider.getByteRange(3, 9, workingDirectory);
+        Assert.assertEquals(7L, Files.size(path));
+        List<String> lines = Files.readAllLines(path);
+        Assert.assertEquals("rtyuiop", lines.get(0));
     }
 
 }

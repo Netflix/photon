@@ -21,18 +21,14 @@ import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_203.IMFMGASADMConstraintsChecker;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -225,25 +221,50 @@ public class IMPAnalyzer {
         return imfErrorLogger.getErrors();
     }
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(File rootFile) throws IOException {
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(Path rootPath) throws IOException {
+
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        if (!Files.isDirectory(rootPath)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Root folder does not exist: %s.", rootPath));
+            return errorMap;
+        }
+
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
         try {
-            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
+            BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootPath);
             imfErrorLogger.addAllErrors(mapProfileV2MappedFileSet.getErrors());
             IMFErrorLogger assetMapErrorLogger = new IMFErrorLoggerImpl();
 
             try {
+                Path assetMapPath = Paths.get(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI());
+                if (!Files.isRegularFile(assetMapPath)) {
+                    assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("AssetMap file not found: %s.", mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
 
-                AssetMap assetMap = new AssetMap(new File(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
+                    return errorMap;
+                }
+
+                AssetMap assetMap = new AssetMap(assetMapPath);
                 assetMapErrorLogger.addAllErrors(assetMap.getErrors());
-
 
                 for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
                     IMFErrorLogger packingListErrorLogger = new IMFErrorLoggerImpl();
                     try {
-                        PackingList packingList = new PackingList(new File(rootFile, packingListAsset.getPath().toString()));
+
+                        Path pkl = Paths.get(rootPath.toString(), packingListAsset.getPath().toString());
+                        if (!Files.isRegularFile(assetMapPath)) {
+                            assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                    String.format("Packing List file referenced from AssetMap, but not found: %s.", pkl));
+                            continue;
+                        }
+
+                        PackingList packingList = new PackingList(pkl);
                         if (!packingList.getUUID().equals(packingListAsset.getUUID())) {
                             assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
@@ -260,23 +281,23 @@ public class IMPAnalyzer {
                                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                                     continue;
                                 }
-                                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
-                                if(!assetFile.exists()) {
+
+                                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                                if (!Files.isRegularFile(assetPath)) {
                                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString
-                                                    ()));
+                                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                            String.format("Packing List references Asset with ID = %s, but not found: %s.", asset.getUUID().toString(), assetPath));
                                     continue;
                                 }
 
-                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
-
+                                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
                                 try {
                                     PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
                                     if (headerPartitionPayloadRecord == null) {
                                         trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                                String.format("Failed to get header partition for %s", assetFile.getPath()));
+                                                String.format("Failed to get header partition for %s", assetPath.toString()));
                                     } else {
                                         List<PayloadRecord> payloadRecords = new ArrayList<>();
                                         payloadRecords.add(headerPartitionPayloadRecord);
@@ -301,7 +322,10 @@ public class IMPAnalyzer {
                                     trackFileErrorLogger.addAllErrors(e.getErrors());
                                 }
                                 finally {
-                                    errorMap.put(assetFile.getName(), trackFileErrorLogger.getErrors());
+                                    Path filename = assetPath.getFileName();
+                                    if (filename != null) {
+                                        errorMap.put(filename.toString(), trackFileErrorLogger.getErrors());
+                                    }
                                 }
                             } else if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
                                 xmlFileCount++;
@@ -314,8 +338,8 @@ public class IMPAnalyzer {
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\" (i.e. PKL does not contain any CPL/OPL files).", PackingList.Asset.TEXT_XML_TYPE));
                         }
 
-                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootFile, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
-                        analyzeOutputProfileLists( rootFile, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
+                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootPath, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
+                        analyzeOutputProfileLists( rootPath, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
 
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
@@ -332,7 +356,7 @@ public class IMPAnalyzer {
             }
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
-            errorMap.put(rootFile.getName(), imfErrorLogger.getErrors());
+            errorMap.put(Utilities.getFilenameFromPath(rootPath), imfErrorLogger.getErrors());
         }
 
         return errorMap;
@@ -362,7 +386,7 @@ public class IMPAnalyzer {
         return trackFileErrorLogger.getErrors();
     }
 
-    public static List<OutputProfileList> analyzeOutputProfileLists(File rootFile,
+    public static List<OutputProfileList> analyzeOutputProfileLists(Path rootPath,
                                                                     AssetMap assetMap,
                                                                     PackingList packingList,
                                                                     List<ApplicationComposition> applicationCompositionList,
@@ -379,15 +403,15 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
 
-                if (!assetFile.exists()) {
+                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                if(!Files.isRegularFile(assetPath)) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString()));
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
                 if (OutputProfileList.isOutputProfileList(resourceByteRangeProvider)) {
                     IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
                     try {
@@ -415,7 +439,7 @@ public class IMPAnalyzer {
                     } catch (IMFException e) {
                         imfErrorLogger.addAllErrors(e.getErrors());
                     } finally {
-                        errorMap.put(assetFile.getName(), imfErrorLogger.getErrors());
+                        errorMap.put(Utilities.getFilenameFromPath(assetPath), imfErrorLogger.getErrors());
                     }
                 }
             }
@@ -425,7 +449,7 @@ public class IMPAnalyzer {
    }
 
 
-    public static List<ApplicationComposition> analyzeApplicationCompositions( File rootFile,
+    public static List<ApplicationComposition> analyzeApplicationCompositions( Path rootFile,
                                                   AssetMap assetMap,
                                                   PackingList packingList,
                                                   List<PayloadRecord> headerPartitionPayloadRecords,
@@ -442,15 +466,15 @@ public class IMPAnalyzer {
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
-                File assetFile = new File(rootFile, assetMap.getPath(asset.getUUID()).toString());
 
-                if (!assetFile.exists()) {
+                Path assetPath = Paths.get(rootFile.toString(), assetMap.getPath(asset.getUUID()).toString());
+                if (!Files.isRegularFile(assetPath)) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetFile.getAbsolutePath(), asset.getUUID().toString()));
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
                     continue;
                 }
 
-                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetFile);
+                ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
                 if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
@@ -506,12 +530,12 @@ public class IMPAnalyzer {
                         } catch (IMFException e) {
                             compositionConformanceErrorLogger.addAllErrors(e.getErrors());
                         } finally {
-                            errorMap.put(assetFile.getName() + " " + CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
+                            errorMap.put(Utilities.getFilenameFromPath(assetPath) + " " + CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
                         }
                     } catch (IMFException e) {
                         compositionErrorLogger.addAllErrors(e.getErrors());
                     } finally {
-                        errorMap.put(assetFile.getName(), compositionErrorLogger.getErrors());
+                        errorMap.put(Utilities.getFilenameFromPath(assetPath), compositionErrorLogger.getErrors());
                     }
                 }
             }
@@ -521,13 +545,20 @@ public class IMPAnalyzer {
     }
 
 
-    public static List<ErrorLogger.ErrorObject> analyzeFile(File inputFile) throws IOException {
+    public static List<ErrorLogger.ErrorObject> analyzeFile(Path input) throws IOException {
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
 
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        if (!Files.isRegularFile(input)) {
+            errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("File %s does not exist", input));
+        }
 
-        if(inputFile.getName().lastIndexOf('.') > 0) {
-            String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf('.')+1);
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
+
+        String fileName = Utilities.getFilenameFromPath(input);
+        if(fileName.lastIndexOf('.') > 0) {
+            String extension = fileName.substring(fileName.lastIndexOf('.')+1);
             if(extension.equalsIgnoreCase("mxf")) {
                 errorLogger.addAllErrors(validateEssencePartition(resourceByteRangeProvider));
                 return errorLogger.getErrors();
@@ -611,18 +642,14 @@ public class IMPAnalyzer {
         }
 
         String inputFileName = args[0];
-        File inputFile = new File(inputFileName);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
-            System.exit(-1);
-        }
+        Path input = Paths.get(inputFileName);
 
-        if(inputFile.isDirectory()) {
+        if (Files.isDirectory(input)) {
             logger.info("==========================================================================" );
-            logger.info(String.format("Analyzing IMF package %s", inputFile.getName()));
+            logger.info(String.format("Analyzing IMF package %s", inputFileName));
             logger.info("==========================================================================");
 
-            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(input);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
                     logErrors(entry.getKey(), entry.getValue());
@@ -643,11 +670,14 @@ public class IMPAnalyzer {
         }
         else
         {
-            logger.info("==========================================================================\n" );
-            logger.info(String.format("Analyzing file %s", inputFile.getName()));
-            logger.info("==========================================================================\n");
-            List<ErrorLogger.ErrorObject>errors = analyzeFile(inputFile);
-            logErrors(inputFile.getName(), errors);
+            Path filename = input.getFileName();
+            if (filename != null) {
+                logger.info("==========================================================================\n" );
+                logger.info(String.format("Analyzing path %s", filename.toString()));
+                logger.info("==========================================================================\n");
+                List<ErrorLogger.ErrorObject>errors = analyzeFile(input);
+                logErrors(filename.toString(), errors);
+            }
         }
     }
 }

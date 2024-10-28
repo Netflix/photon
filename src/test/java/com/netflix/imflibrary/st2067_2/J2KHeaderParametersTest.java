@@ -16,8 +16,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @Test(groups = "unit")
 public class J2KHeaderParametersTest {
@@ -25,16 +25,16 @@ public class J2KHeaderParametersTest {
     @Test
     public void testParsedMXFJ2KParametersMatchParsedCPLParameters() throws IOException {
         // First, get the parsed MXF JPEG2000PictureSubDescriptor...
-        File inputMXFFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
+        Path inputMXFFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(inputMXFFile, imfErrorLogger);
+        HeaderPartition headerPartition = HeaderPartition.fromPath(inputMXFFile, imfErrorLogger);
         GenericPictureEssenceDescriptor pictureEssenceDescriptor = ((GenericPictureEssenceDescriptor)((SourcePackage) headerPartition.getSourcePackages().get(0)).getGenericDescriptor());
         GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO descriptorBO = (GenericPictureEssenceDescriptor.GenericPictureEssenceDescriptorBO) TestHelper.getValue(pictureEssenceDescriptor, "rgbaPictureEssenceDescriptorBO");
         InterchangeObject.InterchangeObjectBO jpeg2000SubDescriptor = headerPartition.getSubDescriptors(descriptorBO).get(0);
         JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO jpeg2000PictureSubDescriptorBO = (JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO) jpeg2000SubDescriptor;
 
         // Next, get the parsed CPL Descriptor...
-        File inputCPLFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
+        Path inputCPLFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
         FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputCPLFile);
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, logger);

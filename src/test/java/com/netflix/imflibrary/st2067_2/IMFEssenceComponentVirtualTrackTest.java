@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrack_2013() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
                 new HashSet<String>() {{ add("MCALinkID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
         add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");}});
@@ -38,7 +38,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrackEquivalent_2013() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
         ApplicationComposition applicationComposition1 = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
         ApplicationComposition applicationComposition2 = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
 
@@ -52,7 +52,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrack_2016() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
         Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(applicationComposition.toString().length() > 0);
@@ -80,7 +80,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrackEquivalent_2016() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_2016_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_corrected.xml");
         ApplicationComposition applicationComposition1 = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
         ApplicationComposition applicationComposition2 = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
 
@@ -95,7 +95,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testZeroResourceDuration() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_zero_resource_duration_track_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_zero_resource_duration_track_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         IMFErrorLoggerImpl errorLogger = new IMFErrorLoggerImpl();
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, new IMFErrorLoggerImpl());
         Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
@@ -117,7 +117,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrackAudioHomogeneityFail_2013() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_audio_homogeneity_fail.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_audio_homogeneity_fail.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
                 new HashSet<String>() {{ add("MCAChannelID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
                     add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");
@@ -139,7 +139,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrackCodingEquationHomogeneityFail_2013() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_coding_equation_homogeneity_fail.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_coding_equation_homogeneity_fail.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
                 new HashSet<String>() {{ add("MCAChannelID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
                     add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");
@@ -161,7 +161,7 @@ public class IMFEssenceComponentVirtualTrackTest
     @Test
     public void testEssenceComponentVirtualTrackRGBACodingEquationHomogeneityIgnore_2013() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85_rgba_coding_equation.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85_rgba_coding_equation.xml");
         ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(new FileByteRangeProvider(inputFile), new IMFErrorLoggerImpl(),
                 new HashSet<String>() {{ add("MCAChannelID"); add("MCALabelDictionaryID"); add("RFC5646SpokenLanguage");
                     add("AudioChannelLabelSubDescriptor"); add("SoundfieldGroupLabelSubDescriptor");

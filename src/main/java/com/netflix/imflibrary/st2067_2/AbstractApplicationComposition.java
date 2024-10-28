@@ -57,8 +57,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,7 +99,7 @@ public abstract class AbstractApplicationComposition implements ApplicationCompo
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
      * @throws IOException        any I/O related error is exposed through an IOException
      */
-    public AbstractApplicationComposition(File compositionPlaylistXMLFile) throws IOException {
+    public AbstractApplicationComposition(Path compositionPlaylistXMLFile) throws IOException {
         this(new FileByteRangeProvider(compositionPlaylistXMLFile));
     }
 

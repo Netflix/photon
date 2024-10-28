@@ -61,9 +61,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +164,9 @@ public final class OutputProfileList {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static boolean isOutputProfileList(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);) {
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);)
+        {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -186,7 +193,8 @@ public final class OutputProfileList {
     public static OutputProfileList getOutputProfileListType(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         JAXBElement jaxbElement = null;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);
              InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(xmldsig_core_schema_path);
              InputStream dcmlTypes_is = contextClassLoader.getResourceAsStream(dcmlTypes_schema_path);
              InputStream imf_opl_100a_is = contextClassLoader.getResourceAsStream(opl_100a_schema_path);
@@ -198,7 +206,8 @@ public final class OutputProfileList {
              InputStream imf_opl_101f_is = contextClassLoader.getResourceAsStream(opl_101f_schema_path);
              InputStream imf_opl_102a_is = contextClassLoader.getResourceAsStream(opl_102a_schema_path);
              InputStream imf_opl_103b_is = contextClassLoader.getResourceAsStream(opl_103b_schema_path)
-             ) {
+             )
+        {
             StreamSource[] streamSources = new StreamSource[11];
             streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(dcmlTypes_is);
@@ -478,12 +487,13 @@ public final class OutputProfileList {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path inputPath = Paths.get(args[0]);
+        if (!Files.isRegularFile(inputPath)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputPath);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.OutputProfileList, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateOPL(payloadRecord);

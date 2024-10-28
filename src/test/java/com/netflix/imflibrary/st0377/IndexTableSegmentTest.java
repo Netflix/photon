@@ -23,18 +23,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class IndexTableSegmentTest
 {
     @Test
     public void indexTableSegmentTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("Netflix_Ident_23976_3840x2160_177AR.mxf.idx");
-        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        Path inputFile = TestHelper.findResourceByPath("Netflix_Ident_23976_3840x2160_177AR.mxf.idx");
+        byte[] bytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         KLVPacket.Header header = new KLVPacket.Header(byteProvider, 0L);
         IndexTableSegment indexTableSegment = new IndexTableSegment(byteProvider, header);

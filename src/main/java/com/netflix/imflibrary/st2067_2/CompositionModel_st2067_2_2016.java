@@ -21,6 +21,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +100,8 @@ final class CompositionModel_st2067_2_2016 {
 
     @Nonnull static org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1))
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);)
         {
             // Validate the document against the CPL schemas, when unmarshalling
             Schema schema = ValidationSchema.INSTANCE;
@@ -337,8 +340,7 @@ final class CompositionModel_st2067_2_2016 {
                  InputStream xsd_cpl_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                  InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
                  InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
-                 InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");
-            )
+                 InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");)
             {
                 // Build a schema from all of the XSD files provided
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

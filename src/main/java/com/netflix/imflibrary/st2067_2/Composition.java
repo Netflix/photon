@@ -33,9 +33,12 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -468,12 +471,13 @@ public final class Composition {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path input = Paths.get(args[0]);
+        if (!Files.isRegularFile(input)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);

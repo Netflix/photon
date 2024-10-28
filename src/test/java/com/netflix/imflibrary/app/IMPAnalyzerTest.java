@@ -5,8 +5,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +19,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
@@ -37,7 +37,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTestPHDR() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
@@ -51,7 +51,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTestTimedText() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/TimedTextImageAndTextProfile/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/TimedTextImageAndTextProfile/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 8);
         errorMap.entrySet().stream().forEach( e ->
@@ -69,7 +69,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTestMissingFilesAndAssetMapEntries() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/MissingFilesAndAssetMapEntries/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/MissingFilesAndAssetMapEntries/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 4);
         errorMap.entrySet().stream().forEach( e ->
@@ -89,7 +89,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTestIDMismatches() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
@@ -121,7 +121,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTestMimeTypeErrors() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 2);
         errorMap.entrySet().stream().forEach( e ->
@@ -139,7 +139,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeCPLValid() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/CPL_3aa56098-7709-4673-9266-7f0c70ba10d8.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/CPL_3aa56098-7709-4673-9266-7f0c70ba10d8.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 0);
 
@@ -148,7 +148,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeCPLError() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_JPEG2000SubDescriptorError.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_JPEG2000SubDescriptorError.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 4);
     }
@@ -156,7 +156,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzePKLValid() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/PKL_913ef906-893f-4851-8664-2d053bd2ec95.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/PKL_913ef906-893f-4851-8664-2d053bd2ec95.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 0);
 
@@ -165,7 +165,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzePKLError() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/PKL_d54a68ed-332e-4ddd-b163-c0317abb1e52.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/PKL_d54a68ed-332e-4ddd-b163-c0317abb1e52.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 2);
     }
@@ -173,7 +173,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeAssetMapValid() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/ASSETMAP.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/ASSETMAP.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 0);
 
@@ -182,7 +182,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeAssetMapError() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/ASSETMAP.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/ASSETMAP.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 4);
     }
@@ -190,7 +190,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeOPLValid() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 0);
 
@@ -199,7 +199,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeOPLError() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 2);
     }
@@ -207,7 +207,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerAnalyzeUnknownFileError() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
         List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
         Assert.assertEquals(errorList.size(), 1);
         Assert.assertTrue(errorList.get(0).getErrorDescription().contains("Unknown AssetType"));

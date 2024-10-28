@@ -46,7 +46,6 @@ import testUtils.TestHelper;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -58,6 +57,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A test for the IMF Master Package Builder
@@ -87,7 +88,7 @@ public class IMPBuilderFunctionalTest {
     @Test(dataProvider = "cplList")
     public void impBuilderTest(String cplFilePath, String schemaVersion, boolean useHeaderPartition, int expectedCPLErrors)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
-        File inputFile = TestHelper.findResourceByPath(cplFilePath);
+        Path inputFile = TestHelper.findResourceByPath(cplFilePath);
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -101,8 +102,7 @@ public class IMPBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-        File tempDir = tempPath.toFile();
+        Path tempPath = Files.createTempDirectory("IMFDocuments");
 
         if(useHeaderPartition) {
             if (schemaVersion.equals("2016")) {
@@ -112,7 +112,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
                         buildTrackFileMetadataMap(imfErrorLogger),
-                        tempDir);
+                        tempPath);
             } else if (schemaVersion.equals("2020")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
@@ -120,7 +120,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
                         buildTrackFileMetadataMap(imfErrorLogger),
-                        tempDir);
+                        tempPath);
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
                         "Netflix",
@@ -128,7 +128,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
                         buildTrackFileMetadataMap(imfErrorLogger),
-                        tempDir);
+                        tempPath);
             }
         } else {
             if (schemaVersion.equals("2016")) {
@@ -138,7 +138,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
                         buildTrackFileInfoMap(imfErrorLogger),
-                        tempDir,
+                        tempPath,
                         applicationComposition.getEssenceDescriptorDomNodeMap());
             } else if (schemaVersion.equals("2020")) {
                 IMPBuilder.buildIMP_2016("IMP",
@@ -147,7 +147,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
                         buildTrackFileInfoMap(imfErrorLogger),
-                        tempDir,
+                        tempPath,
                         applicationComposition.getEssenceDescriptorDomNodeMap());
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
@@ -156,7 +156,7 @@ public class IMPBuilderFunctionalTest {
                         applicationComposition.getEditRate(),
                         Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
                         buildTrackFileInfoMap(imfErrorLogger),
-                        tempDir,
+                        tempPath,
                         applicationComposition.getEssenceDescriptorDomNodeMap());
             }
         }
@@ -164,24 +164,27 @@ public class IMPBuilderFunctionalTest {
         boolean assetMapFound = false;
         boolean pklFound = false;
         boolean cplFound = false;
-        File assetMapFile = null;
-        File pklFile = null;
-        File cplFile = null;
+        Path assetMapFile = null;
+        Path pklFile = null;
+        Path cplFile = null;
 
-        for(File file : tempDir.listFiles()){
-            if(file.getName().contains("ASSETMAP.xml")){
+        Stream<Path> filesStream = Files.list(tempPath);
+        List<Path> filesList = filesStream.collect(Collectors.toList());
+        for (Path path : filesList) {
+            if(path.getFileName().toString().contains("ASSETMAP.xml")){
                 assetMapFound = true;
-                assetMapFile = file;
+                assetMapFile = path;
             }
-            else if(file.getName().contains("PKL-")){
+            else if(path.getFileName().toString().contains("PKL-")){
                 pklFound = true;
-                pklFile = file;
+                pklFile = path;
             }
-            else if(file.getName().contains("CPL-")){
+            else if(path.getFileName().toString().contains("CPL-")){
                 cplFound = true;
-                cplFile = file;
+                cplFile = path;
             }
         }
+
         Assert.assertTrue(assetMapFound == true);
         Assert.assertTrue(pklFound == true);
         Assert.assertTrue(cplFound == true);
@@ -211,7 +214,7 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider;
         List<String> fileNames = Arrays.asList("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr", "TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
         for(String fileName: fileNames) {
-            File headerPartition1 = TestHelper.findResourceByPath(fileName);
+            Path headerPartition1 = TestHelper.findResourceByPath(fileName);
             resourceByteRangeProvider = new FileByteRangeProvider(headerPartition1);
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
             ByteProvider byteProvider = new ByteArrayDataProvider(bytes);

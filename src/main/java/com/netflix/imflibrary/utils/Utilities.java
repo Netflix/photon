@@ -1,5 +1,8 @@
 package com.netflix.imflibrary.utils;
 
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -52,8 +55,40 @@ public final class Utilities {
         return version;
     }
 
+    public static void recursivelyDeleteFolder(Path folder) throws IOException
+    {
+        Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
     public static String appendPhotonVersionString(String message)
     {
         return message + " [Photon version: " + Utilities.getVersionString(Utilities.class) + "]";
     }
+
+    public static String getFilenameFromPath(Path path) throws IOException
+    {
+        if (!Files.isRegularFile(path)) {
+            throw new IOException(String.format("%s is not a regular file", path));
+        }
+
+        Path filename = path.getFileName();
+        if (filename == null) {
+            throw new IOException(String.format("Unable to determine filename for path: %s", path));
+        }
+
+        return filename.toString();
+    }
+
 }

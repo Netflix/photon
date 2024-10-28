@@ -25,13 +25,13 @@ import org.testng.annotations.Test;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Arrays;
 
 @Test(groups = "unit")
 public class ByteArrayDataProviderTest
 {
-    File inputFile;
+    Path inputFile;
     InputStream inputStream;
 
     @BeforeClass
@@ -41,9 +41,9 @@ public class ByteArrayDataProviderTest
     }
 
     @BeforeMethod
-    public void beforeMethod() throws FileNotFoundException
+    public void beforeMethod() throws FileNotFoundException, IOException
     {
-        inputStream = new FileInputStream(inputFile);
+        inputStream =  Files.newInputStream(inputFile);
     }
 
     @AfterMethod
@@ -60,7 +60,7 @@ public class ByteArrayDataProviderTest
     {
         byte[] refBytes = Arrays.copyOf(TestHelper.toByteArray(inputStream), 100);
 
-        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(Paths.get(this.inputFile.toURI())));
+        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(this.inputFile));
         byte[] bytes = byteProvider.getBytes(100);
 
         Assert.assertEquals(refBytes, bytes);
@@ -69,17 +69,17 @@ public class ByteArrayDataProviderTest
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = "Cannot read .*")
     public void testGetBytesLarge() throws IOException
     {
-        long length = inputFile.length();
+        long length = Files.size(this.inputFile);
         Assert.assertTrue(length < Integer.MAX_VALUE);
 
-        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(Paths.get(this.inputFile.toURI())));
+        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(this.inputFile));
         byteProvider.getBytes((int)length + 1);
     }
 
     @Test
     public void testSkipBytes() throws IOException
     {
-        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(Paths.get(this.inputFile.toURI())));
+        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(this.inputFile));
         byteProvider.skipBytes(100L);
         byte[] bytes = byteProvider.getBytes(1);
         Assert.assertEquals(bytes.length, 1);
@@ -89,10 +89,10 @@ public class ByteArrayDataProviderTest
     @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = "Cannot skip .*")
     public void testSkipBytesLarge() throws IOException
     {
-        long length = inputFile.length();
+        long length = Files.size(inputFile);
         Assert.assertTrue(length < Integer.MAX_VALUE);
 
-        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(Paths.get(this.inputFile.toURI())));
+        ByteProvider byteProvider = new ByteArrayDataProvider(Files.readAllBytes(this.inputFile));
         byteProvider.skipBytes(length + 1);
     }
 }

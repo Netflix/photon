@@ -49,19 +49,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,7 +88,7 @@ public class CompositionPlaylistBuilder_2013 {
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
     private final Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas._2067_3._2013.SegmentType> segments = new ArrayList<>();
@@ -124,7 +126,7 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull Set<String> applicationIds,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList,
                                            @Nonnull String coreConstraintsSchema,
                                            Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap){
@@ -191,7 +193,7 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
         this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2013, null);
     }
@@ -220,7 +222,7 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory){
+                                           @Nonnull Path workingDirectory){
         this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileInfoMap, workingDirectory, new ArrayList<>());
     }
     
@@ -290,8 +292,8 @@ public class CompositionPlaylistBuilder_2013 {
             cplRoot.setExtensionProperties( extensionProperties);
         }
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
-        List errors = serializeCPLToXML(cplRoot, outputFile);
+        Path outputPath = Paths.get(this.workingDirectory.toString(), this.cplFileName);
+        List errors = serializeCPLToXML(cplRoot, outputPath);
         imfErrorLogger.addAllErrors(errors);
         return imfErrorLogger.getErrors();
     }
@@ -318,7 +320,7 @@ public class CompositionPlaylistBuilder_2013 {
     }
 
     private List<ErrorLogger.ErrorObject> serializeCPLToXML(org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplRoot,
-                                                 File outputFile) throws IOException
+                                                 Path outputPath) throws IOException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         boolean formatted = true;
@@ -328,8 +330,15 @@ public class CompositionPlaylistBuilder_2013 {
         InputStream dcmlSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
         try(InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream
                 ("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-        InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
-        OutputStream outputStream = new FileOutputStream(outputFile);)
+            InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
+
+            SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
+
+            OutputStream outputStream = Channels.newOutputStream(byteChannel);)
+
         {
             try
             {

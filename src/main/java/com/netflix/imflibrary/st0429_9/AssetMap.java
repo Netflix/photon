@@ -54,7 +54,11 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -109,12 +113,12 @@ public final class AssetMap
     }
     /**
      * Constructor for an {@link com.netflix.imflibrary.st0429_9.AssetMap AssetMap} object from an XML file that contains an AssetMap document
-     * @param assetMapXmlFile the input XML file
+     * @param assetMapXmlPath the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public AssetMap(File assetMapXmlFile) throws IOException
+    public AssetMap(Path assetMapXmlPath) throws IOException
     {
-        this(getFileAsResourceByteRangeProvider(assetMapXmlFile));
+        this(getFileAsResourceByteRangeProvider(assetMapXmlPath));
     }
 
     /**
@@ -139,8 +143,10 @@ public final class AssetMap
         }
         
         try {
-            try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
-                 InputStream assetMap_schema_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());) {
+            try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+                 InputStream inputStream = Channels.newInputStream(byteChannel);
+                 InputStream assetMap_schema_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());)
+            {
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 StreamSource schemaSource = new StreamSource(assetMap_schema_is);
                 Schema schema = schemaFactory.newSchema(schemaSource);
@@ -251,7 +257,8 @@ public final class AssetMap
      */
     public static boolean isFileOfSupportedSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException{
 
-        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
+        try(SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream inputStream = Channels.newInputStream(byteChannel);)
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -280,7 +287,8 @@ public final class AssetMap
             IOException{
 
         String assetMapNamespaceURI = "";
-        try(InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);)
+        try(SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+            InputStream inputStream = Channels.newInputStream(byteChannel);)
         {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -323,9 +331,9 @@ public final class AssetMap
         return assetMapNamespaceURI;
     }
 
-    private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(File file)
+    private static ResourceByteRangeProvider getFileAsResourceByteRangeProvider(Path path) throws IOException
     {
-        return new FileByteRangeProvider(file);
+        return new FileByteRangeProvider(path);
     }
 
     static List<ErrorLogger.ErrorObject> checkConformance(AssetMapType assetMapType)
@@ -573,7 +581,8 @@ public final class AssetMap
         }
 
         try {
-            try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+            try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+                 InputStream inputStream = Channels.newInputStream(byteChannel);
                  InputStream assetMap_is = Thread.currentThread().getContextClassLoader().getResourceAsStream(assetMapSchema.getAssetMapSchemaPath());
             ) {
                 StreamSource inputSource = new StreamSource(inputStream);
@@ -630,12 +639,13 @@ public final class AssetMap
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path input = Paths.get(args[0]);
+        if (!Files.isRegularFile(input)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateAssetMap(payloadRecord);

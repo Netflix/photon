@@ -13,7 +13,6 @@ import testUtils.TestHelper;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -101,15 +100,14 @@ public class IMPAssemblerTest {
         IMPAssembler.SimpleTimeline simpleTimeline = new IMPAssembler.SimpleTimeline(trackList, markerTrackList, new Composition.EditRate(Arrays.asList(60000L, 1001L)));
 
         Path outputDirPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMPAssemblerTest");
-        File outputDir = outputDirPath.toFile();
         IMPAssembler impAssembler = new IMPAssembler();
-        IMPAssembler.AssembledIMPResult result = impAssembler.assembleIMFFromFiles(simpleTimeline, outputDir, true);
+        IMPAssembler.AssembledIMPResult result = impAssembler.assembleIMFFromFiles(simpleTimeline, outputDirPath, true);
 
         // ensure there were no errors
         assert result.getErrors().isEmpty();
 
         // validate generated IMP
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDir);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDirPath);
         // ensure there are no fatal errors in the generated IMP
         for (Map.Entry<String, List<ErrorLogger.ErrorObject>> entry : errorMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
@@ -122,11 +120,11 @@ public class IMPAssemblerTest {
             }
         }
 
-        assert result.getCpl().exists();
-        assert result.getPkl().exists();
-        assert result.getAssetMap().exists();
-        for (File outputTrackFile : result.getTrackFiles()) {
-            assert outputTrackFile.exists();
+        assert Files.isRegularFile(result.getCpl());
+        assert Files.isRegularFile(result.getPkl());
+        assert Files.isRegularFile(result.getAssetMap());
+        for (Path outputTrackFile : result.getTrackFiles()) {
+            assert Files.isRegularFile(outputTrackFile);
         }
     }
 
@@ -179,15 +177,14 @@ public class IMPAssemblerTest {
         IMPAssembler.SimpleTimeline simpleTimeline = new IMPAssembler.SimpleTimeline(trackList, markerTrackList, new Composition.EditRate(Arrays.asList(60000L, 1001L)));
 
         Path outputDirPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMPAssemblerTest");
-        File outputDir = outputDirPath.toFile();
         IMPAssembler impAssembler = new IMPAssembler();
-        IMPAssembler.AssembledIMPResult result = impAssembler.assembleIMFFromFiles(simpleTimeline, outputDir, true);
+        IMPAssembler.AssembledIMPResult result = impAssembler.assembleIMFFromFiles(simpleTimeline, outputDirPath, true);
 
         // ensure there were no errors
         assert result.getErrors().isEmpty();
 
         // validate generated IMP
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDir);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDirPath);
         // ensure there are no fatal errors in the generated IMP
         for (Map.Entry<String, List<ErrorLogger.ErrorObject>> entry : errorMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
@@ -200,12 +197,11 @@ public class IMPAssemblerTest {
             }
         }
 
-        assert result.getCpl().exists();
-        assert result.getPkl().exists();
-        assert result.getAssetMap().exists();
-        for (File outputTrackFile : result.getTrackFiles()) {
-            assert outputTrackFile.exists();
+        assert Files.isRegularFile(result.getCpl());
+        assert Files.isRegularFile(result.getPkl());
+        assert Files.isRegularFile(result.getAssetMap());
+        for (Path outputTrackFile : result.getTrackFiles()) {
+            assert Files.isRegularFile(outputTrackFile);
         }
-
     }
 }

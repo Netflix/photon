@@ -33,11 +33,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 public class HeaderPartitionTest
@@ -45,12 +44,12 @@ public class HeaderPartitionTest
     @Test
     public void audioHeaderPartitionTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
-        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, Files.size(inputFile), imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
 
         Preface preface = headerPartition.getPreface();
@@ -59,8 +58,6 @@ public class HeaderPartitionTest
         ContentStorage contentStorage = preface.getContentStorage();
         Assert.assertEquals(contentStorage.getGenericPackageList().size(), 2);
         Assert.assertEquals(contentStorage.getPackageInstanceUIDs().size(), 2);
-
-
 
         List<InterchangeObject> materialPackages = headerPartition.getMaterialPackages();
         Assert.assertEquals(materialPackages.size(), 1);
@@ -95,10 +92,6 @@ public class HeaderPartitionTest
         Assert.assertEquals(sourceClip.getInstanceUID(), sequence.getSourceClipUID(0));
         Assert.assertEquals((long)sourceClip.getDuration(), 35232L);
 
-
-
-
-
         List<InterchangeObject> sourcePackages = headerPartition.getSourcePackages();
         Assert.assertEquals(sourcePackages.size(), 1);
         SourcePackage sourcePackage = (SourcePackage)sourcePackages.get(0);
@@ -119,8 +112,6 @@ public class HeaderPartitionTest
         Assert.assertEquals(trackInstanceUIDs.get(1), new MXFUID(new byte[]{
                 0x2b, 0x71, 0x39, (byte)0xcc, 0x16, 0x3c, 0x43, (byte)0xa5, (byte)0x9d, (byte)0xc4, (byte)0xb3, 0x64, (byte)0xb6, (byte)0xa1, (byte)0xeb, (byte)0x93
         }));
-
-
 
         Assert.assertTrue(headerPartition.hasWaveAudioEssenceDescriptor());
         Assert.assertEquals(headerPartition.getWaveAudioEssenceDescriptors().size(), 1);
@@ -161,12 +152,12 @@ public class HeaderPartitionTest
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "This partition does not contain essence data")
     public void partitionPackWithNoEssenceDataTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
-        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, Files.size(inputFile), imfErrorLogger);
         PartitionPack partitionPack = headerPartition.getPartitionPack();
         partitionPack.getEssenceStreamSegmentStartStreamPosition();
     }
@@ -174,12 +165,12 @@ public class HeaderPartitionTest
     @Test
     public void videoHeaderPartitionTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
-        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        Path inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, Files.size(inputFile), imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertFalse(headerPartition.hasRGBAPictureEssenceDescriptor());
         Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
@@ -191,7 +182,6 @@ public class HeaderPartitionTest
         Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling422);
         Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 10);
 
-
         Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
         Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
     }
@@ -199,9 +189,9 @@ public class HeaderPartitionTest
     @Test
     public void videoHeaderPartitionTest2() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/MERIDIAN_Netflix_Photon_161006_00.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
+        HeaderPartition headerPartition = HeaderPartition.fromPath(inputFile, imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
         Assert.assertFalse(headerPartition.hasCDCIPictureEssenceDescriptor());
@@ -213,7 +203,6 @@ public class HeaderPartitionTest
         Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling444);
         Assert.assertEquals(headerPartition.getImagePixelBitDepth().intValue(), 12);
 
-
         Assert.assertTrue(headerPartition.getEssenceTypes().size() == 1);
         Assert.assertTrue(headerPartition.getEssenceTypes().get(0) == HeaderPartition.EssenceTypeEnum.MainImageEssence);
     }
@@ -221,9 +210,9 @@ public class HeaderPartitionTest
     @Test
     public void videoHeaderPartitionTest3() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
+        HeaderPartition headerPartition = HeaderPartition.fromPath(inputFile, imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
         Assert.assertTrue(headerPartition.hasRGBAPictureEssenceDescriptor());
         GenericPictureEssenceDescriptor pictureEssenceDescriptor = ((GenericPictureEssenceDescriptor)((SourcePackage) headerPartition.getSourcePackages().get(0)).getGenericDescriptor());
@@ -242,12 +231,12 @@ public class HeaderPartitionTest
     @Test
     public void audioHeaderPartitionTest2() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("NMPC_6000ms_6Ch_ch_id.mxf.hdr");
-        byte[] bytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        Path inputFile = TestHelper.findResourceByPath("NMPC_6000ms_6Ch_ch_id.mxf.hdr");
+        byte[] bytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(bytes);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, inputFile.length(), imfErrorLogger);
+        HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, Files.size(inputFile), imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
 
         Assert.assertTrue(headerPartition.hasSoundFieldGroupLabelSubDescriptor());
@@ -281,9 +270,9 @@ public class HeaderPartitionTest
     @Test
     public void descriptiveMetadataHeaderPartitionTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f.mxf");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/IAB/MXF/meridian_2398_IAB_5f.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        HeaderPartition headerPartition = HeaderPartition.fromFile(inputFile, imfErrorLogger);
+        HeaderPartition headerPartition = HeaderPartition.fromPath(inputFile, imfErrorLogger);
         Assert.assertEquals(headerPartition.getGenericStreamIdFromGenericStreamTextBaseSetDescription("http://www.dolby.com/schemas/2018/DbmdWrapper"), 3);
     }
 }

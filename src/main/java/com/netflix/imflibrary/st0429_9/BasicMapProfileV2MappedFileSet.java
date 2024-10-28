@@ -22,16 +22,14 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,46 +46,54 @@ public final class BasicMapProfileV2MappedFileSet
     private final URI absoluteAssetMapURI;
     private final IMFErrorLogger imfErrorLogger;
     /**
-     * Constructor for a MappedFileSet object from a file representing the root of a directory tree
+     * Constructor for a MappedFileSet object from a path representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
      * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
      */
-    public BasicMapProfileV2MappedFileSet(File rootFile) throws IOException
+    public BasicMapProfileV2MappedFileSet(Path rootFile) throws IOException
     {
         imfErrorLogger = new IMFErrorLoggerImpl();
-        if (!rootFile.isDirectory())
+        if (!Files.isDirectory(rootFile))
         {
-            String message = String.format("Root file %s corresponding to the mapped file set is not a " +
-                    "directory", rootFile.getAbsolutePath());
+            String message = String.format("Root path %s corresponding to the mapped path set is not a " +
+                    "directory", rootFile.toString());
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL,
                     message);
             throw new IMFException(message, imfErrorLogger);
         }
 
-        FilenameFilter filenameFilter = new FilenameFilter()
-        {
+        DirectoryStream.Filter<Path> pathFilter = new DirectoryStream.Filter<Path>() {
             @Override
-            public boolean accept(File rootFile, String name)
-            {
-                return name.equals(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME);
+            public boolean accept(Path entry) {
+                Path filename = entry.getFileName();
+                if (filename == null) return false;
+                return filename.toString().equals(BasicMapProfileV2MappedFileSet.ASSETMAP_FILE_NAME);
             }
         };
 
-        File[] files = rootFile.listFiles(filenameFilter);
-        if ((files == null) || (files.length != 1))
+
+        List<Path> fileList = new ArrayList<>();
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(rootFile, pathFilter)) {
+            for (Path entry : stream) {
+                fileList.add(entry);
+            }
+        }
+
+        if (fileList.size() != 1)
         {
-            String message = String.format("Found %d files with name %s in mapped file set rooted at %s, " +
-                    "exactly 1 is allowed", (files == null) ? 0 : files.length, BasicMapProfileV2MappedFileSet
-                    .ASSETMAP_FILE_NAME, rootFile.getAbsolutePath());
+            String message = String.format("Found %d files with name %s in mapped path set rooted at %s, " +
+                    "exactly 1 is allowed", fileList.size(), BasicMapProfileV2MappedFileSet
+                    .ASSETMAP_FILE_NAME, rootFile.toString());
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
                             .ErrorLevels.FATAL,
                     message);
             throw new IMFException(message, imfErrorLogger);
         }
 
-        this.assetMap = new AssetMap(files[0]);
-        this.absoluteAssetMapURI = files[0].toURI();
+        this.assetMap = new AssetMap(fileList.get(0));
+        this.absoluteAssetMapURI = fileList.get(0).toUri();
     }
 
     /**

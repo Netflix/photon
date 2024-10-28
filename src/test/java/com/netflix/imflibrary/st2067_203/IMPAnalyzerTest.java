@@ -5,8 +5,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__compliant/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__compliant/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -38,7 +38,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest02() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_16bit/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_16bit/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -60,7 +60,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest03() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_44100Hz/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_44100Hz/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -82,7 +82,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest04() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ADMAudioProgrammeID_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ADMAudioProgrammeID_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -104,7 +104,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest05() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ContainerContraintsSubDescriptor_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ContainerContraintsSubDescriptor_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -126,7 +126,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest06() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -148,7 +148,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest07() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -170,7 +170,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest08() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -192,7 +192,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest09() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -214,7 +214,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest10() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -236,7 +236,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest11() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -258,7 +258,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest12() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitle_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitle_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -280,7 +280,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest13() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitleVersion_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitleVersion_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -302,7 +302,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest14() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -324,7 +324,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest15() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -346,7 +346,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest16() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAAudioMetadataIdentifier_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAAudioMetadataIdentifier_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -368,7 +368,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest17() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAMetadataIndex_wrong/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAMetadataIndex_wrong/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -390,7 +390,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest18() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADMAudioMetadataSubDescriptor_missing/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADMAudioMetadataSubDescriptor_missing/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -412,7 +412,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest19() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_two_SADM_sections/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_two_SADM_sections/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -434,7 +434,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest20() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_no_virtual_track_parameterset/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_no_virtual_track_parameterset/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -456,7 +456,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest21() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_unkown_operational_mode/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_unkown_operational_mode/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
@@ -478,7 +478,7 @@ public class IMPAnalyzerTest
     @Test
     public void IMPAnalyzerTest22() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_wrong_track_id/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_wrong_track_id/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->

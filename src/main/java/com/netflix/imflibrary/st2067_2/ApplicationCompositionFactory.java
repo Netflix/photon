@@ -23,11 +23,10 @@ import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
-import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,8 +88,8 @@ public class ApplicationCompositionFactory {
         }
     }
 
-    public static ApplicationComposition getApplicationComposition(File inputFile, IMFErrorLogger imfErrorLogger) throws IOException {
-        return getApplicationComposition(new FileByteRangeProvider(inputFile), imfErrorLogger);
+    public static ApplicationComposition getApplicationComposition(Path inputPath, IMFErrorLogger imfErrorLogger) throws IOException {
+        return getApplicationComposition(new FileByteRangeProvider(inputPath), imfErrorLogger);
     }
 
     public static ApplicationComposition getApplicationComposition(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {

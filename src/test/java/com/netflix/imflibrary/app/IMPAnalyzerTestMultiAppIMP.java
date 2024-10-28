@@ -17,14 +17,13 @@
  */
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.ApplicationCompositionType;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class IMPAnalyzerTestMultiAppIMP
     @Test
     public void IMPAnalyzerTestMultiAppIMP() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Application5/MultiAppIMP/");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/MultiAppIMP/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
         Assert.assertEquals(errorMap.size(), 8);
         errorMap.entrySet().stream().forEach( e ->

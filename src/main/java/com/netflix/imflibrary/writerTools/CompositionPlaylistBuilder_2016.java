@@ -39,7 +39,6 @@ import org.smpte_ra.schemas._2067_3._2016.ContentVersionType;
 import org.smpte_ra.schemas._2067_3._2016.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas._2067_3._2016.SegmentType;
 import org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -51,19 +50,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,7 +89,7 @@ public class CompositionPlaylistBuilder_2016 {
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
     private final Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas._2067_3._2016.SegmentType> segments = new ArrayList<>();
@@ -126,7 +127,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Set<String> applicationIds,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList,
                                            @Nonnull String coreConstraintsSchema,
                                            Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap){
@@ -171,7 +172,7 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     /**
-     * @deprecated Instead use {{@link #CompositionPlaylistBuilder_2016(UUID, UserTextType, UserTextType, UserTextType, List, Composition.EditRate, Set, long, Map, File, List, String)}}
+     * @deprecated Instead use {{@link #CompositionPlaylistBuilder_2016(UUID, UserTextType, UserTextType, UserTextType, List, Composition.EditRate, Set, long, Map, Path, List, String, Map<UUID, UUID>)}}
      * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2016 schema
      * @param uuid identifying the CompositionPlaylist document
      * @param annotationText a free form human readable text
@@ -195,7 +196,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull String applicationId,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
         this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2016, null);
     }
@@ -278,8 +279,8 @@ public class CompositionPlaylistBuilder_2016 {
             cplRoot.setExtensionProperties( extensionProperties);
         }
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
-        serializeCPLToXML(cplRoot, outputFile);
+        Path outputPath = Paths.get(this.workingDirectory.toString(), this.cplFileName);
+        serializeCPLToXML(cplRoot, outputPath);
         return imfErrorLogger.getErrors();
     }
 
@@ -305,7 +306,7 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     // TODO- Refactor this and consolidate all marshall/unmarshall logic into CompositionModel_st2067_2_2016.java
-    private void serializeCPLToXML(org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType cplRoot, File outputFile) throws IOException, JAXBException, SAXException{
+    private void serializeCPLToXML(org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType cplRoot, Path outputPath) throws IOException, JAXBException, SAXException{
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         boolean formatted = true;
@@ -316,7 +317,13 @@ public class CompositionPlaylistBuilder_2016 {
                 InputStream cplSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                 InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
                 InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
-                OutputStream outputStream = new FileOutputStream(outputFile)
+
+                SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE);
+
+                OutputStream outputStream = Channels.newOutputStream(byteChannel);
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );

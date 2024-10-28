@@ -24,12 +24,14 @@ import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 @Test(groups = "unit")
 public class FileDataProviderTest
 {
-    File inputFile;
+    Path inputFile;
     InputStream inputStream;
 
     @BeforeClass
@@ -39,9 +41,9 @@ public class FileDataProviderTest
     }
 
     @BeforeMethod
-    public void beforeMethod() throws FileNotFoundException
+    public void beforeMethod() throws FileNotFoundException, IOException
     {
-        inputStream = new FileInputStream(inputFile);
+        inputStream = Files.newInputStream(inputFile);
     }
 
     @AfterMethod
@@ -64,10 +66,10 @@ public class FileDataProviderTest
         Assert.assertEquals(refBytes, bytes);
     }
 
-    @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = "Could not read .*")
+    @Test(expectedExceptions = IOException.class, expectedExceptionsMessageRegExp = "Error reading bytes .*")
     public void testGetBytesLarge() throws IOException
     {
-        long length = inputFile.length();
+        long length = Files.size(this.inputFile);
         Assert.assertTrue(length < Integer.MAX_VALUE);
 
         ByteProvider byteProvider = new FileDataProvider(this.inputFile);
@@ -84,10 +86,10 @@ public class FileDataProviderTest
         Assert.assertEquals(bytes[0], 99);
     }
 
-    @Test
+    @Test(expectedExceptions = IOException.class)
     public void testSkipBytesLarge() throws IOException
     {
-        long length = inputFile.length();
+        long length = Files.size(this.inputFile);
         Assert.assertTrue(length < Integer.MAX_VALUE);
 
         ByteProvider byteProvider = new FileDataProvider(this.inputFile);
