@@ -168,7 +168,7 @@ public final class IMFTrackFileCPLBuilder {
     }
 
     private Path serializeCPL() throws IOException {
-        Path outputFile = Paths.get(this.workingDirectory.toString(), this.fileName + ".xml");
+        Path outputFile = this.workingDirectory.resolve(this.fileName + ".xml");
         IMFUtils.writeCPLToFile(this.cplRoot, outputFile);
         return outputFile;
     }
@@ -375,7 +375,7 @@ public final class IMFTrackFileCPLBuilder {
     Path getEssenceDescriptorAsXMLFile(Document document, KLVPacket.Header essenceDescriptor, List<KLVPacket.Header>subDescriptors, IMFErrorLogger imfErrorLogger) throws MXFException, IOException,
             TransformerException {
 
-        Path outputPath = Paths.get(this.workingDirectory.toString(), "EssenceDescriptor.xml");
+        Path outputPath = this.workingDirectory.resolve("EssenceDescriptor.xml");
         SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
@@ -430,7 +430,8 @@ public final class IMFTrackFileCPLBuilder {
         return sb.toString();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException
+    {
 
         if (args.length != 2)
         {
@@ -438,13 +439,13 @@ public final class IMFTrackFileCPLBuilder {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path input = Paths.get(args[0]);
+        Path input = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(input)) {
             logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
 
-        Path workingDirectory = Paths.get(args[1]);
+        Path workingDirectory = Utilities.getPathFromString(args[1]);
         if (!Files.isDirectory(workingDirectory)) {
             logger.error(String.format("Output folder %s does not exist", args[0]));
             System.exit(-1);

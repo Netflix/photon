@@ -27,6 +27,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -471,7 +472,7 @@ public final class Composition {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path input = Paths.get(args[0]);
+        Path input = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(input)) {
             logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);

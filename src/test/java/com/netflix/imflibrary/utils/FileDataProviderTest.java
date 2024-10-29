@@ -35,8 +35,7 @@ public class FileDataProviderTest
     InputStream inputStream;
 
     @BeforeClass
-    public void beforeClass()
-    {
+    public void beforeClass() throws IOException {
         inputFile = TestHelper.findResourceByPath("PKL_e788efe2-1782-4b09-b56d-1336da2413d5.xml");
     }
 

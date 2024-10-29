@@ -212,7 +212,7 @@ public class IMPFixer {
         AssetMap assetMap = new AssetMap(amPath);
         for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
 
-            Path pklPath = Paths.get(rootPath.toString(), packingListAsset.getPath().toString());
+            Path pklPath = rootPath.resolve(packingListAsset.getPath().toString());
             if (!Files.isRegularFile(pklPath)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
@@ -225,7 +225,7 @@ public class IMPFixer {
 
             for (PackingList.Asset asset : packingList.getAssets()) {
 
-                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                Path assetPath = rootPath.resolve(assetMap.getPath(asset.getUUID()).toString());
                 if (!Files.isRegularFile(assetPath)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
@@ -253,7 +253,7 @@ public class IMPFixer {
 
                     if (copyTrackfile) {
                         try {
-                            Path output = Paths.get(targetFile.toString(), Utilities.getFilenameFromPath(assetPath));
+                            Path output = targetFile.resolve(Utilities.getFilenameFromPath(assetPath));
                             Files.copy(assetPath, output, REPLACE_EXISTING);
                         } catch (InvalidPathException e) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
@@ -272,7 +272,7 @@ public class IMPFixer {
                     getTrackFileIdToHeaderPartitionPayLoadMap(headerPartitionPayloadRecords);
 
             for (PackingList.Asset asset : packingList.getAssets()) {
-                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                Path assetPath = rootPath.resolve(assetMap.getPath(asset.getUUID()).toString());
                 if (!Files.isRegularFile(assetPath)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
@@ -376,7 +376,7 @@ public class IMPFixer {
         }
 
         String inputFolderName = args[0];
-        Path inputPath = Paths.get(inputFolderName);
+        Path inputPath = Utilities.getPathFromString(inputFolderName);
 
         if (!Files.isDirectory(inputPath)) {
             logger.error(String.format("Invalid input package path: %s", inputFolderName));
@@ -384,7 +384,7 @@ public class IMPFixer {
         }
 
         String outputFolderName = args[1];
-        Path outputPath = Paths.get(outputFolderName);
+        Path outputPath = Utilities.getPathFromString(outputFolderName);
         try {
             Files.createDirectories(outputPath);
         } catch (IOException e) {

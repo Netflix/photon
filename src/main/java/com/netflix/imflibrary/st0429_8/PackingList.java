@@ -23,10 +23,7 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -558,7 +555,7 @@ public final class PackingList
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path input = Paths.get(args[0]);
+        Path input = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(input)) {
             logger.error(String.format("File %s does not exist", input));
             System.exit(-1);

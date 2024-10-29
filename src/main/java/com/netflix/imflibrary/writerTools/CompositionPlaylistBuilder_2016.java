@@ -279,7 +279,7 @@ public class CompositionPlaylistBuilder_2016 {
             cplRoot.setExtensionProperties( extensionProperties);
         }
 
-        Path outputPath = Paths.get(this.workingDirectory.toString(), this.cplFileName);
+        Path outputPath = this.workingDirectory.resolve(this.cplFileName);
         serializeCPLToXML(cplRoot, outputPath);
         return imfErrorLogger.getErrors();
     }

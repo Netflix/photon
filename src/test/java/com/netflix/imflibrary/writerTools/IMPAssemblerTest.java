@@ -30,7 +30,7 @@ public class IMPAssemblerTest {
 
 
     @DataProvider(name = "trackEntries")
-    private Object[][] trackEntries() {
+    private Object[][] trackEntries() throws IOException {
         return new Object[][] {
                 {
                         // video & audio have all values provided by the user

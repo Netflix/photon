@@ -107,7 +107,7 @@ public class IMPAssembler {
                     );
 
                     if (copyTrackFiles) {
-                        Path outputTrackFile = Paths.get(outputDirectory.toString(), Utilities.getFilenameFromPath(essenceTrackEntry.getPath()));
+                        Path outputTrackFile = outputDirectory.resolve(Utilities.getFilenameFromPath(essenceTrackEntry.getPath()));
                         logger.info("Copying track file from\n{} to\n{}", essenceTrackEntry.getPath().toString(), outputTrackFile.toString());
                         Files.copy(essenceTrackEntry.getPath(), outputTrackFile, REPLACE_EXISTING);
                     }
@@ -149,7 +149,7 @@ public class IMPAssembler {
                     }
 
                     // delete temporary file left over from FileByteRangeProvider or ByteArrayByteRangeProvider
-                    Path tempFilePath = Paths.get(outputDirectory.toString(), "range");
+                    Path tempFilePath = outputDirectory.resolve("range");
                     logger.info("Deleting temporary file if it exists: {}", tempFilePath);
                     Files.deleteIfExists(tempFilePath);
 
@@ -258,17 +258,17 @@ public class IMPAssembler {
         }
         for (AssetMap.Asset packingListAsset: assetMap.getPackingListAssets()) {
             if (packingListAsset.isPackingList()) {
-                pklOutputFile = Paths.get(outputDirectory.toString(), packingListAsset.getPath().toString());
+                pklOutputFile = outputDirectory.resolve(packingListAsset.getPath().toString());
                 PackingList packingList = new PackingList(pklOutputFile);
                 for (PackingList.Asset asset : packingList.getAssets()) {
                     logger.debug("Asset from packing list: {}", asset);
                     if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)
-                            && ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider((Paths.get(outputDirectory.toString(), asset.getOriginalFilename()))))) {
+                            && ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(outputDirectory.resolve(asset.getOriginalFilename())))) {
                         logger.info("Adding output CPL asset to response: {}", asset);
-                        cplOutputFile = Paths.get(outputDirectory.toString(), asset.getOriginalFilename());
+                        cplOutputFile = outputDirectory.resolve(asset.getOriginalFilename());
                     } else if (asset.getOriginalFilename() != null) {
                         logger.info("Adding output Track file to response: {}", asset);
-                        outputTrackFiles.add(Paths.get(outputDirectory.toString(), asset.getOriginalFilename()));
+                        outputTrackFiles.add(outputDirectory.resolve(asset.getOriginalFilename()));
                     }
                 }
             }

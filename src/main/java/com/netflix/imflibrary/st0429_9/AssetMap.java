@@ -639,7 +639,7 @@ public final class AssetMap
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path input = Paths.get(args[0]);
+        Path input = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(input)) {
             logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);

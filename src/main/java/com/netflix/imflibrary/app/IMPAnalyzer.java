@@ -257,7 +257,7 @@ public class IMPAnalyzer {
                     IMFErrorLogger packingListErrorLogger = new IMFErrorLoggerImpl();
                     try {
 
-                        Path pkl = Paths.get(rootPath.toString(), packingListAsset.getPath().toString());
+                        Path pkl = rootPath.resolve(packingListAsset.getPath().toString());
                         if (!Files.isRegularFile(assetMapPath)) {
                             assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
@@ -283,7 +283,7 @@ public class IMPAnalyzer {
                                     continue;
                                 }
 
-                                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                                Path assetPath = rootPath.resolve(assetMap.getPath(asset.getUUID()).toString());
                                 if (!Files.isRegularFile(assetPath)) {
                                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                             IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
@@ -405,7 +405,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                Path assetPath = Paths.get(rootPath.toString(), assetMap.getPath(asset.getUUID()).toString());
+                Path assetPath = rootPath.resolve(assetMap.getPath(asset.getUUID()).toString());
                 if(!Files.isRegularFile(assetPath)) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
@@ -468,7 +468,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                Path assetPath = Paths.get(rootFile.toString(), assetMap.getPath(asset.getUUID()).toString());
+                Path assetPath = rootFile.resolve(assetMap.getPath(asset.getUUID()).toString());
                 if (!Files.isRegularFile(assetPath)) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
@@ -644,7 +644,7 @@ public class IMPAnalyzer {
         }
 
         String inputFileName = args[0];
-        Path input = Paths.get(inputFileName);
+        Path input = Utilities.getPathFromString(inputFileName);
 
         if (Files.isDirectory(input)) {
             logger.info("==========================================================================" );

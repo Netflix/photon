@@ -72,7 +72,7 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
         //validation of range request guarantees that 0 <= rangeStart <= rangeEnd <= (resourceSize - 1)
         ResourceByteRangeProvider.Utilities.validateRangeRequest(this.resourceSize, rangeStart, rangeEnd);
 
-        Path rangePath = Paths.get(workingDirectory.toString(), "range");
+        Path rangePath = workingDirectory.resolve("range");
 
         try(ByteArrayInputStream bis = new ByteArrayInputStream(this.bytes);
             SeekableByteChannel sbc = Files.newByteChannel(rangePath,

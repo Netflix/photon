@@ -150,7 +150,7 @@ public class AssetMapBuilder {
         }
         assetMapType.setAssetList(assetList);
 
-        Path outputPath = Paths.get(this.workingDirectory.toString(), this.assetMapFileName);
+        Path outputPath = this.workingDirectory.resolve(this.assetMapFileName);
         List<ErrorLogger.ErrorObject> errors = serializeAssetMapToXML(assetMapType, outputPath, true);
         this.imfErrorLogger.addAllErrors(errors);
 

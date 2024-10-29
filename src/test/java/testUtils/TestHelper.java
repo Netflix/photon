@@ -17,6 +17,7 @@
 package testUtils;
 
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.utils.Utilities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public final class TestHelper
         //to prevent instantiation
     }
 
-    public static Path findResourceByPath(String resourcePath)
+    public static Path findResourceByPath(String resourcePath) throws IOException
     {
         URL resource = TestHelper.class.getClassLoader().getResource(resourcePath);
         if (resource == null) {
@@ -46,7 +47,7 @@ public final class TestHelper
         }
 
         assertNotNull(resource, String.format("Resource %s does not exist", resourcePath));
-        return Paths.get(resource.getPath());
+        return Utilities.getPathFromString(resource.getPath());
     }
 
     public static byte[] toByteArray(InputStream inputStream) throws IOException

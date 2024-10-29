@@ -53,7 +53,7 @@ public class IMFTrackFilePartitionsExtractor {
         String inputPath = input.toString();
 
         try {
-            Files.move(headerPartition, Paths.get(inputPath  + ".hdr"));
+            Files.move(headerPartition, Utilities.getPathFromString(inputPath  + ".hdr"));
         } catch (Exception e) {
             logger.info(String.format("Couldn't rename the path containing the header partition"));
         }
@@ -76,8 +76,8 @@ public class IMFTrackFilePartitionsExtractor {
             System.exit(-1);
         }
 
-        Path input = Paths.get(args[0]);
-        Path workingDirectory = Paths.get(args[1]);
+        Path input = Utilities.getPathFromString(args[0]);
+        Path workingDirectory = Utilities.getPathFromString(args[1]);
 
         Path fileWithHeaderPartition = extractHeaderPartition(input, workingDirectory);
         assert Files.size(fileWithHeaderPartition) > 0;

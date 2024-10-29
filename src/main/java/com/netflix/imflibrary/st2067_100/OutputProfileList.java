@@ -36,11 +36,7 @@ import com.netflix.imflibrary.st2067_100.macro.preset.PresetMacro;
 import com.netflix.imflibrary.st2067_2.ApplicationComposition;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -487,7 +483,7 @@ public final class OutputProfileList {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path inputPath = Paths.get(args[0]);
+        Path inputPath = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(inputPath)) {
             logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);

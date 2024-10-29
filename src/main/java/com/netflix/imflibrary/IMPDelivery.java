@@ -22,6 +22,7 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -122,7 +123,7 @@ public final class IMPDelivery
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
     {
-        Path rootFile = Paths.get(args[0]);
+        Path rootFile = Utilities.getPathFromString(args[0]);
 
         BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);

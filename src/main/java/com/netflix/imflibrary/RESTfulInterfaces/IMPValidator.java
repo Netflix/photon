@@ -796,7 +796,7 @@ public class IMPValidator {
         Path assetMap=null, packingList=null, compositionPlaylist=null;
 
         for(String arg : args) {
-            Path input = Paths.get(arg);
+            Path input = Utilities.getPathFromString(arg);
             String filename = Utilities.getFilenameFromPath(input);
             ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
             byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);

@@ -201,7 +201,7 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        Path outputPath = Paths.get(this.workingDirectory.toString(), this.pklFileName);
+        Path outputPath = this.workingDirectory.resolve(this.pklFileName);
         boolean formatted = true;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
@@ -449,7 +449,7 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        Path outputPath = Paths.get(this.workingDirectory.toString(), this.pklFileName);
+        Path outputPath = this.workingDirectory.resolve(this.pklFileName);
         boolean formatted = true;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(

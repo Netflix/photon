@@ -697,13 +697,13 @@ public final class IMFTrackFileReader
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Path input = Paths.get(args[0]);
+        Path input = Utilities.getPathFromString(args[0]);
         if (!Files.isRegularFile(input)) {
             logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
 
-        Path workingDirectory = Paths.get(args[1]);
+        Path workingDirectory = Utilities.getPathFromString(args[1]);
         if (!Files.isDirectory(workingDirectory)) {
             logger.error(String.format("Target folder %s does not exist", args[1]));
             System.exit(-1);
