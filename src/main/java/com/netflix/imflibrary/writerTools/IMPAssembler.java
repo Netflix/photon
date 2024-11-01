@@ -59,7 +59,7 @@ public class IMPAssembler {
         Map<UUID, List<Long>> sampleRateMap = new HashMap<>();
         Map<UUID, BigInteger> sampleCountMap = new HashMap<>();
         Map<UUID, byte[]> hashMap = new HashMap<>();
-        long videoIntrinsicDuration = 0;
+        long videoTotalSourceDuration = 0;
 
 
         for (Track track : simpleTimeline.getEssenceTracks()) {
@@ -158,7 +158,7 @@ public class IMPAssembler {
                     logger.info("Adding file to resources: {}..", essenceTrackFilename);
 
                     if (track.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
-                        videoIntrinsicDuration += sampleCount.longValue();
+                        videoTotalSourceDuration += (essenceTrackEntry.getDuration() == null ? sampleCount : essenceTrackEntry.getDuration()).longValue();
                     }
 
                     trackFileResources.add(
@@ -208,9 +208,9 @@ public class IMPAssembler {
             markerResources.add(new IMFMarkerResourceType(
                     UUIDHelper.fromUUID(IMFUUIDGenerator.getInstance().generateUUID()),
                     editRate,
-                    BigInteger.valueOf(videoIntrinsicDuration),
+                    BigInteger.valueOf(videoTotalSourceDuration),
                     BigInteger.ZERO,
-                    BigInteger.valueOf(videoIntrinsicDuration), // source duration may not be necessary
+                    BigInteger.valueOf(videoTotalSourceDuration), // source duration may not be necessary
                     BigInteger.ONE,
                     markerList));
 
