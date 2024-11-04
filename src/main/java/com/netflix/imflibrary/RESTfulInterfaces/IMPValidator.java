@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;

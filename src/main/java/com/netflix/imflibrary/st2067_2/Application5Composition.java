@@ -28,7 +28,7 @@ import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.*;
 
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.w3c.dom.Node;
 

@@ -27,7 +27,7 @@ import org.smpte_ra.schemas._2067_3._2013.BaseResourceType;
 import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

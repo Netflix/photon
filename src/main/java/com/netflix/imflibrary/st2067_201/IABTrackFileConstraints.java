@@ -19,7 +19,7 @@ import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;

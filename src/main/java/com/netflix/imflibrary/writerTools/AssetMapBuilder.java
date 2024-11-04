@@ -27,7 +27,7 @@ import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.smpte_ra.schemas._429_9._2007.am.AssetType;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
 import jakarta.xml.bind.*;

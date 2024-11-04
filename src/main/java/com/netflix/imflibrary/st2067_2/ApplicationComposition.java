@@ -27,8 +27,8 @@ import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Node;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

@@ -41,7 +41,7 @@ import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.containerConstraintsSubDescriptorUL;
 

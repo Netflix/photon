@@ -13,7 +13,7 @@ import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.Pr
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.JPEG2000;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

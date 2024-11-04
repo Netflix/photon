@@ -25,7 +25,7 @@ import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.util.Map;
