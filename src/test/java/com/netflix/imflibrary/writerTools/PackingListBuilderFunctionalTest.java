@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.nio.file.*;

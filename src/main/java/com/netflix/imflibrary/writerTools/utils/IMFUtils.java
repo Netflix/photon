@@ -28,7 +28,7 @@ import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

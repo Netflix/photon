@@ -26,7 +26,7 @@ import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.utils.ByteProvider;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.Map;
 

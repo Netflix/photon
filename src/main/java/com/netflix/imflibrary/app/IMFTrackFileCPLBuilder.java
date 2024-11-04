@@ -50,7 +50,7 @@ import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;

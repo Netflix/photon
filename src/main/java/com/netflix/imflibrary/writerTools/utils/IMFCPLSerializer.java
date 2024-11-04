@@ -22,10 +22,10 @@ import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -49,7 +49,7 @@ class IMFCPLSerializer {
      * @throws IOException - any I/O related error will be exposed through an IOException
      * @throws org.xml.sax.SAXException - any issues with instantiating a schema object with the schema sources will be exposed
      * through a SAXException
-     * @throws javax.xml.bind.JAXBException - any issues in serializing the XML document using JAXB will be exposed through a JAXBException
+     * @throws jakarta.xml.bind.JAXBException - any issues in serializing the XML document using JAXB will be exposed through a JAXBException
      */
 
     public void write(CompositionPlaylistType cplType, OutputStream output, boolean formatted) throws IOException, org.xml.sax.SAXException, JAXBException {

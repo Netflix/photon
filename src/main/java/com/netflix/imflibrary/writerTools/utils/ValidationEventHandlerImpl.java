@@ -21,8 +21,8 @@ package com.netflix.imflibrary.writerTools.utils;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
-import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.ValidationEventHandler;
+import jakarta.xml.bind.ValidationEvent;
+import jakarta.xml.bind.ValidationEventHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
