@@ -33,7 +33,7 @@ import com.netflix.imflibrary.st2067_100.handle.VirtualTrackHandle;
 import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
 import com.netflix.imflibrary.st2067_100.macro.preset.PresetMacro;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.*;
@@ -62,9 +62,7 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -255,12 +253,12 @@ public final class OutputProfileList {
 
     /**
      * A method to apply output profile on an application composition
-     * @param applicationComposition ApplicationComposition related to this output profile
+     * @param imfCompositionPlaylist IMFCompositionPlaylist related to this output profile
      * @return List of errors that occurred while applying output profile on the application composition
      */
-    public List<ErrorLogger.ErrorObject> applyOutputProfileOnComposition(ApplicationComposition applicationComposition) {
+    public List<ErrorLogger.ErrorObject> applyOutputProfileOnComposition(IMFCompositionPlaylist imfCompositionPlaylist) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Map<String, Handle> handleMapConformed = getHandleMapWithApplicationComposition(applicationComposition, imfErrorLogger);
+        Map<String, Handle> handleMapConformed = getHandleMapWithApplicationComposition(imfCompositionPlaylist, imfErrorLogger);
 
         /**
          * Validate alias handles
@@ -278,17 +276,17 @@ public final class OutputProfileList {
 
     /**
      * A method to get handle map with Application Composition applied on output profile
-     * @param applicationComposition ApplicationComposition related to this output profile
+     * @param imfCompositionPlaylist IMFCompositionPlaylist related to this output profile
      * @param imfErrorLogger logger for recording any parsing errors
      * @return Map containing a string handle to object representation of the handle
      */
-    public Map<String, Handle> getHandleMapWithApplicationComposition(ApplicationComposition applicationComposition, IMFErrorLogger imfErrorLogger) {
+    public Map<String, Handle> getHandleMapWithApplicationComposition(IMFCompositionPlaylist imfCompositionPlaylist, IMFErrorLogger imfErrorLogger) {
         Map<String, Handle> handleMapConformed = new HashMap<>();
 
         /**
          * Add handles for CPL tracks
          */
-        populateCPLVirtualTrackHandles(applicationComposition, handleMapConformed);
+        populateCPLVirtualTrackHandles(imfCompositionPlaylist, handleMapConformed);
 
         /**
          * Add handles for OPL macros
@@ -313,8 +311,8 @@ public final class OutputProfileList {
     }
 
 
-    private static Map<String, Handle> populateCPLVirtualTrackHandles(ApplicationComposition applicationComposition, Map<String, Handle> handleMap) {
-        List<? extends Composition.VirtualTrack> virtualTrackList = applicationComposition.getVirtualTracks();
+    private static Map<String, Handle> populateCPLVirtualTrackHandles(IMFCompositionPlaylist imfCompositionPlaylist, Map<String, Handle> handleMap) {
+        List<? extends Composition.VirtualTrack> virtualTrackList = imfCompositionPlaylist.getVirtualTracks();
         for(Composition.VirtualTrack virtualTrack: virtualTrackList) {
             switch(virtualTrack.getSequenceTypeEnum()) {
 
@@ -328,7 +326,7 @@ public final class OutputProfileList {
                 case MainAudioSequence: {
                     IMFEssenceComponentVirtualTrack imfEssenceComponentVirtualTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
                     for (UUID uuid : imfEssenceComponentVirtualTrack.getTrackResourceIds()) {
-                        DOMNodeObjectModel domNodeObjectModel = applicationComposition.getEssenceDescriptor(uuid);
+                        DOMNodeObjectModel domNodeObjectModel = imfCompositionPlaylist.getEssenceDescriptor(uuid);
                         if (domNodeObjectModel != null) {
                             Set<UL> mcaLabelDictionaryIDs = domNodeObjectModel.getFieldsAsUL("MCALabelDictionaryID");
                             for (UL mcaLabelDictionaryID : mcaLabelDictionaryIDs) {

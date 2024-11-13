@@ -15,8 +15,7 @@ import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.utils.*;
@@ -134,9 +133,9 @@ public class IMPFixer {
         return Collections.unmodifiableMap(trackFileIDMap);
     }
 
-    private static Boolean isCompositionComplete(ApplicationComposition applicationComposition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
+    private static Boolean isCompositionComplete(IMFCompositionPlaylist imfCompositionPlaylist, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
         boolean bComplete = true;
-        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
+        for (IMFEssenceComponentVirtualTrack virtualTrack : imfCompositionPlaylist.getEssenceVirtualTracks()) {
             for (UUID uuid : virtualTrack.getTrackResourceIds()) {
                 if (!trackFileIDsSet.contains(uuid)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
@@ -281,15 +280,19 @@ public class IMPFixer {
                 }
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
-                if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
-                    ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, new IMFErrorLoggerImpl());
-                    if(applicationComposition == null){
+                if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE) && IMFCompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)) {
+
+                    IMFCompositionPlaylist imfCompositionPlaylist;
+                    try {
+                        imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
+                    } catch (Exception e) {
                         continue;
                     }
+
                     Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap.keySet();
                         if(versionCPLSchema.equals(""))
                         {
-                            String coreConstraintsSchema = applicationComposition.getCoreConstraintsSchema();
+                            String coreConstraintsSchema = imfCompositionPlaylist.getCoreConstraintsSchema();
                             if (coreConstraintsSchema.equals(CoreConstraints.NAMESPACE_IMF_2013)) {
                                 versionCPLSchema = "2013";
                             }
@@ -300,7 +303,7 @@ public class IMPFixer {
                             else {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR,
                                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                        String.format("Input package CoreConstraints Schema %s not supported", applicationComposition.getCoreConstraintsSchema()));
+                                        String.format("Input package CoreConstraints Schema %s not supported", imfCompositionPlaylist.getCoreConstraintsSchema()));
                             }
                         }
 
@@ -308,8 +311,8 @@ public class IMPFixer {
                         {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2016("IMP",
                                     "Netflix",
-                                    applicationComposition.getEssenceVirtualTracks(),
-                                    applicationComposition.getEditRate(),
+                                    imfCompositionPlaylist.getEssenceVirtualTracks(),
+                                    imfCompositionPlaylist.getEditRate(),
                                     "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));
@@ -318,8 +321,8 @@ public class IMPFixer {
                         else if(versionCPLSchema.equals("2013")) {
                             imfErrorLogger.addAllErrors(IMPBuilder.buildIMP_2013("IMP",
                                     "Netflix",
-                                    applicationComposition.getEssenceVirtualTracks(),
-                                    applicationComposition.getEditRate(),
+                                    imfCompositionPlaylist.getEssenceVirtualTracks(),
+                                    imfCompositionPlaylist.getEditRate(),
                                     "http://www.smpte-ra.org/schemas/2067-21/2016",
                                     imfTrackFileMetadataMap,
                                     targetFile));

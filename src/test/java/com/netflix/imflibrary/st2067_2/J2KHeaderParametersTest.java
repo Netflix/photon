@@ -8,9 +8,6 @@ import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.Application2E2021;
-import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
-import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylistType;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -37,9 +34,11 @@ public class J2KHeaderParametersTest {
         Path inputCPLFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
         FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputCPLFile);
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
-        IMFCompositionPlaylistType imfCompositionPlaylistType = IMFCompositionPlaylistType.getCompositionPlayListType(resourceByteRangeProvider, logger);
-        Application2E2021 app = new Application2E2021(imfCompositionPlaylistType);
-        CompositionImageEssenceDescriptorModel image = app.getCompositionImageEssenceDescriptorModel(); // Calls 'J2KHeaderParameters.fromDOMNode(...)
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
+        logger.addAllErrors(imfCompositionPlaylist.getErrors());
+
+        CompositionImageEssenceDescriptorModel image = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModel(); // Calls 'J2KHeaderParameters.fromDOMNode(...)
 
         J2KHeaderParameters fromMXF = J2KHeaderParameters.fromJPEG2000PictureSubDescriptorBO(jpeg2000PictureSubDescriptorBO);
         J2KHeaderParameters fromCPL = image.getJ2KHeaderParameters();

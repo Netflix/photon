@@ -9,7 +9,6 @@ import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import java.util.Iterator;
@@ -29,7 +28,6 @@ public class IMFIABConstraintsChecker {
     public static List<ErrorLogger.ErrorObject> checkIABVirtualTrack(Composition.EditRate compositionEditRate,
                                                                      Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                                                      Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                                                     RegXMLLibDictionary regXMLLibDictionary,
                                                                      Set<String> homogeneitySelectionSet) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Iterator iterator = virtualTrackMap.entrySet().iterator();

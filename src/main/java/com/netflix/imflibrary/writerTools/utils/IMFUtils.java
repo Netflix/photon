@@ -20,7 +20,7 @@ package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas._2067_3._2013.BaseResourceType;
@@ -222,8 +222,9 @@ public class IMFUtils {
 
     public static UUID extractUUIDFromCPLFile(Path cplFile, IMFErrorLogger imfErrorLogger) {
         try {
-            ApplicationComposition applicationComposition = com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.getApplicationComposition(cplFile, imfErrorLogger);
-            return applicationComposition.getUUID();
+            IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(cplFile);
+            imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+            return imfCompositionPlaylist.getUUID();
         } catch (IOException e) {
             throw new IMFException(String.format("Error occurred while parsing CPL File %s", cplFile.toString()));
         }

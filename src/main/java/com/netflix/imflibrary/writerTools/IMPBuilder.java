@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +45,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.netflix.imflibrary.st2067_2.AbstractApplicationComposition.getResourceIdTuples;
+import static com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist.getResourceIdTuples;
 
 /**
  * A stateless class that will create the AssetMap, Packing List and CompositionPlaylist that represent a complete IMF Master Package by utilizing the relevant builders
@@ -318,7 +317,7 @@ public class IMPBuilder {
 
         List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList = new ArrayList<>();
         Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap = new HashMap<>();
-        for(AbstractApplicationComposition.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
+        for(IMFCompositionPlaylist.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
             trackFileIdToEssenceDescriptorIdMap.put(resourceIdTuple.getTrackFileId(), resourceIdTuple.getSourceEncoding());
         }
         for(Map.Entry<UUID, List<Node>> entry: essenceDescriptorDomNodeMap.entrySet()) {
@@ -713,7 +712,7 @@ public class IMPBuilder {
 
         List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList = new ArrayList<>();
         Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap = new HashMap<>();
-        for(AbstractApplicationComposition.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
+        for(IMFCompositionPlaylist.ResourceIdTuple resourceIdTuple : getResourceIdTuples(virtualTracks)) {
             trackFileIdToEssenceDescriptorIdMap.put(resourceIdTuple.getTrackFileId(), resourceIdTuple.getSourceEncoding());
         }
         for(Map.Entry<UUID, List<Node>> entry: essenceDescriptorDomNodeMap.entrySet()) {

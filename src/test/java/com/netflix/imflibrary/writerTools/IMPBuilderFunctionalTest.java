@@ -27,9 +27,7 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.Application2ExtendedComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
@@ -50,7 +48,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -92,12 +89,13 @@ public class IMPBuilderFunctionalTest {
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, imfErrorLogger);
-        buildIMPAndValidate(applicationComposition, schemaVersion, expectedCPLErrors, useHeaderPartition, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        buildIMPAndValidate(imfCompositionPlaylist, schemaVersion, expectedCPLErrors, useHeaderPartition, imfErrorLogger);
     }
 
 
-    private void buildIMPAndValidate(ApplicationComposition applicationComposition, String schemaVersion, int cplErrorsExpected, boolean useHeaderPartition, IMFErrorLogger imfErrorLogger)
+    private void buildIMPAndValidate(IMFCompositionPlaylist imfCompositionPlaylist, String schemaVersion, int cplErrorsExpected, boolean useHeaderPartition, IMFErrorLogger imfErrorLogger)
             throws IOException, ParserConfigurationException, SAXException, JAXBException, URISyntaxException, NoSuchAlgorithmException {
         /**
          * Create a temporary working directory under home
@@ -108,25 +106,25 @@ public class IMPBuilderFunctionalTest {
             if (schemaVersion.equals("2016")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileMetadataMap(imfErrorLogger),
                         tempPath);
             } else if (schemaVersion.equals("2020")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/ns/2067-21/2020",
                         buildTrackFileMetadataMap(imfErrorLogger),
                         tempPath);
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2014",
                         buildTrackFileMetadataMap(imfErrorLogger),
                         tempPath);
             }
@@ -134,30 +132,30 @@ public class IMPBuilderFunctionalTest {
             if (schemaVersion.equals("2016")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2016,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2016",
                         buildTrackFileInfoMap(imfErrorLogger),
                         tempPath,
-                        applicationComposition.getEssenceDescriptorDomNodeMap());
+                        imfCompositionPlaylist.getEssenceDescriptorDomNodeMap());
             } else if (schemaVersion.equals("2020")) {
                 IMPBuilder.buildIMP_2016("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2020,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/ns/2067-21/2020",
                         buildTrackFileInfoMap(imfErrorLogger),
                         tempPath,
-                        applicationComposition.getEssenceDescriptorDomNodeMap());
+                        imfCompositionPlaylist.getEssenceDescriptorDomNodeMap());
             } else if (schemaVersion.equals("2013")) {
                 IMPBuilder.buildIMP_2013("IMP",
                         "Netflix",
-                        applicationComposition.getVirtualTracks(),
-                        applicationComposition.getEditRate(),
-                        Application2ExtendedComposition.SCHEMA_URI_APP2E_2014,
+                        imfCompositionPlaylist.getVirtualTracks(),
+                        imfCompositionPlaylist.getEditRate(),
+                        "http://www.smpte-ra.org/schemas/2067-21/2014",
                         buildTrackFileInfoMap(imfErrorLogger),
                         tempPath,
-                        applicationComposition.getEssenceDescriptorDomNodeMap());
+                        imfCompositionPlaylist.getEssenceDescriptorDomNodeMap());
             }
         }
 

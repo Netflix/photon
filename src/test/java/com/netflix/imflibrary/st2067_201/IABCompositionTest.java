@@ -2,8 +2,7 @@ package com.netflix.imflibrary.st2067_201;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -20,7 +19,8 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_valid_iabsequence.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
     }
 
@@ -29,7 +29,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_valid_non_zero_essence_channelcount.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
     }
 
@@ -38,7 +41,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_missing_audio.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(),1);
     }
 
@@ -47,7 +53,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_iabsequence_wrong_editrate_main.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
@@ -56,7 +65,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_iabsequence_wrong_trackfile.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         // Changing expected error count as the channel count is now being ignored as of
         // SMPTE ST 2067-201:2021, 5.9 IAB Essence Descriptor Constraints
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 5);
@@ -67,7 +79,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_homogeneous.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(),2);
     }
 
@@ -76,7 +91,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_no_resource.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -85,7 +103,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_bitdepth.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -94,7 +115,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_essence_container_ul.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -103,7 +127,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_codec_present.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -112,7 +139,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_soundcompression.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -121,7 +151,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_valid_missing_audiosamplingrate.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -130,7 +163,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_electro_spatial_formulation.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -139,7 +175,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_missing_subdescriptor.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
@@ -148,7 +187,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_subdescriptor.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
@@ -157,7 +199,10 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_wrong_subdescriptor_values.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
     }
 
@@ -166,8 +211,11 @@ public class IABCompositionTest {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_valid_iabsequence.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationComposition composition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Composition.VirtualTrack iabTrack = composition.getVirtualTracks().stream().filter(vt -> vt.getSequenceTypeEnum() == Composition.SequenceTypeEnum.IABSequence).findFirst().orElse(null);
+
+        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(IMFCompositionPlaylist.getErrors());
+
+        Composition.VirtualTrack iabTrack = IMFCompositionPlaylist.getVirtualTracks().stream().filter(vt -> vt.getSequenceTypeEnum() == Composition.SequenceTypeEnum.IABSequence).findFirst().orElse(null);
         Assert.assertNotNull(iabTrack);
         Assert.assertNotEquals(iabTrack.getDuration(), 0L);
         Assert.assertNotEquals(iabTrack.getDurationInTrackEditRateUnits(), 0L);

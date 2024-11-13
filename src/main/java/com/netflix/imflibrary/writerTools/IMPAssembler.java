@@ -8,9 +8,8 @@ import com.netflix.imflibrary.app.IMPFixer;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFMarkerResourceType;
 import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
@@ -263,7 +262,7 @@ public class IMPAssembler {
                 for (PackingList.Asset asset : packingList.getAssets()) {
                     logger.debug("Asset from packing list: {}", asset);
                     if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)
-                            && ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(outputDirectory.resolve(asset.getOriginalFilename())))) {
+                            && IMFCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(outputDirectory.resolve(asset.getOriginalFilename())))) {
                         logger.info("Adding output CPL asset to response: {}", asset);
                         cplOutputFile = outputDirectory.resolve(asset.getOriginalFilename());
                     } else if (asset.getOriginalFilename() != null) {
