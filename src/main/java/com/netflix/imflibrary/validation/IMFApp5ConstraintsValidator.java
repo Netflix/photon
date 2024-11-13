@@ -40,36 +40,28 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-            CompositionImageEssenceDescriptorModel imageDescriptorModel = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModel();
 
-            if (imageDescriptorModel == null) {
-                imfErrorLogger.addError(
-                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        "Unable to retrieve picture descriptor from CPL for validation.");
+        List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
 
-                return imfErrorLogger.getErrors();
-            }
+        if (imageDescriptorModels.isEmpty()) {
+            imfErrorLogger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to retrieve picture descriptor from CPL for validation.");
 
+            return imfErrorLogger.getErrors();
+        }
+
+        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
+
+        // validate each image descriptor individually
+        imageDescriptorModels.forEach(imageDescriptorModel -> {
             imfErrorLogger.addAllErrors(imageDescriptorModel.getErrors());
-
-
-            RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
-
-            Map<UUID, List<Node>> descriptorMap = IMFCompositionPlaylist.getEssenceDescriptorDomNodeMap();
-            descriptorMap.forEach((uuid, nodes) -> {
-                nodes.forEach(node -> {
-                    DOMNodeObjectModel domNode = new DOMNodeObjectModel(node);
-                    parseApp5PixelLayout(uuid, domNode, regXMLLibDictionary, imfErrorLogger);
-                    parseApp5SubDescriptors(uuid, domNode, regXMLLibDictionary, imfErrorLogger);
-                    parseApp5VideoLineMap(uuid, domNode, regXMLLibDictionary, imfErrorLogger);
-                });
-
-            });
-
-
-        validatePictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
-
+            validatePictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
+            parseApp5PixelLayout(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
+            parseApp5SubDescriptors(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
+            parseApp5VideoLineMap(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
+        });
 
         return imfErrorLogger.getErrors();
     }
