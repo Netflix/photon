@@ -97,7 +97,7 @@ public final class IMFTrackFileReader
         this.resourceByteRangeProvider = resourceByteRangeProvider;
     }
 
-    private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    public IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.headerPartition == null)
         {
