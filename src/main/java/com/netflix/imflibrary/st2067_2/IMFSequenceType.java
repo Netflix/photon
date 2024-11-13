@@ -22,6 +22,8 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
 
+import static com.netflix.imflibrary.st2067_2.Composition.SequenceTypeEnum;
+
 /**
  * A class that models Sequence structure of an IMF Composition Playlist.
  */
@@ -31,16 +33,22 @@ final class IMFSequenceType {
     protected final String trackId;
     protected final List<? extends IMFBaseResourceType> resourceList;
     protected final Composition.SequenceTypeEnum type;
+    protected final String name;
+    protected final String namespace;
 
     public IMFSequenceType(String id,
                            String trackId,
                            Composition.SequenceTypeEnum type,
+                           String name,
+                           String namespace,
                            List<? extends IMFBaseResourceType> resourceList)
     {
         this.id             = id;
         this.trackId        = trackId;
         this.resourceList   = Collections.unmodifiableList(resourceList);
         this.type           = type;
+        this.name           = name;
+        this.namespace      = namespace;
     }
 
     /**
