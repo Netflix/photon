@@ -1166,20 +1166,22 @@ public class IMFCompositionPlaylist {
         return imfErrorLogger.getErrors();
     }
 
-    public @Nullable CompositionImageEssenceDescriptorModel getCompositionImageEssenceDescriptorModel() {
-        CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = null;
-        DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(
-                this.getVideoVirtualTrack().getTrackResourceIds().iterator().next());
+    @Nonnull
+    public List<CompositionImageEssenceDescriptorModel> getCompositionImageEssenceDescriptorModels() {
 
-        if (imageEssencedescriptorDOMNode != null) {
-            UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst()
-                    .get();
-            imageEssenceDescriptorModel =
-                    new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode,
-                            regXMLLibDictionary);
-        }
+        List<CompositionImageEssenceDescriptorModel> imageEssenceDescriptorModels = new ArrayList<>();
 
-        return imageEssenceDescriptorModel;
+        this.getVideoVirtualTrack().getTrackResourceIds().forEach(id -> {
+            DOMNodeObjectModel imageEssencedescriptorDOMNode = this.getEssenceDescriptor(id);
+
+            if (imageEssencedescriptorDOMNode != null) {
+                UUID imageEssenceDescriptorID = this.getEssenceDescriptorListMap().entrySet().stream().filter(e -> e.getValue().equals(imageEssencedescriptorDOMNode)).map(e -> e.getKey()).findFirst().get();
+                CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(imageEssenceDescriptorID, imageEssencedescriptorDOMNode, regXMLLibDictionary);
+                imageEssenceDescriptorModels.add(imageEssenceDescriptorModel);
+            }
+        });
+
+        return imageEssenceDescriptorModels;
     }
 
     private  Map<UUID, List<Node>> createEssenceDescriptorDomNodeMap() {

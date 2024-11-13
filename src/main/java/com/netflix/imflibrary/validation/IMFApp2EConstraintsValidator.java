@@ -113,9 +113,9 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         try {
-            CompositionImageEssenceDescriptorModel imageDescriptorModel = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModel();
+            List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
 
-            if (imageDescriptorModel == null) {
+            if (imageDescriptorModels.isEmpty()) {
                 imfErrorLogger.addError(
                         IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
@@ -124,12 +124,12 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
                 return imfErrorLogger.getErrors();
             }
 
-            imfErrorLogger.addAllErrors(imageDescriptorModel.getErrors());
-
-            validateGenericPictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
-
-            validateImageCharacteristics(imageDescriptorModel, imfErrorLogger);
-
+            // validate each image descriptor individually
+            imageDescriptorModels.forEach(imageDescriptorModel -> {
+                imfErrorLogger.addAllErrors(imageDescriptorModel.getErrors());
+                validateGenericPictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
+                validateImageCharacteristics(imageDescriptorModel, imfErrorLogger);
+            });
 
         } catch (Exception e) {
             imfErrorLogger.addError(
@@ -141,13 +141,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
                             e.getMessage()));
         }
 
-
-
-
-
-
-
-        return List.of();
+        return imfErrorLogger.getErrors();
     }
 
 
@@ -185,7 +179,16 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    "Invalid image characteristics per " + getConstraintsSpecification()
+                    "Invalid combination of image characteristics per " + getConstraintsSpecification() + ": "
+                        + "StoredWidth: " + imageDescriptor.getStoredWidth()
+                        + ", StoredHeight: " + imageDescriptor.getStoredHeight()
+                        + ", Color: " + imageDescriptor.getColor()
+                        + ", PixelBitDepht: " + imageDescriptor.getPixelBitDepth()
+                        + ", FrameLayoutType: " + imageDescriptor.getFrameLayoutType()
+                        + ", SampleRate: " + imageDescriptor.getSampleRate()
+                        + ", Sampling: " + imageDescriptor.getSampling()
+                        + ", Quantization: " + imageDescriptor.getQuantization()
+                        + ", ColorModel: " + imageDescriptor.getColorModel()
             );
         }
     }
