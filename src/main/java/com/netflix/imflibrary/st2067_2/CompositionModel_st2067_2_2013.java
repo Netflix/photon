@@ -4,6 +4,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.w3c.dom.Element;
@@ -45,7 +46,7 @@ final class CompositionModel_st2067_2_2013 {
      * @param imfErrorLogger - an object for logging errors
      * @return A canonical, version-independent, instance of IMFCompositionPlaylistType
      */
-    @Nonnull public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    @Nonnull public static IMFCompositionPlaylist.Builder getApplicationCompositionBuilder(@Nonnull org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         // Parse each Segment
         List<IMFSegmentType> segmentList = compositionPlaylistType.getSegmentList().getSegment().stream()
@@ -80,19 +81,20 @@ final class CompositionModel_st2067_2_2013 {
                 coreConstraintsSchema = CoreConstraints.NAMESPACE_IMF_2013;
         }
 
-        return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
-                compositionPlaylistType.getEditRate(),
-                (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
-                (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue()),
-                (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue()),
-                (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
-                (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
-                segmentList,
-                essenceDescriptorList,
-                coreConstraintsSchema,
-                applicationIDs,
-                null
-        );
+        IMFCompositionPlaylist.Builder builder = new IMFCompositionPlaylist.Builder();
+        return builder.id(UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId()))
+                .imfErrorLogger(imfErrorLogger)
+                .editRate(new Composition.EditRate(compositionPlaylistType.getEditRate()))
+                .annotation(compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue())
+                .issuer(compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue())
+                .creator(compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue())
+                .contentOriginator(compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue())
+                .contentTitle(compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue())
+                .segmentList(segmentList)
+                .essenceDescriptorList(essenceDescriptorList)
+                .coreConstraintsSchema(coreConstraintsSchema)
+                .applicationIdSet(applicationIDs)
+                .extensionProperties(null);
     }
 
     @Nonnull static org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
@@ -184,10 +186,13 @@ final class CompositionModel_st2067_2_2013 {
             // Get the JAXB SequenceType object
             JAXBElement jaxbElement = (JAXBElement)(object);
             org.smpte_ra.schemas._2067_3._2013.SequenceType sequence = (org.smpte_ra.schemas._2067_3._2013.SequenceType) jaxbElement.getValue();
+            String sequenceName = jaxbElement.getName().getLocalPart();
+            String sequenceNamespace = jaxbElement.getName().getNamespaceURI();
+
             // Determine the type of Sequence being parsed
             Composition.SequenceTypeEnum sequenceType = Composition.SequenceTypeEnum.getSequenceTypeEnum(jaxbElement.getName().getLocalPart());
             // Parse the Sequence
-            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, imfErrorLogger));
+            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, sequenceName, sequenceNamespace, imfErrorLogger));
         }
         return new IMFSegmentType(segment.getId(), sequenceList);
     }
@@ -221,13 +226,16 @@ final class CompositionModel_st2067_2_2013 {
         return new IMFSequenceType(markerSequence.getId(),
                 markerSequence.getTrackId(),
                 Composition.SequenceTypeEnum.MarkerSequence,
+                "MarkerSequence",
+                "http://www.smpte-ra.org/schemas/2067-3/2013",
                 sequenceResources);
     }
 
     // Converts an instance of the JAXB class org.smpte_ra.schemas._2067_3._2013.SequenceType
     // Into a canonical, version-independent, instance of IMFSequenceType
     @Nonnull private static IMFSequenceType parseSequence(@Nonnull org.smpte_ra.schemas._2067_3._2013.SequenceType sequence,
-                                                          @Nonnull List<Long> cplEditRate, Composition.SequenceTypeEnum sequenceType, @Nonnull IMFErrorLogger imfErrorLogger)
+                                                          @Nonnull List<Long> cplEditRate, Composition.SequenceTypeEnum sequenceType,
+                                                          @Nonnull String sequenceName, @Nonnull String sequenceNamespace, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         List<IMFBaseResourceType> sequenceResources = new ArrayList<>();
         for (org.smpte_ra.schemas._2067_3._2013.BaseResourceType resource : sequence.getResourceList().getResource())
@@ -254,6 +262,8 @@ final class CompositionModel_st2067_2_2013 {
         return new IMFSequenceType(sequence.getId(),
                 sequence.getTrackId(),
                 sequenceType,
+                sequenceName,
+                sequenceNamespace,
                 sequenceResources);
     }
 
