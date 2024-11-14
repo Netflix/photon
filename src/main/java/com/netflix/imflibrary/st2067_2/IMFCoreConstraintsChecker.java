@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * A class that performs CoreConstraints st2067-2 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
  */
-final class IMFCoreConstraintsChecker {
+public final class IMFCoreConstraintsChecker {
 
     private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
         add("CDCIDescriptor");
@@ -67,18 +67,13 @@ final class IMFCoreConstraintsChecker {
 
     }
 
-    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
-                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
-                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
-        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
-        return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary);
+    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylist imfCompositionPlaylist) {
+        return checkVirtualTracks(imfCompositionPlaylist, new RegXMLLibDictionary());
     }
 
-    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
-                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
-                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                          RegXMLLibDictionary regXMLLibDictionary) {
-        return checkVirtualTracks(compositionPlaylistType, virtualTrackMap, essenceDescriptorListMap, regXMLLibDictionary, new HashSet<>());
+    public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                   RegXMLLibDictionary regXMLLibDictionary) {
+        return checkVirtualTracks(imfCompositionPlaylist, regXMLLibDictionary, new HashSet<>());
     }
 
     /**
@@ -91,24 +86,21 @@ final class IMFCoreConstraintsChecker {
      * - the CPL and descriptor rates match
      * - the descriptors are homogeneous
      *
-     * @param compositionPlaylistType CPL object
-     * @param virtualTrackMap map of tracks indexed by UUID
-     * @param essenceDescriptorListMap map of essence descriptors in the CPL
+     * @param imfCompositionPlaylist CPL object
      * @param regXMLLibDictionary helper for producing XML representation of descriptors
      * @param homogeneitySelectionSet set of strings for which homogenity has to be checked
      * @return a list of errors
      */
-     public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
-                                          Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
-                                          Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                          RegXMLLibDictionary regXMLLibDictionary,
-                                          Set<String> homogeneitySelectionSet){
+     public static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                    RegXMLLibDictionary regXMLLibDictionary,
+                                                                    Set<String> homogeneitySelectionSet){
 
         boolean foundMainImageEssence = false;
         int numberOfMainImageEssences = 0;
         boolean foundMainAudioEssence = false;
         IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
-        Iterator iterator = virtualTrackMap.entrySet().iterator();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
+        Iterator iterator = imfCompositionPlaylist.getVirtualTrackMap().entrySet().iterator();
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
 
@@ -120,19 +112,19 @@ final class IMFCoreConstraintsChecker {
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
                     || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
-                        && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
+                        && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon, NS: %s",
-                                virtualTrack.getSequenceTypeEnum().toString(), compositionPlaylistType.getCoreConstraintsSchema()));
+                                virtualTrack.getSequenceTypeEnum().toString(), imfCompositionPlaylist.getCoreConstraintsSchema()));
                 continue;
             }
 
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
                 foundMainImageEssence = true;
                 numberOfMainImageEssences++;
-                Composition.EditRate compositionEditRate = compositionPlaylistType.getEditRate();
+                Composition.EditRate compositionEditRate = imfCompositionPlaylist.getEditRate();
                 for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
                     //Section 6.4 st2067-2:2016
@@ -150,11 +142,11 @@ final class IMFCoreConstraintsChecker {
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
                     || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
-                            && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
+                            && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))
-                    && compositionPlaylistType.getEssenceDescriptorList() != null
-                    && compositionPlaylistType.getEssenceDescriptorList().size() > 0)
+                    && imfCompositionPlaylist.getEssenceDescriptorList() != null
+                    && imfCompositionPlaylist.getEssenceDescriptorList().size() > 0)
             {
                 List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
                 String refSourceEncodingElement = "";
@@ -179,7 +171,7 @@ final class IMFCoreConstraintsChecker {
                             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence) ||
                                     virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence) ||
                                     (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
-                                            && compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))) {
+                                            && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))) {
                                 essenceDescriptorField = "SampleRate";
                             } else if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence) ||
                                        virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)     ||
@@ -224,13 +216,13 @@ final class IMFCoreConstraintsChecker {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                     String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that seems to refer to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
                                                     "which does not have a value set for the field %s, however the Resource Edit Rate is %s"
-                                            , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
+                                            , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
                         } else if (!essenceEditRate.equals(imfBaseResourceType.getEditRate())) {
                             //Section 6.3.1 and 6.3.2 st2067-2:2016
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                     String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
                                                     "whose indicated %s value is %s, however the Resource Edit Rate is %s"
-                                            , compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
+                                            , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
                         }
                         virtualTrackEssenceDescriptors.add(domNodeObjectModel);
                     }
@@ -238,7 +230,7 @@ final class IMFCoreConstraintsChecker {
                 //Section 6.8 st2067-2:2016
                 if(!(virtualTrackEssenceDescriptors.size() > 0)){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString()));
+                            String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString()));
                 }
                 else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                         || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
@@ -266,7 +258,7 @@ final class IMFCoreConstraintsChecker {
                         imfErrorLogger.addAllErrors(refDOMNodeObjectModel.getErrors());
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                 String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s is not homogeneous based on a comparison of the EssenceDescriptors referenced by its resources in the Essence Descriptor List, " +
-                                        "the EssenceDescriptors corresponding to this VirtualTrack in the EssenceDescriptorList are as follows %n%n%s", compositionPlaylistType.getId().toString(), virtualTrack.getTrackID().toString(), Utilities.serializeObjectCollectionToString(modelsIgnoreSet)));
+                                        "the EssenceDescriptors corresponding to this VirtualTrack in the EssenceDescriptorList are as follows %n%n%s", imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), Utilities.serializeObjectCollectionToString(modelsIgnoreSet)));
                     }
                 }
             }
@@ -275,62 +267,24 @@ final class IMFCoreConstraintsChecker {
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
         //Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString()));
         }
         else{
             if(numberOfMainImageEssences > 1){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", compositionPlaylistType.getId().toString(), numberOfMainImageEssences));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString(), numberOfMainImageEssences));
             }
         }
 
         //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         //Section 6.3.2 st2067-2:2020 allows CPLs without Audio Virtual Tracks
         if(!foundMainAudioEssence
-                && (compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2013)
-                || compositionPlaylistType.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2016)))
+                && (imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2013)
+                || imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2016)))
         {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", compositionPlaylistType.getId().toString()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", imfCompositionPlaylist.getId().toString()));
         }
 
         return imfErrorLogger.getErrors();
-    }
-
-    public static boolean hasIABVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
-                                              Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap){
-        boolean foundIABEssence = false;
-        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
-        Iterator iterator = virtualTrackMap.entrySet().iterator();
-        while(iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
-            List<ErrorLogger.ErrorObject> errors = checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList);
-            imfErrorLogger.addAllErrors(errors);
-
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
-                foundIABEssence = true;
-            }
-        }
-
-        return foundIABEssence;
-    }
-
-    public static boolean hasMGASADMVirtualTracks(IMFCompositionPlaylistType compositionPlaylistType,
-                                              Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap){
-        boolean foundMGASADMEssence = false;
-        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
-        Iterator iterator = virtualTrackMap.entrySet().iterator();
-        while(iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
-            List<ErrorLogger.ErrorObject> errors = checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList);
-            imfErrorLogger.addAllErrors(errors);
-
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)) {
-                foundMGASADMEssence = true;
-            }
-        }
-
-        return foundMGASADMEssence;
     }
 
     /**
@@ -340,29 +294,29 @@ final class IMFCoreConstraintsChecker {
      * - it has an integer duration when expressed in the CPL edit rate
      * - all its sequences have the same duration
      *
-     * @param compositionPlaylistType the playlist from which segments are to be checked
-     * @param virtualTrackMap a map of all the virtual tracks in a segment against which checks will be made
-     * @param imfErrorLogger the logger object in which error messages are added
+     * @param imfCompositionPlaylist the playlist from which segments are to be checked
      **/
-    public static void checkSegments(IMFCompositionPlaylistType compositionPlaylistType, Map<UUID, Composition.VirtualTrack> virtualTrackMap, @Nullable IMFErrorLogger imfErrorLogger)
+    public static List<ErrorLogger.ErrorObject> checkSegments(IMFCompositionPlaylist imfCompositionPlaylist)
     {
-        for (IMFSegmentType segment : compositionPlaylistType.getSegmentList())
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        for (IMFSegmentType segment : imfCompositionPlaylist.getSegmentList())
         {
             Set<UUID> trackIDs = new HashSet<>();
 
             /* TODO: Add check for Marker sequence */
             Set<Long> sequencesDurationSet = new HashSet<>();
-            double compositionEditRate = (double)compositionPlaylistType.getEditRate().getNumerator()/compositionPlaylistType.getEditRate().getDenominator();
+            double compositionEditRate = (double) imfCompositionPlaylist.getEditRate().getNumerator()/ imfCompositionPlaylist.getEditRate().getDenominator();
             for (IMFSequenceType sequence : segment.getSequenceList())
             {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 trackIDs.add(uuid);
-                if (virtualTrackMap.get(uuid) == null)
+                if (imfCompositionPlaylist.getVirtualTrackMap().get(uuid) == null)
                 {
                     //Section 6.9.3 st2067-3:2016
                     String message = String.format(
                             "Segment represented by the ID %s in the Composition represented by ID %s contains virtual track represented by ID %s, which does not appear in all the segments of the Composition, this is invalid",
-                            segment.getId(), compositionPlaylistType.getId().toString(), uuid);
+                            segment.getId(), imfCompositionPlaylist.getId().toString(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
                 List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
@@ -374,8 +328,8 @@ final class IMFCoreConstraintsChecker {
                     sequenceDuration += imfBaseResourceType.getDuration();
                 }
                 //Section 7.3 st2067-3:2016
-                long compositionEditRateNumerator = compositionPlaylistType.getEditRate().getNumerator();
-                long compositionEditRateDenominator = compositionPlaylistType.getEditRate().getDenominator();
+                long compositionEditRateNumerator = imfCompositionPlaylist.getEditRate().getNumerator();
+                long compositionEditRateDenominator = imfCompositionPlaylist.getEditRate().getDenominator();
                 long resourceEditRateNumerator = resources.get(0).getEditRate().getNumerator();
                 long resourceEditRateDenominator = resources.get(0).getEditRate().getDenominator();
 
@@ -385,7 +339,7 @@ final class IMFCoreConstraintsChecker {
                 if(sequenceDurationInCompositionEditRateReminder != 0){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Segment represented by the Id %s in the Composition represented by ID %s has a sequence represented by ID %s, whose duration represented in Composition Edit Units is (%f) is not an integer"
-                                    , segment.getId(), compositionPlaylistType.getId().toString(), sequence.getId(), sequenceDurationDoubleValue));
+                                    , segment.getId(), imfCompositionPlaylist.getId().toString(), sequence.getId(), sequenceDurationDoubleValue));
                 }
                 sequenceDurationInCompositionEditUnits = Math.round(sequenceDurationDoubleValue);
                 sequencesDurationSet.add(sequenceDurationInCompositionEditUnits);
@@ -397,14 +351,16 @@ final class IMFCoreConstraintsChecker {
                         String.format("Segment represented by the Id %s seems to have sequences that are not of the same duration, following sequence durations were computed based on the information in the Sequence List for this Segment, %s represented in Composition Edit Units", segment.getId(), Utilities.serializeObjectCollectionToString(sequencesDurationSet)));
             }
             //Section 6.9.3 st2067-3:2016
-            if (trackIDs.size() != virtualTrackMap.size())
+            if (trackIDs.size() != imfCompositionPlaylist.getVirtualTrackMap().size())
             {
                 String message = String.format(
-                        "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), virtualTrackMap.size());
+                        "Number of distinct virtual trackIDs in a segment = %s, different from first segment %d", trackIDs.size(), imfCompositionPlaylist.getVirtualTrackMap().size());
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, message);
             }
 
         }
+
+        return imfErrorLogger.getErrors();
     }
 
     /**
