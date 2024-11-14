@@ -33,6 +33,7 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.IMFCompositionPlaylistUtils;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.IMPBuilder;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
@@ -520,7 +521,7 @@ public class IMPValidatorFunctionalTests {
 
 
         if(errors.size() == 0) {
-            errors.addAll(IMPValidator.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
+            errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
                 add(cplPayloadRecord2);
             }}));
         }
@@ -548,7 +549,7 @@ public class IMPValidatorFunctionalTests {
 
 
         if(errors.size() == 0) {
-            errors.addAll(IMPValidator.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
+            errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
                 add(cplPayloadRecord2);
             }}));
         }
