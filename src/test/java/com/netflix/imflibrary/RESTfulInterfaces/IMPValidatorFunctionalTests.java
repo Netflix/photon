@@ -188,47 +188,6 @@ public class IMPValidatorFunctionalTests {
         Assert.assertTrue(fatalErrors.size() == 0);
     }
 
-    @Test
-    public void getRandomIndexPackSizeTest() throws IOException {
-        Path inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
-        Assert.assertTrue(randomIndexPackSize == 72);
-    }
-
-    @Test
-    public void getAllPartitionByteOffsetsTest() throws IOException {
-        Path inputFile = TestHelper.findResourceByPath("IMFTrackFiles/TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
-        Assert.assertTrue(randomIndexPackSize == 72);
-
-        rangeStart = archiveFileSize - randomIndexPackSize;
-        rangeEnd = archiveFileSize - 1;
-
-        Assert.assertTrue(rangeStart >= 0);
-
-        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
-        Assert.assertTrue(partitionByteOffsets.size() == 4);
-        Assert.assertTrue(partitionByteOffsets.get(0) == 0);
-        Assert.assertTrue(partitionByteOffsets.get(1) == 11868);
-        Assert.assertTrue(partitionByteOffsets.get(2) == 12104);
-        Assert.assertTrue(partitionByteOffsets.get(3) == 223644);
-    }
 
     @Test
     public void validateEssencesHeaderPartitionTest() throws IOException {
@@ -480,25 +439,6 @@ public class IMPValidatorFunctionalTests {
 
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, imfCompositionPlaylist.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
         Assert.assertEquals(conformanceErrors.size(), 3);
-    }
-
-    private byte[] getHeaderPartition(Path inputFile) throws IOException {
-
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
-
-        rangeStart = archiveFileSize - randomIndexPackSize;
-        rangeEnd = archiveFileSize - 1;
-
-        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
-        return resourceByteRangeProvider.getByteRangeAsBytes(partitionByteOffsets.get(0), partitionByteOffsets.get(1)-1);
     }
 
     @Test

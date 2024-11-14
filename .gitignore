@@ -76,3 +76,4 @@ secrets/signing-key
 
 # generated java classes
 /generated
+/.tmp.driveupload

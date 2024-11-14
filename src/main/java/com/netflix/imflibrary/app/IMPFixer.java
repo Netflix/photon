@@ -160,7 +160,7 @@ public class IMPFixer {
         }
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+        Long randomIndexPackSize = MXFUtils.getRandomIndexPackSize(payloadRecord);
 
         rangeStart = archiveFileSize - randomIndexPackSize;
         rangeEnd = archiveFileSize - 1;
@@ -170,7 +170,7 @@ public class IMPFixer {
 
         byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
         PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+        List<Long> partitionByteOffsets = MXFUtils.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
 
         if (partitionByteOffsets.size() >= 2) {
             rangeStart = partitionByteOffsets.get(0);

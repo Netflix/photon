@@ -18,8 +18,6 @@ import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.*;
-import com.netflix.imflibrary.validation.ConstraintsValidator;
-import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,109 +72,7 @@ public class IMPAnalyzer {
 
 
 
-    @Nullable
-    private static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        if(rangeStart < 0 ) {
-            return null;
-        }
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
 
-        rangeStart = archiveFileSize - randomIndexPackSize;
-        rangeEnd = archiveFileSize - 1;
-        if(rangeStart < 0 ) {
-            return null;
-        }
-
-        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
-
-        if (partitionByteOffsets.size() >= 2) {
-            rangeStart = partitionByteOffsets.get(0);
-            rangeEnd = partitionByteOffsets.get(1) - 1;
-            byte[] headerPartitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-            PayloadRecord headerParitionPayload = new PayloadRecord(headerPartitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-            return headerParitionPayload;
-        }
-
-
-        return null;
-
-    }
-
-    private static PartitionPack getPartitionPack(ResourceByteRangeProvider resourceByteRangeProvider, long resourceOffset) throws IOException
-    {
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        KLVPacket.Header header;
-        {//logic to provide as an input stream the portion of the archive that contains PartitionPack KLVPacker Header
-            long rangeStart = resourceOffset;
-            long rangeEnd = resourceOffset +
-                    (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
-            rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
-
-            byte[] bytesWithPartitionPackKLVPacketHeader = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-            ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(bytesWithPartitionPackKLVPacketHeader);
-            header = new KLVPacket.Header(imfEssenceComponentByteProvider, rangeStart);
-        }
-
-        PartitionPack partitionPack;
-        long rangeStart = resourceOffset;
-        long rangeEnd = resourceOffset + header.getKLSize() + header.getVSize() - 1;
-        rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
-
-        byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        partitionPack = new PartitionPack(new ByteArrayDataProvider(partitionBytes));
-
-        return partitionPack;
-    }
-
-    private static List<PayloadRecord> getIndexTablePartitionPayloadRecords(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
-        List<PayloadRecord> payloadRecords = new ArrayList<>();
-        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        long rangeEnd = archiveFileSize - 1;
-        long rangeStart = archiveFileSize - 4;
-        if(rangeStart < 0 ) {
-            return payloadRecords;
-        }
-        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
-
-        rangeStart = archiveFileSize - randomIndexPackSize;
-        rangeEnd = archiveFileSize - 1;
-        if(rangeStart < 0 ) {
-            return payloadRecords;
-        }
-
-        byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-        PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = new ArrayList<>();
-        partitionByteOffsets.addAll(IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize));
-        partitionByteOffsets.add(resourceByteRangeProvider.getResourceSize());
-
-        for(int i =0; i < partitionByteOffsets.size() -1; i++) {
-            rangeStart = partitionByteOffsets.get(i);
-            rangeEnd = partitionByteOffsets.get(i+1) - 1;
-            PartitionPack partitionPack = getPartitionPack(resourceByteRangeProvider, rangeStart);
-            //2067-5 section 5.1.1
-            if (partitionPack.hasEssenceContainer() && partitionPack.hasIndexTableSegments()) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Partition %d has both index table and essence", i));
-            }
-            else if (partitionPack.hasIndexTableSegments()) {
-                byte[] partitionBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
-                PayloadRecord partitionPayloadRecord = new PayloadRecord(partitionBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-                payloadRecords.add(partitionPayloadRecord);
-            }
-        }
-        return payloadRecords;
-
-    }
 
     private static List<ErrorLogger.ErrorObject> conformVirtualTrack(ResourceByteRangeProvider cplByteRangeProvider, Composition.VirtualTrack virtualTrack, List<PayloadRecord>
             headerPartitionPayloadRecords) throws IOException {
@@ -265,7 +161,7 @@ public class IMPAnalyzer {
                                 IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
                                 try {
-                                    PayloadRecord headerPartitionPayloadRecord = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
+                                    PayloadRecord headerPartitionPayloadRecord = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
                                     if (headerPartitionPayloadRecord == null) {
                                         trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                                                 String.format("Failed to get header partition for %s", assetPath.toString()));
@@ -284,7 +180,7 @@ public class IMPAnalyzer {
                                             }
                                         }
                                     }
-                                    List<PayloadRecord>  payloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+                                    List<PayloadRecord>  payloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
                                     trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(payloadRecords));
                                 } catch( MXFException e) {
                                     trackFileErrorLogger.addAllErrors(e.getErrors());
@@ -350,12 +246,12 @@ public class IMPAnalyzer {
         return errorMap;
     }
 
-    public static List<ErrorLogger.ErrorObject> validateEssencePartition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+    private static List<ErrorLogger.ErrorObject> validateEssencePartition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
 
-        PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
+        PayloadRecord headerPartitionPayload = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
         if(headerPartitionPayload == null) {
             trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     String.format("Failed to get header partition"));
@@ -366,7 +262,7 @@ public class IMPAnalyzer {
         }
 
         // Validate index table segments
-        List<PayloadRecord>  indexSegmentPayloadRecords = getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+        List<PayloadRecord>  indexSegmentPayloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
         trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(indexSegmentPayloadRecords));
 
         trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexEditRate(headerPartitionPayloadRecords, indexSegmentPayloadRecords));
@@ -374,7 +270,7 @@ public class IMPAnalyzer {
         return trackFileErrorLogger.getErrors();
     }
 
-    public static List<OutputProfileList> analyzeOutputProfileLists(Path rootPath,
+    private static List<OutputProfileList> analyzeOutputProfileLists(Path rootPath,
                                                                     AssetMap assetMap,
                                                                     PackingList packingList,
                                                                     List<IMFCompositionPlaylist> IMFCompositionPlaylistList,
@@ -438,7 +334,7 @@ public class IMPAnalyzer {
 
 
 
-    public static List<IMFCompositionPlaylist> analyzeApplicationCompositions(Path rootFile,
+    private static List<IMFCompositionPlaylist> analyzeApplicationCompositions(Path rootFile,
                                                                               AssetMap assetMap,
                                                                               PackingList packingList,
                                                                               List<PayloadRecord> headerPartitionPayloadRecords,

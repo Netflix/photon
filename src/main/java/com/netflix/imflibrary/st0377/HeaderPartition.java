@@ -33,11 +33,7 @@ import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1493,14 +1489,14 @@ public final class HeaderPartition
         long rangeStart = archiveFileSize - 4;
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssenceFooter4Bytes, rangeStart, rangeEnd);
-        Long randomIndexPackSize = IMPValidator.getRandomIndexPackSize(payloadRecord);
+        Long randomIndexPackSize = MXFUtils.getRandomIndexPackSize(payloadRecord);
 
         rangeStart = archiveFileSize - randomIndexPackSize;
         rangeEnd = archiveFileSize - 1;
 
         byte[] randomIndexPackBytes = resourceByteRangeProvider.getByteRangeAsBytes(rangeStart, rangeEnd);
         PayloadRecord randomIndexPackPayload = new PayloadRecord(randomIndexPackBytes, PayloadRecord.PayloadAssetType.EssencePartition, rangeStart, rangeEnd);
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+        List<Long> partitionByteOffsets = MXFUtils.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
 
         rangeStart = partitionByteOffsets.get(0);
         rangeEnd = partitionByteOffsets.get(1) - 1;

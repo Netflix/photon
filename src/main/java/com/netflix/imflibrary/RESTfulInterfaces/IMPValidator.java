@@ -636,39 +636,6 @@ public class IMPValidator {
 
     /* IMF essence related inspection calls*/
 
-    /**
-     * A stateless method that will return the size of the RandomIndexPack present within a MXF file. In a typical IMF workflow
-     * this would be the first method that would need to be invoked to perform IMF essence component level validation
-     * @param essenceFooter4Bytes - the last 4 bytes of the MXF file used to infer the size of the RandomIndexPack
-     * @return a long integer value representing the size of the RandomIndexPack
-     */
-    public static Long getRandomIndexPackSize(PayloadRecord essenceFooter4Bytes){
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        if(essenceFooter4Bytes.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssenceFooter4Bytes){
-            throw new IMFException(String.format("Payload asset type is %s, expected asset type %s",
-                    essenceFooter4Bytes.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssenceFooter4Bytes
-                            .toString()), imfErrorLogger);
-        }
-        return (long)(ByteBuffer.wrap(essenceFooter4Bytes.getPayload()).getInt());
-    }
-
-    /**
-     * A stateless method that will read and parse the RandomIndexPack within a MXF file and return a list of byte offsets
-     * corresponding to the partitions of the MXF file. In a typical IMF workflow this would be the second method after
-     * {@link #getRandomIndexPackSize(PayloadRecord)} that would need to be invoked to perform IMF essence component
-     * level validation
-     * @param randomIndexPackPayload - a payload containing the raw bytes corresponding to the RandomIndexPack of the MXF file
-     * @param randomIndexPackSize - size of the RandomIndexPack of the MXF file
-     * @return list of long integer values representing the byte offsets of the partitions in the MXF file
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<Long> getEssencePartitionOffsets(PayloadRecord randomIndexPackPayload, Long randomIndexPackSize) throws IOException {
-        if(randomIndexPackPayload.getPayload().length != randomIndexPackSize){
-            throw new IllegalArgumentException(String.format("RandomIndexPackSize passed in is = %d, RandomIndexPack payload size = %d, they should be equal", randomIndexPackSize, randomIndexPackPayload.getPayload().length));
-        }
-        RandomIndexPack randomIndexPack = new RandomIndexPack(new ByteArrayDataProvider(randomIndexPackPayload.getPayload()), 0L, randomIndexPackSize);
-        return randomIndexPack.getAllPartitionByteOffsets();
-    }
 
     /**
      * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
