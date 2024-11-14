@@ -38,7 +38,7 @@ public class J2KHeaderParametersTest {
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
 
-        CompositionImageEssenceDescriptorModel image = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModel(); // Calls 'J2KHeaderParameters.fromDOMNode(...)
+        CompositionImageEssenceDescriptorModel image = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModels().getFirst(); // Calls 'J2KHeaderParameters.fromDOMNode(...)
 
         J2KHeaderParameters fromMXF = J2KHeaderParameters.fromJPEG2000PictureSubDescriptorBO(jpeg2000PictureSubDescriptorBO);
         J2KHeaderParameters fromCPL = image.getJ2KHeaderParameters();

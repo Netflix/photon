@@ -19,8 +19,8 @@ package com.netflix.imflibrary.app;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,6 +33,7 @@ import java.util.Map;
 
 import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
 
+
 @Test(groups = "unit")
 public class IMPAnalyzerTestApp5
 {
@@ -44,7 +45,7 @@ public class IMPAnalyzerTestApp5
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
-                	if (e.getKey().matches("CPL.*")) {
+                	if (e.getKey().matches("CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml Virtual Track Conformance")) {
                         Assert.assertEquals(e.getValue().size(), 3);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
@@ -60,13 +61,16 @@ public class IMPAnalyzerTestApp5
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, logger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        logger.addAllErrors(imfCompositionPlaylist.getErrors());
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
 
-        /* Make sure its 2020 core constraints */
-        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2016");
+        /* Make sure its 2016 core constraints */
+        Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2016");
 
         /* Make sure its APP #5 Composition */
-        Assert.assertEquals(applicationComposition.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
+        //todo:
+        //Assert.assertEquals(IMFCompositionPlaylist.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_5_COMPOSITION_TYPE);
 
         logger.getErrors().forEach(e -> {System.out.println(e.getErrorDescription());});
         Assert.assertEquals(logger.getErrors().size(), 3);

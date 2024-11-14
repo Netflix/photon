@@ -16,7 +16,7 @@ public final class CoreConstraints
     public static final String NAMESPACE_IMF_2016 = "http://www.smpte-ra.org/schemas/2067-2/2016";
     public static final String NAMESPACE_IMF_2020 = "http://www.smpte-ra.org/ns/2067-2/2020";
 
-    static final List<String> SUPPORTED_NAMESPACES = Collections.unmodifiableList(Arrays.asList(
+    public static final List<String> SUPPORTED_NAMESPACES = Collections.unmodifiableList(Arrays.asList(
             NAMESPACE_IMF_2013, NAMESPACE_IMF_2016, NAMESPACE_IMF_2020));
 
     /**
@@ -40,18 +40,18 @@ public final class CoreConstraints
     {
         // NOTE- When adding new namespaces or core constraint versions, be sure that the most recent core constraints
         // are checked first. That way if there are multiple ApplicationIdentifications, the newest version is returned.
-        if (applicationIds.contains(Application2ExtendedComposition.SCHEMA_URI_APP2E_2020) || (applicationIds.contains(Application2E2021.APP_IDENTIFICATION)))
+        if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2020") || (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2021")))
         {
             return CoreConstraints.NAMESPACE_IMF_2020;
         }
-        else if (applicationIds.contains(Application5Composition.SCHEMA_URI_APP5_2017)
-                || applicationIds.contains(Application2ExtendedComposition.SCHEMA_URI_APP2E_2016)
-                || applicationIds.contains(Application2Composition.SCHEMA_URI_APP2_2016))
+        else if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-50/2017")
+                || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-20/2016")
+                || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-21/2016"))
         {
             return CoreConstraints.NAMESPACE_IMF_2016;
         }
-        else if (applicationIds.contains(Application2ExtendedComposition.SCHEMA_URI_APP2E_2014)
-                || applicationIds.contains(Application2Composition.SCHEMA_URI_APP2_2013))
+        else if (applicationIds.contains("http://www.smpte-ra.org/schemas/2067-20/2013")
+                || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-21/2014"))
         {
             return CoreConstraints.NAMESPACE_IMF_2013;
         }
