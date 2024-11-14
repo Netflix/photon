@@ -21,14 +21,7 @@ import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
 import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
-import com.netflix.imflibrary.utils.ByteArrayByteRangeProvider;
-import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.Utilities;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.validation.ConstraintsValidator;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
 import org.slf4j.Logger;
@@ -49,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A RESTful interface for validating an IMF Master Package.
@@ -354,24 +348,7 @@ public class IMPValidator {
 
 
 
-    /**
-     * A stateless method to retrieve all the VirtualTracks that are a part of a Composition
-     * @param cpl - a payload corresponding to the Composition Playlist
-     * @return list of VirtualTracks
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<? extends VirtualTrack> getVirtualTracks(PayloadRecord cpl) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()));
-        imfErrorLogger.addAllErrors(validateComposition(imfCompositionPlaylist));
-
-        if(imfErrorLogger.hasFatalErrors()) {
-            throw new IMFException("Virtual track failed validation", imfErrorLogger);
-        }
-
-        return imfCompositionPlaylist.getVirtualTracks();
-    }
 
     /**
      * A stateless method that can be used to determine if a Virtual Track in a Composition is conformant. Conformance checks
@@ -477,8 +454,9 @@ public class IMPValidator {
                 return imfErrorLogger.getErrors();
             }
 
-            imfErrorLogger.addAllErrors(imfCompositionPlaylist.conformVirtualTracksInComposition(Collections.unmodifiableList
-                    (headerPartitionTuples), conformAllVirtualTracks));
+            imfErrorLogger.addAllErrors(conformVirtualTracksInComposition(imfCompositionPlaylist,
+                                                                Collections.unmodifiableList(headerPartitionTuples),
+                                                                conformAllVirtualTracks));
 
             imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         }
@@ -491,108 +469,170 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that determines if 2 or more Composition documents corresponding to the same title can be inferred to
-     * represent the same presentation timeline. This method is present to work around current limitations in the IMF eco system
-     * wherein CPL's might not be built incrementally to include all the IMF essences that are a part of the same timeline
-     * @param referenceCPLPayloadRecord - a payload record corresponding to a Reference Composition document, perhaps the first
-     *                                  composition playlist document that was delivered for a particular composition.
-     * @param cplPayloads - a list of payload records corresponding to each of the Composition documents
-     *                          that need to be verified for mergeability
-     * @return a boolean indicating if the CPLs can be merged or not
-     * @throws IOException - any I/O related error is exposed through an IOException
+     * This method can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
+     * resources referenced by the Composition.
+     *
+     * @param headerPartitionTuples        list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
+     * @param conformAllVirtualTracksInCpl a boolean that turns on/off conforming all the VirtualTracks in the Composition
+     * @return boolean to indicate of the Composition is conformant or not
+     * @throws IOException        - any I/O related error is exposed through an IOException.
      */
-    public static List<ErrorLogger.ErrorObject> isCPLMergeable(PayloadRecord referenceCPLPayloadRecord, List<PayloadRecord> cplPayloads) throws IOException {
-
+    public static List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                                  List<Composition.HeaderPartitionTuple> headerPartitionTuples,
+                                                                                  boolean conformAllVirtualTracksInCpl) throws IOException {
+        /*
+         * The algorithm for conformance checking a Composition (CPL) would be
+         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list (EDL) is referenced through its id element if conformAllVirtualTracks is enabled
+         * by at least one TrackFileResource within the Virtual tracks in the Composition (see section 6.1.10 of SMPTE st2067-3:2-13).
+         * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
+         * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
+         * the physical essence files referenced by the resources of a virtual track and are equal.
+         */
+        /*The following check simultaneously verifies 1) and 2) from above.*/
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> cplPayloadRecords = Collections.unmodifiableList(cplPayloads);
-        List<IMFCompositionPlaylist> imfCompositionPlaylists = new ArrayList<>();
-        try
-        {
-            IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()));
-            imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-            if (imfErrorLogger.hasFatalErrors()) {
-                return imfErrorLogger.getErrors();
-            }
+        Set<UUID> resourceEssenceDescriptorIDsSet = imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet();
+        Set<UUID> cplEssenceDescriptorIDsSet = imfCompositionPlaylist.getEssenceDescriptorIdsSet();
+        Iterator cplEssenceDescriptorIDs = cplEssenceDescriptorIDsSet.iterator();
 
-            imfCompositionPlaylists.add(imfCompositionPlaylist);
+
+        /**
+         * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
+         * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
+         */
+        if (conformAllVirtualTracksInCpl) {
+            while (cplEssenceDescriptorIDs.hasNext()) {
+                UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
+                if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
+                    //Section 6.1.10.1 st2067-3:2013
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptorID %s in the CPL " +
+                            "EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this is invalid.", cplEssenceDescriptorUUID.toString()));
+                }
+            }
+        }
+
+        if (imfErrorLogger.hasFatalErrors()) {
+            return imfErrorLogger.getErrors();
+        }
+
+        Map essenceDescriptorMap = null;
+        Map resourceEssenceDescriptorMap = null;
+        /*The following check verifies 3) from above.*/
+        try {
+            essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
         }
         catch(IMFException e)
         {
             imfErrorLogger.addAllErrors(e.getErrors());
         }
 
-        for (PayloadRecord cpl : cplPayloadRecords) {
-            try
-            {
-                IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()));
-                imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-                if (imfErrorLogger.hasFatalErrors()) {
-                    return imfErrorLogger.getErrors();
-                }
-
-                imfCompositionPlaylists.add(imfCompositionPlaylist);
-            }
-            catch(IMFException e)
-            {
-                imfErrorLogger.addAllErrors(e.getErrors());
-            }
+        try {
+            resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
         }
 
-        if(imfErrorLogger.hasFatalErrors()) {
+        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors())
+        {
             return imfErrorLogger.getErrors();
         }
 
-        VirtualTrack referenceVideoVirtualTrack = imfCompositionPlaylists.get(0).getVideoVirtualTrack();
-        UUID referenceCPLUUID = imfCompositionPlaylists.get(0).getUUID();
-        for (int i = 1; i < imfCompositionPlaylists.size(); i++) {
-            if (!referenceVideoVirtualTrack.equivalent(imfCompositionPlaylists.get(i).getVideoVirtualTrack())) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the video virtual tracks do not seem to represent the same timeline.", imfCompositionPlaylists.get(i).getUUID(), referenceCPLUUID));
-            }
-        }
+        imfErrorLogger.addAllErrors(conformEssenceDescriptors(resourceEssenceDescriptorMap, essenceDescriptorMap));
+        return imfErrorLogger.getErrors();
+    }
+
+    private static List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap) {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         /**
-         * Perform AudioTrack mergeability checks
-         * 1) Identify AudioTracks that are the same language
-         * 2) Compare language tracks to see if they represent the same timeline
+         * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
+         * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
+         * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
          */
-        Boolean bAudioVirtualTrackMapFail = false;
-        List<Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack>> audioVirtualTracksMapList = new ArrayList<>();
-        for (IMFCompositionPlaylist imfCompositionPlaylist : imfCompositionPlaylists) {
-            try {
-                audioVirtualTracksMapList.add(imfCompositionPlaylist.getAudioVirtualTracksMap());
-            }
-            catch(IMFException e)
-            {
-                bAudioVirtualTrackMapFail = false;
-                imfErrorLogger.addAllErrors(e.getErrors());
+
+        /**
+         * The Maps passed in have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
+         * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
+         */
+
+        /**
+         * The following check ensures that we do not have a Track Resource that does not have a corresponding EssenceDescriptor element in the CPL's EDL
+         */
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> essenceDescriptorsMapIterator = essenceDescriptorsMap.entrySet().iterator();
+        while (essenceDescriptorsMapIterator.hasNext()) {
+            UUID sourceEncodingElement = essenceDescriptorsMapIterator.next().getKey();
+            if (!eDLMap.keySet().contains(sourceEncodingElement)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
+                        "Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
             }
         }
+        Set<String> ignoreSet = new HashSet<String>();
+        //ignoreSet.add("InstanceUID");
+        //ignoreSet.add("InstanceID");
+        //ignoreSet.add("EssenceLength");
+        //ignoreSet.add("AlternativeCenterCuts");
+        //ignoreSet.add("GroupOfSoundfieldGroupsLinkID");
 
+        // PHDRMetadataTrackSubDescriptor is not present in SMPTE registries and cannot be serialized
+        // todo:
+        ignoreSet.add("PHDRMetadataTrackSubDescriptor");
 
-        if(!bAudioVirtualTrackMapFail) {
-            Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> referenceAudioVirtualTracksMap = audioVirtualTracksMapList.get(0);
-            for (int i = 1; i < audioVirtualTracksMapList.size(); i++) {
-                if (!compareAudioVirtualTrackMaps(Collections.unmodifiableMap(referenceAudioVirtualTracksMap), Collections.unmodifiableMap(audioVirtualTracksMapList.get(i)), imfErrorLogger)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since 2 same language audio tracks do not seem to represent the same timeline.", imfCompositionPlaylists.get(i).getUUID(), referenceCPLUUID));
+        /**
+         * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
+         */
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = essenceDescriptorsMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
+            List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
+            DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
+            if (referenceDOMNodeObjectModel == null) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
+                        "Element %s in a track does not have a corresponding entry in the CPL's Essence Descriptor List.", entry.getKey().toString()));
+            }
+            else {
+                referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(eDLMap.get(entry.getKey()), ignoreSet);
+                boolean intermediateResult = false;
+
+                List<DOMNodeObjectModel> domNodeObjectModelsIgnoreSet = new ArrayList<>();
+                for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
+                    domNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(domNodeObjectModel, ignoreSet);
+                    domNodeObjectModelsIgnoreSet.add(domNodeObjectModel);
+                    intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
                 }
-            }
-        }
+                if (!intermediateResult) {
+                    DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(referenceDOMNodeObjectModel, domNodeObjectModelsIgnoreSet);
+                    imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(referenceDOMNodeObjectModel, matchingDOMNodeObjectModel));
 
-        /**
-         * Perform MarkerTrack mergeability checks
-         */
-        Composition.VirtualTrack referenceMarkerVirtualTrack = imfCompositionPlaylists.get(0).getMarkerVirtualTrack();
-        if (referenceMarkerVirtualTrack != null) {
-            UUID referenceMarkerCPLUUID = imfCompositionPlaylists.get(0).getUUID();
-            for (int i = 1; i < imfCompositionPlaylists.size(); i++) {
-                if (!referenceMarkerVirtualTrack.equivalent(imfCompositionPlaylists.get(i).getMarkerVirtualTrack())) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("CPL Id %s can't be merged with Reference CPL Id %s, since the marker virtual tracks do not seem to represent the same timeline.", imfCompositionPlaylists.get(i).getUUID(), referenceMarkerCPLUUID));
+                    String domNodeName = referenceDOMNodeObjectModel.getLocalName();
+                    List<DOMNodeObjectModel> domNodeObjectModelList = domNodeObjectModelsIgnoreSet.stream().filter( e -> e.getLocalName().equals(domNodeName)).collect(Collectors.toList());
+                    if(domNodeObjectModelList.size() != 0)
+                    {
+                        DOMNodeObjectModel diffCPLEssenceDescriptor = referenceDOMNodeObjectModel.removeNodes(domNodeObjectModelList.get(0));
+                        DOMNodeObjectModel diffTrackFileEssenceDescriptor = domNodeObjectModelList.get(0).removeNodes(referenceDOMNodeObjectModel);
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
+                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
+                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList with mismatching fields is as follows %n%s, %n%nEssenceDescriptor found in the " +
+                                        "TrackFile resource with mismatching fields is as follows %n%s%n%n",
+                                entry.getKey().toString(), diffCPLEssenceDescriptor.toString(), diffTrackFileEssenceDescriptor.toString()));
+                    }
+                    else {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
+                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
+                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList is as follows %n%s, %n%nEssenceDescriptors found in the TrackFile resource %n%s%n%n",
+                                entry.getKey().toString(), referenceDOMNodeObjectModel.toString(), Utilities.serializeObjectCollectionToString(domNodeObjectModelsIgnoreSet)));
+                    }
                 }
             }
         }
 
         return imfErrorLogger.getErrors();
     }
+
+
+
+
 
     /* IMF essence related inspection calls*/
 
@@ -686,66 +726,8 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-    /**
-     * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
-     * @param essencesHeaderPartition - a list of payloads corresponding to the Header Partitions of TrackFiles that are a part of an Audio VirtualTrack
-     * @param audioVirtualTrack - the audio virtual track whose spoken language needs to be ascertained
-     * @return string corresponding to the RFC-5646 language tag present in the header partition of the Audio Essence
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    @Nullable
-    public static String getAudioTrackSpokenLanguage(VirtualTrack audioVirtualTrack, List<PayloadRecord> essencesHeaderPartition) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        if(audioVirtualTrack.getSequenceTypeEnum() != Composition.SequenceTypeEnum.MainAudioSequence){
-            throw new IMFException(String.format("Virtual track that was passed in is of type %s, spoken language is " +
-                    "currently supported for only %s tracks", audioVirtualTrack.getSequenceTypeEnum().toString(),
-                    Composition.SequenceTypeEnum.MainAudioSequence.toString()));
-        }
-        List<VirtualTrack> virtualTracks = new ArrayList<>();
-        virtualTracks.add(audioVirtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartition));
-        if(imfErrorLogger.hasFatalErrors()){
-            throw new IMFException(String.format("Fatal Errors were detected when trying to verify the Virtual Track and Essence Header Partition payloads %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors())));
-        }
-        Set<String> audioLanguageSet = new HashSet<>();
-        for (PayloadRecord payloadRecord : essencesHeaderPartition){
-            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s",
-                        payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString
-                                ()), imfErrorLogger);
-            }
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                0L,
-                (long) payloadRecord.getPayload().length,
-                imfErrorLogger);
-            audioLanguageSet.add(headerPartition.getAudioEssenceSpokenLanguage());
-        }
 
-        if(audioLanguageSet.size() > 1){
-            throw new IMFException(String.format("It seems that RFC-5646 spoken language is not consistent across " +
-                    "resources of this Audio Virtual Track, found references to %s languages in the HeaderPartition",
-                    Utilities.serializeObjectCollectionToString(audioLanguageSet)), imfErrorLogger);
-        }
-        return audioLanguageSet.iterator().next();
-    }
-
-    private static boolean compareAudioVirtualTrackMaps(Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map1, Map<Set<DOMNodeObjectModel>, ? extends VirtualTrack> map2, IMFErrorLogger imfErrorLogger){
-        boolean result = true;
-        Iterator refIterator = map1.entrySet().iterator();
-        while(refIterator.hasNext()){
-            Map.Entry<Set<DOMNodeObjectModel>, VirtualTrack> entry = (Map.Entry<Set<DOMNodeObjectModel>, VirtualTrack>) refIterator.next();
-            VirtualTrack refVirtualTrack = entry.getValue();
-            VirtualTrack otherVirtualTrack = map2.get(entry.getKey());
-            if(otherVirtualTrack != null){//If we identified an audio virtual track with the same essence description we can compare, else no point comparing hence the default result = true.
-                result &= refVirtualTrack.equivalent(otherVirtualTrack);
-            }
-        }
-        return result;
-    }
-
-    private static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack>
-                                                                                               virtualTracks,
+    public static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack> virtualTracks,
                                                                                List<PayloadRecord> essencesHeaderPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Set<UUID> trackFileIDsSet = new HashSet<>();

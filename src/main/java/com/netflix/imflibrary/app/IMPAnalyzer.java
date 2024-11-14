@@ -16,12 +16,10 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_203.IMFMGASADMConstraintsChecker;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.*;
+import com.netflix.imflibrary.validation.ConstraintsValidator;
+import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,34 +73,6 @@ public class IMPAnalyzer {
     }
 
 
-    private static Boolean isVirtualTrackComplete(IMFEssenceComponentVirtualTrack virtualTrack, Set<UUID> trackFileIDsSet) throws IOException {
-
-        for (UUID uuid : virtualTrack.getTrackResourceIds()) {
-            if (!trackFileIDsSet.contains(uuid)) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    private static Boolean isCompositionComplete(ApplicationComposition applicationComposition, Set<UUID> trackFileIDsSet, IMFErrorLogger imfErrorLogger) throws IOException {
-        boolean bComplete = true;
-        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
-            for (UUID uuid : virtualTrack.getTrackResourceIds()) {
-                if (!trackFileIDsSet.contains(uuid)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes
-                            .IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                            String.format("CPL resource %s is not present in the package", uuid.toString()));
-                    bComplete &= false;
-                }
-            }
-        }
-
-        return bComplete;
-
-    }
 
     @Nullable
     private static PayloadRecord getHeaderPartitionPayloadRecord(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
@@ -339,8 +309,25 @@ public class IMPAnalyzer {
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\" (i.e. PKL does not contain any CPL/OPL files).", PackingList.Asset.TEXT_XML_TYPE));
                         }
 
-                        List<ApplicationComposition> applicationCompositionList = analyzeApplicationCompositions( rootPath, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
-                        analyzeOutputProfileLists( rootPath, assetMap, packingList, applicationCompositionList, packingListErrorLogger, errorMap);
+                        List<IMFCompositionPlaylist> imfCompositionPlaylistList = analyzeApplicationCompositions( rootPath, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
+                        analyzeOutputProfileLists( rootPath, assetMap, packingList, imfCompositionPlaylistList, packingListErrorLogger, errorMap);
+
+                        //validate all CPLs individually
+                        imfCompositionPlaylistList.forEach(imfCompositionPlaylist -> {
+
+                            URI path = assetMap.getPath(imfCompositionPlaylist.getUUID());
+                            try {
+                                List<ErrorLogger.ErrorObject> cplErrors = IMPValidator.validateComposition(imfCompositionPlaylist);
+                                errorMap.put(path.toString() + " " + CONFORMANCE_LOGGER_PREFIX, cplErrors);
+
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+
+
+                        });
+
+
 
                     } catch (IMFException e) {
                         packingListErrorLogger.addAllErrors(e.getErrors());
@@ -390,7 +377,7 @@ public class IMPAnalyzer {
     public static List<OutputProfileList> analyzeOutputProfileLists(Path rootPath,
                                                                     AssetMap assetMap,
                                                                     PackingList packingList,
-                                                                    List<ApplicationComposition> applicationCompositionList,
+                                                                    List<IMFCompositionPlaylist> IMFCompositionPlaylistList,
                                                                     IMFErrorLogger packingListErrorLogger,
                                                                     Map<String, List<ErrorLogger.ErrorObject>> errorMap) throws IOException {
 
@@ -428,7 +415,7 @@ public class IMPAnalyzer {
                         }
                         outputProfileListTypeList.add(outputProfileListType);
 
-                        Optional<ApplicationComposition> optional = applicationCompositionList.stream().filter(e -> e.getUUID().equals(outputProfileListType.getCompositionPlaylistId())).findAny();
+                        Optional<IMFCompositionPlaylist> optional = IMFCompositionPlaylistList.stream().filter(e -> e.getUUID().equals(outputProfileListType.getCompositionPlaylistId())).findAny();
                         if (!optional.isPresent()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_OPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Failed to get application composition with ID = %s for OutputProfileList with ID %s",
@@ -450,14 +437,15 @@ public class IMPAnalyzer {
    }
 
 
-    public static List<ApplicationComposition> analyzeApplicationCompositions( Path rootFile,
-                                                  AssetMap assetMap,
-                                                  PackingList packingList,
-                                                  List<PayloadRecord> headerPartitionPayloadRecords,
-                                                  IMFErrorLogger packingListErrorLogger,
-                                                  Map<String, List<ErrorLogger.ErrorObject>> errorMap,
-                                                  Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap) throws IOException {
-        List<ApplicationComposition> applicationCompositionList = new ArrayList<>();
+
+    public static List<IMFCompositionPlaylist> analyzeApplicationCompositions(Path rootFile,
+                                                                              AssetMap assetMap,
+                                                                              PackingList packingList,
+                                                                              List<PayloadRecord> headerPartitionPayloadRecords,
+                                                                              IMFErrorLogger packingListErrorLogger,
+                                                                              Map<String, List<ErrorLogger.ErrorObject>> errorMap,
+                                                                              Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap) throws IOException {
+        List<IMFCompositionPlaylist> IMFCompositionPlaylistList = new ArrayList<>();
         
         for (PackingList.Asset asset : packingList.getAssets()) {
             if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
@@ -468,7 +456,7 @@ public class IMPAnalyzer {
                     continue;
                 }
 
-                Path assetPath = rootFile.resolve(assetMap.getPath(asset.getUUID()).toString());
+                Path assetPath = rootFile.resolve(path.toString());
                 if (!Files.isRegularFile(assetPath)) {
                     packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
@@ -476,35 +464,30 @@ public class IMPAnalyzer {
                 }
 
                 ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(assetPath);
-                if (ApplicationComposition.isCompositionPlaylist(resourceByteRangeProvider)) {
+                if (IMFCompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)) {
                     IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
                     IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
                     PayloadRecord cplPayloadRecord = new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1),
                             PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
 
                     try {
-                        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(resourceByteRangeProvider, compositionErrorLogger);
-                        if (applicationComposition == null) {
+                        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
+                        compositionErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+                        if (compositionErrorLogger.hasFatalErrors()) {
                             continue;
                         }
-                        if (!applicationComposition.getUUID().equals(asset.getUUID())) {
+                        if (!imfCompositionPlaylist.getUUID().equals(asset.getUUID())) {
                             // ST 2067-2:2016   7.3.1: The value of the Id element shall be extracted from the asset as specified in Table 19 for the CPL asset
                             compositionErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the CPL is not same as UUID %s of the CPL in the AssetMap", applicationComposition.getUUID().toString(), asset.getUUID().toString()));
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the CPL is not same as UUID %s of the CPL in the AssetMap", imfCompositionPlaylist.getUUID().toString(), asset.getUUID().toString()));
                         }
-                        applicationCompositionList.add(applicationComposition);
+                        IMFCompositionPlaylistList.add(imfCompositionPlaylist);
                         Set<UUID> trackFileIDsSet = trackFileIDToHeaderPartitionPayLoadMap
                                 .keySet();
 
-                        // ST 2067-203 MGASADMVirtualTrackParameterSet checks
-                        List<ErrorLogger.ErrorObject> errors = IMFMGASADMConstraintsChecker.checkMGASADMVirtualTrackParameterSet(applicationComposition);
-                        // Report MGASADMVirtualTrackParameterSet as both CPL and Virtual Track errors
-                        compositionConformanceErrorLogger.addAllErrors(errors);
-                        compositionErrorLogger.addAllErrors(errors);
-
                         try {
-                            if (!isCompositionComplete(applicationComposition, trackFileIDsSet, compositionConformanceErrorLogger)) {
-                                for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
+                            if (!IMFCompositionPlaylistUtils.isCompositionComplete(imfCompositionPlaylist, trackFileIDsSet, compositionConformanceErrorLogger)) {
+                                for (IMFEssenceComponentVirtualTrack virtualTrack : imfCompositionPlaylist.getEssenceVirtualTracks()) {
                                     Set<UUID> trackFileIds = virtualTrack.getTrackResourceIds();
                                     List<PayloadRecord> trackHeaderPartitionPayloads = new ArrayList<>();
                                     for (UUID trackFileId : trackFileIds) {
@@ -513,14 +496,14 @@ public class IMPAnalyzer {
                                                     (trackFileIDToHeaderPartitionPayLoadMap.get(trackFileId));
                                     }
 
-                                    if (isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
+                                    if (IMFCompositionPlaylistUtils.isVirtualTrackComplete(virtualTrack, trackFileIDsSet)) {
                                         compositionConformanceErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, trackHeaderPartitionPayloads));
                                     } else if (trackHeaderPartitionPayloads.size() != 0) {
                                         compositionConformanceErrorLogger.addAllErrors(IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, trackHeaderPartitionPayloads, false));
                                     }
                                 }
                             } else {
-                                List<PayloadRecord> cplHeaderPartitionPayloads = applicationComposition.getEssenceVirtualTracks()
+                                List<PayloadRecord> cplHeaderPartitionPayloads = imfCompositionPlaylist.getEssenceVirtualTracks()
                                         .stream()
                                         .map(IMFEssenceComponentVirtualTrack::getTrackResourceIds)
                                         .flatMap(Set::stream)
@@ -542,7 +525,7 @@ public class IMPAnalyzer {
             }
         }
 
-        return applicationCompositionList;
+        return IMFCompositionPlaylistList;
     }
 
 

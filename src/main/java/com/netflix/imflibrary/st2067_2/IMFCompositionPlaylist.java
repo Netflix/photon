@@ -818,82 +818,8 @@ public class IMFCompositionPlaylist {
         return Collections.unmodifiableMap(audioVirtualTrackMap);
     }
 
-    /**
-     * This method can be used to determine if a Composition is conformant. Conformance checks
-     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
-     * resources referenced by the Composition.
-     *
-     * @param headerPartitionTuples        list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
-     * @param conformAllVirtualTracksInCpl a boolean that turns on/off conforming all the VirtualTracks in the Composition
-     * @return boolean to indicate of the Composition is conformant or not
-     * @throws IOException        - any I/O related error is exposed through an IOException.
-     */
-    public List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(List<Composition.HeaderPartitionTuple>
-                                                                                   headerPartitionTuples,
-                                                                           boolean conformAllVirtualTracksInCpl) throws IOException {
-        /*
-         * The algorithm for conformance checking a Composition (CPL) would be
-         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list (EDL) is referenced through its id element if conformAllVirtualTracks is enabled
-         * by at least one TrackFileResource within the Virtual tracks in the Composition (see section 6.1.10 of SMPTE st2067-3:2-13).
-         * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
-         * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
-         * the physical essence files referenced by the resources of a virtual track and are equal.
-         */
-        /*The following check simultaneously verifies 1) and 2) from above.*/
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Set<UUID> resourceEssenceDescriptorIDsSet = getResourceEssenceDescriptorIdsSet();
-        Set<UUID> cplEssenceDescriptorIDsSet = getEssenceDescriptorIdsSet();
-        Iterator cplEssenceDescriptorIDs = cplEssenceDescriptorIDsSet.iterator();
 
-
-        /**
-         * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
-         * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
-         */
-        if (conformAllVirtualTracksInCpl) {
-            while (cplEssenceDescriptorIDs.hasNext()) {
-                UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
-                if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
-                    //Section 6.1.10.1 st2067-3:2013
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptorID %s in the CPL " +
-                            "EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this is invalid.", cplEssenceDescriptorUUID.toString()));
-                }
-            }
-        }
-
-        if (imfErrorLogger.hasFatalErrors()) {
-            return imfErrorLogger.getErrors();
-        }
-
-        Map essenceDescriptorMap = null;
-        Map resourceEssenceDescriptorMap = null;
-        /*The following check verifies 3) from above.*/
-        try {
-            essenceDescriptorMap = this.getEssenceDescriptorListMap();
-        }
-        catch(IMFException e)
-        {
-            this.imfErrorLogger.addAllErrors(e.getErrors());
-        }
-
-        try {
-            resourceEssenceDescriptorMap = this.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
-        }
-        catch(IMFException e)
-        {
-            this.imfErrorLogger.addAllErrors(e.getErrors());
-        }
-
-        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors())
-        {
-            return imfErrorLogger.getErrors();
-        }
-
-        imfErrorLogger.addAllErrors(conformEssenceDescriptors(resourceEssenceDescriptorMap, essenceDescriptorMap));
-        return imfErrorLogger.getErrors();
-    }
-
-    private Set<UUID> getEssenceDescriptorIdsSet() {
+    public Set<UUID> getEssenceDescriptorIdsSet() {
         HashSet<UUID> essenceDescriptorIdsSet = new LinkedHashSet<>();
         if (getEssenceDescriptorList() != null) {
             List<IMFEssenceDescriptorBaseType> essenceDescriptorList = getEssenceDescriptorList();
@@ -907,7 +833,7 @@ public class IMFCompositionPlaylist {
     }
 
 
-    private Set<UUID> getResourceEssenceDescriptorIdsSet() {
+    public Set<UUID> getResourceEssenceDescriptorIdsSet() {
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>(this.getVirtualTrackMap().values());
         LinkedHashSet<UUID> resourceSourceEncodingElementsSet = new LinkedHashSet<>();
         for (Composition.VirtualTrack virtualTrack : virtualTracks) {
@@ -928,7 +854,7 @@ public class IMFCompositionPlaylist {
         return resourceIdTupleList;
     }
 
-    private Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition
+    public Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition
             .HeaderPartitionTuple> headerPartitionTuples) throws IOException {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
         Map<UUID, List<DOMNodeObjectModel>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
@@ -1079,92 +1005,6 @@ public class IMFCompositionPlaylist {
         return byteProvider;
     }
 
-    private List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap) {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
-        /**
-         * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
-         * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
-         * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
-         */
-
-        /**
-         * The Maps passed in have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
-         * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
-         */
-
-        /**
-         * The following check ensures that we do not have a Track Resource that does not have a corresponding EssenceDescriptor element in the CPL's EDL
-         */
-        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> essenceDescriptorsMapIterator = essenceDescriptorsMap.entrySet().iterator();
-        while (essenceDescriptorsMapIterator.hasNext()) {
-            UUID sourceEncodingElement = essenceDescriptorsMapIterator.next().getKey();
-            if (!eDLMap.keySet().contains(sourceEncodingElement)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
-                        "Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
-            }
-        }
-        Set<String> ignoreSet = new HashSet<String>();
-        //ignoreSet.add("InstanceUID");
-        //ignoreSet.add("InstanceID");
-        //ignoreSet.add("EssenceLength");
-        //ignoreSet.add("AlternativeCenterCuts");
-        //ignoreSet.add("GroupOfSoundfieldGroupsLinkID");
-
-        // PHDRMetadataTrackSubDescriptor is not present in SMPTE registries and cannot be serialized
-        // todo:
-        ignoreSet.add("PHDRMetadataTrackSubDescriptor");
-
-        /**
-         * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
-         */
-        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = essenceDescriptorsMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
-            List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
-            DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
-            if (referenceDOMNodeObjectModel == null) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
-                        "Element %s in a track does not have a corresponding entry in the CPL's Essence Descriptor List.", entry.getKey().toString()));
-            }
-            else {
-                referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(eDLMap.get(entry.getKey()), ignoreSet);
-                boolean intermediateResult = false;
-
-                List<DOMNodeObjectModel> domNodeObjectModelsIgnoreSet = new ArrayList<>();
-                for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
-                    domNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(domNodeObjectModel, ignoreSet);
-                    domNodeObjectModelsIgnoreSet.add(domNodeObjectModel);
-                    intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
-                }
-                if (!intermediateResult) {
-                    DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(referenceDOMNodeObjectModel, domNodeObjectModelsIgnoreSet);
-                    imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(referenceDOMNodeObjectModel, matchingDOMNodeObjectModel));
-
-                    String domNodeName = referenceDOMNodeObjectModel.getLocalName();
-                    List<DOMNodeObjectModel> domNodeObjectModelList = domNodeObjectModelsIgnoreSet.stream().filter( e -> e.getLocalName().equals(domNodeName)).collect(Collectors.toList());
-                    if(domNodeObjectModelList.size() != 0)
-                    {
-                        DOMNodeObjectModel diffCPLEssenceDescriptor = referenceDOMNodeObjectModel.removeNodes(domNodeObjectModelList.get(0));
-                        DOMNodeObjectModel diffTrackFileEssenceDescriptor = domNodeObjectModelList.get(0).removeNodes(referenceDOMNodeObjectModel);
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
-                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
-                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList with mismatching fields is as follows %n%s, %n%nEssenceDescriptor found in the " +
-                                        "TrackFile resource with mismatching fields is as follows %n%s%n%n",
-                                entry.getKey().toString(), diffCPLEssenceDescriptor.toString(), diffTrackFileEssenceDescriptor.toString()));
-                    }
-                    else {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
-                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
-                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList is as follows %n%s, %n%nEssenceDescriptors found in the TrackFile resource %n%s%n%n",
-                                entry.getKey().toString(), referenceDOMNodeObjectModel.toString(), Utilities.serializeObjectCollectionToString(domNodeObjectModelsIgnoreSet)));
-                    }
-                }
-            }
-        }
-
-        return imfErrorLogger.getErrors();
-    }
 
     @Nonnull
     public List<CompositionImageEssenceDescriptorModel> getCompositionImageEssenceDescriptorModels() {
