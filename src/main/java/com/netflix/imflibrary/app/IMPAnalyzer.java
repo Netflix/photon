@@ -18,6 +18,7 @@ import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.*;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,45 +48,6 @@ public class IMPAnalyzer {
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
     private static final Logger logger = LoggerFactory.getLogger(IMPAnalyzer.class);
 
-    private static UUID getTrackFileId(PayloadRecord payloadRecord, IMFErrorLogger imfErrorLogger) throws
-            IOException {
-
-        if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(),
-                            PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-            return null;
-        }
-
-        HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                0L,
-                (long) payloadRecord.getPayload().length,
-                imfErrorLogger);
-
-        Preface preface = headerPartition.getPreface();
-        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-        SourcePackage filePackage = (SourcePackage) genericPackage;
-        UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-        return packageUUID;
-    }
-
-
-
-
-
-    private static List<ErrorLogger.ErrorObject> conformVirtualTrack(ResourceByteRangeProvider cplByteRangeProvider, Composition.VirtualTrack virtualTrack, List<PayloadRecord>
-            headerPartitionPayloadRecords) throws IOException {
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
-        byte[] bytes = cplByteRangeProvider.getByteRangeAsBytes(0, cplByteRangeProvider.getResourceSize() - 1);
-        PayloadRecord cplPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, cplByteRangeProvider.getResourceSize());
-
-        imfErrorLogger.addAllErrors(IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTrack, headerPartitionPayloadRecords));
-
-        return imfErrorLogger.getErrors();
-    }
 
     public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(Path rootPath) throws IOException {
 
@@ -100,7 +62,6 @@ public class IMPAnalyzer {
             return errorMap;
         }
 
-        List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
         try {
             BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootPath);
             imfErrorLogger.addAllErrors(mapProfileV2MappedFileSet.getErrors());
@@ -164,24 +125,35 @@ public class IMPAnalyzer {
                                     PayloadRecord headerPartitionPayloadRecord = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
                                     if (headerPartitionPayloadRecord == null) {
                                         trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                                                String.format("Failed to get header partition for %s", assetPath.toString()));
-                                    } else {
-                                        List<PayloadRecord> payloadRecords = new ArrayList<>();
-                                        payloadRecords.add(headerPartitionPayloadRecord);
-                                        trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
-                                        headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
-                                        UUID trackFileID = getTrackFileId(headerPartitionPayloadRecord, trackFileErrorLogger);
-                                        if(trackFileID != null) {
-                                            trackFileIDToHeaderPartitionPayLoadMap.put(trackFileID, headerPartitionPayloadRecord);
-                                            if (!trackFileID.equals(asset.getUUID())) {
-                                                // ST 2067-2:2016   7.3.1: The value of the Id element shall be extracted from the asset as specified in Table 19 for the track file asset
-                                                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
-                                                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the MXF file is not same as UUID %s of the MXF file in the AssetMap", trackFileID.toString(), asset.getUUID().toString()));
-                                            }
+                                                String.format("Failed to retrieve header partition for %s", assetPath.toString()));
+                                        continue;
+                                    }
+
+                                    // add header payload into UUID->Payload map
+                                    UUID trackFileID = MXFUtils.getTrackFileId(headerPartitionPayloadRecord, trackFileErrorLogger);
+                                    if (trackFileID != null) {
+                                        trackFileIDToHeaderPartitionPayLoadMap.put(trackFileID, headerPartitionPayloadRecord);
+                                        if (!trackFileID.equals(asset.getUUID())) {
+                                            // ST 2067-2:2016   7.3.1: The value of the Id element shall be extracted from the asset as specified in Table 19 for the track file asset
+                                            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the MXF file is not same as UUID %s of the MXF file in the AssetMap", trackFileID.toString(), asset.getUUID().toString()));
                                         }
                                     }
-                                    List<PayloadRecord>  payloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
-                                    trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(payloadRecords));
+
+                                    List<PayloadRecord> indexTablePartitionPayloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
+                                    if (indexTablePartitionPayloadRecords.isEmpty()) {
+                                        trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                                                String.format("Failed to retrieve index partition for %s", assetPath.toString()));
+                                        continue;
+                                    }
+
+
+                                    List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
+                                    headerPartitionPayloadRecords.add(headerPartitionPayloadRecord);
+
+                                    // run essence partition validation
+                                    trackFileErrorLogger.addAllErrors(IMPValidator.validateEssencePartitions(headerPartitionPayloadRecords, indexTablePartitionPayloadRecords));
+
                                 } catch( MXFException e) {
                                     trackFileErrorLogger.addAllErrors(e.getErrors());
                                 }
@@ -205,7 +177,7 @@ public class IMPAnalyzer {
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\" (i.e. PKL does not contain any CPL/OPL files).", PackingList.Asset.TEXT_XML_TYPE));
                         }
 
-                        List<IMFCompositionPlaylist> imfCompositionPlaylistList = analyzeApplicationCompositions( rootPath, assetMap, packingList, headerPartitionPayloadRecords, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
+                        List<IMFCompositionPlaylist> imfCompositionPlaylistList = analyzeApplicationCompositions( rootPath, assetMap, packingList, packingListErrorLogger, errorMap, trackFileIDToHeaderPartitionPayLoadMap);
                         analyzeOutputProfileLists( rootPath, assetMap, packingList, imfCompositionPlaylistList, packingListErrorLogger, errorMap);
 
                         //validate all CPLs individually
@@ -244,30 +216,6 @@ public class IMPAnalyzer {
         }
 
         return errorMap;
-    }
-
-    private static List<ErrorLogger.ErrorObject> validateEssencePartition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-
-        IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
-
-        PayloadRecord headerPartitionPayload = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
-        if(headerPartitionPayload == null) {
-            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Failed to get header partition"));
-        }
-        else {
-            headerPartitionPayloadRecords.add(headerPartitionPayload);
-            trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(headerPartitionPayloadRecords));
-        }
-
-        // Validate index table segments
-        List<PayloadRecord>  indexSegmentPayloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, trackFileErrorLogger);
-        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(indexSegmentPayloadRecords));
-
-        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexEditRate(headerPartitionPayloadRecords, indexSegmentPayloadRecords));
-
-        return trackFileErrorLogger.getErrors();
     }
 
     private static List<OutputProfileList> analyzeOutputProfileLists(Path rootPath,
@@ -337,7 +285,6 @@ public class IMPAnalyzer {
     private static List<IMFCompositionPlaylist> analyzeApplicationCompositions(Path rootFile,
                                                                               AssetMap assetMap,
                                                                               PackingList packingList,
-                                                                              List<PayloadRecord> headerPartitionPayloadRecords,
                                                                               IMFErrorLogger packingListErrorLogger,
                                                                               Map<String, List<ErrorLogger.ErrorObject>> errorMap,
                                                                               Map<UUID, PayloadRecord> trackFileIDToHeaderPartitionPayLoadMap) throws IOException {
@@ -441,17 +388,42 @@ public class IMPAnalyzer {
         if(fileName.lastIndexOf('.') > 0) {
             String extension = fileName.substring(fileName.lastIndexOf('.')+1);
             if(extension.equalsIgnoreCase("mxf")) {
-                errorLogger.addAllErrors(validateEssencePartition(resourceByteRangeProvider));
+
+                // input file is an MXF file
+
+                // retrieve header partition payload
+                // todo: evaluate partitions to ensure reading the complete/final header metadata
+                PayloadRecord headerPartitionPayload = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, errorLogger);
+                if (headerPartitionPayload == null) {
+                    errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("Failed to retrieve header partition"));
+                    return errorLogger.getErrors();
+                }
+
+                // retrieve index table partitions
+                List<PayloadRecord> indexSegmentPayloadRecords = MXFUtils.getIndexTablePartitionPayloadRecords(resourceByteRangeProvider, errorLogger);
+                if (indexSegmentPayloadRecords.isEmpty()) {
+                    errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("Failed to retrieve index partitions"));
+                    return errorLogger.getErrors();
+                }
+
+                List<PayloadRecord> headerPartitionPayloadRecords = new ArrayList<>();
+                headerPartitionPayloadRecords.add(headerPartitionPayload);
+
+                // validate essence partitions
+                errorLogger.addAllErrors(IMPValidator.validateEssencePartitions(headerPartitionPayloadRecords, indexSegmentPayloadRecords));
+
                 return errorLogger.getErrors();
             }
         }
+
+        // input file is not an MXF file
 
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.Unknown, 0L, resourceByteRangeProvider.getResourceSize());
         PayloadRecord.PayloadAssetType payloadAssetType = IMPValidator.getPayloadType(payloadRecord);
         payloadRecord = new PayloadRecord(bytes, payloadAssetType, 0L, resourceByteRangeProvider.getResourceSize());
-
-
 
         switch (payloadAssetType) {
             case PackingList:

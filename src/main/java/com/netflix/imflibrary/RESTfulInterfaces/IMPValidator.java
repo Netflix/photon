@@ -24,6 +24,7 @@ import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.validation.ConstraintsValidator;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -632,10 +633,38 @@ public class IMPValidator {
 
 
 
-
-
     /* IMF essence related inspection calls*/
 
+
+    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(@Nonnull List<PayloadRecord> headerPartitionPayloadRecords, @Nonnull List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
+
+        IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
+
+        if (headerPartitionPayloadRecords.isEmpty()) {
+            return trackFileErrorLogger.getErrors();
+        }
+
+        // validate header metadata based on header partition payloads
+        trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(headerPartitionPayloadRecords));
+
+        if (trackFileErrorLogger.hasFatalErrors())
+            return trackFileErrorLogger.getErrors();
+
+        // retrieve index table partitions
+        if (indexSegmentPayloadRecords.isEmpty()) {
+            return trackFileErrorLogger.getErrors();
+        }
+
+        // Validate index table segments
+        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(indexSegmentPayloadRecords));
+        if (trackFileErrorLogger.hasFatalErrors())
+            return trackFileErrorLogger.getErrors();
+
+        // validate index edit rate
+        trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexEditRate(headerPartitionPayloadRecords, indexSegmentPayloadRecords));
+
+        return trackFileErrorLogger.getErrors();
+    }
 
     /**
      * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
@@ -647,22 +676,22 @@ public class IMPValidator {
     public static List<ErrorLogger.ErrorObject> validateIMFTrackFileHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
-        for(PayloadRecord payloadRecord : essencesHeaderPartition){
-            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+
+        for (PayloadRecord payloadRecord : essencesHeaderPartition) {
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format
-                        ("Payload asset type is %s, expected asset type %s",
-                        payloadRecord
-                        .getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                continue;
+                        String.format("Payload asset type is %s, expected asset type %s",
+                                payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                return imfErrorLogger.getErrors();
             }
+
             HeaderPartition headerPartition = null;
             try {
                 headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long)payloadRecord.getPayload().length,
-                    imfErrorLogger);
+                        0L,
+                        (long)payloadRecord.getPayload().length,
+                        imfErrorLogger);
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
                 if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.IABEssence) {
@@ -690,6 +719,7 @@ public class IMPValidator {
                 }
             }
         }
+
         return imfErrorLogger.getErrors();
     }
 

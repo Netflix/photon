@@ -5,14 +5,19 @@ import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.RandomIndexPack;
+import com.netflix.imflibrary.st0377.header.GenericPackage;
+import com.netflix.imflibrary.st0377.header.Preface;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
 import jakarta.annotation.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MXFUtils {
 
@@ -152,5 +157,31 @@ public class MXFUtils {
         }
         return (long)(ByteBuffer.wrap(essenceFooter4Bytes.getPayload()).getInt());
     }
+
+
+    public static UUID getTrackFileId(PayloadRecord payloadRecord, IMFErrorLogger imfErrorLogger) throws
+            IOException {
+
+        if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(),
+                            PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+            return null;
+        }
+
+        HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                0L,
+                (long) payloadRecord.getPayload().length,
+                imfErrorLogger);
+
+        Preface preface = headerPartition.getPreface();
+        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        SourcePackage filePackage = (SourcePackage) genericPackage;
+        UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+        return packageUUID;
+    }
+
+
 
 }
