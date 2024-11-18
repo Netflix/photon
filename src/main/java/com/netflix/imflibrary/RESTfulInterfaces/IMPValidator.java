@@ -299,16 +299,10 @@ public class IMPValidator {
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(imfCompositionPlaylist));
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkSegments(imfCompositionPlaylist));
 
-        // this should go elsewhere?
-        if ((imfCompositionPlaylist.getEssenceDescriptors() == null) ||
-                (imfCompositionPlaylist.getEssenceDescriptors().size() < 1)) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ESSENCE_DESCRIPTOR_LIST_MISSING,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, "EssenceDescriptorList is either absent or empty.");
-        }
 
-                            /*
-                                run application/plugin-level validations, if implemented:
-                             */
+        /*
+            run application/plugin-level validations, if implemented:
+         */
 
         Set<String> appIds = imfCompositionPlaylist.getApplicationIdSet();
         appIds.forEach(namespace -> {
@@ -346,39 +340,6 @@ public class IMPValidator {
 
 
 
-
-
-
-
-
-    /**
-     * A stateless method that can be used to determine if a Virtual Track in a Composition is conformant. Conformance checks
-     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the Virtual Track
-     * @param cplPayloadRecord a payload record corresponding to the Composition payload
-     * @param virtualTrack that needs to be conformed in the Composition
-     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of
-     *                                        the Virtual Track to be conformed
-     * @return list of error messages encountered while performing conformance validation of the Composition document
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<ErrorLogger.ErrorObject> isVirtualTrackInCPLConformed(PayloadRecord cplPayloadRecord,
-                                                                             VirtualTrack virtualTrack,
-                                                                             List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException
-    {
-        List<VirtualTrack> virtualTracks = new ArrayList<>();
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        virtualTracks.add(virtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartitionPayloads));
-        if (imfErrorLogger.hasFatalErrors()){
-            return imfErrorLogger.getErrors();
-        }
-        imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads,
-                false));
-
-        return imfErrorLogger.getErrors();
-    }
-
     /**
      * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
@@ -388,42 +349,12 @@ public class IMPValidator {
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> areAllVirtualTracksInCPLConformed(
-            PayloadRecord cplPayloadRecord,
-            List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()));
-        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-
-        if (imfErrorLogger.hasFatalErrors()){
-            return imfErrorLogger.getErrors();
-        }
-
-        List<VirtualTrack> virtualTracks = new ArrayList<>(imfCompositionPlaylist.getVirtualTracks());
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartitionPayloads));
-        if(imfErrorLogger.hasFatalErrors()){
-            return imfErrorLogger.getErrors();
-        }
-        imfErrorLogger.addAllErrors(conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads,
-                true));
-
-        return imfErrorLogger.getErrors();
-    }
-
     public static List<ErrorLogger.ErrorObject> conformVirtualTracksInCPL(PayloadRecord cplPayloadRecord,
-        List<PayloadRecord> essencesHeaderPartitionPayloads,boolean conformAllVirtualTracks) throws IOException
+        List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException
     {
-
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
 
         try {
-            imfErrorLogger.addAllErrors(validateCPL(cplPayloadRecord));
-            if (imfErrorLogger.hasFatalErrors())
-                return Collections.unmodifiableList(imfErrorLogger.getErrors());
-
             IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cplPayloadRecord.getPayload()));
             imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
 
@@ -431,10 +362,62 @@ public class IMPValidator {
                 return imfErrorLogger.getErrors();
             }
 
-            imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
+            imfErrorLogger.addAllErrors(validateComposition(imfCompositionPlaylist));
+            if (imfErrorLogger.hasFatalErrors()) {
+                return imfErrorLogger.getErrors();
+            }
 
+            imfErrorLogger.addAllErrors(conformVirtualTracksInComposition(imfCompositionPlaylist, Collections.unmodifiableList(essencesHeaderPartitionPayloads)));
+        } catch(IMFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * This method can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
+     * resources referenced by the Composition.
+     *
+     * @param essencesHeaderPartitionPayloads        list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
+     * @return boolean to indicate of the Composition is conformant or not
+     * @throws IOException        - any I/O related error is exposed through an IOException.
+     */
+    public static List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                                   List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+        /*
+         * Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
+         * the physical essence files referenced by the resources of a virtual track and are equal.
+         */
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+
+        /**
+         * Check the header metadata for compliance.
+         */
+        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(Collections.unmodifiableList(essencesHeaderPartitionPayloads)));
+        if (imfErrorLogger.hasFatalErrors()) {
+            return imfErrorLogger.getErrors();
+        }
+
+        List<VirtualTrack> virtualTracks = new ArrayList<>(imfCompositionPlaylist.getVirtualTracks());
+        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartitionPayloads));
+
+        Map essenceDescriptorMap = null;
+        Map resourceEssenceDescriptorMap = null;
+        /*The following check verifies 3) from above.*/
+        try {
+            essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
+        }
+        catch(IMFException e)
+        {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+
+        try {
             List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
-            for (PayloadRecord payloadRecord : essencesHeaderPartition) {
+            for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
                 if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger
                             .IMFErrors.ErrorLevels.FATAL, String.format
@@ -451,83 +434,6 @@ public class IMPValidator {
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
 
-            if (imfErrorLogger.hasFatalErrors()) {
-                return imfErrorLogger.getErrors();
-            }
-
-            imfErrorLogger.addAllErrors(conformVirtualTracksInComposition(imfCompositionPlaylist,
-                                                                Collections.unmodifiableList(headerPartitionTuples),
-                                                                conformAllVirtualTracks));
-
-            imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        }
-        catch(IMFException e)
-        {
-            imfErrorLogger.addAllErrors(e.getErrors());
-        }
-
-        return imfErrorLogger.getErrors();
-    }
-
-    /**
-     * This method can be used to determine if a Composition is conformant. Conformance checks
-     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to the
-     * resources referenced by the Composition.
-     *
-     * @param headerPartitionTuples        list of HeaderPartitionTuples corresponding to the IMF essences referenced in the Composition
-     * @param conformAllVirtualTracksInCpl a boolean that turns on/off conforming all the VirtualTracks in the Composition
-     * @return boolean to indicate of the Composition is conformant or not
-     * @throws IOException        - any I/O related error is exposed through an IOException.
-     */
-    public static List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(IMFCompositionPlaylist imfCompositionPlaylist,
-                                                                                  List<Composition.HeaderPartitionTuple> headerPartitionTuples,
-                                                                                  boolean conformAllVirtualTracksInCpl) throws IOException {
-        /*
-         * The algorithm for conformance checking a Composition (CPL) would be
-         * 1) Verify that every EssenceDescriptor element in the EssenceDescriptor list (EDL) is referenced through its id element if conformAllVirtualTracks is enabled
-         * by at least one TrackFileResource within the Virtual tracks in the Composition (see section 6.1.10 of SMPTE st2067-3:2-13).
-         * 2) Verify that all track file resources within a virtual track have a corresponding essence descriptor in the essence descriptor list.
-         * 3) Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
-         * the physical essence files referenced by the resources of a virtual track and are equal.
-         */
-        /*The following check simultaneously verifies 1) and 2) from above.*/
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Set<UUID> resourceEssenceDescriptorIDsSet = imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet();
-        Set<UUID> cplEssenceDescriptorIDsSet = imfCompositionPlaylist.getEssenceDescriptorIdsSet();
-        Iterator cplEssenceDescriptorIDs = cplEssenceDescriptorIDsSet.iterator();
-
-
-        /**
-         * The following checks that at least one of the Virtual Tracks references an EssenceDescriptor in the EDL. This
-         * check should be performed only when we need to conform all the Virtual Tracks in the CPL.
-         */
-        if (conformAllVirtualTracksInCpl) {
-            while (cplEssenceDescriptorIDs.hasNext()) {
-                UUID cplEssenceDescriptorUUID = (UUID) cplEssenceDescriptorIDs.next();
-                if (!resourceEssenceDescriptorIDsSet.contains(cplEssenceDescriptorUUID)) {
-                    //Section 6.1.10.1 st2067-3:2013
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptorID %s in the CPL " +
-                            "EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL, this is invalid.", cplEssenceDescriptorUUID.toString()));
-                }
-            }
-        }
-
-        if (imfErrorLogger.hasFatalErrors()) {
-            return imfErrorLogger.getErrors();
-        }
-
-        Map essenceDescriptorMap = null;
-        Map resourceEssenceDescriptorMap = null;
-        /*The following check verifies 3) from above.*/
-        try {
-            essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
-        }
-        catch(IMFException e)
-        {
-            imfErrorLogger.addAllErrors(e.getErrors());
-        }
-
-        try {
             resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
         }
         catch(IMFException e)
@@ -558,17 +464,8 @@ public class IMPValidator {
          * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
          */
 
-        /**
-         * The following check ensures that we do not have a Track Resource that does not have a corresponding EssenceDescriptor element in the CPL's EDL
-         */
-        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> essenceDescriptorsMapIterator = essenceDescriptorsMap.entrySet().iterator();
-        while (essenceDescriptorsMapIterator.hasNext()) {
-            UUID sourceEncodingElement = essenceDescriptorsMapIterator.next().getKey();
-            if (!eDLMap.keySet().contains(sourceEncodingElement)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
-                        "Element %s in a track does not have a corresponding entry in the CPL's EDL.", sourceEncodingElement.toString()));
-            }
-        }
+
+
         Set<String> ignoreSet = new HashSet<String>();
         //ignoreSet.add("InstanceUID");
         //ignoreSet.add("InstanceID");
@@ -636,24 +533,15 @@ public class IMPValidator {
     /* IMF essence related inspection calls*/
 
 
-    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(@Nonnull List<PayloadRecord> headerPartitionPayloadRecords, @Nonnull List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> headerPartitionPayloadRecords, List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
-
-        if (headerPartitionPayloadRecords.isEmpty()) {
-            return trackFileErrorLogger.getErrors();
-        }
 
         // validate header metadata based on header partition payloads
         trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(headerPartitionPayloadRecords));
 
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
-
-        // retrieve index table partitions
-        if (indexSegmentPayloadRecords.isEmpty()) {
-            return trackFileErrorLogger.getErrors();
-        }
 
         // Validate index table segments
         trackFileErrorLogger.addAllErrors(IMPValidator.validateIndexTableSegments(indexSegmentPayloadRecords));
@@ -724,17 +612,18 @@ public class IMPValidator {
     }
 
 
-    public static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack> virtualTracks,
+    private static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack> virtualTracks,
                                                                                List<PayloadRecord> essencesHeaderPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Set<UUID> trackFileIDsSet = new HashSet<>();
 
+        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
+
+        if (imfErrorLogger.hasFatalErrors())
+            return imfErrorLogger.getErrors();
+
+        // collect track file ids to cross-check with virtual track references
         for (PayloadRecord payloadRecord : essencesHeaderPartition){
-            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                throw new IMFException(String.format("Payload asset type is %s, expected asset type %s",
-                        payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString
-                                ()), imfErrorLogger);
-            }
             HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                     0L,
                     (long) payloadRecord.getPayload().length,
@@ -744,35 +633,6 @@ public class IMPValidator {
             SourcePackage filePackage = (SourcePackage) genericPackage;
             UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
             trackFileIDsSet.add(packageUUID);
-
-            try {
-                /**
-                 * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-                 * are in fact from the constituent resources of the VirtualTack
-                 */
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
-                    IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-                }
-                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.MGASADMEssence)) {
-                    MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-                }
-            }
-            catch (IMFException | MXFException e){
-                if(headerPartition != null) {
-
-                }
-                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
-                if(e instanceof IMFException){
-                    IMFException imfException = (IMFException)e;
-                    imfErrorLogger.addAllErrors(imfException.getErrors());
-                }
-                else if(e instanceof MXFException){
-                    MXFException mxfException = (MXFException)e;
-                    imfErrorLogger.addAllErrors(mxfException.getErrors());
-                }
-            }
         }
 
         Set<UUID> virtualTrackResourceIDsSet = new HashSet<>();
