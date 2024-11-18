@@ -10,7 +10,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.PartitionPack;
-import com.netflix.imflibrary.st0377.RandomIndexPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
@@ -19,21 +18,16 @@ import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
-import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
-import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.validation.ConstraintsValidator;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
-import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import jakarta.annotation.Nullable;
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -349,8 +343,8 @@ public class IMPValidator {
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> conformVirtualTracksInComposition(IMFCompositionPlaylist imfCompositionPlaylist,
-                                                                                   List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateVirtualTrackConformance(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                                List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
         /*
          * Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
          * the physical essence files referenced by the resources of a virtual track and are equal.
