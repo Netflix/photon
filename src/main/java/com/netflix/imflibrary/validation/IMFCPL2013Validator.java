@@ -3,6 +3,7 @@ package com.netflix.imflibrary.validation;
 
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.JPEG2000;
 import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class IMFCPL2013Validator implements ConstraintsValidator {
+public class IMFCPL2013Validator extends IMFCPLValidator {
 
     private static final String applicationCompositionType = "IMF Composition Playlist 2013";
 
@@ -26,11 +27,15 @@ public class IMFCPL2013Validator implements ConstraintsValidator {
     }
 
     @Override
-    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(IMFCompositionPlaylist IMFCompositionPlaylist) {
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(IMFCompositionPlaylist imfCompositionPlaylist) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        imfErrorLogger.addAllErrors(validateCommonConstraints(imfCompositionPlaylist));
 
         // MARKER TRACK VALIDATION, CONTENT KIND VALUES, ETC
 
-        return List.of();
+        return imfErrorLogger.getErrors();
     }
 
     @Override
