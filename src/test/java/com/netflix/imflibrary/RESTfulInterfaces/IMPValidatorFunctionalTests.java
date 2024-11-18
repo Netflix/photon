@@ -259,7 +259,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         essencesHeaderPartition.add(payloadRecord);
 
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.areAllVirtualTracksInCPLConformed(cplPayloadRecord, essencesHeaderPartition);
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartition);
         Assert.assertEquals(errors.size(), 9);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
         Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL"));
@@ -274,19 +274,15 @@ public class IMPValidatorFunctionalTests {
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord cplPayloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
 
-        List<PayloadRecord> essencesHeaderPartition = new ArrayList<>();
         List<ErrorLogger.ErrorObject> errors = IMPValidator.validateCPL(cplPayloadRecord);//Validates the CPL.
-        Assert.assertEquals(errors.size(), 0);
-
-        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(resourceByteRangeProvider);
-        List<? extends Composition.VirtualTrack> virtualTracks = imfCompositionPlaylist.getVirtualTracks();
+        Assert.assertEquals(errors.size(), 1);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
-        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(2), payloadRecords);
+        errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         Assert.assertEquals(errors.size(), 4);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
@@ -294,7 +290,7 @@ public class IMPValidatorFunctionalTests {
         bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
-        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
+        errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         Assert.assertEquals(errors.size(), 4);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
@@ -302,7 +298,7 @@ public class IMPValidatorFunctionalTests {
         bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord0 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord0); }};
-        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
+        errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         Assert.assertEquals(errors.size(), 1);
     }
 
@@ -327,7 +323,7 @@ public class IMPValidatorFunctionalTests {
         bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
-        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(0), payloadRecords);
+        errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         Assert.assertEquals(errors.size(), 18);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
@@ -335,7 +331,7 @@ public class IMPValidatorFunctionalTests {
         bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
-        errors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, virtualTracks.get(1), payloadRecords);
+        errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         Assert.assertEquals(errors.size(), 4);
     }
 
@@ -437,7 +433,7 @@ public class IMPValidatorFunctionalTests {
         List<PayloadRecord> essencesHeaderPartitionPayloads = new ArrayList<>();
         essencesHeaderPartitionPayloads.add(headerPartition2PayloadRecord);
 
-        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.isVirtualTrackInCPLConformed(cplPayloadRecord, imfCompositionPlaylist.getVideoVirtualTrack(), essencesHeaderPartitionPayloads);
+        List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads);
         Assert.assertEquals(conformanceErrors.size(), 3);
     }
 
