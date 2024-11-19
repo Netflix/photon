@@ -29,14 +29,7 @@ import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -327,9 +320,7 @@ public class IMPValidator {
             }
         });
 
-
         return imfErrorLogger.getErrors();
-
     }
 
 
@@ -337,7 +328,7 @@ public class IMPValidator {
     /**
      * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
-     * Virtual Tracks that are a part of the Composition
+     * Virt ual Tracks that are apart of the Composition
      * @param imfCompositionPlaylist an IMFCompositionPlaylist object corresponding to the Composition
      * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
      * @return list of error messages encountered while performing conformance validation of the Composition document
@@ -345,92 +336,79 @@ public class IMPValidator {
      */
     public static List<ErrorLogger.ErrorObject> validateVirtualTrackConformance(IMFCompositionPlaylist imfCompositionPlaylist,
                                                                                 List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
-        /*
-         * Verify that the EssenceDescriptors in the EssenceDescriptorList element in the Composition are present in
-         * the physical essence files referenced by the resources of a virtual track and are equal.
-         */
+
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-
-        /**
-         * Check the header metadata for compliance.
+        /*
+         * Verify that the EssenceDescriptors are valid before attempting to parse them.
          */
-        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(Collections.unmodifiableList(essencesHeaderPartitionPayloads)));
-        if (imfErrorLogger.hasFatalErrors()) {
+        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartitionPayloads));
+        if (imfErrorLogger.hasFatalErrors())
             return imfErrorLogger.getErrors();
-        }
 
-        List<VirtualTrack> virtualTracks = new ArrayList<>(imfCompositionPlaylist.getVirtualTracks());
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartitionPayloads));
+        /*
+         * Collect the UUIDs from the header payloads and filter out any that are actually not referenced from the composition
+         */
+        Map<UUID, PayloadRecord> referencedHeaderPayloads = new HashMap<>();
+        List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
 
-        Map essenceDescriptorMap = null;
-        Map resourceEssenceDescriptorMap = null;
-        /*The following check verifies 3) from above.*/
-        try {
-            essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
-        }
-        catch(IMFException e)
-        {
-            imfErrorLogger.addAllErrors(e.getErrors());
-        }
+        for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                    0L,
+                    (long) payloadRecord.getPayload().length,
+                    imfErrorLogger);
+            Preface preface = headerPartition.getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage) genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
 
-        try {
-            List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
-            for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
-                if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger
-                            .IMFErrors.ErrorLevels.FATAL, String.format
-                            ("Payload asset type is %s, expected asset type %s",
-                                    payloadRecord
-                                            .getPayloadAssetType(),
-                                    PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                    continue;
-                }
+            if (imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet().contains(packageUUID)) {
+                referencedHeaderPayloads.put(packageUUID, payloadRecord);
+
                 headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                         0L,
                         (long) payloadRecord.getPayload().length,
                         imfErrorLogger),
                         new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
             }
-
-            resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
-        }
-        catch(IMFException e)
-        {
-            imfErrorLogger.addAllErrors(e.getErrors());
         }
 
-        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors())
-        {
+        /*
+         * Raise a warning for any missing header payloads - this is the supplemental IMP use case
+         */
+        for (UUID resourceEssenceDescriptorId : imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet()) {
+            // no header payload provided for ResourceEssenceDescriptorId - supplemental package use case
+            if (referencedHeaderPayloads.get(resourceEssenceDescriptorId) == null) {
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("Unable to locate MXF Track File with ID %s, omitting checks for header metadata compliance and virtual track conformance.", resourceEssenceDescriptorId)));
+            }
+        }
+
+        /**
+         * Check the header metadata for compliance.
+         */
+        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(Collections.unmodifiableList(new ArrayList<>(referencedHeaderPayloads.values()))));
+        if (imfErrorLogger.hasFatalErrors()) {
             return imfErrorLogger.getErrors();
         }
 
-        imfErrorLogger.addAllErrors(conformEssenceDescriptors(resourceEssenceDescriptorMap, essenceDescriptorMap));
-        return imfErrorLogger.getErrors();
-    }
-
-    private static List<IMFErrorLogger.ErrorObject> conformEssenceDescriptors(Map<UUID, List<DOMNodeObjectModel>> essenceDescriptorsMap, Map<UUID, DOMNodeObjectModel> eDLMap) {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
+        Map<UUID, List<DOMNodeObjectModel>> resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
+        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors()) {
+            return imfErrorLogger.getErrors();
+        }
 
         /**
          * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
          * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
          * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
-         */
-
-        /**
-         * The Maps passed in have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
+         *
+         * The Maps have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
          * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
          */
 
-
-
         Set<String> ignoreSet = new HashSet<String>();
-        //ignoreSet.add("InstanceUID");
-        //ignoreSet.add("InstanceID");
-        //ignoreSet.add("EssenceLength");
-        //ignoreSet.add("AlternativeCenterCuts");
-        //ignoreSet.add("GroupOfSoundfieldGroupsLinkID");
 
         // PHDRMetadataTrackSubDescriptor is not present in SMPTE registries and cannot be serialized
         // todo:
@@ -439,17 +417,17 @@ public class IMPValidator {
         /**
          * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
          */
-        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = essenceDescriptorsMap.entrySet().iterator();
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = resourceEssenceDescriptorMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
             List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
-            DOMNodeObjectModel referenceDOMNodeObjectModel = eDLMap.get(entry.getKey());
+            DOMNodeObjectModel referenceDOMNodeObjectModel = essenceDescriptorMap.get(entry.getKey());
             if (referenceDOMNodeObjectModel == null) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
                         "Element %s in a track does not have a corresponding entry in the CPL's Essence Descriptor List.", entry.getKey().toString()));
             }
             else {
-                referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(eDLMap.get(entry.getKey()), ignoreSet);
+                referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(essenceDescriptorMap.get(entry.getKey()), ignoreSet);
                 boolean intermediateResult = false;
 
                 List<DOMNodeObjectModel> domNodeObjectModelsIgnoreSet = new ArrayList<>();
@@ -486,7 +464,6 @@ public class IMPValidator {
 
         return imfErrorLogger.getErrors();
     }
-
 
 
     /* IMF essence related inspection calls*/
@@ -563,72 +540,6 @@ public class IMPValidator {
         return imfErrorLogger.getErrors();
     }
 
-
-    private static List<ErrorLogger.ErrorObject> checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(List<VirtualTrack> virtualTracks,
-                                                                               List<PayloadRecord> essencesHeaderPartition) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Set<UUID> trackFileIDsSet = new HashSet<>();
-
-        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartition));
-
-        if (imfErrorLogger.hasFatalErrors())
-            return imfErrorLogger.getErrors();
-
-        // collect track file ids to cross-check with virtual track references
-        for (PayloadRecord payloadRecord : essencesHeaderPartition){
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long) payloadRecord.getPayload().length,
-                    imfErrorLogger);
-            Preface preface = headerPartition.getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-            trackFileIDsSet.add(packageUUID);
-        }
-
-        Set<UUID> virtualTrackResourceIDsSet = new HashSet<>();
-        for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            if(virtualTrack instanceof IMFEssenceComponentVirtualTrack)
-            {
-                virtualTrackResourceIDsSet.addAll(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack).getTrackResourceIds());
-            }
-        }
-        /**
-         * Following check ensures that the Header Partitions corresponding to all the Resources of the VirtualTracks were passed in.
-         */
-        Set<UUID> unreferencedResourceIDsSet = new HashSet<>();
-        for(UUID uuid : virtualTrackResourceIDsSet){
-            if(!trackFileIDsSet.contains(uuid)){
-                unreferencedResourceIDsSet.add(uuid);
-            }
-        }
-        if(unreferencedResourceIDsSet.size() > 0){
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("It seems that no EssenceHeaderPartition data was passed in for " +
-                    "VirtualTrack Resource Ids %s, please verify that the correct Header Partition payloads for the " +
-                    "Virtual Track were passed in", Utilities.serializeObjectCollectionToString
-                    (unreferencedResourceIDsSet))));
-        }
-
-        /**
-         * Following check ensures that the Header Partitions corresponding to only the Resource that are a part of the VirtualTracks were passed in.
-         */
-        Set<UUID> unreferencedTrackFileIDsSet = new HashSet<>();
-        for(UUID uuid : trackFileIDsSet){
-            if(!virtualTrackResourceIDsSet.contains(uuid)){
-                unreferencedTrackFileIDsSet.add(uuid);
-            }
-        }
-        if(unreferencedTrackFileIDsSet.size() > 0){
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("It seems that EssenceHeaderPartition data was passed in for " +
-                    "Resource Ids %s which are not part of this virtual track, please verify that only the Header " +
-                    "Partition payloads for the Virtual Track were passed in", Utilities
-                    .serializeObjectCollectionToString(unreferencedTrackFileIDsSet))));
-        }
-
-        return imfErrorLogger.getErrors();
-
-    }
 
     private static String usage()
     {
