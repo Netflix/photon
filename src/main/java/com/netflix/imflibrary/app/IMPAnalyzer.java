@@ -97,6 +97,12 @@ public class IMPAnalyzer {
 
                         for (PackingList.Asset asset : packingList.getAssets()) {
 
+                            // used for below check to issue warning if no assets of type XML are present at all; counting
+                            // files before actually resolving path to avoid misleading WARNING due to missing uuid/file
+                            if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
+                                xmlFileCount++;
+                            }
+
                             URI path = assetMap.getPath(asset.getUUID());
                             if( path == null) {
                                 packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
@@ -108,7 +114,7 @@ public class IMPAnalyzer {
                             if (!Files.isRegularFile(assetPath)) {
                                 packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                        String.format("Packing List references Asset with ID = %s, but not found: %s.", asset.getUUID().toString(), assetPath));
+                                        String.format("Cannot find asset with path %s.", assetPath));
                                 continue;
                             }
 
@@ -116,10 +122,10 @@ public class IMPAnalyzer {
                             IMFErrorLogger assetErrorLogger = new IMFErrorLoggerImpl();
                             String filename = Utilities.getFilenameFromPath(assetPath);
 
-                            // MXF Track File
                             if (asset.getType().equals(PackingList.Asset.APPLICATION_MXF_TYPE)) {
-
-
+                                //
+                                // MXF Track File
+                                //
                                 try {
                                     PayloadRecord headerPartitionPayloadRecord = MXFUtils.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, assetErrorLogger);
                                     if (headerPartitionPayloadRecord == null) {
@@ -165,10 +171,6 @@ public class IMPAnalyzer {
 
                                 // XML Assets
 
-                                // used for below check to issue warning if no assets of type XML are present at all; number of
-                                // IMFCompositionPlaylists may be misleading as they may be present but with FATAL errors
-                                xmlFileCount++;
-
                                 if (IMFCompositionPlaylist.isCompositionPlaylist(resourceByteRangeProvider)) {
 
                                     // Composition Playlist
@@ -211,7 +213,6 @@ public class IMPAnalyzer {
                                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("Packing List does not contain any assets of type \"%s\" (i.e. PKL does not contain any CPL/OPL files).", PackingList.Asset.TEXT_XML_TYPE));
                         }
 
-
                         // validate virtual track compliance for each IMFCompositionPlaylist with the header partition payloads collected from MXF Track Files
                         imfCompositionPlaylistList.forEach(imfCompositionPlaylist -> {
                             IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
@@ -222,6 +223,7 @@ public class IMPAnalyzer {
                                         .flatMap(Set::stream)
                                         .map(e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
                                         .collect(Collectors.toList());
+
                                 compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateVirtualTrackConformance(imfCompositionPlaylist, cplHeaderPartitionPayloads));
                             } catch (IMFException e) {
                                 compositionConformanceErrorLogger.addAllErrors(e.getErrors());
@@ -229,11 +231,17 @@ public class IMPAnalyzer {
                                 throw new RuntimeException(e);
                             } finally {
 
-                                String filename;
+                                String filename = "";
                                 try {
-                                    filename = Utilities.getFilenameFromPath(Paths.get(assetMap.getPath(imfCompositionPlaylist.getUUID())));
+                                    if (imfCompositionPlaylist.getId() != null) {
+                                        URI uri = assetMap.getPath(imfCompositionPlaylist.getUUID());
+                                        if (uri != null) {
+                                            filename = Utilities.getFilenameFromPath(Paths.get(uri));
+
+                                        }
+                                    }
                                 } catch (IOException e) {
-                                    filename = imfCompositionPlaylist.getId().toString();
+                                    filename = "";
                                 }
 
                                 errorMap.put(filename + " " + CONFORMANCE_LOGGER_PREFIX, compositionConformanceErrorLogger.getErrors());
@@ -277,15 +285,21 @@ public class IMPAnalyzer {
             if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)) {
                 URI path = assetMap.getPath(asset.getUUID());
                 if (path == null) {
-                    packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
+
+                    // todo: pkl/am errors are already reported in analyzePackage(), needs cleanup
+
+                    //packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                    //      IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Failed to get path for Asset with ID = %s", asset.getUUID().toString()));
                     continue;
                 }
 
                 Path assetPath = rootPath.resolve(assetMap.getPath(asset.getUUID()).toString());
                 if(!Files.isRegularFile(assetPath)) {
-                    packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
+
+                    // todo: pkl/am errors are already reported in analyzePackage(), needs cleanup
+
+                    //packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
+                    //        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Cannot find asset with path %s ID = %s", assetPath.toString(), asset.getUUID().toString()));
                     continue;
                 }
 
