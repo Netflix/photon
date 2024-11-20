@@ -211,16 +211,10 @@ public class IMPAnalyzer {
                         imfCompositionPlaylistList.forEach(imfCompositionPlaylist -> {
                             IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
                             try {
-                                List<PayloadRecord> cplHeaderPartitionPayloads = imfCompositionPlaylist.getEssenceVirtualTracks()
-                                        .stream()
-                                        .map(IMFEssenceComponentVirtualTrack::getTrackResourceIds)
-                                        .flatMap(Set::stream)
-                                        .map(e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
-                                        .collect(Collectors.toList());
-
+                                List<PayloadRecord> payloadRecords = new ArrayList<>(trackFileIDToHeaderPartitionPayLoadMap.values());
 
                                 // validate IMFCompositionPlaylist
-                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, cplHeaderPartitionPayloads));
+                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords));
                             } catch (IMFException e) {
                                 compositionConformanceErrorLogger.addAllErrors(e.getErrors());
                             } catch (IOException e) {

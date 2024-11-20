@@ -286,7 +286,7 @@ public class IMPValidator {
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkSegments(imfCompositionPlaylist));
 
 
-        List<PayloadRecord> finalHeaderPartitionPayloads = headerPartitionPayloads == null ? new ArrayList<>() : headerPartitionPayloads;
+        List<PayloadRecord> finalHeaderPartitionPayloads = Objects.requireNonNullElseGet(headerPartitionPayloads, ArrayList::new);
 
         /*
             run validations based on application identification and sequence namespaces:
