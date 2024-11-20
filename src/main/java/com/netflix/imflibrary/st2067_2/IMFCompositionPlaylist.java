@@ -496,6 +496,37 @@ public class IMFCompositionPlaylist {
         return sequenceNamespaceSet;
     }
 
+    /**
+     * Returns the sequence namespace for the provided track file id
+     *
+     * @return the Sequence Namespace, null if Track File ID not part of any essence virtual track
+     */
+    public String getSequenceNamespaceForTrackFileID(@Nonnull UUID trackFileID) {
+
+        List<IMFSegmentType> segments = getSegmentList();
+        if (segments == null)
+            return null;
+
+        for (IMFSegmentType segment : segments) {
+            List<IMFSequenceType> sequences = segment.getSequenceList();
+            if (sequences == null)
+                continue;
+
+            for (IMFSequenceType sequence : sequences) {
+                List<? extends IMFBaseResourceType> resourceList = sequence.getResourceList();
+                if (resourceList != null && !resourceList.isEmpty() && resourceList.get(0) instanceof IMFTrackFileResourceType) {
+                    for (IMFBaseResourceType baseResource : resourceList) {
+                        IMFTrackFileResourceType trackFileResource = IMFTrackFileResourceType.class.cast(baseResource);
+                        if (trackFileID.equals(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getTrackFileId())))
+                            return sequence.namespace;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     /**
      * Getter for the ExtensionProperties corresponding to this Composition document
