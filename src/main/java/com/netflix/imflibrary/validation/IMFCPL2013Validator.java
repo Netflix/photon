@@ -3,6 +3,7 @@ package com.netflix.imflibrary.validation;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
@@ -28,7 +29,7 @@ public class IMFCPL2013Validator extends IMFCPLValidator {
 
         imfErrorLogger.addAllErrors(validateCommonConstraints(imfCompositionPlaylist));
 
-        imfErrorLogger.addAllErrors(validateEssenceDescriptors(imfCompositionPlaylist, headerPartitionPayloads));
+        imfErrorLogger.addAllErrors(IMPValidator.validateEssenceDescriptorsMatch(imfCompositionPlaylist, headerPartitionPayloads));
 
         // MARKER TRACK VALIDATION, CONTENT KIND VALUES, ETC
 

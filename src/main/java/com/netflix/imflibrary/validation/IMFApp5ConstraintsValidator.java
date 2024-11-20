@@ -61,6 +61,10 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
         return imfErrorLogger.getErrors();
     }
 
+    @Override
+    public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+        return List.of();
+    }
 
 
     private static void validatePictureEssenceDescriptor(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel,

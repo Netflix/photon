@@ -85,6 +85,10 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
      */
     protected abstract boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor, IMFErrorLogger logger);
 
+    @Override
+    public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+        return List.of();
+    }
 
     @Override
     public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {

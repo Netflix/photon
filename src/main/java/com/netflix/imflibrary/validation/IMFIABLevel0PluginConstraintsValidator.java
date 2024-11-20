@@ -41,22 +41,29 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
         imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrackMap, essenceDescriptorListMap, Set.of()));
 
 
+        return imfErrorLogger.getErrors();
+    }
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartitionPayload, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
         /*
-         * Verify that the input Payloads are EssencePartitions. We'll further validate them after filtering out any that are not referenced.
+         * Verify that the input Payload is for an EssencePartitions. We'll further validate after filtering out any that are not referenced.
          */
-        for (PayloadRecord payloadRecord : headerPartitionPayloads) {
-            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
-                                payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                return imfErrorLogger.getErrors();
-            }
+        if (headerPartitionPayload.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
+                            headerPartitionPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+            return imfErrorLogger.getErrors();
         }
+
 
         /*
          * Find the IDs of all IAB Resources so that we can filter the provided header partition payloads
-         */
+
         Set<UUID> iabResourceIDs = new HashSet<>();
         for (Composition.VirtualTrack virtualTrack : imfCompositionPlaylist.getVirtualTrackMap().values()) {
             if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
@@ -66,38 +73,47 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                 });
             }
         }
+            */
 
-        for (PayloadRecord payloadRecord : headerPartitionPayloads) {
-            try {
-                HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                        0L,
-                        (long) payloadRecord.getPayload().length,
-                        imfErrorLogger);
-                Preface preface = headerPartition.getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage) genericPackage;
-                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
 
-                if (iabResourceIDs.contains(packageUUID)) {
-                    MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                    IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                    IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-                }
+        try {
+            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayload.getPayload()),
+                    0L,
+                    (long) headerPartitionPayload.getPayload().length,
+                    imfErrorLogger);
+            Preface preface = headerPartition.getPreface();
+            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+            SourcePackage filePackage = (SourcePackage) genericPackage;
+            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
 
-            } catch (MXFException e) {
-                imfErrorLogger.addAllErrors(e.getErrors());
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        "Unable to validate any essence descriptors: unable to parse essence partition payload");
-                return imfErrorLogger.getErrors();
-            } catch (IOException e) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        "Unable to validate any essence descriptors: unable to parse essence partition payload");
-                return imfErrorLogger.getErrors();
-            }
+            //if (iabResourceIDs.contains(packageUUID)) {
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+                IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
+            //}
+
+        } catch (MXFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate any essence descriptors: unable to parse essence partition payload");
+            return imfErrorLogger.getErrors();
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate any essence descriptors: unable to parse essence partition payload");
+            return imfErrorLogger.getErrors();
         }
 
+
+        try {
+            imfErrorLogger.addAllErrors(validateIndexEditRate(headerPartitionPayload, indexPartitionPayloads));
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate index edit rate: unable to parse index partition payload");
+            return imfErrorLogger.getErrors();
+        }
 
         return imfErrorLogger.getErrors();
     }
@@ -105,27 +121,26 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
     /**
      * A stateless method, used for IMP containing IAB and/or MGA S-ADM tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7 of SMPTE ST 2067-201:2019)
-     * @param headerPartitionPayloadRecords - a list of IMF Essence Component partition payloads for header partitions
+     * @param headerPartitionPayloadRecord - an IMF Essence Component partition payload for header partitions
      * @param indexSegmentPayloadRecords - a list of IMF Essence Component partition payloads for index partitions
      * @return list of error messages encountered while validating
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    private static List<ErrorLogger.ErrorObject> validateIndexEditRate(List<PayloadRecord> headerPartitionPayloadRecords, List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
+    private static List<ErrorLogger.ErrorObject> validateIndexEditRate(PayloadRecord headerPartitionPayloadRecord, List<PayloadRecord> indexSegmentPayloadRecords) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(headerPartitionPayloadRecords);
-        for(PayloadRecord headerPayloadRecord : essencesHeaderPartition){
-            if(headerPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
+
+            if(headerPartitionPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                         String.format("Payload asset type is %s, expected asset type %s",
-                                headerPayloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                continue;
+                                headerPartitionPayloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                return imfErrorLogger.getErrors();
             }
 
             HeaderPartition headerPartition = null;
             try {
-                headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPayloadRecord.getPayload()),
-                        0L, (long) headerPayloadRecord.getPayload().length, imfErrorLogger);
+                headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()),
+                        0L, (long) headerPartitionPayloadRecord.getPayload().length, imfErrorLogger);
 
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
                 IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
@@ -150,11 +165,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
                             if (IndexTableSegment.isValidKey(header.getKey())) {
                                 IndexTableSegment indexTableSegment = new IndexTableSegment(imfEssenceComponentByteProvider, header);
-                                if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.IABEssence)) {
-                                    IABTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
-                                } else if (headerPartitionIMF.hasMatchingEssence(HeaderPartition.EssenceTypeEnum.MGASADMEssence)) {
-                                    MGASADMTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
-                                }
+                                IABTrackFileConstraints.checkIndexEditRate(headerPartitionIMF, indexTableSegment, imfErrorLogger);
                             } else {
                                 imfEssenceComponentByteProvider.skipBytes(header.getVSize());
                             }
@@ -180,64 +191,6 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                     imfErrorLogger.addAllErrors(mxfException.getErrors());
                 }
             }
-        }
-        return imfErrorLogger.getErrors();
-    }
-
-
-    /**
-     * A stateless method that validates an IMFEssenceComponent's header partition and verifies MXF OP1A and IMF compliance. This could be utilized
-     * to perform preliminary validation of IMF essences
-     * @param essencesHeaderPartitionPayloads - a list of IMF Essence Component header partition payloads
-     * @return a list of errors encountered while performing compliance checks on the IMF Essence Component Header partition
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<ErrorLogger.ErrorObject> validateIMFTrackFileHeaderMetadata(List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        List<PayloadRecord> essencesHeaderPartition = Collections.unmodifiableList(essencesHeaderPartitionPayloads);
-
-        for (PayloadRecord payloadRecord : essencesHeaderPartition) {
-            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Payload asset type is %s, expected asset type %s",
-                                payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                return imfErrorLogger.getErrors();
-            }
-
-            HeaderPartition headerPartition = null;
-            try {
-                headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                        0L,
-                        (long)payloadRecord.getPayload().length,
-                        imfErrorLogger);
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.IABEssence) {
-                    IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-                }
-                if (headerPartitionIMF.getEssenceType() == HeaderPartition.EssenceTypeEnum.MGASADMEssence) {
-                    MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-                }
-            }
-            catch (IMFException | MXFException e){
-                if(headerPartition != null) {
-                    Preface preface = headerPartition.getPreface();
-                    GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                    SourcePackage filePackage = (SourcePackage) genericPackage;
-                    UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
-                }
-                if(e instanceof IMFException){
-                    IMFException imfException = (IMFException)e;
-                    imfErrorLogger.addAllErrors(imfException.getErrors());
-                }
-                else if(e instanceof MXFException){
-                    MXFException mxfException = (MXFException)e;
-                    imfErrorLogger.addAllErrors(mxfException.getErrors());
-                }
-            }
-        }
 
         return imfErrorLogger.getErrors();
     }
