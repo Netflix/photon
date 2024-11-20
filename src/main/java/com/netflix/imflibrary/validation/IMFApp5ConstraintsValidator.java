@@ -3,6 +3,7 @@ package com.netflix.imflibrary.validation;
 import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
@@ -12,7 +13,7 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
 import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.Colorimetry.*;
-import org.w3c.dom.Node;
+import jakarta.annotation.Nonnull;
 
 import java.util.*;
 
@@ -22,12 +23,6 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 
 public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
-
-    @Override
-    public List<ErrorLogger.ErrorObject> validateTrackFileConstraints(IMFTrackFileReader imfTrackFileReader) {
-        return List.of();
-    }
-
     static final String CONSTRAINTS_SPEC = "IMF Application #5 SMPTE ST 2067-50:2018";
 
     @Override
@@ -36,7 +31,7 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
     }
 
     @Override
-    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(IMFCompositionPlaylist IMFCompositionPlaylist) {
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -65,7 +60,6 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
         return imfErrorLogger.getErrors();
     }
-
 
 
 

@@ -63,7 +63,7 @@ public class IMPAnalyzerTestApp5
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         /* Make sure its 2016 core constraints */
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2016");

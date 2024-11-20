@@ -115,11 +115,4 @@ public class IMFApp2E2014ConstraintsValidator extends IMFApp2EConstraintsValidat
         return false;
     }
 
-
-
-
-    @Override
-    public List<ErrorLogger.ErrorObject> validateTrackFileConstraints(IMFTrackFileReader imfTrackFileReader) {
-        return List.of();
-    }
 }

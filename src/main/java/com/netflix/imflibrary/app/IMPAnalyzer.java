@@ -189,12 +189,6 @@ public class IMPAnalyzer {
                                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("UUID %s in the CPL is not same as UUID %s of the CPL in the AssetMap", imfCompositionPlaylist.getUUID().toString(), asset.getUUID().toString()));
                                         }
 
-                                        // validate IMFCompositionPlaylist
-                                        assetErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
-                                        if (assetErrorLogger.hasFatalErrors()) {
-                                            continue;
-                                        }
-
                                         // add IMFCompositionPlaylist to return List since no FATAL errors were encountered
                                         imfCompositionPlaylistList.add(imfCompositionPlaylist);
 
@@ -224,7 +218,9 @@ public class IMPAnalyzer {
                                         .map(e -> trackFileIDToHeaderPartitionPayLoadMap.get(e))
                                         .collect(Collectors.toList());
 
-                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateVirtualTrackConformance(imfCompositionPlaylist, cplHeaderPartitionPayloads));
+
+                                // validate IMFCompositionPlaylist
+                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, cplHeaderPartitionPayloads));
                             } catch (IMFException e) {
                                 compositionConformanceErrorLogger.addAllErrors(e.getErrors());
                             } catch (IOException e) {
@@ -236,8 +232,8 @@ public class IMPAnalyzer {
                                     if (imfCompositionPlaylist.getId() != null) {
                                         URI uri = assetMap.getPath(imfCompositionPlaylist.getUUID());
                                         if (uri != null) {
-                                            filename = Utilities.getFilenameFromPath(Paths.get(uri));
-
+                                            Path path = rootPath.resolve(uri.getPath());
+                                            filename = Utilities.getFilenameFromPath(path);
                                         }
                                     }
                                 } catch (IOException e) {

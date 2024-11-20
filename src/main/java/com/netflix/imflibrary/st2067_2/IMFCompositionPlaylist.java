@@ -854,8 +854,7 @@ public class IMFCompositionPlaylist {
         return resourceIdTupleList;
     }
 
-    public Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition
-            .HeaderPartitionTuple> headerPartitionTuples) throws IOException {
+    public Map<UUID, List<DOMNodeObjectModel>> getResourcesEssenceDescriptorsMap(List<Composition.HeaderPartitionTuple> headerPartitionTuples) throws IOException {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
         Map<UUID, List<DOMNodeObjectModel>> resourcesEssenceDescriptorMap = new LinkedHashMap<>();
 

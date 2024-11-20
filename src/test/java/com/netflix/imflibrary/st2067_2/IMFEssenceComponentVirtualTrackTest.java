@@ -126,7 +126,7 @@ public class IMFEssenceComponentVirtualTrackTest
         //    add("MCAAudioContentKind");}});
 
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
-        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertTrue(imfCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(imfCompositionPlaylist.toString().length() > 0);
@@ -153,7 +153,7 @@ public class IMFEssenceComponentVirtualTrackTest
         //    add("MCAAudioContentKind");}});
 
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
-        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertTrue(IMFCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(imfCompositionPlaylist.toString().length() > 0);
@@ -180,7 +180,7 @@ public class IMFEssenceComponentVirtualTrackTest
         //    add("MCAAudioContentKind");}});
 
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
-        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        errorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertTrue(imfCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
         Assert.assertTrue(imfCompositionPlaylist.toString().length() > 0);

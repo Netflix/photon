@@ -4,6 +4,7 @@ import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
@@ -12,6 +13,7 @@ import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
+import jakarta.annotation.Nonnull;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -85,30 +87,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
 
 
     @Override
-    public List<ErrorLogger.ErrorObject> validateTrackFileConstraints(IMFTrackFileReader imfTrackFileReader) {
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
-        try {
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = imfTrackFileReader.getHeaderPartitionIMF(imfErrorLogger);
-            //IMFConstraints.checkIMFCompliance();
-
-            //IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-        } catch (IOException e) {
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Exception while retrieving Track File information for validation: %s", e)));
-
-        }
-
-
-        return List.of();
-    }
-
-
-    @Override
-    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(IMFCompositionPlaylist IMFCompositionPlaylist) {
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -140,6 +119,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
                             getConstraintsSpecification(),
                             e.getMessage()));
         }
+
 
         return imfErrorLogger.getErrors();
     }

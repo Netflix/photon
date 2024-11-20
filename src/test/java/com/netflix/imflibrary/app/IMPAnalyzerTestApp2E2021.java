@@ -24,7 +24,7 @@ public class IMPAnalyzerTestApp2E2021
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         /* Make sure its 2020 core constraints */
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), "http://www.smpte-ra.org/ns/2067-2/2020");
@@ -45,7 +45,7 @@ public class IMPAnalyzerTestApp2E2021
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertNotEquals(logger.getErrors().size(), 0);
     }
@@ -58,7 +58,7 @@ public class IMPAnalyzerTestApp2E2021
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertNotEquals(logger.getErrors().size(), 0);
     }
@@ -71,7 +71,7 @@ public class IMPAnalyzerTestApp2E2021
         
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertNotEquals(logger.getErrors().size(), 0);
     }
@@ -84,7 +84,7 @@ public class IMPAnalyzerTestApp2E2021
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         logger.addAllErrors(imfCompositionPlaylist.getErrors());
-        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertNotNull(imfCompositionPlaylist);
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);

@@ -7,7 +7,6 @@ import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import jakarta.annotation.Nonnull;
@@ -15,10 +14,6 @@ import jakarta.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords;
-import static com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker.checkVirtualTrackResourceList;
 
 
 public class IMFCompositionPlaylistUtils {
@@ -65,8 +60,8 @@ public class IMFCompositionPlaylistUtils {
         }
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
         virtualTracks.add(audioVirtualTrack);
-        imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks,
-                essencesHeaderPartition));
+
+        //imfErrorLogger.addAllErrors(checkVirtualTrackAndEssencesHeaderPartitionPayloadRecords(virtualTracks, essencesHeaderPartition));
         if(imfErrorLogger.hasFatalErrors()){
             throw new IMFException(String.format("Fatal Errors were detected when trying to verify the Virtual Track and Essence Header Partition payloads %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors())));
         }
@@ -226,7 +221,7 @@ public class IMFCompositionPlaylistUtils {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()));
-        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist));
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         if(imfErrorLogger.hasFatalErrors()) {
             throw new IMFException("Virtual track failed validation", imfErrorLogger);
