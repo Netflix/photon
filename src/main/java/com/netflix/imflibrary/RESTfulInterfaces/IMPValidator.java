@@ -17,7 +17,6 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.*;
-import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.validation.ConstraintsValidator;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
@@ -263,7 +262,7 @@ public class IMPValidator {
 
         try {
             IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()));
-            imfErrorLogger.addAllErrors(validateComposition(imfCompositionPlaylist));
+            imfErrorLogger.addAllErrors(validateComposition(imfCompositionPlaylist, null));
         } catch (IOException e) {
             imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, "Unable to parse composition playlist: " + e.getMessage()));
@@ -276,7 +275,7 @@ public class IMPValidator {
 
 
 
-    public static List<ErrorLogger.ErrorObject> validateComposition(IMFCompositionPlaylist imfCompositionPlaylist) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateComposition(IMFCompositionPlaylist imfCompositionPlaylist, List<PayloadRecord> headerPartitionPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -287,36 +286,27 @@ public class IMPValidator {
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkSegments(imfCompositionPlaylist));
 
 
+        List<PayloadRecord> finalHeaderPartitionPayloads = headerPartitionPayloads == null ? new ArrayList<>() : headerPartitionPayloads;
+
         /*
-            run application/plugin-level validations, if implemented:
+            run validations based on application identification and sequence namespaces:
          */
 
-        Set<String> appIds = imfCompositionPlaylist.getApplicationIdSet();
-        appIds.forEach(namespace -> {
-            ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(namespace);
-            if (validator != null) {
-                List<ErrorLogger.ErrorObject> cplErrors = validator.validateCompositionConstraints(imfCompositionPlaylist);
-                imfErrorLogger.addAllErrors(cplErrors);
-            } else {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Application Identification not supported: " + namespace);
-            }
-        });
+        Set<String> namespaces = imfCompositionPlaylist.getSequenceNamespaceSet();
+        namespaces.addAll(imfCompositionPlaylist.getApplicationIdSet());
 
-
-        Set<String> sequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceSet();
-        sequenceNamespace.forEach(namespace -> {
+        namespaces.forEach(namespace -> {
 
             // ignore sequences covered by CoreConstraints
             if (CoreConstraints.SUPPORTED_NAMESPACES.contains(namespace)) return;
 
             ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(namespace);
             if (validator != null) {
-                List<ErrorLogger.ErrorObject> cplErrors = validator.validateCompositionConstraints(imfCompositionPlaylist);
+                List<ErrorLogger.ErrorObject> cplErrors = validator.validateCompositionConstraints(imfCompositionPlaylist, finalHeaderPartitionPayloads);
                 imfErrorLogger.addAllErrors(cplErrors);
             } else {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Sequence namespace not supported: " + namespace);
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Namespace not supported: " + namespace);
             }
         });
 
@@ -328,74 +318,107 @@ public class IMPValidator {
     /**
      * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
      * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
-     * Virt ual Tracks that are apart of the Composition
+     * Virtual Tracks that are a part of the Composition
      * @param imfCompositionPlaylist an IMFCompositionPlaylist object corresponding to the Composition
      * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
      * @return list of error messages encountered while performing conformance validation of the Composition document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public static List<ErrorLogger.ErrorObject> validateVirtualTrackConformance(IMFCompositionPlaylist imfCompositionPlaylist,
+    public static List<ErrorLogger.ErrorObject> validateEssenceDescriptorsMatch(IMFCompositionPlaylist imfCompositionPlaylist,
                                                                                 List<PayloadRecord> essencesHeaderPartitionPayloads) throws IOException {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         /*
-         * Verify that the EssenceDescriptors are valid before attempting to parse them.
+         * Verify that the CPL is valid before attempting to parse it.
          */
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        if (imfErrorLogger.hasFatalErrors()) {
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate essence descriptors: IMF Composition Playlist has FATAL errors"));
+            return imfErrorLogger.getErrors();
+        }
+
+        /*
+         * Verify that the input Payloads are EssencePartitions. We'll further validate them after filtering out any that are not referenced.
+         */
+        for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
+                                payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                return imfErrorLogger.getErrors();
+            }
+        }
+
         imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(essencesHeaderPartitionPayloads));
         if (imfErrorLogger.hasFatalErrors())
             return imfErrorLogger.getErrors();
 
         /*
-         * Collect the UUIDs from the header payloads and filter out any that are actually not referenced from the composition
+         * Collect the UUIDs from the header payloads and filter out any that are _not_ referenced from the input composition
          */
         Map<UUID, PayloadRecord> referencedHeaderPayloads = new HashMap<>();
         List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
 
         for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
-                    0L,
-                    (long) payloadRecord.getPayload().length,
-                    imfErrorLogger);
-            Preface preface = headerPartition.getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-
-            if (imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet().contains(packageUUID)) {
-                referencedHeaderPayloads.put(packageUUID, payloadRecord);
-
-                headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+            try{
+                HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
                         0L,
                         (long) payloadRecord.getPayload().length,
-                        imfErrorLogger),
-                        new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
+                        imfErrorLogger);
+                Preface preface = headerPartition.getPreface();
+                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                SourcePackage filePackage = (SourcePackage) genericPackage;
+                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+
+                for (IMFTrackFileResourceType tf : imfCompositionPlaylist.getTrackFileResources()) {
+                    if (packageUUID.equals(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId()))) {
+                        referencedHeaderPayloads.put(packageUUID, payloadRecord);
+
+                        headerPartitionTuples.add(new Composition.HeaderPartitionTuple(new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                                0L,
+                                (long) payloadRecord.getPayload().length,
+                                imfErrorLogger),
+                                new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
+
+                        break;
+                    }
+                }
+
+            } catch (MXFException e) {
+                imfErrorLogger.addAllErrors(e.getErrors());
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        "Unable to validate any essence descriptors: unable to parse essence partition payload");
+                return imfErrorLogger.getErrors();
             }
         }
 
-        /*
-         * Raise a warning for any missing header payloads - this is the supplemental IMP use case
-         */
-        for (UUID resourceEssenceDescriptorId : imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet()) {
-            // no header payload provided for ResourceEssenceDescriptorId - supplemental package use case
-            if (referencedHeaderPayloads.get(resourceEssenceDescriptorId) == null) {
-                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                        String.format("Unable to locate MXF Track File with ID %s, omitting checks for header metadata compliance and virtual track conformance.", resourceEssenceDescriptorId)));
-            }
-        }
-
-        /**
-         * Check the header metadata for compliance.
-         */
-        imfErrorLogger.addAllErrors(validateIMFTrackFileHeaderMetadata(Collections.unmodifiableList(new ArrayList<>(referencedHeaderPayloads.values()))));
-        if (imfErrorLogger.hasFatalErrors()) {
+        if (referencedHeaderPayloads.isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                    "Unable to validate any essence descriptors: no matching essence partition payloads provided");
             return imfErrorLogger.getErrors();
         }
 
+        /*
+         * Raise a warning for any missing header payloads (supplemental IMP use case, i.e. not all MXF Track Files are part of the IMP)
+         */
+        for (IMFTrackFileResourceType tf : imfCompositionPlaylist.getTrackFileResources()) {
+            if (referencedHeaderPayloads.get(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId())) == null ) {
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("Unable to validate essence descriptors: no matching essence partition payload provided for ID %s", tf.getTrackFileId())));
+            }
+        }
+
+
         Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
         Map<UUID, List<DOMNodeObjectModel>> resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
-        if( essenceDescriptorMap == null || resourceEssenceDescriptorMap == null || imfErrorLogger.hasFatalErrors()) {
+        if (essenceDescriptorMap == null || resourceEssenceDescriptorMap == null) {
             return imfErrorLogger.getErrors();
         }
 
