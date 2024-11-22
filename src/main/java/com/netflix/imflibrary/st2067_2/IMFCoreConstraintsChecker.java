@@ -448,6 +448,9 @@ public final class IMFCoreConstraintsChecker {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
+        if (essencesHeaderPartitionPayloads == null)
+            essencesHeaderPartitionPayloads = new ArrayList<>();
+
         /*
          * Verify that the CPL is valid before attempting to parse it.
          */
