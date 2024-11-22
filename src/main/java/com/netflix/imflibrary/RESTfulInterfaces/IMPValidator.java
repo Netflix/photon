@@ -1,12 +1,11 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
-import com.netflix.imflibrary.IMFConstraints;
-import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.MXFOperationalPattern1A;
+import com.netflix.imflibrary.*;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.IndexTableSegment;
+import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st2067_100.OutputProfileList;
@@ -310,35 +309,70 @@ public class IMPValidator {
 
     /* IMF essence related inspection calls*/
 
-    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(PayloadRecord headerPartitionPayloadRecord, List<PayloadRecord> indexSegmentPayloadRecords, String sequenceNamespace) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> essencePartitionPayloadRecords, String sequenceNamespace) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
-        if (headerPartitionPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
-                            headerPartitionPayloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-            return trackFileErrorLogger.getErrors();
-        }
+        PayloadRecord headerPartitionPayloadRecord = null;
+        List<PayloadRecord> indexSegmentPayloadRecords = new ArrayList<>();
 
         try {
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()),
-                    0L,
-                    (long)headerPartitionPayloadRecord.getPayload().length,
-                    trackFileErrorLogger);
+            for (PayloadRecord payloadRecord : essencePartitionPayloadRecords) {
 
-            // validate header metadata based on header partition payloads
-            trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
+                // ensure payload time is EssencePartition
+                if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                    trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                            String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
+                                    payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                    return trackFileErrorLogger.getErrors();
+                }
+
+                // get partition pack to determine partition contents
+                PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(payloadRecord.getPayload()));
+
+                // ensure partition constraints are met
+                trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFPartitionPackCompliance(partitionPack));
+                if (trackFileErrorLogger.hasFatalErrors()) {
+                    return trackFileErrorLogger.getErrors();
+                }
+
+                // validate header metadata
+                if (partitionPack.hasHeaderMetadata()) {
+                    // todo: make sure to keep the right partition, if more than one contain header metadata
+                    headerPartitionPayloadRecord = payloadRecord;
+                    HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()),
+                            0L,
+                            (long)headerPartitionPayloadRecord.getPayload().length,
+                            trackFileErrorLogger);
+
+                    trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
+                }
+
+                // validate index table segments
+                if (partitionPack.hasIndexTableSegments()) {
+                    ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(payloadRecord.getPayload());
+
+                    long numBytesToRead = payloadRecord.getPayload().length;
+                    long numBytesRead = 0;
+                    while (numBytesRead < numBytesToRead) {
+                        KLVPacket.Header header = new KLVPacket.Header(imfEssenceComponentByteProvider, 0);
+                        numBytesRead += header.getKLSize();
+
+                        if (IndexTableSegment.isValidKey(header.getKey())) {
+                            new IndexTableSegment(imfEssenceComponentByteProvider, header);
+                        } else {
+                            imfEssenceComponentByteProvider.skipBytes(header.getVSize());
+                        }
+                        numBytesRead += header.getVSize();
+                    }
+                }
+            }
+
         } catch (MXFException e) {
-            trackFileErrorLogger.addAllErrors(e.getErrors());
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
         }
 
-        if (trackFileErrorLogger.hasFatalErrors())
-            return trackFileErrorLogger.getErrors();
-
-        // Validate index table segments
-        trackFileErrorLogger.addAllErrors(IMFConstraints.checkIndexTableSegments(indexSegmentPayloadRecords));
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
 

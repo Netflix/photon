@@ -332,6 +332,22 @@ public final class IMFConstraints
         return new HeaderPartitionIMF(headerPartitionOP1A);
     }
 
+
+
+    public static List<ErrorLogger.ErrorObject> checkMXFPartitionPackCompliance(PartitionPack partitionPack) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        try {
+            List<PartitionPack> partitionPacks = new ArrayList<>();
+            partitionPacks.add(partitionPack);
+            checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
+        } catch (IMFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+
     /**
      * Checks the compliance of partition packs found in an MXF file with st2067-5:2013. A runtime
      * exception is thrown in case of non-compliance
@@ -376,52 +392,6 @@ public final class IMFConstraints
             throw new MXFException(String.format("Found fatal errors in the IMFTrackFile that violate the IMF Core constraints"), imfErrorLogger);
         }
     }
-
-
-    /**
-     * A stateless method that validates IndexTable segments within partitions
-     * @param essencesPartitionPayloads - a list of IMF Essence Component partition payloads
-     * @return a list of errors encountered while performing compliance checks on IndexTable segments within partition payloads
-     * @throws IOException - any I/O related error is exposed through an IOException
-     */
-    public static List<ErrorLogger.ErrorObject> checkIndexTableSegments(List<PayloadRecord> essencesPartitionPayloads) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        for(PayloadRecord payloadRecord : essencesPartitionPayloads){
-            if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                        String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-                continue;
-            }
-            try {
-                PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(payloadRecord.getPayload()));
-                if (partitionPack.hasIndexTableSegments())
-                {//logic to provide as an input stream the portion of the archive that contains a Partition
-                    ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(payloadRecord.getPayload());
-
-                    long numBytesToRead = payloadRecord.getPayload().length;
-                    long numBytesRead = 0;
-                    while (numBytesRead < numBytesToRead) {
-                        KLVPacket.Header header = new KLVPacket.Header(imfEssenceComponentByteProvider, 0);
-                        numBytesRead += header.getKLSize();
-
-                        if (IndexTableSegment.isValidKey(header.getKey())) {
-                            new IndexTableSegment(imfEssenceComponentByteProvider, header);
-                        } else {
-                            imfEssenceComponentByteProvider.skipBytes(header.getVSize());
-                        }
-                        numBytesRead += header.getVSize();
-                    }
-
-                }
-            } catch (MXFException e) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, e.getMessage());
-            }
-
-        }
-        return imfErrorLogger.getErrors();
-    }
-
 
 
     /**

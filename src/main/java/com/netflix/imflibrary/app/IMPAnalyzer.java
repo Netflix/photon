@@ -231,7 +231,11 @@ public class IMPAnalyzer {
                             }
 
                             List<ErrorLogger.ErrorObject> aggregateErrors = new ArrayList<>();
-                            aggregateErrors.addAll(IMPValidator.validateEssencePartitions(trackFileEntry.headerPartition, trackFileEntry.indexPartitions, sequenceNamespace));
+                            List<PayloadRecord> essencePartitions = new ArrayList<>();
+                            essencePartitions.add(trackFileEntry.headerPartition);
+                            essencePartitions.addAll(trackFileEntry.indexPartitions);
+
+                            aggregateErrors.addAll(IMPValidator.validateEssencePartitions(essencePartitions, sequenceNamespace));
                             if (errorMap.get(trackFileEntry.filename) != null)
                                 aggregateErrors.addAll(errorMap.get(trackFileEntry.filename));
                             errorMap.put(trackFileEntry.filename, aggregateErrors);
@@ -397,8 +401,12 @@ public class IMPAnalyzer {
                     return errorLogger.getErrors();
                 }
 
+                List<PayloadRecord> essencePartitions = new ArrayList<>();
+                essencePartitions.add(headerPartitionPayload);
+                essencePartitions.addAll(indexSegmentPayloadRecords);
+
                 // validate essence partitions
-                errorLogger.addAllErrors(IMPValidator.validateEssencePartitions(headerPartitionPayload, indexSegmentPayloadRecords, null));
+                errorLogger.addAllErrors(IMPValidator.validateEssencePartitions(essencePartitions, null));
 
                 return errorLogger.getErrors();
             }
