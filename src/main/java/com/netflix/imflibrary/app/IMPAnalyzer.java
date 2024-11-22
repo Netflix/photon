@@ -231,10 +231,12 @@ public class IMPAnalyzer {
                             }
 
                             List<ErrorLogger.ErrorObject> aggregateErrors = new ArrayList<>();
+
                             List<PayloadRecord> essencePartitions = new ArrayList<>();
                             essencePartitions.add(trackFileEntry.headerPartition);
                             essencePartitions.addAll(trackFileEntry.indexPartitions);
 
+                            // avoid overwriting
                             aggregateErrors.addAll(IMPValidator.validateEssencePartitions(essencePartitions, sequenceNamespace));
                             if (errorMap.get(trackFileEntry.filename) != null)
                                 aggregateErrors.addAll(errorMap.get(trackFileEntry.filename));
@@ -243,7 +245,7 @@ public class IMPAnalyzer {
 
                         // validate virtual track compliance for each IMFCompositionPlaylist with the header partition payloads collected from MXF Track Files
                         for (String filename : imfCompositionPlaylistMap.keySet()) {
-                            IMFErrorLogger compositionConformanceErrorLogger = new IMFErrorLoggerImpl();
+                            IMFErrorLogger compositionErrorLogger = new IMFErrorLoggerImpl();
 
                             IMFCompositionPlaylist imfCompositionPlaylist = imfCompositionPlaylistMap.get(filename);
 
@@ -255,17 +257,17 @@ public class IMPAnalyzer {
                                 });
 
                                 // validate IMFCompositionPlaylist
-                                compositionConformanceErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords));
+                                compositionErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords));
                             } catch (IMFException e) {
-                                compositionConformanceErrorLogger.addAllErrors(e.getErrors());
+                                compositionErrorLogger.addAllErrors(e.getErrors());
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             } finally {
                                 List<ErrorLogger.ErrorObject> aggregateErrors = new ArrayList<>();
-                                aggregateErrors.addAll(compositionConformanceErrorLogger.getErrors());
-                                if (errorMap.get(filename + " " + CONFORMANCE_LOGGER_PREFIX) != null)
-                                    aggregateErrors.addAll(errorMap.get(filename + " " + CONFORMANCE_LOGGER_PREFIX));
-                                errorMap.put(filename + " " + CONFORMANCE_LOGGER_PREFIX, aggregateErrors);
+                                aggregateErrors.addAll(compositionErrorLogger.getErrors());
+                                if (errorMap.get(filename) != null)
+                                    aggregateErrors.addAll(errorMap.get(filename));
+                                errorMap.put(filename, aggregateErrors);
                             }
                         }
 
@@ -498,21 +500,7 @@ public class IMPAnalyzer {
 
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(input);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
-                if(!entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
-                }
-            }
-
-            logger.info("\n\n\n");
-            logger.info("==========================================================================" );
-            logger.info("Virtual Track Conformance" );
-            logger.info("==========================================================================");
-
-
-            for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
-                if(entry.getKey().contains(CONFORMANCE_LOGGER_PREFIX)) {
-                    logErrors(entry.getKey(), entry.getValue());
-                }
+                logErrors(entry.getKey(), entry.getValue());
             }
         }
         else
