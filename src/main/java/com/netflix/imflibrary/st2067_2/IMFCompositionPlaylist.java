@@ -19,6 +19,7 @@
 package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.*;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -895,12 +896,15 @@ public class IMFCompositionPlaylist {
             //validate header partition
             try {
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartitionTuple.getHeaderPartition(), imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-                GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-                SourcePackage filePackage = (SourcePackage) genericPackage;
-                UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
+
+                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+                if (!imfErrorLogger.hasFatalErrors()) {
+                    Preface preface = headerPartitionTuple.getHeaderPartition().getPreface();
+                    GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+                    SourcePackage filePackage = (SourcePackage) genericPackage;
+                    UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
+                    resourceUUIDHeaderPartitionMap.put(packageUUID, headerPartitionTuple);
+                }
             }
             catch (IMFException | MXFException e){
                 Preface preface = headerPartitionTuple.getHeaderPartition().getPreface();

@@ -12,10 +12,8 @@ import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
 import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
-import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
 import com.netflix.imflibrary.utils.*;
 import jakarta.annotation.Nonnull;
 
@@ -81,17 +79,10 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                     0L,
                     (long) headerPartitionPayload.getPayload().length,
                     imfErrorLogger);
-            Preface preface = headerPartition.getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
 
-            //if (iabResourceIDs.contains(packageUUID)) {
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
-                IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
-            //}
-
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
         } catch (MXFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
@@ -143,7 +134,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                         0L, (long) headerPartitionPayloadRecord.getPayload().length, imfErrorLogger);
 
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
 
                 for (PayloadRecord indexPayloadRecord : indexSegmentPayloadRecords) {
                     if (indexPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {

@@ -77,7 +77,7 @@ public class IMPFixer {
              * are in fact from the constituent resources of the VirtualTack
              */
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
             GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
             SourcePackage filePackage = (SourcePackage) genericPackage;
@@ -117,7 +117,7 @@ public class IMPFixer {
                  * are in fact from the constituent resources of the VirtualTack
                  */
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
                 Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
                 GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                 SourcePackage filePackage = (SourcePackage) genericPackage;
@@ -336,24 +336,6 @@ public class IMPFixer {
                 }
             }
         return imfErrorLogger.getErrors();
-    }
-
-    public static List<ErrorLogger.ErrorObject> validateEssencePartition(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-
-        IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
-
-        PayloadRecord headerPartitionPayload = getHeaderPartitionPayloadRecord(resourceByteRangeProvider, trackFileErrorLogger);
-        if(headerPartitionPayload == null) {
-            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Failed to get header partition"));
-        }
-        else {
-            List<PayloadRecord> payloadRecords = new ArrayList<>();
-            payloadRecords.add(headerPartitionPayload);
-            trackFileErrorLogger.addAllErrors(IMPValidator.validateIMFTrackFileHeaderMetadata(payloadRecords));
-        }
-
-        return trackFileErrorLogger.getErrors();
     }
 
     private static String usage() {

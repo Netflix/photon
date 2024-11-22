@@ -61,7 +61,6 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -134,7 +133,7 @@ public final class IMFTrackFileReader
             headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            this.headerPartition = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             if (this.headerPartition != null) {
                 IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
                 MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
@@ -338,7 +337,7 @@ public final class IMFTrackFileReader
         try {
             //validate partition packs
             MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-            IMFConstraints.checkIMFCompliance(partitionPacks, imfErrorLogger);
+            IMFConstraints.checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
         }
         catch (IMFException | MXFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));

@@ -27,10 +27,6 @@ public class IMFCPL2013Validator extends IMFCPLValidator {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        imfErrorLogger.addAllErrors(validateCommonConstraints(imfCompositionPlaylist));
-
-        imfErrorLogger.addAllErrors(IMPValidator.validateEssenceDescriptorsMatch(imfCompositionPlaylist, headerPartitionPayloads));
-
         // MARKER TRACK VALIDATION, CONTENT KIND VALUES, ETC
 
         return imfErrorLogger.getErrors();
