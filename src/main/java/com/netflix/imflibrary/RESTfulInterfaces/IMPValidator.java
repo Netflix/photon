@@ -339,7 +339,7 @@ public class IMPValidator {
 
                 // validate header metadata
                 if (partitionPack.hasHeaderMetadata()) {
-                    // todo: make sure to keep the right partition, if more than one contain header metadata
+                    // todo: ensure partition is signaled as closed and complete in Partition Pack and use Footer Partition otherwise
                     headerPartitionPayloadRecord = payloadRecord;
                     HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()),
                             0L,
