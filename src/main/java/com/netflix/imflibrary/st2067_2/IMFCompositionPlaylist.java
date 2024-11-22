@@ -895,9 +895,7 @@ public class IMFCompositionPlaylist {
         for (Composition.HeaderPartitionTuple headerPartitionTuple : headerPartitionTuples) {
             //validate header partition
             try {
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartitionTuple.getHeaderPartition(), imfErrorLogger);
-
-                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionTuple.getHeaderPartition()));
                 if (!imfErrorLogger.hasFatalErrors()) {
                     Preface preface = headerPartitionTuple.getHeaderPartition().getPreface();
                     GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();

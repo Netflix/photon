@@ -505,10 +505,8 @@ public final class IMFCoreConstraintsChecker {
                         (long)payloadRecord.getPayload().length,
                         imfErrorLogger);
 
-                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-
                 // check for compliance
-                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
                 if (imfErrorLogger.hasFatalErrors())
                     return imfErrorLogger.getErrors();
 

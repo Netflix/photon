@@ -27,7 +27,7 @@ public class ConstraintsValidatorFactory {
         registerValidator("http://www.smpte-ra.org/ns/2067-203/2022", IMFMGASADMPluginConstraintsValidator::new);
     }
 
-    public static void registerValidator(String type, Supplier<ConstraintsValidator> constructor) {
+    private static void registerValidator(String type, Supplier<ConstraintsValidator> constructor) {
         registry.put(type.toLowerCase(), constructor);
     }
 

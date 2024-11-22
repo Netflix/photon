@@ -327,10 +327,9 @@ public class IMPValidator {
                     0L,
                     (long)headerPartitionPayloadRecord.getPayload().length,
                     trackFileErrorLogger);
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, trackFileErrorLogger);
 
             // validate header metadata based on header partition payloads
-            trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+            trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
         } catch (MXFException e) {
             trackFileErrorLogger.addAllErrors(e.getErrors());
         }

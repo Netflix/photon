@@ -230,8 +230,7 @@ public class IMPValidatorFunctionalTests {
                     0L,
                     (long)payload.getPayload().length,
                     imfErrorLogger);
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+            imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
         }
 
         for(ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors()){

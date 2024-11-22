@@ -4,7 +4,6 @@ import com.netflix.imflibrary.Colorimetry;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
-import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;

@@ -61,22 +61,6 @@ public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidato
             return imfErrorLogger.getErrors();
         }
 
-
-        /*
-         * Find the IDs of all IAB Resources so that we can filter the provided header partition payloads
-
-        Set<UUID> iabResourceIDs = new HashSet<>();
-        for (Composition.VirtualTrack virtualTrack : imfCompositionPlaylist.getVirtualTrackMap().values()) {
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
-                virtualTrack.getResourceList().forEach(imfBaseResourceType -> {
-                    IMFTrackFileResourceType tfResource = (IMFTrackFileResourceType) imfBaseResourceType;
-                    iabResourceIDs.add(UUIDHelper.fromUUIDAsURNStringToUUID(tfResource.getTrackFileId()));
-                });
-            }
-        }
-            */
-
-
         try {
             HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayload.getPayload()),
                     0L,

@@ -1,21 +1,16 @@
 package com.netflix.imflibrary.validation;
 
-
-import java.util.*;
-
-
 import com.netflix.imflibrary.Colorimetry;
-import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.ProgressionOrder;
 import com.netflix.imflibrary.JPEG2000;
 import com.netflix.imflibrary.utils.Fraction;
 
+import java.util.*;
 
 public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidator {
 

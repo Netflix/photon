@@ -66,9 +66,11 @@ public final class IMFConstraints
 
 
 
-    public static List<ErrorLogger.ErrorObject> checkMXFHeaderMetadata(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A) throws IOException {
+    public static List<ErrorLogger.ErrorObject> checkMXFHeaderMetadata(HeaderPartition headerPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
         try {
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
             checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
         } catch (IMFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());

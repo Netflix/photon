@@ -1,6 +1,5 @@
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;

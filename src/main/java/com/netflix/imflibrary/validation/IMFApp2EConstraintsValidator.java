@@ -1,11 +1,9 @@
 package com.netflix.imflibrary.validation;
 
 import com.netflix.imflibrary.Colorimetry;
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
-import com.netflix.imflibrary.app.IMFTrackFileReader;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st0422.JP2KContentKind;
@@ -15,7 +13,6 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
 import jakarta.annotation.Nonnull;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;

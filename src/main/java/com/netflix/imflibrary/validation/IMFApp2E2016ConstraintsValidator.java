@@ -14,7 +14,6 @@ import com.netflix.imflibrary.utils.Fraction;
 
 import java.util.Arrays;
 
-
 public class IMFApp2E2016ConstraintsValidator extends IMFApp2EConstraintsValidator {
 
     private static final String applicationCompositionType = "IMF Application #2E 2016";
