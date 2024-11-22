@@ -1,22 +1,15 @@
 package com.netflix.imflibrary.st2067_2;
 
-import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.*;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
+import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.RegXMLLibDictionary;
-import com.netflix.imflibrary.utils.UUIDHelper;
-import com.netflix.imflibrary.utils.Utilities;
+import com.netflix.imflibrary.utils.*;
 
-import jakarta.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A class that performs CoreConstraints st2067-2 related checks on the elements of a Composition Playlist such as VirtualTracks, Segments, Sequences and Resources.
@@ -107,14 +100,19 @@ public final class IMFCoreConstraintsChecker {
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
-            if (!(virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
+            boolean isSupportedEssenceSequence = false;
+
+            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
                     || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
-                        && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
+                    && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
                     || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))) {
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))
+                isSupportedEssenceSequence = true;
+
+
+            if (!(isSupportedEssenceSequence || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence))) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
                         String.format("CPL has a Sequence of type %s which is not fully supported sequence type in Photon, NS: %s",
                                 virtualTrack.getSequenceTypeEnum().toString(), imfCompositionPlaylist.getCoreConstraintsSchema()));
@@ -138,13 +136,7 @@ public final class IMFCoreConstraintsChecker {
                 foundMainAudioEssence = true;
             }
 
-            if((virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.SubtitlesSequence)
-                    || (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.ForcedNarrativeSequence)
-                            && imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2020))
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))
+            if(isSupportedEssenceSequence
                     && imfCompositionPlaylist.getEssenceDescriptorList() != null
                     && imfCompositionPlaylist.getEssenceDescriptorList().size() > 0)
             {
@@ -227,15 +219,12 @@ public final class IMFCoreConstraintsChecker {
                         virtualTrackEssenceDescriptors.add(domNodeObjectModel);
                     }
                 }
-                //Section 6.8 st2067-2:2016
-                if(!(virtualTrackEssenceDescriptors.size() > 0)){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("This Composition represented by the ID %s is invalid since the resources comprising the VirtualTrack represented by ID %s seem to refer to EssenceDescriptor/s in the CPL's EssenceDescriptorList that are absent", imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString()));
-                }
-                else if( virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
-                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
-                        || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
-                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)){
+
+                if( !virtualTrackEssenceDescriptors.isEmpty()
+                        && (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)
+                            || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)
+                            || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)
+                    || virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence))){
                     boolean isVirtualTrackHomogeneous = true;
                     Set<String> homogeneitySelectionSetAll = new HashSet<>(homogeneitySelectionSet);
                     homogeneitySelectionSetAll.addAll(IMFCoreConstraintsChecker.homogeneitySelectionSet);
@@ -306,7 +295,6 @@ public final class IMFCoreConstraintsChecker {
 
             /* TODO: Add check for Marker sequence */
             Set<Long> sequencesDurationSet = new HashSet<>();
-            double compositionEditRate = (double) imfCompositionPlaylist.getEditRate().getNumerator()/ imfCompositionPlaylist.getEditRate().getDenominator();
             for (IMFSequenceType sequence : segment.getSequenceList())
             {
                 UUID uuid = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
@@ -437,4 +425,213 @@ public final class IMFCoreConstraintsChecker {
     private static boolean isCDCIEssenceDescriptor(DOMNodeObjectModel domNodeObjectModel) {
         return domNodeObjectModel.getLocalName().equals("CDCIDescriptor");
     }
+
+
+
+
+
+
+
+
+
+    /**
+     * A stateless method that can be used to determine if a Composition is conformant. Conformance checks
+     * perform deeper inspection of the Composition and the EssenceDescriptors corresponding to all the
+     * Virtual Tracks that are a part of the Composition
+     * @param imfCompositionPlaylist an IMFCompositionPlaylist object corresponding to the Composition
+     * @param essencesHeaderPartitionPayloads list of payload records containing the raw bytes of the HeaderPartitions of the IMF Track files that are a part of the Virtual Track/s in the Composition
+     * @return list of error messages encountered while performing conformance validation of the Composition document
+     * @throws IOException - any I/O related error is exposed through an IOException
+     */
+    public static List<ErrorLogger.ErrorObject> checkEssenceDescriptors(IMFCompositionPlaylist imfCompositionPlaylist,
+                                                                        List<PayloadRecord> essencesHeaderPartitionPayloads) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        /*
+         * Verify that the CPL is valid before attempting to parse it.
+         */
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        if (imfErrorLogger.hasFatalErrors()) {
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate essence descriptors: IMF Composition Playlist has FATAL errors"));
+            return imfErrorLogger.getErrors();
+        }
+
+        /**
+         * Check that each entry in the EssenceDescriptorList is referenced from at least one Resource.
+         */
+        imfCompositionPlaylist.getEssenceDescriptorIdsSet().forEach(descriptorId -> {
+            if (!imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet().contains(descriptorId)) {
+                //Section 6.1.10.1 st2067-3:2013
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptorID %s in the CPL " +
+                        "EssenceDescriptorList is not referenced by any resource in any of the Virtual Tracks in the CPL.", descriptorId.toString()));
+            }
+        });
+
+
+        /**
+         * Check that every Resource SourceEncodingID is present in the EssenceDescriptorList.
+         */
+        imfCompositionPlaylist.getResourceEssenceDescriptorIdsSet().forEach(resourceEssenceDescriptorId -> {
+            if (!imfCompositionPlaylist.getEssenceDescriptorIdsSet().contains(resourceEssenceDescriptorId)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with SourceEncodingID " +
+                        "%s is missing in EssenceDescriptorList.", resourceEssenceDescriptorId.toString()));
+            }
+        });
+
+        /*
+         * Collect the UUIDs from the header payloads and filter out any that are _not_ referenced from the input composition
+         */
+        Map<UUID, PayloadRecord> referencedHeaderPayloads = new HashMap<>();
+        List<Composition.HeaderPartitionTuple> headerPartitionTuples = new ArrayList<>();
+
+        for (PayloadRecord payloadRecord : essencesHeaderPartitionPayloads) {
+            if (payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        String.format("Unable to validate any essence descriptors: payload asset type is %s, expected asset type %s",
+                                payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.EssencePartition.toString()));
+                return imfErrorLogger.getErrors();
+            }
+
+            try {
+                HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(payloadRecord.getPayload()),
+                        0L,
+                        (long)payloadRecord.getPayload().length,
+                        imfErrorLogger);
+
+                MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+
+                // check for compliance
+                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A));
+                if (imfErrorLogger.hasFatalErrors())
+                    return imfErrorLogger.getErrors();
+
+                UUID packageUUID = MXFUtils.getTrackFileId(payloadRecord, imfErrorLogger);
+                if (packageUUID == null) {
+                    throw new MXFException("Unable to determine the package UUID from the payload record.");
+                }
+                for (IMFTrackFileResourceType tf : imfCompositionPlaylist.getTrackFileResources()) {
+                    if (packageUUID.equals(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId()))) {
+                        referencedHeaderPayloads.put(packageUUID, payloadRecord);
+
+                        headerPartitionTuples.add(new Composition.HeaderPartitionTuple(headerPartition,
+                                new ByteArrayByteRangeProvider(payloadRecord.getPayload())));
+                        break;
+                    }
+                }
+            } catch (MXFException e) {
+                imfErrorLogger.addAllErrors(e.getErrors());
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        e.getMessage());
+                return imfErrorLogger.getErrors();
+            } catch (IOException e) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        "Exception occured while attempting to validate header metadata.");
+                return imfErrorLogger.getErrors();
+            }
+        }
+
+        if (referencedHeaderPayloads.isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                    "Unable to validate any essence descriptors: no matching essence partition payloads provided");
+            return imfErrorLogger.getErrors();
+        }
+
+        /*
+         * Raise a warning for any missing header payloads (supplemental IMP use case, i.e. not all MXF Track Files are part of the IMP)
+         */
+        for (IMFTrackFileResourceType tf : imfCompositionPlaylist.getTrackFileResources()) {
+            if (referencedHeaderPayloads.get(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId())) == null ) {
+                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        String.format("Unable to validate essence descriptors: no matching essence partition payload provided for ID %s", tf.getTrackFileId())));
+            }
+        }
+
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
+        Map<UUID, List<DOMNodeObjectModel>> resourceEssenceDescriptorMap = null;
+
+        try {
+            resourceEssenceDescriptorMap = imfCompositionPlaylist.getResourcesEssenceDescriptorsMap(headerPartitionTuples);
+        } catch (IOException e) {
+            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Failed to retrieve resource essence descriptor map from Composition Playlist"));
+        }
+        if (essenceDescriptorMap == null || resourceEssenceDescriptorMap == null) {
+            return imfErrorLogger.getErrors();
+        }
+
+        /**
+         * An exhaustive compare of the eDLMap and essenceDescriptorsMap is required to ensure that the essence descriptors
+         * in the EssenceDescriptorList and the EssenceDescriptors in the physical essence files corresponding to the
+         * same source encoding element as indicated in the TrackFileResource and EDL are a good match.
+         *
+         * The Maps have the DOMObjectModel for every EssenceDescriptor in the EssenceDescriptorList in the CPL and
+         * the essence descriptor in each of the essences referenced from every track file resource within each virtual track.
+         */
+
+        Set<String> ignoreSet = new HashSet<String>();
+
+        // PHDRMetadataTrackSubDescriptor is not present in SMPTE registries and cannot be serialized
+        // todo:
+        ignoreSet.add("PHDRMetadataTrackSubDescriptor");
+
+        /**
+         * The following check ensures that we have atleast one EssenceDescriptor in a TrackFile that equals the corresponding EssenceDescriptor element in the CPL's EDL
+         */
+        Iterator<Map.Entry<UUID, List<DOMNodeObjectModel>>> iterator = resourceEssenceDescriptorMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, List<DOMNodeObjectModel>> entry = (Map.Entry<UUID, List<DOMNodeObjectModel>>) iterator.next();
+            List<DOMNodeObjectModel> domNodeObjectModels = entry.getValue();
+            DOMNodeObjectModel referenceDOMNodeObjectModel = essenceDescriptorMap.get(entry.getKey());
+            if (referenceDOMNodeObjectModel == null) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Source Encoding " +
+                        "Element %s in a track does not have a corresponding entry in the CPL's Essence Descriptor List.", entry.getKey().toString()));
+            }
+            else {
+                referenceDOMNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(essenceDescriptorMap.get(entry.getKey()), ignoreSet);
+                boolean intermediateResult = false;
+
+                List<DOMNodeObjectModel> domNodeObjectModelsIgnoreSet = new ArrayList<>();
+                for (DOMNodeObjectModel domNodeObjectModel : domNodeObjectModels) {
+                    domNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(domNodeObjectModel, ignoreSet);
+                    domNodeObjectModelsIgnoreSet.add(domNodeObjectModel);
+                    intermediateResult |= referenceDOMNodeObjectModel.equals(domNodeObjectModel);
+                }
+                if (!intermediateResult) {
+                    DOMNodeObjectModel matchingDOMNodeObjectModel = DOMNodeObjectModel.getMatchingDOMNodeObjectModel(referenceDOMNodeObjectModel, domNodeObjectModelsIgnoreSet);
+                    imfErrorLogger.addAllErrors(DOMNodeObjectModel.getNamespaceURIMismatchErrors(referenceDOMNodeObjectModel, matchingDOMNodeObjectModel));
+
+                    String domNodeName = referenceDOMNodeObjectModel.getLocalName();
+                    List<DOMNodeObjectModel> domNodeObjectModelList = domNodeObjectModelsIgnoreSet.stream().filter( e -> e.getLocalName().equals(domNodeName)).collect(Collectors.toList());
+                    if(domNodeObjectModelList.size() != 0)
+                    {
+                        DOMNodeObjectModel diffCPLEssenceDescriptor = referenceDOMNodeObjectModel.removeNodes(domNodeObjectModelList.get(0));
+                        DOMNodeObjectModel diffTrackFileEssenceDescriptor = domNodeObjectModelList.get(0).removeNodes(referenceDOMNodeObjectModel);
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
+                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
+                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList with mismatching fields is as follows %n%s, %n%nEssenceDescriptor found in the " +
+                                        "TrackFile resource with mismatching fields is as follows %n%s%n%n",
+                                entry.getKey().toString(), diffCPLEssenceDescriptor.toString(), diffTrackFileEssenceDescriptor.toString()));
+                    }
+                    else {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor with Id %s in the CPL's " +
+                                        "EssenceDescriptorList doesn't match any EssenceDescriptors within the IMFTrackFile resource that references it, " +
+                                        "%n%n EssenceDescriptor in CPL EssenceDescriptorList is as follows %n%s, %n%nEssenceDescriptors found in the TrackFile resource %n%s%n%n",
+                                entry.getKey().toString(), referenceDOMNodeObjectModel.toString(), Utilities.serializeObjectCollectionToString(domNodeObjectModelsIgnoreSet)));
+                    }
+                }
+            }
+        }
+
+        return imfErrorLogger.getErrors();
+    }
+
 }
