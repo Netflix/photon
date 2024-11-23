@@ -367,7 +367,7 @@ public class IMPAnalyzer {
 
 
 
-    public static List<ErrorLogger.ErrorObject> analyzeFile(Path input) throws IOException {
+    public static List<ErrorLogger.ErrorObject> analyzeFile(Path input, String namespace) throws IOException {
         IMFErrorLogger errorLogger = new IMFErrorLoggerImpl();
 
         if (!Files.isRegularFile(input)) {
@@ -407,8 +407,11 @@ public class IMPAnalyzer {
                 essencePartitions.add(headerPartitionPayload);
                 essencePartitions.addAll(indexSegmentPayloadRecords);
 
+
+                // todo: could guestimate namespace based on essence type, if none is provided
+
                 // validate essence partitions
-                errorLogger.addAllErrors(IMPValidator.validateEssencePartitions(essencePartitions, null));
+                errorLogger.addAllErrors(IMPValidator.validateEssencePartitions(essencePartitions, namespace));
 
                 return errorLogger.getErrors();
             }
@@ -484,7 +487,7 @@ public class IMPAnalyzer {
 
     public static void main(String args[]) throws IOException
     {
-        if (args.length != 1)
+        if (args.length < 1 || args.length > 2)
         {
             logger.error(usage());
             System.exit(-1);
@@ -506,11 +509,14 @@ public class IMPAnalyzer {
         else
         {
             Path filename = input.getFileName();
+            String namespace = null;
+            if (args.length == 2)
+                namespace = args[1];
             if (filename != null) {
                 logger.info("==========================================================================\n" );
                 logger.info(String.format("Analyzing path %s", filename.toString()));
                 logger.info("==========================================================================\n");
-                List<ErrorLogger.ErrorObject>errors = analyzeFile(input);
+                List<ErrorLogger.ErrorObject>errors = analyzeFile(input, namespace);
                 logErrors(filename.toString(), errors);
             }
         }

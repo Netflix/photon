@@ -140,7 +140,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeCPLValid() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/CPL_3aa56098-7709-4673-9266-7f0c70ba10d8.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 0);
 
     }
@@ -149,7 +149,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeCPLError() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2Extended/CPL_BLACKL_202_1080p_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4_JPEG2000SubDescriptorError.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 4);
     }
 
@@ -157,7 +157,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzePKLValid() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/PKL_913ef906-893f-4851-8664-2d053bd2ec95.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 0);
 
     }
@@ -166,7 +166,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzePKLError() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/PKL_d54a68ed-332e-4ddd-b163-c0317abb1e52.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 2);
     }
 
@@ -174,7 +174,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeAssetMapValid() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/ASSETMAP.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 0);
 
     }
@@ -183,7 +183,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeAssetMapError() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/ASSETMAP.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 4);
     }
 
@@ -191,7 +191,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeOPLValid() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 0);
 
     }
@@ -200,7 +200,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeOPLError() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/OPL_8cf83c32-4949-4f00-b081-01e12b18932f_simple.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 2);
     }
 
@@ -208,7 +208,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerAnalyzeUnknownFileError() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/BadXML/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
-        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile);
+        List<ErrorLogger.ErrorObject> errorList = analyzeFile(inputFile, null);
         Assert.assertEquals(errorList.size(), 1);
         Assert.assertTrue(errorList.get(0).getErrorDescription().contains("Unknown AssetType"));
 
