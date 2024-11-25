@@ -107,7 +107,7 @@ public class IMPAssemblerTest {
         assert result.getErrors().isEmpty();
 
         // validate generated IMP
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDirPath);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzeDelivery(outputDirPath);
         // ensure there are no fatal errors in the generated IMP
         for (Map.Entry<String, List<ErrorLogger.ErrorObject>> entry : errorMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
@@ -184,7 +184,7 @@ public class IMPAssemblerTest {
         assert result.getErrors().isEmpty();
 
         // validate generated IMP
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzePackage(outputDirPath);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = IMPAnalyzer.analyzeDelivery(outputDirPath);
         // ensure there are no fatal errors in the generated IMP
         for (Map.Entry<String, List<ErrorLogger.ErrorObject>> entry : errorMap.entrySet()) {
             if (entry.getValue().isEmpty()) {

@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeDelivery;
 import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeFile;
 
 @Test(groups = "unit")
@@ -20,7 +20,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -38,7 +38,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTestPHDR() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -52,7 +52,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTestTimedText() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/TimedTextImageAndTextProfile/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 8);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -70,7 +70,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTestMissingFilesAndAssetMapEntries() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/MissingFilesAndAssetMapEntries/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 4);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -90,7 +90,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTestIDMismatches() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -122,7 +122,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTestMimeTypeErrors() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/WrongXmlMimeTypes/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 2);
         errorMap.entrySet().stream().forEach( e ->
                 {

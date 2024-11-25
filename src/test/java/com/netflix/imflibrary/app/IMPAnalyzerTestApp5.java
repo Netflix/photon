@@ -31,7 +31,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeDelivery;
 
 
 @Test(groups = "unit")
@@ -41,7 +41,7 @@ public class IMPAnalyzerTestApp5
     public void IMPAnalyzerTestApp5() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {

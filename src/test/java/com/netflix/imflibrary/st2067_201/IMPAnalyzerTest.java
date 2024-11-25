@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeDelivery;
 
 @Test(groups = "unit")
 public class IMPAnalyzerTest
@@ -19,7 +19,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/IAB/CompleteIMP");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {

@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static com.netflix.imflibrary.app.IMPAnalyzer.analyzePackage;
+import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeDelivery;
 
 @Test(groups = "unit")
 public class IMPAnalyzerTest
@@ -19,7 +19,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__compliant/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -39,7 +39,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest02() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_16bit/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -61,7 +61,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest03() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_44100Hz/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -83,7 +83,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest04() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ADMAudioProgrammeID_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -105,7 +105,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest05() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_ContainerContraintsSubDescriptor_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -127,7 +127,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest06() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -149,7 +149,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest07() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAContent_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -171,7 +171,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest08() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -193,7 +193,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest09() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagName_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -215,7 +215,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest10() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -237,7 +237,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest11() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATagSymbol_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -259,7 +259,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest12() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitle_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -281,7 +281,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest13() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCATitleVersion_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -303,7 +303,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest14() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -325,7 +325,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest15() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_MCAUseClass_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -347,7 +347,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest16() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAAudioMetadataIdentifier_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -369,7 +369,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest17() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADM_MGAMetadataIndex_wrong/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -391,7 +391,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest18() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_SADMAudioMetadataSubDescriptor_missing/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -413,7 +413,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest19() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_audio_track_file__non_compliant_two_SADM_sections/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -435,7 +435,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest20() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_no_virtual_track_parameterset/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -457,7 +457,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest21() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_unkown_operational_mode/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
@@ -479,7 +479,7 @@ public class IMPAnalyzerTest
     public void IMPAnalyzerTest22() throws IOException
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/SADM/ST2067-203_CPL__non_compliant_wrong_track_id/");
-        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(inputFile);
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
         Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {

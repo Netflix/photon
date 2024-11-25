@@ -55,7 +55,7 @@ public class IMPAnalyzer {
 
 
 
-    public static Map<String, List<ErrorLogger.ErrorObject>> analyzePackage(Path rootPath) throws IOException {
+    public static Map<String, List<ErrorLogger.ErrorObject>> analyzeDelivery(Path rootPath) throws IOException {
 
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = new HashMap<>();
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -501,7 +501,7 @@ public class IMPAnalyzer {
             logger.info(String.format("Analyzing IMF package %s", inputFileName));
             logger.info("==========================================================================");
 
-            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzePackage(input);
+            Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(input);
             for(Map.Entry<String, List<ErrorLogger.ErrorObject>> entry: errorMap.entrySet()) {
                 logErrors(entry.getKey(), entry.getValue());
             }
