@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
  */
 final class CompositionModel_st2067_2_2016 {
 
+    private static final String cplNamespaceURI = "http://www.smpte-ra.org/schemas/2067-3/2016";
+
     //To prevent instantiation
     private CompositionModel_st2067_2_2016(){
 
@@ -96,6 +98,7 @@ final class CompositionModel_st2067_2_2016 {
                 .segmentList(segmentList)
                 .essenceDescriptorList(essenceDescriptorList)
                 .coreConstraintsSchema(coreConstraintsSchema)
+                .cplSchema(cplNamespaceURI)
                 .applicationIdSet(applicationIDs)
                 .extensionProperties(extensionProperties);
     }
@@ -231,7 +234,7 @@ final class CompositionModel_st2067_2_2016 {
                 markerSequence.getTrackId(),
                 Composition.SequenceTypeEnum.MarkerSequence,
                 "MarkerSequence",
-                "http://www.smpte-ra.org/schemas/2067-3/2016",
+                cplNamespaceURI,
                 sequenceResources);
     }
 

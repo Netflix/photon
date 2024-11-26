@@ -77,6 +77,7 @@ public class IMFCompositionPlaylist {
     private final String contentOriginator;
     private final String contentTitle;
     private final String coreConstraintsSchema;
+    private final String cplSchema;
     private final List<IMFSegmentType> segmentList;
     private final List<IMFEssenceDescriptorBaseType> essenceDescriptorList;
     private final Set<String> applicationIdSet;
@@ -86,6 +87,7 @@ public class IMFCompositionPlaylist {
     static class Builder {
         private IMFErrorLogger imfErrorLogger;
         private String coreConstraintsSchema;
+        private String cplSchema;
         private UUID id;
         private Composition.EditRate editRate;
         private String annotation;
@@ -105,6 +107,11 @@ public class IMFCompositionPlaylist {
 
         Builder coreConstraintsSchema(String coreConstraintsSchema) {
             this.coreConstraintsSchema = coreConstraintsSchema;
+            return this;
+        }
+
+        Builder cplSchema(String cplSchema) {
+            this.cplSchema = cplSchema;
             return this;
         }
 
@@ -203,6 +210,7 @@ public class IMFCompositionPlaylist {
      */
     private IMFCompositionPlaylist(Builder builder) {
         this.coreConstraintsSchema = builder.coreConstraintsSchema;
+        this.cplSchema = builder.cplSchema;
         this.id = builder.id;
         this.editRate = builder.editRate;
         this.annotation = builder.annotation;
@@ -608,6 +616,14 @@ public class IMFCompositionPlaylist {
      */
     @Nonnull public String getCoreConstraintsSchema() {
         return this.coreConstraintsSchema;
+    }
+
+    /**
+     * Getter for the CPL schema URI.
+     * @return URI for the CPL schema
+     */
+    @Nonnull public String getCplSchema() {
+        return this.cplSchema;
     }
 
     /**
