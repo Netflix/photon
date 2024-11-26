@@ -365,8 +365,7 @@ public class IMPValidator {
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
 
-        if (sequenceNamespace != null && !sequenceNamespace.isEmpty() &&
-            !(CoreConstraints.SUPPORTED_NAMESPACES.contains(sequenceNamespace)))  {
+        if (sequenceNamespace != null && !sequenceNamespace.isEmpty())  {
 
             ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(sequenceNamespace);
             if (validator != null) {
