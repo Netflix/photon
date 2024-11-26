@@ -28,7 +28,7 @@ import static com.netflix.imflibrary.st2067_2.Composition.SequenceTypeEnum;
  * A class that models Sequence structure of an IMF Composition Playlist.
  */
 @Immutable
-final class IMFSequenceType {
+public final class IMFSequenceType {
     protected final String id;
     protected final String trackId;
     protected final List<? extends IMFBaseResourceType> resourceList;

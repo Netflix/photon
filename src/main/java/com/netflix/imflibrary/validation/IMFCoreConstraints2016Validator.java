@@ -11,8 +11,6 @@ import jakarta.annotation.Nonnull;
 
 import java.util.*;
 
-import static com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker.checkVirtualTrackResourceList;
-
 public class IMFCoreConstraints2016Validator extends IMFCoreConstraintsValidator {
 
     private static final String ccNamespaceURI = "http://www.smpte-ra.org/schemas/2067-2/2016";
@@ -29,7 +27,8 @@ public class IMFCoreConstraints2016Validator extends IMFCoreConstraintsValidator
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        imfErrorLogger.addAllErrors(validateVirtualTracks(imfCompositionPlaylist, ccNamespaceURI));
+        // todo: this needs cleanup, should move version specific checks into subclasses, and probably just call checkVirtualTrackHomogeneity()
+        imfErrorLogger.addAllErrors(checkVirtualTracks(imfCompositionPlaylist));
 
         return imfErrorLogger.getErrors();
     }

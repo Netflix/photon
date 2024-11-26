@@ -4,17 +4,17 @@ package com.netflix.imflibrary.validation;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
-import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
-import com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
+import com.netflix.imflibrary.st2067_2.*;
+import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.RegXMLLibDictionary;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import jakarta.annotation.Nonnull;
 
 import java.util.*;
 
-import static com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker.checkVirtualTrackResourceList;
-
+import static com.netflix.imflibrary.validation.ConstraintsValidatorUtils.checkVirtualTrackHomogeneity;
 
 abstract public class IMFCoreConstraintsValidator implements ConstraintsValidator {
 
@@ -23,9 +23,70 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
         return List.of();
     }
 
+    private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
+        add("CDCIDescriptor");
+        add("RGBADescriptor");
+        add("SubDescriptors");
+        add("JPEG2000SubDescriptor");
+        add("WAVEPCMDescriptor");
+        add("StoredWidth");
+        add("StoredHeight");
+        add("FrameLayout");
+        add("SampleRate");
+        add("PixelLayout");
+        add("ColorPrimaries");
+        add("TransferCharacteristic");
+        add("PictureCompression");
+        add("ComponentMaxRef");
+        add("ComponentMinRef");
+        add("BlackRefLevel");
+        add("WhiteRefLevel");
+        add("ColorRange");
+        add("ColorSiting");
+        add("ComponentDepth");
+        add("HorizontalSubsampling");
+        add("VerticalSubsampling");
+        add("Xsiz");
+        add("Ysiz");
+        add("Csiz");
+        add("J2CLayout");
+        add("RGBAComponent");
+        add("Code");
+        add("ComponentSize");
+        add("PictureComponentSizing");
+        add("J2KComponentSizing");
+        add("Ssiz");
+        add("XRSiz");
+        add("YRSiz");
+        add("AudioSampleRate");
+        add("QuantizationBits");
+    }};
 
-    protected List<ErrorLogger.ErrorObject> validateVirtualTracks(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, String namespaceURI) {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+
+
+    /**
+     * Checks that there is only one video track and at least one audio track and that
+     * for each virtual track in the given virtual track map that:
+     * - the track is made of supported sequences
+     * - the CPL edit rate matches one of the MainImageSequence edit rate
+     * - the resources are valid see checkVirtualTrackResourceList
+     * - each resource has a corresponding essence descriptor
+     * - the CPL and descriptor rates match
+     * - the descriptors are homogeneous
+     *
+     * @param imfCompositionPlaylist CPL object
+     * @return a list of errors
+     */
+    protected static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylist imfCompositionPlaylist) {
+
+        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
+
+        boolean foundMainImageEssence = false;
+        int numberOfMainImageEssences = 0;
+        boolean foundMainAudioEssence = false;
+        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
+        Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
 
         // iterate over virtual tracks
         for (Map.Entry<UUID, ? extends Composition.VirtualTrack> virtualTrackEntry : imfCompositionPlaylist.getVirtualTrackMap().entrySet()) {
@@ -34,17 +95,146 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
             // retrieve sequence namespace associated with the virtual track
             String virtualTrackSequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForVirtualTrackID(virtualTrack.getTrackID());
 
-            // skip all virtual tracks that don't fall under CPL namespace
-            if (!namespaceURI.equals(virtualTrackSequenceNamespace)) {
+            // skip all virtual tracks that don't fall under core constraints
+            if (!CoreConstraints.SUPPORTED_NAMESPACES.contains(virtualTrackSequenceNamespace)) {
                 continue;
             }
 
-            // todo: this needs cleanup, should move version specific checks into subclasses, general checks here, and probably just call checkVirtualTrackHomogeneity()
-            imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(imfCompositionPlaylist));
+            String virtualTrackSequenceName = imfCompositionPlaylist.getSequenceNameForVirtualTrackID(virtualTrack.getTrackID());
 
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+
+            if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
+                foundMainImageEssence = true;
+                numberOfMainImageEssences++;
+                Composition.EditRate compositionEditRate = imfCompositionPlaylist.getEditRate();
+                for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
+                    Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
+                    //Section 6.4 st2067-2:2016
+                    if (trackResourceEditRate != null
+                            && !trackResourceEditRate.equals(compositionEditRate)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as at least one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
+                    }
+                }
+            } else if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_AUDIO_SEQUENCE)) {
+                foundMainAudioEssence = true;
+            }
+
+            if (imfCompositionPlaylist.getEssenceDescriptorList() == null || imfCompositionPlaylist.getEssenceDescriptorList().isEmpty()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        "Unable to check virtual track conformance as the EssenceDescriptorList in the CPL appears to be empty");
+                continue;
+            }
+
+            List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
+            String refSourceEncodingElement = "";
+            String essenceDescriptorField = "";
+            String otherEssenceDescriptorField = "";
+            Composition.EditRate essenceEditRate = null;
+
+            // iterate over virtual track resources
+            for (IMFBaseResourceType imfBaseResourceType : virtualTrackResourceList) {
+                IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(imfBaseResourceType);
+                DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
+                //Section 6.8 st2067-2:2016
+                if (domNodeObjectModel == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by a " +
+                                    "VirtualTrack Resource does not have a corresponding EssenceDescriptor in the EssenceDescriptorList in the CPL",
+                            imfTrackFileResourceType.getSourceEncoding()));
+                    continue;
+                }
+
+                if (!refSourceEncodingElement.equals(imfTrackFileResourceType.getSourceEncoding())) {
+                    refSourceEncodingElement = imfTrackFileResourceType.getSourceEncoding();
+                    //Section 6.3.1 and 6.3.2 st2067-2:2016 Edit Rate check
+                    essenceDescriptorField = "SampleRate";
+
+                    String sampleRate = domNodeObjectModel.getFieldAsString(essenceDescriptorField);
+                    if (sampleRate != null) {
+                        Long numerator = 0L;
+                        Long denominator = 0L;
+                        String[] sampleRateElements = (sampleRate.contains(" ")) ? sampleRate.split(" ") : sampleRate.contains("/") ? sampleRate.split("/") : new String[2];
+                        if (sampleRateElements.length == 2) {
+                            numerator = Long.valueOf(sampleRateElements[0]);
+                            denominator = Long.valueOf(sampleRateElements[1]);
+                        } else if (sampleRateElements.length == 1) {
+                            numerator = Long.valueOf(sampleRateElements[0]);
+                            denominator = 1L;
+                        }
+                        List<Long> editRate = new ArrayList<>();
+                        editRate.add(numerator);
+                        editRate.add(denominator);
+
+                        essenceEditRate = new Composition.EditRate(editRate);
+
+                        if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
+                            CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
+                                    (imfTrackFileResourceType.getSourceEncoding()),
+                                    domNodeObjectModel,
+                                    regXMLLibDictionary);
+
+                            // ignoring the interlaced case since the edit rate depends on the specific interlaced packaging, which is application dependent
+                            if (!imageEssenceDescriptorModel.getFrameLayoutType().equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) && !essenceEditRate.equals(imfBaseResourceType.getEditRate())) {
+                                //Section 6.3.1 and 6.3.2 st2067-2:2016
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                        String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
+                                                        "whose indicated %s value is %s, however the Resource Edit Rate is %s"
+                                                , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
+                            }
+                        }
+                    }
+                }
+                if (essenceEditRate == null) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                            String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that seems to refer to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
+                                            "which does not have a value set for the field %s, however the Resource Edit Rate is %s"
+                                    , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
+                }
+                virtualTrackEssenceDescriptors.add(domNodeObjectModel);
+            }
+
+            Set<String> trackHomogeneitySelectionSet = homogeneitySelectionSet;
+            if (!virtualTrackEssenceDescriptors.isEmpty()) {
+                if (isCDCIEssenceDescriptor(virtualTrackEssenceDescriptors.get(0))) {
+                    trackHomogeneitySelectionSet.add("CodingEquations");
+                }
+            }
+
+            imfErrorLogger.addAllErrors(checkVirtualTrackHomogeneity(virtualTrack, essenceDescriptorListMap, trackHomogeneitySelectionSet));
+        }
+
+        //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
+        //Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
+        if(!foundMainImageEssence){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString()));
+        }
+        else{
+            if(numberOfMainImageEssences > 1){
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString(), numberOfMainImageEssences));
+            }
+        }
+
+        //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
+        //Section 6.3.2 st2067-2:2020 allows CPLs without Audio Virtual Tracks
+        if(!foundMainAudioEssence
+                && (imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2013)
+                || imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2016)))
+        {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", imfCompositionPlaylist.getId().toString()));
         }
 
         return imfErrorLogger.getErrors();
     }
+
+
+
+
+    private static boolean isCDCIEssenceDescriptor(DOMNodeObjectModel domNodeObjectModel) {
+        return domNodeObjectModel.getLocalName().equals("CDCIDescriptor");
+    }
+
+
+
+
 
 }

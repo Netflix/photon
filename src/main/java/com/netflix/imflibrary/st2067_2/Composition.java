@@ -330,7 +330,7 @@ public final class Composition {
          */
         public long getDuration(){
             long duration = getDurationInTrackEditRateUnits();
-            Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();//Resources of this virtual track should all have the same edit rate we enforce that check during IMFCoreConstraintsChecker.checkVirtualTracks()
+            Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();
             long durationInCompositionEditUnits = Math.round((double) duration * (((double)this.compositionEditRate.getNumerator()/this.compositionEditRate.getDenominator()) / ((double)resourceEditRate.getNumerator()/resourceEditRate.getDenominator())));
             return durationInCompositionEditUnits;
         }

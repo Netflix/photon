@@ -272,17 +272,12 @@ public class IMPValidator {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         /*
-            run core validation on all cpls
-        */
-        imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkSegments(imfCompositionPlaylist));
-        imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkEssenceDescriptors(imfCompositionPlaylist, headerPartitionPayloads));
-
-        /*
-            run validations based on application identification and sequence namespaces:
+            run validations based on application identification, cpl and sequence namespaces:
          */
 
         Set<String> namespaces = imfCompositionPlaylist.getSequenceNamespaceSet();
         namespaces.addAll(imfCompositionPlaylist.getApplicationIdSet());
+        namespaces.add(imfCompositionPlaylist.getCplSchema());
 
         for (String namespace : namespaces) {
             ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(namespace);

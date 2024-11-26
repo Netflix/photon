@@ -25,7 +25,8 @@ public class IMFCoreConstraints2013Validator extends IMFCoreConstraintsValidator
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        imfErrorLogger.addAllErrors(validateVirtualTracks(imfCompositionPlaylist, ccNamespaceURI));
+        // todo: this needs cleanup, should move version specific checks into subclasses, and probably just call checkVirtualTrackHomogeneity()
+        imfErrorLogger.addAllErrors(checkVirtualTracks(imfCompositionPlaylist));
 
         return imfErrorLogger.getErrors();
     }

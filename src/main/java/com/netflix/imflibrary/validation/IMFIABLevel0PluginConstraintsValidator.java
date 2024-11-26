@@ -10,10 +10,8 @@ import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
 import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.utils.*;
@@ -53,8 +51,6 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                 continue;
             }
 
-            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
-            imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
             imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrack, essenceDescriptorListMap, Set.of()));
 
         }

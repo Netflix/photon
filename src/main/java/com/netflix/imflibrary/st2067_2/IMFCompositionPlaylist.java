@@ -280,9 +280,6 @@ public class IMFCompositionPlaylist {
             }
         }
 
-        // todo: move call to somewhere else
-        //IMFCoreConstraintsChecker.checkSegments(this, imfErrorLogger);
-
         return virtualTrackMap;
     }
 
