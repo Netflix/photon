@@ -530,6 +530,62 @@ public class IMFCompositionPlaylist {
 
 
     /**
+     * Returns the sequence namespace for the provided track file id
+     *
+     * @return the Sequence Namespace, null if Track File ID not part of any essence virtual track
+     */
+    public String getSequenceNamespaceForVirtualTrackID(@Nonnull UUID virtualTrackID) {
+
+        List<IMFSegmentType> segments = getSegmentList();
+        if (segments == null)
+            return null;
+
+        for (IMFSegmentType segment : segments) {
+            List<IMFSequenceType> sequences = segment.getSequenceList();
+            if (sequences == null)
+                continue;
+
+            for (IMFSequenceType sequence : sequences) {
+                UUID trackID = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
+                if (trackID.equals(virtualTrackID)) {
+                    return sequence.namespace;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the sequence namespace for the provided track file id
+     *
+     * @return the Sequence Namespace, null if Track File ID not part of any essence virtual track
+     */
+    public String getSequenceNameForVirtualTrackID(@Nonnull UUID virtualTrackID) {
+
+        List<IMFSegmentType> segments = getSegmentList();
+        if (segments == null)
+            return null;
+
+        for (IMFSegmentType segment : segments) {
+            List<IMFSequenceType> sequences = segment.getSequenceList();
+            if (sequences == null)
+                continue;
+
+            for (IMFSequenceType sequence : sequences) {
+                UUID trackID = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
+                if (trackID.equals(virtualTrackID)) {
+                    return sequence.name;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+
+    /**
      * Getter for the ExtensionProperties corresponding to this Composition document
      *
      * @return value of ExtensionProperties of this Composition object
