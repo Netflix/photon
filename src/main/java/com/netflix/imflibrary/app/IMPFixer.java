@@ -54,43 +54,6 @@ public class IMPFixer {
     private static final String CONFORMANCE_LOGGER_PREFIX = "Virtual Track Conformance";
     private static final Logger logger = LoggerFactory.getLogger(IMPFixer.class);
 
-    public static UUID getTrackFileId(PayloadRecord headerPartitionPayloadRecord) throws
-            IOException {
-
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        UUID packageUUID = null;
-        if (headerPartitionPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    String.format("Payload asset type is %s, expected asset type %s", headerPartitionPayloadRecord.getPayloadAssetType(),
-                            PayloadRecord.PayloadAssetType.EssencePartition.toString()));
-            return packageUUID;
-        }
-        try {
-            HeaderPartition headerPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartitionPayloadRecord.getPayload()),
-                    0L,
-                    (long) headerPartitionPayloadRecord.getPayload().length,
-                    imfErrorLogger);
-
-            /**
-             * Add the Top Level Package UUID to the set of TrackFileIDs, this is required to validate that the essences header partition that were passed in
-             * are in fact from the constituent resources of the VirtualTack
-             */
-            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
-            Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
-            GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-            SourcePackage filePackage = (SourcePackage) genericPackage;
-            packageUUID = filePackage.getPackageMaterialNumberasUUID();
-        } catch (IMFException e) {
-            imfErrorLogger.addAllErrors(e.getErrors());
-        } catch (MXFException e) {
-            imfErrorLogger.addAllErrors(e.getErrors());
-        }
-
-        return packageUUID;
-    }
-
     public static Map<UUID, PayloadRecord> getTrackFileIdToHeaderPartitionPayLoadMap(List<PayloadRecord>
                                                                                               headerPartitionPayloadRecords) throws
             IOException {
@@ -242,7 +205,7 @@ public class IMPFixer {
                     if( generateHash) {
                         hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
                     }
-                    imfTrackFileMetadataMap.put(getTrackFileId(headerPartitionPayloadRecord),
+                    imfTrackFileMetadataMap.put(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrorLogger),
                             new IMPBuilder.IMFTrackFileMetadata(bytes,
                                     hash,
                                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,

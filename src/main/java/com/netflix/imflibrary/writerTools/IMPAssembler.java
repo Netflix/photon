@@ -81,19 +81,19 @@ public class IMPAssembler {
                     if (essenceTrackEntry.getHash() != null) {
                         logger.info("Using hash from user: {}", essenceTrackEntry.getHash());
                         hash = essenceTrackEntry.getHash();
-                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), essenceTrackEntry.getHash());
-                    } else if (hashMap.containsKey(IMPFixer.getTrackFileId(headerPartitionPayloadRecord))) {
-                        logger.info("Using cached hash: {}", hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord)));
-                        hash = hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord));
+                        hashMap.put(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors), essenceTrackEntry.getHash());
+                    } else if (hashMap.containsKey(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors))) {
+                        logger.info("Using cached hash: {}", hashMap.get(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors)));
+                        hash = hashMap.get(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors));
                     } else {
                         logger.info("Generating hash for file: {}", essenceTrackEntry.getPath().toString());
                         hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
-                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), hash);
+                        hashMap.put(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors), hash);
                     }
 
                     String essenceTrackFilename = Utilities.getFilenameFromPath(essenceTrackEntry.getPath());
 
-                    UUID trackFileId = IMPFixer.getTrackFileId(headerPartitionPayloadRecord);
+                    UUID trackFileId = MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors);
                     logger.info("UUID read from file: {}: {}", essenceTrackFilename, trackFileId.toString());
                     logger.info("Adding file {} to imfTrackFileMetadataMap", essenceTrackFilename);
                     imfTrackFileMetadataMap.put(
