@@ -75,16 +75,26 @@ public class IMPAnalyzer {
 
             try {
                 Path assetMapPath = Paths.get(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI());
+                String amFilename = Utilities.getFilenameFromPath(assetMapPath);
+
                 if (!Files.isRegularFile(assetMapPath)) {
                     assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
                             IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                             String.format("AssetMap file not found: %s.", mapProfileV2MappedFileSet.getAbsoluteAssetMapURI()));
-                    errorMap.put(assetMapPath.toString(), assetMapErrorLogger.getErrors());
+                    errorMap.put(amFilename, assetMapErrorLogger.getErrors());
                     return errorMap;
                 }
 
                 AssetMap assetMap = new AssetMap(assetMapPath);
                 assetMapErrorLogger.addAllErrors(assetMap.getErrors());
+
+                if (assetMap.getPackingListAssets().isEmpty()) {
+                    assetMapErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            "AssetMap does not reference any PackingLists.");
+                    errorMap.put(amFilename, assetMapErrorLogger.getErrors());
+                    return errorMap;
+                }
 
                 for (AssetMap.Asset packingListAsset : assetMap.getPackingListAssets()) {
                     IMFErrorLogger packingListErrorLogger = new IMFErrorLoggerImpl();
