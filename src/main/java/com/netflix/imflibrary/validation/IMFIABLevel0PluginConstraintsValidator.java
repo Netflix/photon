@@ -10,8 +10,10 @@ import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.IMFCoreConstraintsChecker;
 import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
 import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.utils.*;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValidator {
+
+    private static final String iabLevel0PluginNamespaceURI = "http://www.smpte-ra.org/ns/2067-201/2019";
 
     @Override
     public String getConstraintsSpecification() {
@@ -36,7 +40,24 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
         Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = imfCompositionPlaylist.getVirtualTrackMap();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
 
-        imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrackMap, essenceDescriptorListMap, Set.of()));
+
+        // iterate over virtual tracks
+        for (Map.Entry<UUID, ? extends Composition.VirtualTrack> virtualTrackEntry : imfCompositionPlaylist.getVirtualTrackMap().entrySet()) {
+            Composition.VirtualTrack virtualTrack = virtualTrackEntry.getValue();
+
+            // retrieve sequence namespace associated with the virtual track
+            String virtualTrackSequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForVirtualTrackID(virtualTrack.getTrackID());
+
+            // skip all virtual tracks that don't fall under CPL namespace
+            if (!iabLevel0PluginNamespaceURI.equals(virtualTrackSequenceNamespace)) {
+                continue;
+            }
+
+            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+            imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
+            imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrack, essenceDescriptorListMap, Set.of()));
+
+        }
 
 
         return imfErrorLogger.getErrors();
