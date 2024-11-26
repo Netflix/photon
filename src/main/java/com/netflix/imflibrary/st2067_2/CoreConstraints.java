@@ -16,6 +16,22 @@ public final class CoreConstraints
     public static final String NAMESPACE_IMF_2016 = "http://www.smpte-ra.org/schemas/2067-2/2016";
     public static final String NAMESPACE_IMF_2020 = "http://www.smpte-ra.org/ns/2067-2/2020";
 
+    public static final String MAIN_IMAGE_SEQUENCE = "MainImageSequence";
+    public static final String MAIN_AUDIO_SEQUENCE = "MainAudioSequence";
+
+    public static final String SUBTITLES_SEQUENCE = "SubtitlesSequence";
+    public static final String HEARING_IMPAIRED_CAPTIONS_SEQUENCE = "HearingImpairedCaptionsSequence";
+    public static final String VISUALLY_IMPAIRED_SEQUENCE = "VisuallyImpairedTextSequence";
+    public static final String COMMENTARY_SEQUENCE = "CommentarySequence";
+    public static final String KARAOKE_SEQUENCE = "KaraokeSequence";
+    public static final String FORCED_NARRATIVE_SEQUENCE = "ForcedNarrativeSequence";
+
+    public static final List<String> TIMED_TEXT_SEQUENCES_2016 = Collections.unmodifiableList(Arrays.asList(
+            SUBTITLES_SEQUENCE, HEARING_IMPAIRED_CAPTIONS_SEQUENCE, VISUALLY_IMPAIRED_SEQUENCE, COMMENTARY_SEQUENCE, KARAOKE_SEQUENCE));
+
+    public static final List<String> TIMED_TEXT_SEQUENCES_2020 = Collections.unmodifiableList(Arrays.asList(
+            SUBTITLES_SEQUENCE, HEARING_IMPAIRED_CAPTIONS_SEQUENCE, VISUALLY_IMPAIRED_SEQUENCE, COMMENTARY_SEQUENCE, KARAOKE_SEQUENCE, FORCED_NARRATIVE_SEQUENCE));
+
     public static final List<String> SUPPORTED_NAMESPACES = Collections.unmodifiableList(Arrays.asList(
             NAMESPACE_IMF_2013, NAMESPACE_IMF_2016, NAMESPACE_IMF_2020));
 
