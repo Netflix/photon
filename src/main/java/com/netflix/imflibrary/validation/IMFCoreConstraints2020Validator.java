@@ -7,13 +7,16 @@ import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import jakarta.annotation.Nonnull;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class IMFCoreConstraints2020Validator extends IMFCoreConstraintsValidator {
 
-    private static final String ccNamespaceURI = "http://www.smpte-ra.org/ns/2067-2/2020";
-
     private static final String applicationCompositionType = "IMF Core Constraints 2020";
+
+    public static final List<String> SUPPORTED_TIMED_TEXT_SEQUENCES = Collections.unmodifiableList(Arrays.asList(
+            SUBTITLES_SEQUENCE, HEARING_IMPAIRED_CAPTIONS_SEQUENCE, VISUALLY_IMPAIRED_SEQUENCE, COMMENTARY_SEQUENCE, KARAOKE_SEQUENCE, FORCED_NARRATIVE_SEQUENCE));
 
     @Override
     public String getConstraintsSpecification() {
@@ -25,7 +28,6 @@ public class IMFCoreConstraints2020Validator extends IMFCoreConstraintsValidator
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        // todo: this needs cleanup, should move version specific checks into subclasses, and probably just call checkVirtualTrackHomogeneity()
         imfErrorLogger.addAllErrors(checkVirtualTracks(imfCompositionPlaylist));
 
         return imfErrorLogger.getErrors();

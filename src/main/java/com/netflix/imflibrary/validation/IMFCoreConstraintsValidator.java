@@ -23,6 +23,17 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
         return List.of();
     }
 
+    protected static final String MAIN_IMAGE_SEQUENCE = "MainImageSequence";
+    protected static final String MAIN_AUDIO_SEQUENCE = "MainAudioSequence";
+
+    protected static final String SUBTITLES_SEQUENCE = "SubtitlesSequence";
+    protected static final String HEARING_IMPAIRED_CAPTIONS_SEQUENCE = "HearingImpairedCaptionsSequence";
+    protected static final String VISUALLY_IMPAIRED_SEQUENCE = "VisuallyImpairedTextSequence";
+    protected static final String COMMENTARY_SEQUENCE = "CommentarySequence";
+    protected static final String KARAOKE_SEQUENCE = "KaraokeSequence";
+    protected static final String FORCED_NARRATIVE_SEQUENCE = "ForcedNarrativeSequence";
+
+    // todo: this list should only contain items related to core constraints and others should move into specific app/plugin classes
     private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
         add("CDCIDescriptor");
         add("RGBADescriptor");
@@ -80,13 +91,23 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
      */
     protected static List<ErrorLogger.ErrorObject> checkVirtualTracks(IMFCompositionPlaylist imfCompositionPlaylist) {
 
-        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
-
-        boolean foundMainImageEssence = false;
-        int numberOfMainImageEssences = 0;
-        boolean foundMainAudioEssence = false;
-        IMFErrorLogger imfErrorLogger =new IMFErrorLoggerImpl();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
+
+        // check if there's exactly one main image sequence virtual track
+        // Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
+        long mainImageSequenceCount = imfCompositionPlaylist.getVirtualTrackMap().entrySet().stream()
+                .map(Map.Entry::getValue)
+                .map(virtualTrack -> imfCompositionPlaylist.getSequenceNameForVirtualTrackID(virtualTrack.getTrackID()))
+                .filter(virtualTrackSequenceName -> virtualTrackSequenceName.equals(MAIN_IMAGE_SEQUENCE))
+                .count();
+
+        if (mainImageSequenceCount != 1) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition contains % main image sequence virtual tracks in its first segment, exactly one is required", mainImageSequenceCount));
+            return imfErrorLogger.getErrors();
+        }
+
+        RegXMLLibDictionary regXMLLibDictionary = new RegXMLLibDictionary();
 
         // iterate over virtual tracks
         for (Map.Entry<UUID, ? extends Composition.VirtualTrack> virtualTrackEntry : imfCompositionPlaylist.getVirtualTrackMap().entrySet()) {
@@ -104,9 +125,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
 
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
 
-            if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
-                foundMainImageEssence = true;
-                numberOfMainImageEssences++;
+            if (virtualTrackSequenceName.equals(MAIN_IMAGE_SEQUENCE)) {
                 Composition.EditRate compositionEditRate = imfCompositionPlaylist.getEditRate();
                 for (IMFBaseResourceType baseResourceType : virtualTrackResourceList) {
                     Composition.EditRate trackResourceEditRate = baseResourceType.getEditRate();
@@ -116,8 +135,6 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This Composition is invalid since the CompositionEditRate %s is not the same as at least one of the MainImageSequence's Resource EditRate %s. Please refer to st2067-2:2013 Section 6.4", compositionEditRate.toString(), trackResourceEditRate.toString()));
                     }
                 }
-            } else if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_AUDIO_SEQUENCE)) {
-                foundMainAudioEssence = true;
             }
 
             if (imfCompositionPlaylist.getEssenceDescriptorList() == null || imfCompositionPlaylist.getEssenceDescriptorList().isEmpty()) {
@@ -129,7 +146,6 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
             List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = new ArrayList<>();
             String refSourceEncodingElement = "";
             String essenceDescriptorField = "";
-            String otherEssenceDescriptorField = "";
             Composition.EditRate essenceEditRate = null;
 
             // iterate over virtual track resources
@@ -167,7 +183,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
 
                         essenceEditRate = new Composition.EditRate(editRate);
 
-                        if (virtualTrackSequenceName.equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
+                        if (virtualTrackSequenceName.equals(MAIN_IMAGE_SEQUENCE)) {
                             CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel = new CompositionImageEssenceDescriptorModel(UUIDHelper.fromUUIDAsURNStringToUUID
                                     (imfTrackFileResourceType.getSourceEncoding()),
                                     domNodeObjectModel,
@@ -204,37 +220,13 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
         }
 
         //TODO : Add a check to ensure that all the VirtualTracks have the same duration.
-        //Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
-        if(!foundMainImageEssence){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single image essence in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString()));
-        }
-        else{
-            if(numberOfMainImageEssences > 1){
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s seems to contain %d image essences in its first segment, exactly one is required", imfCompositionPlaylist.getId().toString(), numberOfMainImageEssences));
-            }
-        }
-
-        //Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
-        //Section 6.3.2 st2067-2:2020 allows CPLs without Audio Virtual Tracks
-        if(!foundMainAudioEssence
-                && (imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2013)
-                || imfCompositionPlaylist.getCoreConstraintsSchema().equals(CoreConstraints.NAMESPACE_IMF_2016)))
-        {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The Composition represented by Id %s does not contain a single audio essence in its first segment, one or more is required", imfCompositionPlaylist.getId().toString()));
-        }
 
         return imfErrorLogger.getErrors();
     }
 
 
-
-
     private static boolean isCDCIEssenceDescriptor(DOMNodeObjectModel domNodeObjectModel) {
         return domNodeObjectModel.getLocalName().equals("CDCIDescriptor");
     }
-
-
-
-
 
 }
