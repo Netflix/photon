@@ -274,10 +274,8 @@ public class IMPValidator {
         /*
             run core validation on all cpls
         */
-        imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkVirtualTracks(imfCompositionPlaylist));
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkSegments(imfCompositionPlaylist));
         imfErrorLogger.addAllErrors(IMFCoreConstraintsChecker.checkEssenceDescriptors(imfCompositionPlaylist, headerPartitionPayloads));
-
 
         /*
             run validations based on application identification and sequence namespaces:
@@ -287,10 +285,6 @@ public class IMPValidator {
         namespaces.addAll(imfCompositionPlaylist.getApplicationIdSet());
 
         for (String namespace : namespaces) {
-            // ignore sequences covered by CoreConstraints
-            if (CoreConstraints.SUPPORTED_NAMESPACES.contains(namespace))
-                continue;
-
             ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(namespace);
             if (validator != null) {
                 List<ErrorLogger.ErrorObject> cplErrors = validator.validateCompositionConstraints(imfCompositionPlaylist, headerPartitionPayloads);

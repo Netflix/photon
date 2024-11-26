@@ -9,6 +9,11 @@ public class ConstraintsValidatorFactory {
     private static final Map<String, Supplier<ConstraintsValidator>> registry = new HashMap<>();
 
     static {
+        // Core Constraints
+        registerValidator("http://www.smpte-ra.org/schemas/2067-2/2013", IMFCoreConstraints2013Validator::new);
+        registerValidator("http://www.smpte-ra.org/schemas/2067-2/2016", IMFCoreConstraints2016Validator::new);
+        registerValidator("http://www.smpte-ra.org/ns/2067-2/2020", IMFCoreConstraints2020Validator::new);
+
         // CPL
         registerValidator("http://www.smpte-ra.org/schemas/2067-3/2013", IMFCPL2013Validator::new);
         registerValidator("http://www.smpte-ra.org/schemas/2067-3/2016", IMFCPL2016Validator::new);
