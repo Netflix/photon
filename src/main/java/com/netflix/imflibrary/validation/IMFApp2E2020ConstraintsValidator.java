@@ -16,7 +16,7 @@ import java.util.Arrays;
 
 public class IMFApp2E2020ConstraintsValidator extends IMFApp2EConstraintsValidator {
 
-    private static final String applicationCompositionType = "IMF Application #2E 2020";
+    private static final String applicationCompositionType = "SMPTE ST 2067-21:2020 IMF Application #2E";
 
     @Override
     public String getConstraintsSpecification() {

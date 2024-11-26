@@ -24,7 +24,7 @@ public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidato
 
     @Override
     public String getConstraintsSpecification() {
-        return "IMF IAB Level 0 Plugin SMPTE ST2067-201";
+        return "SMPTE ST 2067-203:2023 Audio with Frame-based S-ADM Metadata Plug-in ";
     }
 
     @Override

@@ -22,7 +22,7 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 
 public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
-    static final String CONSTRAINTS_SPEC = "IMF Application #5 SMPTE ST 2067-50:2018";
+    static final String CONSTRAINTS_SPEC = "SMPTE ST 2067-50:2018 IMF Application #5";
 
     @Override
     public String getConstraintsSpecification() {

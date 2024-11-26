@@ -24,9 +24,18 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
     private static final String iabLevel0PluginNamespaceURI = "http://www.smpte-ra.org/ns/2067-201/2019";
 
+
+    private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
+        add("BitDepth");
+        add("FrameRate");
+        add("SampleRate");
+    }};
+
+
+
     @Override
     public String getConstraintsSpecification() {
-        return "IMF IAB Level 0 Plugin SMPTE ST2067-201";
+        return "SMPTE ST 2067-201:2021 Immersive Audio Bitstream Level 0 Plug-in";
     }
 
     @Override
@@ -35,9 +44,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         Composition.EditRate editRate = imfCompositionPlaylist.getEditRate();
-        Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = imfCompositionPlaylist.getVirtualTrackMap();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
-
 
         // iterate over virtual tracks
         for (Map.Entry<UUID, ? extends Composition.VirtualTrack> virtualTrackEntry : imfCompositionPlaylist.getVirtualTrackMap().entrySet()) {
@@ -51,10 +58,12 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                 continue;
             }
 
-            imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrack, essenceDescriptorListMap, Set.of()));
+            // validate iab specific homogeneity requirements
+            imfErrorLogger.addAllErrors(ConstraintsValidatorUtils.checkVirtualTrackHomogeneity(virtualTrack, essenceDescriptorListMap, homogeneitySelectionSet));
 
+            // validate iab specific virtual track requirements
+            imfErrorLogger.addAllErrors(IMFIABConstraintsChecker.checkIABVirtualTrack(editRate, virtualTrack, essenceDescriptorListMap));
         }
-
 
         return imfErrorLogger.getErrors();
     }

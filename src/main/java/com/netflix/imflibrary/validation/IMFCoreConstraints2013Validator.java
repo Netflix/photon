@@ -11,14 +11,12 @@ import java.util.*;
 
 public class IMFCoreConstraints2013Validator extends IMFCoreConstraintsValidator {
 
-    private static final String applicationCompositionType = "IMF Core Constraints 2013";
-
     public static final List<String> SUPPORTED_TIMED_TEXT_SEQUENCES = Collections.unmodifiableList(Arrays.asList(
             SUBTITLES_SEQUENCE, HEARING_IMPAIRED_CAPTIONS_SEQUENCE, VISUALLY_IMPAIRED_SEQUENCE, COMMENTARY_SEQUENCE, KARAOKE_SEQUENCE));
 
     @Override
     public String getConstraintsSpecification() {
-        return applicationCompositionType;
+        return "SMPTE ST 2067-2:2013 IMF Core Constraints";
     }
 
     @Override

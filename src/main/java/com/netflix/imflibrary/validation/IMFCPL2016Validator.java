@@ -2,11 +2,9 @@ package com.netflix.imflibrary.validation;
 
 public class IMFCPL2016Validator extends IMFCPLValidator {
 
-    private static final String applicationCompositionType = "IMF Composition Playlist 2016";
-
     @Override
     public String getConstraintsSpecification() {
-        return applicationCompositionType;
+        return "SMPTE ST 2067-3:2016 IMF Composition Playlist";
     }
 
 }

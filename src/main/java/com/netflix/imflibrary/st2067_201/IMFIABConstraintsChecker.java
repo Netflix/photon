@@ -27,8 +27,7 @@ public class IMFIABConstraintsChecker {
 
     public static List<ErrorLogger.ErrorObject> checkIABVirtualTrack(Composition.EditRate compositionEditRate,
                                                                      Composition.VirtualTrack virtualTrack,
-                                                                     Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                                                     Set<String> homogeneitySelectionSet) {
+                                                                     Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         if (!virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) return imfErrorLogger.getErrors();

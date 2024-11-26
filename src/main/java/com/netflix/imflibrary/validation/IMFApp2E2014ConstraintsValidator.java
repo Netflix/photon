@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class IMFApp2E2014ConstraintsValidator extends IMFApp2EConstraintsValidator {
 
-    private static final String applicationCompositionType = "IMF Application #2E 2016";
+    private static final String applicationCompositionType = "SMPTE ST 2067-21:2014 IMF Application #2E";
 
     private static final Fraction[] FPS_HD = {
             new Fraction(25),
