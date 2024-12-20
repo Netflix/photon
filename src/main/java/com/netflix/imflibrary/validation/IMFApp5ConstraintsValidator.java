@@ -15,6 +15,7 @@ import com.netflix.imflibrary.Colorimetry.*;
 import jakarta.annotation.Nonnull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.*;
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.Null;
@@ -24,18 +25,19 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
     static final String CONSTRAINTS_SPEC = "SMPTE ST 2067-50:2018 IMF Application #5";
 
+    private static final Set<String> acesPictureSubDescriptorHomogeneitySelectionSet = Set.of("ACESAuthoringInformation");
+
     @Override
     public String getConstraintsSpecification() {
         return CONSTRAINTS_SPEC;
     }
 
     @Override
-    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-
-        List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
+        List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
 
         if (imageDescriptorModels.isEmpty()) {
             imfErrorLogger.addError(
@@ -56,6 +58,66 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
             parseApp5SubDescriptors(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
             parseApp5VideoLineMap(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
         });
+
+
+        // validate descriptor homogeneity
+        List<DOMNodeObjectModel> virtualTrackEssenceDescriptors = imfCompositionPlaylist.getEssenceDescriptors("RGBADescriptor").stream()
+                .distinct()
+                .toList();
+        if (virtualTrackEssenceDescriptors.isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "No RGBA Picture Essence Descriptor found in CPL Essence Descriptor List.");
+            return imfErrorLogger.getErrors();
+        }
+
+        List<DOMNodeObjectModel> refAcesPictureSubDescriptors = new ArrayList<>();
+        int indexFirstAcesPictureSubdescriptor = 0;
+        boolean areAcesPictureSubDecriptorsHomogeneous = true;
+        List<String> inhomogeneousEssenceDescriptorIds = new ArrayList<>();
+        do {  // Find first appearance of an ACESPictureSubDescriptor, if any
+            DOMNodeObjectModel subDescriptors = virtualTrackEssenceDescriptors.get(indexFirstAcesPictureSubdescriptor).getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
+            List<DOMNodeObjectModel> acesPictureSubDescriptors = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
+            for (DOMNodeObjectModel desc :  acesPictureSubDescriptors) {
+                DOMNodeObjectModel refAcesPictureSubDescriptor = DOMNodeObjectModel.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
+                refAcesPictureSubDescriptors.add(refAcesPictureSubDescriptor);
+            }
+            indexFirstAcesPictureSubdescriptor++;
+        } while (refAcesPictureSubDescriptors.isEmpty() && (indexFirstAcesPictureSubdescriptor < virtualTrackEssenceDescriptors.size()));
+
+        if ((indexFirstAcesPictureSubdescriptor == 1) && (!refAcesPictureSubDescriptors.isEmpty())) { // ACESPicture SubDescriptor(s) present in first resource
+            for (int i = 1; i < virtualTrackEssenceDescriptors.size(); i++) {
+                DOMNodeObjectModel subDescriptors = virtualTrackEssenceDescriptors.get(i).getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(subdescriptorsUL));
+                List<DOMNodeObjectModel> other = subDescriptors.getDOMNodes(regXMLLibDictionary.getSymbolNameFromURN(acesPictureSubDescriptorUL));
+                DOMNodeObjectModel refAcesPictureSubDescriptor = DOMNodeObjectModel.createDOMNodeObjectModelSelectionSet(virtualTrackEssenceDescriptors.get(i), acesPictureSubDescriptorHomogeneitySelectionSet);
+                if (other.size() != refAcesPictureSubDescriptors.size()) { // Number of ACESPictureSubDescriptors is different
+                    areAcesPictureSubDecriptorsHomogeneous = false;
+                    inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+                } else {
+                    for (DOMNodeObjectModel desc : other) {
+                        DOMNodeObjectModel selectOther = DOMNodeObjectModel.createDOMNodeObjectModelSelectionSet(desc, acesPictureSubDescriptorHomogeneitySelectionSet);
+                        if (!refAcesPictureSubDescriptors.contains(selectOther)) { // Value of Field ACESAuthoringInformation is different
+                            areAcesPictureSubDecriptorsHomogeneous = false;
+                            inhomogeneousEssenceDescriptorIds.add(virtualTrackEssenceDescriptors.get(i).getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+                        }
+                    }
+                }
+            }
+        } else if (indexFirstAcesPictureSubdescriptor > 1 )  { // Inhomogeneous: First subdescriptor does not contain an ACESPictureSubDescriptor, but others do
+            areAcesPictureSubDecriptorsHomogeneous = false;
+            DOMNodeObjectModel firstOccurence = virtualTrackEssenceDescriptors.get(indexFirstAcesPictureSubdescriptor-1);
+            if (firstOccurence != null) {
+                inhomogeneousEssenceDescriptorIds.add(firstOccurence.getFieldsAsUUID(regXMLLibDictionary.getSymbolNameFromURN(instanceID)).toString());
+            }
+        }
+        if (!areAcesPictureSubDecriptorsHomogeneous) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("ACESPictureSubDescriptors shall be homogeneous per Draft Academy Digital Source Master Specification S-2018-001, mismatch occurred in essence (sub)descriptor(s) %s.",
+                            inhomogeneousEssenceDescriptorIds.toString()));
+        }
+
+
 
         return imfErrorLogger.getErrors();
     }
