@@ -45,13 +45,11 @@ public final class CoreConstraints
             return CoreConstraints.NAMESPACE_IMF_2020;
         }
         else if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-50/2017")
-                || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-20/2016")
                 || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-21/2016"))
         {
             return CoreConstraints.NAMESPACE_IMF_2016;
         }
-        else if (applicationIds.contains("http://www.smpte-ra.org/schemas/2067-20/2013")
-                || applicationIds.contains("http://www.smpte-ra.org/schemas/2067-21/2014"))
+        else if (applicationIds.contains("http://www.smpte-ra.org/schemas/2067-21/2014"))
         {
             return CoreConstraints.NAMESPACE_IMF_2013;
         }
