@@ -73,6 +73,22 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
         add("QuantizationBits");
     }};
 
+    abstract protected String getNamespaceURI();
+
+
+    protected List<ErrorLogger.ErrorObject> checkNamespaceURI(IMFCompositionPlaylist imfCompositionPlaylist) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        String expectedCCNs = CoreConstraints.fromApplicationId(imfCompositionPlaylist.getApplicationIdSet());
+        if (expectedCCNs != null && !expectedCCNs.equals(getNamespaceURI())) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                    String.format("The Application Identification(s) contained in this CPL assume Core Constraints Namespace %s, but %s is used.",
+                            expectedCCNs, getNamespaceURI()));
+        }
+
+        return imfErrorLogger.getErrors();
+    }
 
 
 
