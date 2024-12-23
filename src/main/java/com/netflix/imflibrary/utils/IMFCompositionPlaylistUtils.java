@@ -123,7 +123,7 @@ public class IMFCompositionPlaylistUtils {
         for (PayloadRecord cpl : cplPayloadRecords) {
             try
             {
-                IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(referenceCPLPayloadRecord.getPayload()));
+                IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(new ByteArrayByteRangeProvider(cpl.getPayload()));
                 imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
                 if (imfErrorLogger.hasFatalErrors()) {
                     return imfErrorLogger.getErrors();
