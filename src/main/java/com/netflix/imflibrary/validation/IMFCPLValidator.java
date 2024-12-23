@@ -257,6 +257,11 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             }
         }
 
+        // only attempt to match/parse essence descriptors if ANY were provided
+        if (essencesHeaderPartitionPayloads.isEmpty()) {
+            return imfErrorLogger.getErrors();
+        }
+
         if (referencedHeaderPayloads.isEmpty()) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
@@ -449,7 +454,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                     {
                         /*Create a DOM Node representation of the EssenceDescriptors present in this header partition
                         corresponding to an IMFTrackFile*/
-                        List<Node> essenceDescriptorDOMNodes = getEssenceDescriptorDOMNodes(headerPartitionTuple);
+                        List<Node> essenceDescriptorDOMNodes = getEssenceDescriptorDOMNodes(headerPartitionTuple, imfErrorLogger);
                         List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
                         for (Node node : essenceDescriptorDOMNodes) {
                             try {
@@ -487,10 +492,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
     }
 
 
-
-
-    private static List<Node> getEssenceDescriptorDOMNodes(Composition.HeaderPartitionTuple headerPartitionTuple) throws IOException {
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+    private static List<Node> getEssenceDescriptorDOMNodes(Composition.HeaderPartitionTuple headerPartitionTuple, IMFErrorLogger imfErrorLogger) throws IOException {
         List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartitionTuple.getHeaderPartition().getEssenceDescriptors();
         List<Node> essenceDescriptorNodes = new ArrayList<>();
         for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
@@ -507,15 +509,11 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                 essenceDescriptorNodes.add(node);
             } catch (ParserConfigurationException e) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.INTERNAL_ERROR,
-                        IMFErrorLogger.IMFErrors
-                                .ErrorLevels.FATAL, e.getMessage());
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
             }
         }
-        if(imfErrorLogger.hasFatalErrors()) {
-            throw new IMFException("Failed to get Essence Descriptor for a resource", imfErrorLogger);
-        }
-        return essenceDescriptorNodes;
 
+        return essenceDescriptorNodes;
     }
 
     private static List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
