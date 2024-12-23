@@ -1,13 +1,11 @@
 package com.netflix.imflibrary.validation;
 
-import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.*;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
-import com.netflix.imflibrary.IMFErrorLogger;
-import com.netflix.imflibrary.J2KHeaderParameters;
 import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel.ProgressionOrder;
-import com.netflix.imflibrary.JPEG2000;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Fraction;
 
 import java.util.*;
@@ -171,11 +169,60 @@ public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidat
         return IMAGE_CHARACTERISTICS;
     }
 
+    @Override
+    protected List<ErrorLogger.ErrorObject> validateJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
+        if (!essenceCoding.equalsWithMask(JPEG2000PICTURECODINGSCHEME, 0b1111111011111100)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Image codec must be JPEG 2000. Found %s instead.", essenceCoding.toString()
+                    ));
+            return imfErrorLogger.getErrors();
+        }
+
+        Integer width = imageDescriptor.getStoredWidth();
+        Integer height = imageDescriptor.getStoredHeight();
+
+        if (JPEG2000.isAPP2HT(essenceCoding))
+            return validateHTConstraints(imageDescriptor.getJ2KHeaderParameters());
+
+        if (JPEG2000.isIMF4KProfile(essenceCoding)) {
+            if (!(width > 2048 && width <= 4096 && height > 0 && height <= 3112)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("JPEG 2000 IMF 4K Profile does not support image resolution (%d/%d)", width, height));
+            }
+        } else if (JPEG2000.isIMF2KProfile(essenceCoding)) {
+            if (!(width > 0 && width <= 2048 && height > 0 && height <= 1556)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("JPEG 2000 IMF 2K Profile does not support image resolution (%d/%d)", width, height));
+            }
+        } else if (JPEG2000.isBroadcastProfile(essenceCoding)) {
+            if (!(width > 0 && width <= 3840 && height > 0 && height <= 2160)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("JPEG 2000 Broadcast Profile does not support image resolution (%d/%d)", width, height));
+            }
+        } else {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("Invalid JPEG 2000 Profile: %s", essenceCoding));
+        }
+
+        return imfErrorLogger.getErrors();
+    }
+
 
     /* Validate codestream parameters against constraints listed in SMPTE ST 2067-21:2023 Annex I */
 
-    public static boolean validateHTConstraints(J2KHeaderParameters p,
-                                                IMFErrorLogger logger) {
+    public static List<ErrorLogger.ErrorObject> validateHTConstraints(J2KHeaderParameters p) {
+
+        IMFErrorLogger logger = new IMFErrorLoggerImpl();
+
         boolean isValid = true;
 
         if (p == null) {
@@ -183,7 +230,7 @@ public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidat
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     "APP2.HT: Missing or incomplete JPEG 2000 Sub-descriptor");
-            return false;
+            return logger.getErrors();
         }
 
         if (p.xosiz != 0 || p.yosiz != 0 || p.xtosiz != 0 || p.ytosiz != 0) {
@@ -276,7 +323,7 @@ public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidat
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     "APP2.HT: missing or invalid CAP marker");
-            return false;
+            return logger.getErrors();
         }
 
         if ((p.cap.ccap[0] & 0b1111000000000000) != 0) {
@@ -297,7 +344,7 @@ public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidat
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     "APP2.HT: Missing COD marker");
-            return false;
+            return logger.getErrors();
         }
 
         /* no scod constraints */
@@ -436,31 +483,7 @@ public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidat
                     "APP2.HT: Parameter B has exceeded its limits");
         }
 
-        return isValid;
+        return logger.getErrors();
     }
-
-
-    public boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor,
-                                            IMFErrorLogger logger) {
-        UL essenceCoding = imageDescriptor.getPictureEssenceCodingUL();
-        Integer width = imageDescriptor.getStoredWidth();
-        Integer height = imageDescriptor.getStoredHeight();
-
-        if (JPEG2000.isAPP2HT(essenceCoding))
-            return validateHTConstraints(imageDescriptor.getJ2KHeaderParameters(), logger);
-
-        if (JPEG2000.isIMF4KProfile(essenceCoding))
-            return width > 2048 && width <= 4096 && height > 0 && height <= 3112;
-
-        if (JPEG2000.isIMF2KProfile(essenceCoding))
-            return width > 0 && width <= 2048 && height > 0 && height <= 1556;
-
-        if (JPEG2000.isBroadcastProfile(essenceCoding))
-            return width > 0 && width <= 3840 && height > 0 && height <= 2160;
-
-        return false;
-    }
-
-
 
 }

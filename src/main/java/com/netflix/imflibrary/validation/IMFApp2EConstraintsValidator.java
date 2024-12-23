@@ -19,6 +19,8 @@ import java.util.UUID;
 
 abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidator {
 
+    protected static final UL JPEG2000PICTURECODINGSCHEME = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
+
     protected static class CharacteristicsSet {
         private Integer maxWidth;
         private Integer maxHeight;
@@ -80,7 +82,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
     /*
      *
      */
-    protected abstract boolean isValidJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor, IMFErrorLogger logger);
+    protected abstract List<ErrorLogger.ErrorObject> validateJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor);
 
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
@@ -130,12 +132,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
                                              IMFErrorLogger logger) {
 
         // J2K profiles
-        if (!isValidJ2KProfile(imageDescriptor, logger)) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    "Invalid JPEG 2000 profile");
-        }
+        logger.addAllErrors(validateJ2KProfile(imageDescriptor));
 
         boolean isValid = false;
 
