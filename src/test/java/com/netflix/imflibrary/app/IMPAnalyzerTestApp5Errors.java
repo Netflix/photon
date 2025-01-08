@@ -37,7 +37,7 @@ public class IMPAnalyzerTestApp5Errors
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5TestDiscontinuityAndVideoLineMapError/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 7);
+        Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
                 {
                 	if (e.getKey().matches("CPL.*")) {

@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.validation;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -9,6 +10,12 @@ public class ConstraintsValidatorFactory {
     private static final Map<String, Supplier<ConstraintsValidator>> registry = new HashMap<>();
 
     static {
+
+        /*
+         *  To add support for new ConstraintsValidator classes, add a line below to register a new
+         *  Application/Plugin namespace URI with the new ConstraintsValidator class.
+         */
+
         // Core Constraints
         registerValidator("http://www.smpte-ra.org/schemas/2067-2/2013", IMFCoreConstraints2013Validator::new);
         registerValidator("http://www.smpte-ra.org/schemas/2067-2/2016", IMFCoreConstraints2016Validator::new);
@@ -36,8 +43,18 @@ public class ConstraintsValidatorFactory {
         registry.put(type.toLowerCase(), constructor);
     }
 
-    public static ConstraintsValidator getValidator(String type) {
-        Supplier<ConstraintsValidator> constructor = registry.get(type.toLowerCase());
+
+    /**
+     * A static factory method that instantiates and returns the validator object associated with the provided namespace
+     * @param namespaceURI the namespace URI for which a validator object is requested. Such namespace URI typically
+     *                     represents one of the following:
+     *                     - a CPL schema namespace URI
+     *                     - the XML namespace for a CPL sequence
+     *                     - an ApplicationID
+     * @return an object that implements the ConstraintsValidator interface, or null if no matching class is registered.
+     */
+    public static ConstraintsValidator getValidator(String namespaceURI) {
+        Supplier<ConstraintsValidator> constructor = registry.get(namespaceURI.toLowerCase());
         if (constructor != null) {
             return constructor.get();
         }

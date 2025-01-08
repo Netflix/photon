@@ -26,9 +26,9 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
 
     private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
-        add("BitDepth");
-        add("FrameRate");
         add("SampleRate");
+        add("AudioSampleRate");
+        add("QuantizationBits");
     }};
 
 

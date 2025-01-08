@@ -340,6 +340,9 @@ public class IMPValidator {
 
                 // validate index table segments
                 if (partitionPack.hasIndexTableSegments()) {
+
+                    indexSegmentPayloadRecords.add(payloadRecord);
+
                     ByteProvider imfEssenceComponentByteProvider = new ByteArrayDataProvider(payloadRecord.getPayload());
 
                     long numBytesToRead = payloadRecord.getPayload().length;

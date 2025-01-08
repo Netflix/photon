@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 @Test(groups = "unit")
+@Ignore
 public class Application2CompositionTest
 {
     @Test

@@ -42,10 +42,10 @@ public class IMPAnalyzerTestApp5
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/PhotonApp5Test/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 7);
+        Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
                 {
-                	if (e.getKey().matches("CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml Virtual Track Conformance")) {
+                	if (e.getKey().matches("CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml")) {
                         Assert.assertEquals(e.getValue().size(), 3);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);

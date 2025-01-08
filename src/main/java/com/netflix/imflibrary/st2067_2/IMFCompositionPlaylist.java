@@ -261,6 +261,11 @@ public class IMFCompositionPlaylist {
                                 (List<IMFMarkerResourceType>) virtualTrackResourceList,
                                 getEditRate());
                     }
+                } else {
+                    virtualTrack = new IMFEssenceComponentVirtualTrack(uuid,
+                            sequence.getType(),
+                            new ArrayList<>(),
+                            getEditRate());
                 }
                 virtualTrackMap.put(uuid, virtualTrack);
             } else {
@@ -941,7 +946,8 @@ public class IMFCompositionPlaylist {
     public static List<IMFCompositionPlaylist.ResourceIdTuple> getResourceIdTuples(List<? extends Composition.VirtualTrack> virtualTracks) {
         List<IMFCompositionPlaylist.ResourceIdTuple>  resourceIdTupleList = new ArrayList<>();
         for (Composition.VirtualTrack virtualTrack : virtualTracks) {
-            resourceIdTupleList.addAll(getVirtualTrackResourceIDs(virtualTrack));
+            if (virtualTrack != null)
+                resourceIdTupleList.addAll(getVirtualTrackResourceIDs(virtualTrack));
         }
         return resourceIdTupleList;
     }

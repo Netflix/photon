@@ -23,7 +23,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2); // J2K ContentKind and IMF Profile bad
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3); // J2K ContentKind and IMF Profile bad
     }
 
     @Test
@@ -47,7 +47,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 7);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 14);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 13);
     }
 
     @Test
@@ -191,30 +191,12 @@ public class Application2ExtendedCompositionTest
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
 
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
         /* Make sure its 2013 core constraints */
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), "http://www.smpte-ra.org/schemas/2067-2/2013");
 
-        /* Make sure its APP2#E Composition */
-        // todo:
-        //Assert.assertEquals(imfCompositionPlaylist.getApplicationCompositionType(), ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE);
-
-        /* Filter 4k YUV  error */
-        String regex = "^.+invalid StoredWidth\\(.+\\) for ColorModel\\(YUV\\).+$";
-        // todo:
-        //List filteredErrors = imfErrorLogger.getErrors().stream()
-        //        .filter(e -> !(  e.getErrorDescription().matches(regex) &&
-        //                e.getErrorCode().equals(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR) &&
-        //                e.getErrorDescription().contains(ApplicationCompositionFactory.ApplicationCompositionType.APPLICATION_2E_COMPOSITION_TYPE.toString()))).collect(Collectors.toList());
-
-
-        /* No other erros after filtering */
-        // todo:
-        //Assert.assertEquals(filteredErrors.size(), 0);
-
-        /* Verify StoredWidth is within max RGB width */
-        // todo:
-        //Assert.assertTrue(imfCompositionPlaylist.getCompositionImageEssenceDescriptorModel().getStoredWidth() <= Application2ExtendedComposition.MAX_RGB_IMAGE_FRAME_WIDTH);
-
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -226,7 +208,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
 
@@ -301,7 +283,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
     @Test
@@ -313,7 +295,7 @@ public class Application2ExtendedCompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
 }

@@ -106,7 +106,11 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                             segment.getId(), imfCompositionPlaylist.getId().toString(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
+
                 List<? extends IMFBaseResourceType> resources = sequence.getResourceList();
+                if (resources.isEmpty())
+                    continue;
+
                 Long sequenceDurationInCompositionEditUnits = 0L;
                 Long sequenceDuration = 0L;
                 //Based on Section 6.2 and 6.3 in st2067-2:2016 All resources of either an Image Sequence or an Audio Sequence have to be of the same EditRate, hence we can sum the source durations of all the resources

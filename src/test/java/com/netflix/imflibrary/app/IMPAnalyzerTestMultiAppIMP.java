@@ -37,21 +37,15 @@ public class IMPAnalyzerTestMultiAppIMP
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Application5/MultiAppIMP/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 8);
+        Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
-                	if (e.getKey().matches("CPL_be8dd1cf-f6e0-4455-ac6f-b22d28557755.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
-                    } else if (e.getKey().matches("CPL_eaf76289-fd79-477f-9526-e34d69a8f57a.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 1);
+                	if (e.getKey().matches("CPL_eaf76289-fd79-477f-9526-e34d69a8f57a.xml")) {
+                        Assert.assertEquals(e.getValue().size(), 5);
                     } else if (e.getKey().matches("CPL_a74cc26b-a87d-4fde-9a28-1865a5ef33db.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 0);
-                    } else if (e.getKey().matches("CPL_a74cc26b-a87d-4fde-9a28-1865a5ef33db.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 3);
+                        Assert.assertEquals(e.getValue().size(), 1);
                     } else if (e.getKey().matches("CPL_be8dd1cf-f6e0-4455-ac6f-b22d28557755.xml")) {
                         Assert.assertEquals(e.getValue().size(), 1);
-                    } else if (e.getKey().matches("CPL_eaf76289-fd79-477f-9526-e34d69a8f57a.xml Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

@@ -2,6 +2,7 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -50,7 +51,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 1);
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 2);
     }
 
     @Test
@@ -60,7 +62,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 1);
     }
 
 
@@ -71,7 +74,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 11);
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 22);
     }
 
     @Test
@@ -328,7 +332,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -338,7 +343,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -361,6 +367,8 @@ public class CompositionTest
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+
+        IMPValidator.validateComposition(imfCompositionPlaylist, null);
     }
 
     @Test
@@ -370,8 +378,8 @@ public class CompositionTest
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
         Assert.assertTrue(imfErrorLogger.getErrors().stream().anyMatch(e ->
                 e.getErrorCode() == IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR));
-        Assert.assertNull(imfCompositionPlaylist);
     }
 }

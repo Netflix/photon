@@ -273,7 +273,7 @@ public class IMPValidatorFunctionalTests {
 
         Assert.assertEquals(errors.size(), 9);
         //The following error occurs because we do not yet support TimedText Virtual Tracks in Photon and the EssenceDescriptor in the EDL corresponds to a TimedText Virtual Track whose entry is commented out in the CPL.
-        Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual tracks in the CPL"));
+        Assert.assertTrue(errors.get(0).toString().contains("ERROR-EssenceDescriptorID 3febc096-8727-495d-8715-bb5398d98cfe in the CPL EssenceDescriptorList is not referenced by any resource in any of the Virtual Tracks in the CPL"));
     }
 
     @Test
@@ -298,7 +298,7 @@ public class IMPValidatorFunctionalTests {
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         //errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         errors = IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords);
-        Assert.assertEquals(errors.size(), 4);
+        Assert.assertEquals(errors.size(), 7);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -307,7 +307,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         //errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         errors = IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords);
-        Assert.assertEquals(errors.size(), 4);
+        Assert.assertEquals(errors.size(), 7);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -316,7 +316,7 @@ public class IMPValidatorFunctionalTests {
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord0); }};
         //errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         errors = IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords);
-        Assert.assertEquals(errors.size(), 1);
+        Assert.assertEquals(errors.size(), 4);
     }
 
     @Test
@@ -341,7 +341,7 @@ public class IMPValidatorFunctionalTests {
         List<PayloadRecord> payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord2); }};
         //errors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, payloadRecords);
         errors = IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords);
-        Assert.assertEquals(errors.size(), 18);
+        Assert.assertEquals(errors.size(), 19);
 
         inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/NYCbCrLT_3840x2160x2chx24bitx30.03sec.mxf.hdr");
         resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
@@ -349,7 +349,7 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord payloadRecord1 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize());
         payloadRecords = new ArrayList<PayloadRecord>() {{ add(payloadRecord1); }};
         errors = IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords);
-        Assert.assertEquals(errors.size(), 4);
+        Assert.assertEquals(errors.size(), 5);
     }
 
     @Test
@@ -453,7 +453,7 @@ public class IMPValidatorFunctionalTests {
         //List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.conformVirtualTracksInCPL(cplPayloadRecord, essencesHeaderPartitionPayloads);
         List<ErrorLogger.ErrorObject> conformanceErrors = IMPValidator.validateComposition(imfCompositionPlaylist, essencesHeaderPartitionPayloads);
 
-        Assert.assertEquals(conformanceErrors.size(), 3);
+        Assert.assertEquals(conformanceErrors.size(), 4);
     }
 
     @Test
@@ -474,12 +474,13 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord cplPayloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         errors.addAll(IMPValidator.validateCPL(cplPayloadRecord2));
 
+        Assert.assertEquals(errors.size(), 6);
 
-        if(errors.size() == 0) {
-            errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
-                add(cplPayloadRecord2);
-            }}));
-        }
+        errors.clear();
+
+        errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
+            add(cplPayloadRecord2);
+        }}));
 
         Assert.assertEquals(errors.size(), 2);
     }
@@ -502,12 +503,13 @@ public class IMPValidatorFunctionalTests {
         PayloadRecord cplPayloadRecord2 = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         errors.addAll(IMPValidator.validateCPL(cplPayloadRecord2));
 
+        Assert.assertEquals(errors.size(), 2);
 
-        if(errors.size() == 0) {
-            errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
-                add(cplPayloadRecord2);
-            }}));
-        }
+        errors.clear();
+
+        errors.addAll(IMFCompositionPlaylistUtils.isCPLMergeable(cplPayloadRecord1, new ArrayList<PayloadRecord>() {{
+            add(cplPayloadRecord2);
+        }}));
 
         Assert.assertEquals(errors.size(), 0);
     }

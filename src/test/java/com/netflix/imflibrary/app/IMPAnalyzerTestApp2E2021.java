@@ -87,8 +87,10 @@ public class IMPAnalyzerTestApp2E2021
         logger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
         Assert.assertNotNull(imfCompositionPlaylist);
+        // the namespace uri assumed based on the application identification
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
-        Assert.assertEquals(logger.getErrors().size(), 0);
+        // a warning is raised when the assumed namespace does match the actual namespace
+        Assert.assertEquals(logger.getErrors().size(), 2);
     }
 
 

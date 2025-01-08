@@ -21,11 +21,11 @@ public class IMPAnalyzerTest
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 7);
+        Assert.assertEquals(errorMap.size(), 6); // the contained TT MXF is not referenced in PKL/CPL, so 6 files
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL.*")) {
-                        Assert.assertEquals(e.getValue().size(), 1);
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
@@ -39,7 +39,7 @@ public class IMPAnalyzerTest
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/PHDR/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 6);
+        Assert.assertEquals(errorMap.size(), 5);
         errorMap.entrySet().stream().forEach( e ->
                 {
                     Assert.assertEquals(e.getValue().size(), 0); // not expecting any errors or warnings
@@ -53,7 +53,7 @@ public class IMPAnalyzerTest
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/TimedTextImageAndTextProfile/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 8);
+        Assert.assertEquals(errorMap.size(), 7);
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL.*")) {
@@ -91,19 +91,16 @@ public class IMPAnalyzerTest
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/MERIDIAN_Netflix_Photon_161006_ID_MISMATCH/");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 7);
+        Assert.assertEquals(errorMap.size(), 6); // the contained TT MXF is not referenced in PKL/CPL, so 6 files
         errorMap.entrySet().stream().forEach( e ->
                 {
-                    if (e.getKey().matches("CPL.*Virtual Track Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 1);
-                    }
-                    else if (e.getKey().matches("ASSETMAP.*")) {
+                    if (e.getKey().matches("ASSETMAP.*")) {
                         Assert.assertEquals(e.getValue().size(), 1);
                         Assert.assertTrue(e.getValue().get(0).getErrorDescription().contains("AssetMap references PKL with ID f5e93462-aed2-44ad-a4ba-2adb65823e7d, but PKL contains ID f5e93462-aed2-44ad-a4ba-2adb65823e7c"));
                     }
                     else if (e.getKey().matches("CPL.*")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
-                        Assert.assertTrue(e.getValue().get(0).getErrorDescription().contains("UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca84 in the CPL is not same as UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85 of the CPL in the AssetMap"));
+                        Assert.assertEquals(e.getValue().size(), 3);
+                        Assert.assertTrue(e.getValue().get(2).getErrorDescription().contains("UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca84 in the CPL is not same as UUID 0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85 of the CPL in the AssetMap"));
                     }
                     else if (e.getKey().matches("OPL.*")) {
                         Assert.assertEquals(e.getValue().size(), 2);

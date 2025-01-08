@@ -20,12 +20,10 @@ public class IMPAnalyzerTest
     {
         Path inputFile = TestHelper.findResourceByPath("TestIMP/IAB/CompleteIMP");
         Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
-        Assert.assertEquals(errorMap.size(), 7);
+        Assert.assertEquals(errorMap.size(), 6);
         errorMap.entrySet().stream().forEach( e ->
                 {
-                    if (e.getKey().matches("CPL.*Conformance")) {
-                        Assert.assertEquals(e.getValue().size(), 6);
-                    } else if (e.getKey().matches("meridian.*")) {
+                    if (e.getKey().matches("meridian.*")) {
                             Assert.assertEquals(e.getValue().size(), 6);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
