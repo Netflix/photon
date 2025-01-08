@@ -38,7 +38,7 @@ public class ConstraintsValidatorUtils {
         if (essenceDescriptorListMap == null || essenceDescriptorListMap.isEmpty())
             return imfErrorLogger.getErrors();
 
-        if (virtualTrack.getSequenceTypeEnum() == Composition.SequenceTypeEnum.MarkerSequence)
+        if (virtualTrack.getSequenceType() == Composition.MARKER_SEQUENCE)
             return imfErrorLogger.getErrors();
 
         List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();

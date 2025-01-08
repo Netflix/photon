@@ -271,7 +271,7 @@ public class CompositionPlaylistBuilder_2013 {
              */
             UUID sequenceId = IMFUUIDGenerator.getInstance().generateUUID();
             UUID trackId = IMFUUIDGenerator.getInstance().generateUUID();
-            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
+            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceType());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
         org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
@@ -573,7 +573,7 @@ public class CompositionPlaylistBuilder_2013 {
     public SequenceTypeTuple buildSequenceTypeTuple(UUID id,
                                                     UUID trackId,
                                                     org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList resourceList,
-                                                    Composition.SequenceTypeEnum sequenceType){
+                                                    String sequenceType){
         org.smpte_ra.schemas._2067_3._2013.SequenceType sequence = new org.smpte_ra.schemas._2067_3._2013.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
@@ -607,18 +607,18 @@ public class CompositionPlaylistBuilder_2013 {
 
         for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
             switch(sequenceTypeTuple.getSequenceType()){
-                case MainImageSequence:
+                case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                     any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                     break;
-                case MainAudioSequence:
+                case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                     any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                     break;
-                case MarkerSequence:
+                case Composition.MARKER_SEQUENCE:
                     segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                     break;
                 default:
                     throw new IMFAuthoringException(String.format("Currently we only support %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                            Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                            CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
             }
         }
     }
@@ -719,9 +719,9 @@ public class CompositionPlaylistBuilder_2013 {
      */
     public static class SequenceTypeTuple{
         private final org.smpte_ra.schemas._2067_3._2013.SequenceType sequence;
-        private final Composition.SequenceTypeEnum sequenceType;
+        private final String sequenceType;
 
-        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2013.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
+        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2013.SequenceType sequence, String sequenceType){
             this.sequence = sequence;
             this.sequenceType = sequenceType;
         }
@@ -730,7 +730,7 @@ public class CompositionPlaylistBuilder_2013 {
             return this.sequence;
         }
 
-        private Composition.SequenceTypeEnum getSequenceType(){
+        private String getSequenceType(){
             return this.sequenceType;
         }
     }

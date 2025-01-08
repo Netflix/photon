@@ -30,7 +30,7 @@ public class IMFIABConstraintsChecker {
                                                                      Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
-        if (!virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) return imfErrorLogger.getErrors();
+        if (!virtualTrack.getSequenceType().equals("IABSequence")) return imfErrorLogger.getErrors();
 
         List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
         for(IMFBaseResourceType baseResource : virtualTrackResourceList) {

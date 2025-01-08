@@ -235,7 +235,7 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Composition.VirtualTrack iabTrack = imfCompositionPlaylist.getVirtualTracks().stream().filter(vt -> vt.getSequenceTypeEnum() == Composition.SequenceTypeEnum.IABSequence).findFirst().orElse(null);
+        Composition.VirtualTrack iabTrack = imfCompositionPlaylist.getVirtualTracks().stream().filter(vt -> vt.getSequenceType() == "IABSequence").findFirst().orElse(null);
         Assert.assertNotNull(iabTrack);
         Assert.assertNotEquals(iabTrack.getDuration(), 0L);
         Assert.assertNotEquals(iabTrack.getDurationInTrackEditRateUnits(), 0L);

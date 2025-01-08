@@ -8,13 +8,7 @@ import com.netflix.imflibrary.app.IMPFixer;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFMarkerResourceType;
-import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
-import com.netflix.imflibrary.st2067_2.IMFMarkerType;
+import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
@@ -156,7 +150,7 @@ public class IMPAssembler {
                     // add to resources
                     logger.info("Adding file to resources: {}..", essenceTrackFilename);
 
-                    if (track.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                    if (track.getSequenceType().equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
                         videoTotalSourceDuration += (essenceTrackEntry.getDuration() == null ? sampleCount : essenceTrackEntry.getDuration()).longValue();
                     }
 
@@ -181,7 +175,7 @@ public class IMPAssembler {
             logger.info("Creating virtual track..");
             Composition.VirtualTrack  virtualTrack = new IMFEssenceComponentVirtualTrack(
                         IMFUUIDGenerator.getInstance().generateUUID(),
-                        track.getSequenceTypeEnum(),
+                        track.getSequenceType(),
                         trackFileResources,
                         simpleTimeline.getEditRate()
                 );
@@ -215,7 +209,7 @@ public class IMPAssembler {
 
             logger.info("Creating marker track..");
             Composition.VirtualTrack virtualTrack = new IMFMarkerVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(),
-                    track.getSequenceTypeEnum(),
+                    track.getSequenceType(),
                     markerResources,
                     simpleTimeline.getEditRate());
             virtualTracks.add(virtualTrack);
@@ -423,19 +417,19 @@ public class IMPAssembler {
         /**
          * Constructor for a track to be used to construct a simple timeline
          * @param trackEntries - a list of entries to use in the track, can contain edits
-         * @param sequenceTypeEnum - describes whether the track is a video, audio, etc..
+         * @param sequenceType - describes whether the track is a video, audio, etc..
          */
-        public Track(List<TrackEntry> trackEntries, Composition.SequenceTypeEnum sequenceTypeEnum) {
+        public Track(List<TrackEntry> trackEntries, String sequenceType) {
             this.trackEntries = trackEntries;
-            this.sequenceTypeEnum = sequenceTypeEnum;
+            this.sequenceType = sequenceType;
         }
 
-        public Composition.SequenceTypeEnum getSequenceTypeEnum() {
-            return sequenceTypeEnum;
+        public String getSequenceType() {
+            return sequenceType;
         }
 
-        public void setSequenceTypeEnum(Composition.SequenceTypeEnum sequenceTypeEnum) {
-            this.sequenceTypeEnum = sequenceTypeEnum;
+        public void setSequenceType(String sequenceType) {
+            this.sequenceType = sequenceType;
         }
 
         public List<TrackEntry> getTrackEntries() {
@@ -446,7 +440,7 @@ public class IMPAssembler {
             this.trackEntries = trackEntries;
         }
 
-        private Composition.SequenceTypeEnum sequenceTypeEnum;
+        private String sequenceType;
         private List<TrackEntry> trackEntries;
     }
 

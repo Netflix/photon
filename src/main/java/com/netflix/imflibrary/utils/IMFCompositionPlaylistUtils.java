@@ -7,6 +7,7 @@ import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import jakarta.annotation.Nonnull;
@@ -22,7 +23,7 @@ public class IMFCompositionPlaylistUtils {
         Iterator iterator = imfCompositionPlaylist.getVirtualTrackMap().entrySet().iterator();
         while (iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.IABSequence)) {
+            if (virtualTrack.getSequenceType().equals("IABSequence")) {
                 return true;
             }
         }
@@ -34,7 +35,7 @@ public class IMFCompositionPlaylistUtils {
         Iterator iterator = imfCompositionPlaylist.getVirtualTrackMap().entrySet().iterator();
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)) {
+            if (virtualTrack.getSequenceType().equals("MGASADMSignalSequence")) {
                 return true;
             }
         }
@@ -53,10 +54,10 @@ public class IMFCompositionPlaylistUtils {
     @Nullable
     public static String getAudioTrackSpokenLanguage(Composition.VirtualTrack audioVirtualTrack, List<PayloadRecord> essencesHeaderPartition) throws IOException {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        if(audioVirtualTrack.getSequenceTypeEnum() != Composition.SequenceTypeEnum.MainAudioSequence){
+        if(audioVirtualTrack.getSequenceType() != CoreConstraints.MAIN_AUDIO_SEQUENCE){
             throw new IMFException(String.format("Virtual track that was passed in is of type %s, spoken language is " +
-                            "currently supported for only %s tracks", audioVirtualTrack.getSequenceTypeEnum().toString(),
-                    Composition.SequenceTypeEnum.MainAudioSequence.toString()));
+                            "currently supported for only %s tracks", audioVirtualTrack.getSequenceType(),
+                    CoreConstraints.MAIN_AUDIO_SEQUENCE));
         }
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
         virtualTracks.add(audioVirtualTrack);

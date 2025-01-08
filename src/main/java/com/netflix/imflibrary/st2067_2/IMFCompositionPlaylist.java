@@ -576,7 +576,7 @@ public class IMFCompositionPlaylist {
             for (IMFSequenceType sequence : sequences) {
                 UUID trackID = UUIDHelper.fromUUIDAsURNStringToUUID(sequence.getTrackId());
                 if (trackID.equals(virtualTrackID)) {
-                    return sequence.name;
+                    return sequence.type;
                 }
             }
         }
@@ -670,7 +670,7 @@ public class IMFCompositionPlaylist {
                 && iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>)
                     iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+            if (virtualTrack.getSequenceType().equals("MainImageSequence")) {
                 return IMFEssenceComponentVirtualTrack.class.cast(virtualTrack);
             }
         }
@@ -688,7 +688,7 @@ public class IMFCompositionPlaylist {
         while (iterator != null
                 && iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainAudioSequence)) {
+            if (virtualTrack.getSequenceType().equals("MainAudioSequence")) {
                 audioVirtualTracks.add(IMFEssenceComponentVirtualTrack.class.cast(virtualTrack));
             }
         }
@@ -706,7 +706,7 @@ public class IMFCompositionPlaylist {
         while (iterator != null
                 && iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MarkerSequence)) {
+            if (virtualTrack.getSequenceType().equals("MarkerSequence")) {
                 return IMFMarkerVirtualTrack.class.cast(virtualTrack);
             }
         }

@@ -140,7 +140,7 @@ public class IMPBuilder {
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            if(virtualTrack.getSequenceTypeEnum() == Composition.SequenceTypeEnum.MainImageSequence){
+            if(virtualTrack.getSequenceType() == CoreConstraints.MAIN_IMAGE_SEQUENCE){
                 mainImageVirtualTrack = virtualTrack;
                 break;
             }
@@ -295,7 +295,7 @@ public class IMPBuilder {
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            if(virtualTrack.getSequenceTypeEnum() == Composition.SequenceTypeEnum.MainImageSequence){
+            if(virtualTrack.getSequenceType() == CoreConstraints.MAIN_IMAGE_SEQUENCE){
                 mainImageVirtualTrack = virtualTrack;
                 break;
             }
@@ -539,7 +539,7 @@ public class IMPBuilder {
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            if(virtualTrack.getSequenceTypeEnum() == Composition.SequenceTypeEnum.MainImageSequence){
+            if(virtualTrack.getSequenceType() == CoreConstraints.MAIN_IMAGE_SEQUENCE){
                 mainImageVirtualTrack = virtualTrack;
                 break;
             }
@@ -690,7 +690,7 @@ public class IMPBuilder {
 
         Composition.VirtualTrack mainImageVirtualTrack = null;
         for(Composition.VirtualTrack virtualTrack : virtualTracks){
-            if(virtualTrack.getSequenceTypeEnum() == Composition.SequenceTypeEnum.MainImageSequence){
+            if(virtualTrack.getSequenceType() == CoreConstraints.MAIN_IMAGE_SEQUENCE){
                 mainImageVirtualTrack = virtualTrack;
                 break;
             }

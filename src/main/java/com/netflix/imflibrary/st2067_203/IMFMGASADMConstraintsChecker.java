@@ -26,7 +26,6 @@ import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
-import com.netflix.imflibrary.st2067_2.Composition.SequenceTypeEnum;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
@@ -66,7 +65,7 @@ public class IMFMGASADMConstraintsChecker {
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (!virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)) continue;
+            if (!virtualTrack.getSequenceType().equals("MGASADMSignalSequence")) continue;
 
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             for(IMFBaseResourceType baseResource : virtualTrackResourceList) {
@@ -238,7 +237,7 @@ public class IMFMGASADMConstraintsChecker {
         }
         for (IMFEssenceComponentVirtualTrack virtualTrack : IMFCompositionPlaylist.getEssenceVirtualTracks()) {
             // ST 2067-203, section 6.3.4, check for a MGA S-ADM Virtual Track Parameter Set for each MGA S-ADM Virtual Track
-            if (virtualTrack.getSequenceTypeEnum() == SequenceTypeEnum.MGASADMSignalSequence) {
+            if (virtualTrack.getSequenceType() == "MGASADMSignalSequence") {
                 mgaSADMSignalSequenceTrackIds.add(UUIDHelper.fromUUID(virtualTrack.getTrackID()));
                 List<String> resource_id_list = new ArrayList<>();
                 for (IMFBaseResourceType resource : virtualTrack.getResourceList()) {

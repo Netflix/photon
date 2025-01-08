@@ -194,12 +194,11 @@ final class CompositionModel_st2067_2_2016 {
             org.smpte_ra.schemas._2067_3._2016.SequenceType sequence = (org.smpte_ra.schemas._2067_3._2016.SequenceType) jaxbElement.getValue();
 
             // Determine the type of Sequence being parsed
-            String sequenceName = jaxbElement.getName().getLocalPart();
+            String sequenceType = jaxbElement.getName().getLocalPart();
             String sequenceNamespace = jaxbElement.getName().getNamespaceURI();
 
-            Composition.SequenceTypeEnum sequenceType = Composition.SequenceTypeEnum.getSequenceTypeEnum(jaxbElement.getName().getLocalPart());
             // Parse the Sequence
-            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, sequenceName, sequenceNamespace, imfErrorLogger));
+            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, sequenceNamespace, imfErrorLogger));
         }
         return new IMFSegmentType(segment.getId(), sequenceList);
     }
@@ -232,8 +231,7 @@ final class CompositionModel_st2067_2_2016 {
         }
         return new IMFSequenceType(markerSequence.getId(),
                 markerSequence.getTrackId(),
-                Composition.SequenceTypeEnum.MarkerSequence,
-                "MarkerSequence",
+                Composition.MARKER_SEQUENCE,
                 cplNamespaceURI,
                 sequenceResources);
     }
@@ -241,8 +239,8 @@ final class CompositionModel_st2067_2_2016 {
     // Converts an instance of the JAXB class org.smpte_ra.schemas._2067_3._2016.SequenceType
     // Into a canonical, version-independent, instance of IMFSequenceType
     @Nonnull private static IMFSequenceType parseSequence(@Nonnull org.smpte_ra.schemas._2067_3._2016.SequenceType sequence,
-                                                 @Nonnull List<Long> cplEditRate, Composition.SequenceTypeEnum sequenceType,
-                                                  @Nonnull String sequenceName, @Nonnull String sequenceNamespace, @Nonnull IMFErrorLogger imfErrorLogger)
+                                                          @Nonnull List<Long> cplEditRate, @Nonnull String sequenceType,
+                                                          @Nonnull String sequenceNamespace, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         List<IMFBaseResourceType> sequenceResources = new ArrayList<>();
         for (org.smpte_ra.schemas._2067_3._2016.BaseResourceType resource : sequence.getResourceList().getResource())
@@ -269,7 +267,6 @@ final class CompositionModel_st2067_2_2016 {
         return new IMFSequenceType(sequence.getId(),
                 sequence.getTrackId(),
                 sequenceType,
-                sequenceName,
                 sequenceNamespace,
                 sequenceResources);
     }

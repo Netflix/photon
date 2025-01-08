@@ -314,16 +314,16 @@ public final class OutputProfileList {
     private static Map<String, Handle> populateCPLVirtualTrackHandles(IMFCompositionPlaylist imfCompositionPlaylist, Map<String, Handle> handleMap) {
         List<? extends Composition.VirtualTrack> virtualTrackList = imfCompositionPlaylist.getVirtualTracks();
         for(Composition.VirtualTrack virtualTrack: virtualTrackList) {
-            switch(virtualTrack.getSequenceTypeEnum()) {
+            switch(virtualTrack.getSequenceType()) {
 
-                case MainImageSequence: {
+                case "MainImageSequence": {
                     StringBuilder handleBuilder = new StringBuilder();
                     handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                     Handle handleType = new VirtualTrackHandle(handleBuilder.toString(), virtualTrack);
                     handleMap.put(handleBuilder.toString(), handleType);                }
                 break;
 
-                case MainAudioSequence: {
+                case "MainAudioSequence": {
                     IMFEssenceComponentVirtualTrack imfEssenceComponentVirtualTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
                     for (UUID uuid : imfEssenceComponentVirtualTrack.getTrackResourceIds()) {
                         DOMNodeObjectModel domNodeObjectModel = imfCompositionPlaylist.getEssenceDescriptor(uuid);

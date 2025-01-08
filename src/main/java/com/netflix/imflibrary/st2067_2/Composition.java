@@ -56,6 +56,8 @@ import java.util.UUID;
 public final class Composition {
     private static final Logger logger = LoggerFactory.getLogger(Composition.class);
 
+    public static final String MARKER_SEQUENCE = "MarkerSequence";
+
     private Composition() {
 
     }
@@ -263,7 +265,7 @@ public final class Composition {
     @Immutable
     public abstract static class VirtualTrack {
         protected final UUID trackID;
-        protected final SequenceTypeEnum sequenceTypeEnum;
+        protected final String sequenceType;
         protected final List<? extends IMFBaseResourceType> resources;
         protected final Composition.EditRate compositionEditRate;
 
@@ -271,13 +273,13 @@ public final class Composition {
          * Constructor for a VirtualTrack object
          *
          * @param trackID          the UUID associated with this VirtualTrack object
-         * @param sequenceTypeEnum the type of the associated sequence
+         * @param sequenceType     the type of the associated sequence
          * @param resources        the resource list of the Virtual Track
          * @param compositionEditRate the edit rate of the composition
          */
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum, List<? extends IMFBaseResourceType> resources, Composition.EditRate compositionEditRate) {
+        public VirtualTrack(UUID trackID, String sequenceType, List<? extends IMFBaseResourceType> resources, Composition.EditRate compositionEditRate) {
             this.trackID = trackID;
-            this.sequenceTypeEnum = sequenceTypeEnum;
+            this.sequenceType = sequenceType;
             this.resources = resources;
             this.compositionEditRate = compositionEditRate;
         }
@@ -287,8 +289,8 @@ public final class Composition {
          *
          * @return the sequence type associated with this VirtualTrack object as an enum
          */
-        public SequenceTypeEnum getSequenceTypeEnum() {
-            return this.sequenceTypeEnum;
+        public String getSequenceType() {
+            return this.sequenceType;
         }
 
         /**
@@ -343,7 +345,7 @@ public final class Composition {
          */
         public boolean equivalent(Composition.VirtualTrack other) {
             if (other == null
-                    || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))
+                    || (!this.getSequenceType().equals(other.getSequenceType()))
                     || (this.resources.size() == 0 || other.resources.size() == 0)) {
                 return false;
             }

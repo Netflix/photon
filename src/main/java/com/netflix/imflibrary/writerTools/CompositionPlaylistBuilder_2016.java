@@ -250,7 +250,7 @@ public class CompositionPlaylistBuilder_2016 {
              */
             UUID sequenceId = IMFUUIDGenerator.getInstance().generateUUID();
             UUID trackId = IMFUUIDGenerator.getInstance().generateUUID();
-            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
+            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceType());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
         org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
@@ -553,7 +553,7 @@ public class CompositionPlaylistBuilder_2016 {
     public SequenceTypeTuple buildSequenceTypeTuple(UUID id,
                                                     UUID trackId,
                                                     org.smpte_ra.schemas._2067_3._2016.SequenceType.ResourceList resourceList,
-                                                    Composition.SequenceTypeEnum sequenceType){
+                                                    String sequenceType){
         org.smpte_ra.schemas._2067_3._2016.SequenceType sequence = new org.smpte_ra.schemas._2067_3._2016.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
@@ -589,26 +589,26 @@ public class CompositionPlaylistBuilder_2016 {
             org.smpte_ra.ns._2067_203._2022.ObjectFactory mgasadmFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
-                    case MainImageSequence:
+                    case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                         any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MainAudioSequence:
+                    case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                         any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case IABSequence:
+                    case "IABSequence":
                         // JAXB class for IABSequence was generated in the CC 2016 package. Use that
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MGASADMSignalSequence:
+                    case "MGASADMSignalSequence":
                         // JAXB class for MGASADMSignalSequence was generated in the CC 2016 package. Use that
                         any.add(mgasadmFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MarkerSequence:
+                    case Composition.MARKER_SEQUENCE:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
                         throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                                CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, "IABSequence", "MGASADMSignalSequence", Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }
@@ -619,24 +619,24 @@ public class CompositionPlaylistBuilder_2016 {
             org.smpte_ra.ns._2067_203._2022.ObjectFactory mgaFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
-                    case MainImageSequence:
+                    case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                         any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MainAudioSequence:
+                    case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                         any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case IABSequence:
+                    case "IABSequence":
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MGASADMSignalSequence:
+                    case "MGASADMSignalSequence":
                         any.add(mgaFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MarkerSequence:
+                    case Composition.MARKER_SEQUENCE:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
                         throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                                CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, "IABSequence", "MGASADMSignalSequence", Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }
@@ -739,9 +739,9 @@ public class CompositionPlaylistBuilder_2016 {
      */
     public static class SequenceTypeTuple{
         private final org.smpte_ra.schemas._2067_3._2016.SequenceType sequence;
-        private final Composition.SequenceTypeEnum sequenceType;
+        private final String sequenceType;
 
-        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2016.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
+        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2016.SequenceType sequence, String sequenceType){
             this.sequence = sequence;
             this.sequenceType = sequenceType;
         }
@@ -750,7 +750,7 @@ public class CompositionPlaylistBuilder_2016 {
             return this.sequence;
         }
 
-        private Composition.SequenceTypeEnum getSequenceType(){
+        private String getSequenceType(){
             return this.sequenceType;
         }
     }
