@@ -21,6 +21,7 @@ import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
+import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
@@ -99,6 +100,84 @@ public class IMPValidatorFunctionalTests {
         Assert.assertEquals(errors.size(), 1);
         Assert.assertTrue(errors.get(0).getErrorDescription().contains("we only support the following schema URIs"));
     }
+
+    @Test
+    public void invalidPayloadPKLTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+
+        try {
+             IMPValidator.validatePKL(payloadRecord);
+             Assert.fail();
+        } catch (IMFException e) {
+            Assert.assertTrue(e.getMessage().contains("Payload asset type is"));
+        }
+    }
+
+    @Test
+    public void invalidPayloadAMTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+
+        try {
+            IMPValidator.validateAssetMap(payloadRecord);
+            Assert.fail();
+        } catch (IMFException e) {
+            Assert.assertTrue(e.getMessage().contains("Payload asset type is"));
+        }
+    }
+
+    @Test
+    public void invalidPayloadPKLandAMTest_01() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+
+        List<PayloadRecord> pklPayloads = new ArrayList<>();
+
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKLAndAssetMap(payloadRecord, pklPayloads);
+
+        Assert.assertEquals(errors.size(), 1);
+    }
+
+    @Test
+    public void invalidPayloadPKLandAMTest_02() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
+
+        List<PayloadRecord> pklPayloads = new ArrayList<>();
+
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKLAndAssetMap(payloadRecord, pklPayloads);
+
+        Assert.assertEquals(errors.size(), 1);
+    }
+
+    @Test
+    public void invalidPayloadPKLandAMTest_03() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+        PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.AssetMap, 0L, resourceByteRangeProvider.getResourceSize());
+
+        List<PayloadRecord> pklPayloads = new ArrayList<>();
+        Path inputCPL = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/CPL_a453b63a-cf4d-454a-8c34-141f560c0100.xml");
+        ResourceByteRangeProvider resourceByteRangeProviderCPL = new FileByteRangeProvider(inputCPL);
+        byte[] bytesCPL = resourceByteRangeProviderCPL.getByteRangeAsBytes(0, resourceByteRangeProviderCPL.getResourceSize() - 1);
+        PayloadRecord payloadRecordCPL = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
+        pklPayloads.add(payloadRecordCPL);
+
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKLAndAssetMap(payloadRecord, pklPayloads);
+
+        Assert.assertEquals(errors.size(), 2);
+    }
+
 
     @Test
     public void validAssetMapTest() throws IOException {

@@ -118,6 +118,7 @@ public class IMPValidator {
                             .ErrorLevels.FATAL,
                     String.format("Payload asset type is %s, expected asset type %s", assetMapPayload
                     .getPayloadAssetType(), PayloadRecord.PayloadAssetType.AssetMap.toString()));
+            return imfErrorLogger.getErrors();
         }
 
         ResourceByteRangeProvider assetMapByteRangeProvider = new ByteArrayByteRangeProvider(assetMapPayload.getPayload());
@@ -128,7 +129,7 @@ public class IMPValidator {
 
             if(assetMapObjectModel.getPackingListAssets().size() == 0){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_AM_ERROR, IMFErrorLogger.IMFErrors
-                        .ErrorLevels.FATAL, String.format("Asset map should reference atleast one PackingList, %d " +
+                        .ErrorLevels.FATAL, String.format("Asset map should reference at least one PackingList, %d " +
                         "references found", assetMapObjectModel.getPackingListAssets().size()));
             }
         }
@@ -141,7 +142,7 @@ public class IMPValidator {
         for(PayloadRecord payloadRecord : packingListPayloadRecords){
             if(payloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.PackingList){
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels
-                        .FATAL, String.format("Payload asset type is %s, expected asset type %s", assetMapPayload.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
+                        .FATAL, String.format("Payload asset type is %s, expected asset type %s", payloadRecord.getPayloadAssetType(), PayloadRecord.PayloadAssetType.PackingList.toString()));
             }
             else {
                 packingLists.add(new ByteArrayByteRangeProvider(payloadRecord.getPayload()));
@@ -149,7 +150,7 @@ public class IMPValidator {
         }
 
         if(packingLists.size() == 0){
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("Atleast one PackingList is expected, %d were detected", packingLists.size()));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("At least one PackingList is expected, %d were detected", packingLists.size()));
         }
 
         if(imfErrorLogger.hasFatalErrors())
