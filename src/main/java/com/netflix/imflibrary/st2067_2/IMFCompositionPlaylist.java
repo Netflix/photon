@@ -33,9 +33,14 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
@@ -74,6 +79,13 @@ public class IMFCompositionPlaylist {
     private final Set<String> applicationIdSet;
     private final ExtensionProperties extensionProperties;
 
+    private static final String dcmlTypes_schema_path               = "org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd";
+    private static final String xmldsig_core_schema_path            = "org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd";
+
+    private static final Map<String, String> supportedCPLSchemas = Collections.unmodifiableMap(new HashMap<String, String>() {{
+        put("http://www.smpte-ra.org/schemas/2067-3/2013","org/smpte_ra/schemas/st2067_3_2013/imf-cpl.xsd");
+        put("http://www.smpte-ra.org/schemas/2067-3/2016", "org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
+    }});
 
     static class Builder {
         private IMFErrorLogger imfErrorLogger;
@@ -176,9 +188,10 @@ public class IMFCompositionPlaylist {
      * Constructor for a {@link IMFCompositionPlaylist Composition} object from a XML file
      *
      * @param compositionPlaylistXMLFile the input XML file that is conformed to schema and constraints specified in st2067-3:2013 and st2067-2:2013
+     * @throws IMFException       any fatal parsing error is exposed through an IMFException
      * @throws IOException        any I/O related error is exposed through an IOException
      */
-    public IMFCompositionPlaylist(Path compositionPlaylistXMLFile) throws IOException {
+    public IMFCompositionPlaylist(Path compositionPlaylistXMLFile) throws IOException, IMFException {
         this(new FileByteRangeProvider(compositionPlaylistXMLFile));
     }
 
@@ -187,9 +200,10 @@ public class IMFCompositionPlaylist {
      *
      * @param resourceByteRangeProvider corresponding to the Composition XML file.
      *                                  if any {@link IMFErrorLogger.IMFErrors.ErrorLevels#FATAL fatal} errors are encountered
+     * @throws IMFException       any fatal parsing error is exposed through an IMFException
      * @throws IOException        any I/O related error is exposed through an IOException
      */
-    public IMFCompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
+    public IMFCompositionPlaylist(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException {
         this(getIMFCompositionPlaylistBuilder(resourceByteRangeProvider));
     }
 
@@ -338,7 +352,7 @@ public class IMFCompositionPlaylist {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("======= Composition : %s =======%n", this.getId()));
+        sb.append(String.format("======= Composition : %s =======%n", this.getUUID()));
         sb.append(this.getEditRate().toString());
         return sb.toString();
     }
@@ -361,7 +375,7 @@ public class IMFCompositionPlaylist {
 
             //obtain root node
             NodeList nodeList = null;
-            for (String cplNamespaceURI : supportedCPLSchemaURIs) {
+            for (String cplNamespaceURI : supportedCPLSchemas.keySet()) {
                 nodeList = document.getElementsByTagNameNS(cplNamespaceURI, "CompositionPlaylist");
                 if (nodeList != null
                         && nodeList.getLength() == 1) {
@@ -373,15 +387,6 @@ public class IMFCompositionPlaylist {
         }
 
         return false;
-    }
-
-
-    /**
-     * Getter for the Composition Playlist ID
-     * @return a string representing the urn:uuid of the Composition Playlist
-     */
-    public UUID getId(){
-        return this.id;
     }
 
 
@@ -562,7 +567,7 @@ public class IMFCompositionPlaylist {
      *
      * @return the Sequence Namespace, null if Track File ID not part of any essence virtual track
      */
-    public String getSequenceNameForVirtualTrackID(@Nonnull UUID virtualTrackID) {
+    public String getSequenceTypeForVirtualTrackID(@Nonnull UUID virtualTrackID) {
 
         List<IMFSegmentType> segments = getSegmentList();
         if (segments == null)
@@ -724,8 +729,67 @@ public class IMFCompositionPlaylist {
 
     public static List<ErrorLogger.ErrorObject> validateCompositionPlaylistSchema(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
 
-        Builder builder = getIMFCompositionPlaylistBuilder(resourceByteRangeProvider);
-        return builder.imfErrorLogger.getErrors();
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        String cplSchemaURI = getCompositionNamespaceURI(resourceByteRangeProvider, imfErrorLogger);
+
+        if (imfErrorLogger.hasFatalErrors())
+            return imfErrorLogger.getErrors();
+
+        String cplSchemaFile = supportedCPLSchemas.get(cplSchemaURI);
+        if(cplSchemaFile == null){
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                            .ErrorLevels.FATAL, "CPL Schema not supported: " + cplSchemaURI);
+            return imfErrorLogger.getErrors();
+        }
+
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+            try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+                 InputStream inputStream = Channels.newInputStream(byteChannel);
+
+                 InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(xmldsig_core_schema_path);
+                 InputStream dcmlTypes_is = contextClassLoader.getResourceAsStream(dcmlTypes_schema_path);
+                 InputStream imf_cpl_schema_is = contextClassLoader.getResourceAsStream(cplSchemaFile);
+
+            ) {
+                StreamSource[] streamSources = new StreamSource[3];
+                streamSources[0] = new StreamSource(xmldsig_core_is);
+                streamSources[1] = new StreamSource(dcmlTypes_is);
+                streamSources[2] = new StreamSource(imf_cpl_schema_is);
+
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                Schema schema = schemaFactory.newSchema(streamSources);
+
+                Validator validator = schema.newValidator();
+                validator.setErrorHandler(new ErrorHandler() {
+                    @Override
+                    public void warning(SAXParseException exception) throws SAXException {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage());
+                    }
+
+                    @Override
+                    public void error(SAXParseException exception) throws SAXException {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage());
+                    }
+
+                    @Override
+                    public void fatalError(SAXParseException exception) throws SAXException {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage());
+                    }
+                });
+
+                StreamSource inputSource = new StreamSource(inputStream);
+                validator.validate(inputSource);
+            }
+        }
+        catch(SAXException e)
+        {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
+                    .ErrorLevels.FATAL, e.getMessage());
+        }
+
+        return imfErrorLogger.getErrors();
     }
 
     /**
@@ -737,29 +801,6 @@ public class IMFCompositionPlaylist {
     public List<? extends Composition.VirtualTrack> getVirtualTracks() {
         Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = this.getVirtualTrackMap();
         return new ArrayList<>(virtualTrackMap.values());
-    }
-
-    /**
-     * A utility method to retrieve the EssenceDescriptors within a Composition.
-     *
-     * @return A list of EssenceDescriptors in the Composition.
-     */
-    @Nonnull
-    public List<DOMNodeObjectModel> getEssenceDescriptors() {
-        Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = this.getEssenceDescriptorListMap();
-        return new ArrayList<>(essenceDescriptorMap.values());
-    }
-
-    /**
-     * A utility method to retrieve the EssenceDescriptors within a Composition based on the name.
-     *
-     * @param  descriptorName EssenceDescriptor name
-     * @return A list of DOMNodeObjectModels representing EssenceDescriptors with given name.
-     */
-    public List<DOMNodeObjectModel> getEssenceDescriptors(String descriptorName) {
-        return this.getEssenceDescriptors()
-                .stream().filter(e -> e.getLocalName().equals(descriptorName))
-                .collect(Collectors.toList());
     }
 
     /**
@@ -843,10 +884,9 @@ public class IMFCompositionPlaylist {
      * A utility method that will analyze the EssenceDescriptorList in a Composition and construct a HashMap mapping
      * a UUID to a EssenceDescriptor.
      *
-     * @param ignoreSet - Set with names of properties to ignore
      * @return a HashMap mapping the UUID to its corresponding EssenceDescriptor in the Composition
      */
-    Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap(Set<String> ignoreSet) {
+    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorMap = new HashMap<>();
         if (getEssenceDescriptorList() != null) {
@@ -857,9 +897,6 @@ public class IMFCompositionPlaylist {
                     DOMNodeObjectModel domNodeObjectModel = null;
                     for (Object object : essenceDescriptorBaseType.getAny()) {
                         domNodeObjectModel = new DOMNodeObjectModel((Node) object);
-                        if(domNodeObjectModel != null && ignoreSet.size() != 0) {
-                            domNodeObjectModel = DOMNodeObjectModel.createDOMNodeObjectModelIgnoreSet(domNodeObjectModel, ignoreSet);
-                        }
                     }
                     if (domNodeObjectModel != null) {
                         essenceDescriptorMap.put(uuid, domNodeObjectModel);
@@ -878,15 +915,6 @@ public class IMFCompositionPlaylist {
         return Collections.unmodifiableMap(essenceDescriptorMap);
     }
 
-    /**
-     * A utility method that will analyze the EssenceDescriptorList in a Composition and construct a HashMap mapping
-     * a UUID to a EssenceDescriptor.
-     *
-     * @return a HashMap mapping the UUID to its corresponding EssenceDescriptor in the Composition
-     */
-    public Map<UUID, DOMNodeObjectModel> getEssenceDescriptorListMap() {
-        return getEssenceDescriptorListMap(new HashSet<>());
-    }
 
     public Map<Set<DOMNodeObjectModel>, ? extends Composition.VirtualTrack> getAudioVirtualTracksMap() {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -943,6 +971,7 @@ public class IMFCompositionPlaylist {
         return resourceSourceEncodingElementsSet;
     }
 
+
     public static List<IMFCompositionPlaylist.ResourceIdTuple> getResourceIdTuples(List<? extends Composition.VirtualTrack> virtualTracks) {
         List<IMFCompositionPlaylist.ResourceIdTuple>  resourceIdTupleList = new ArrayList<>();
         for (Composition.VirtualTrack virtualTrack : virtualTracks) {
@@ -951,6 +980,7 @@ public class IMFCompositionPlaylist {
         }
         return resourceIdTupleList;
     }
+
 
     @Nonnull
     public List<CompositionImageEssenceDescriptorModel> getCompositionImageEssenceDescriptorModels() {
@@ -969,6 +999,7 @@ public class IMFCompositionPlaylist {
 
         return imageEssenceDescriptorModels;
     }
+
 
     private  Map<UUID, List<Node>> createEssenceDescriptorDomNodeMap() {
         final Map<UUID, List<Node>> essenceDescriptorDomNodeMap = new HashMap<>();
@@ -992,15 +1023,6 @@ public class IMFCompositionPlaylist {
     }
 
 
-
-
-    private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>() {{
-        add("http://www.smpte-ra.org/schemas/2067-3/2013");
-        add("http://www.smpte-ra.org/schemas/2067-3/2016");
-    }});
-
-
-
     @Nonnull
     private static final String getCompositionNamespaceURI(ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
 
@@ -1015,24 +1037,24 @@ public class IMFCompositionPlaylist {
             documentBuilder.setErrorHandler(new ErrorHandler() {
                 @Override
                 public void warning(SAXParseException exception) throws SAXException {
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage()));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, exception.getMessage());
                 }
 
                 @Override
                 public void error(SAXParseException exception) throws SAXException {
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage()));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, exception.getMessage());
                 }
 
                 @Override
                 public void fatalError(SAXParseException exception) throws SAXException {
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage()));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, exception.getMessage());
                 }
             });
             Document document = documentBuilder.parse(inputStream);
 
             //obtain root node
             NodeList nodeList = null;
-            for (String cplNamespaceURI : supportedCPLSchemaURIs) {
+            for (String cplNamespaceURI : supportedCPLSchemas.keySet()) {
                 nodeList = document.getElementsByTagNameNS(cplNamespaceURI, "CompositionPlaylist");
                 if (nodeList != null && nodeList.getLength() == 1) {
                     result = cplNamespaceURI;
@@ -1049,7 +1071,7 @@ public class IMFCompositionPlaylist {
         if (result.isEmpty()) {
             String message = String.format("Please check the CPL document and namespace URI, currently we only " +
                     "support the following schema URIs %s", Utilities.serializeObjectCollectionToString
-                    (supportedCPLSchemaURIs));
+                    (supportedCPLSchemas.keySet()));
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL, message);
             throw new IMFException(message, imfErrorLogger);
@@ -1058,8 +1080,7 @@ public class IMFCompositionPlaylist {
     }
 
 
-
-    private static IMFCompositionPlaylist.Builder getIMFCompositionPlaylistBuilder(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException
+    private static IMFCompositionPlaylist.Builder getIMFCompositionPlaylistBuilder(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         // Determine which version of the CPL namespace is being used
@@ -1082,14 +1103,11 @@ public class IMFCompositionPlaylist {
         else
         {
             String message = String.format("Please check the CPL document and namespace URI, currently we " +
-                    "only support the following schema URIs %s", supportedCPLSchemaURIs);
+                    "only support the following schema URIs %s", supportedCPLSchemas.keySet());
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger
                     .IMFErrors.ErrorLevels.FATAL, message);
             throw new IMFException(message, imfErrorLogger);
         }
     }
-
-
-
 
 }
