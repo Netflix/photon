@@ -3,7 +3,6 @@ package com.netflix.imflibrary.validation;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
-import com.netflix.imflibrary.st2067_2.CoreConstraints;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import jakarta.annotation.Nonnull;
@@ -34,7 +33,7 @@ public class IMFCoreConstraints2013Validator extends IMFCoreConstraintsValidator
         // check if MainAudioSequence present per Section 6.3.2 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         boolean containsMainAudioSequence = imfCompositionPlaylist.getVirtualTrackMap().entrySet().stream()
                 .map(Map.Entry::getValue)
-                .map(virtualTrack -> imfCompositionPlaylist.getSequenceNameForVirtualTrackID(virtualTrack.getTrackID()))
+                .map(virtualTrack -> imfCompositionPlaylist.getSequenceTypeForVirtualTrackID(virtualTrack.getTrackID()))
                 .anyMatch(virtualTrackSequenceName -> virtualTrackSequenceName.equals(MAIN_AUDIO_SEQUENCE));
 
         if (!containsMainAudioSequence) {

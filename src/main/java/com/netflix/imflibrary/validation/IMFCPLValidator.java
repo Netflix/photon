@@ -103,7 +103,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                     //Section 6.9.3 st2067-3:2016
                     String message = String.format(
                             "Segment represented by the ID %s in the Composition represented by ID %s contains virtual track represented by ID %s, which does not appear in all the segments of the Composition, this is invalid",
-                            segment.getId(), imfCompositionPlaylist.getId().toString(), uuid);
+                            segment.getId(), imfCompositionPlaylist.getUUID().toString(), uuid);
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, message);
                 }
 
@@ -130,7 +130,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                 if(sequenceDurationInCompositionEditRateReminder != 0){
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("Segment represented by the Id %s in the Composition represented by ID %s has a sequence represented by ID %s, whose duration represented in Composition Edit Units is (%f) is not an integer"
-                                    , segment.getId(), imfCompositionPlaylist.getId().toString(), sequence.getId(), sequenceDurationDoubleValue));
+                                    , segment.getId(), imfCompositionPlaylist.getUUID().toString(), sequence.getId(), sequenceDurationDoubleValue));
                 }
                 sequenceDurationInCompositionEditUnits = Math.round(sequenceDurationDoubleValue);
                 sequencesDurationSet.add(sequenceDurationInCompositionEditUnits);
@@ -178,9 +178,9 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
          */
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         if (imfErrorLogger.hasFatalErrors()) {
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    "Unable to validate essence descriptors: IMF Composition Playlist has FATAL errors"));
+                    "Unable to validate essence descriptors: IMF Composition Playlist has FATAL errors");
             return imfErrorLogger.getErrors();
         }
 
@@ -290,9 +290,9 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
         try {
             resourceEssenceDescriptorMap = getResourcesEssenceDescriptorsMap(imfCompositionPlaylist, headerPartitionTuples, imfErrorLogger);
         } catch (IOException e) {
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    "Failed to retrieve resource essence descriptor map from Composition Playlist"));
+                    "Failed to retrieve resource essence descriptor map from Composition Playlist");
         }
         if (essenceDescriptorMap == null || resourceEssenceDescriptorMap == null) {
             return imfErrorLogger.getErrors();

@@ -114,7 +114,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
         // Section 6.3.1 st2067-2:2016 and Section 6.9.3 st2067-3:2016
         long mainImageSequenceCount = imfCompositionPlaylist.getVirtualTrackMap().entrySet().stream()
                 .map(Map.Entry::getValue)
-                .map(virtualTrack -> imfCompositionPlaylist.getSequenceNameForVirtualTrackID(virtualTrack.getTrackID()))
+                .map(virtualTrack -> imfCompositionPlaylist.getSequenceTypeForVirtualTrackID(virtualTrack.getTrackID()))
                 .filter(virtualTrackSequenceName -> virtualTrackSequenceName.equals(MAIN_IMAGE_SEQUENCE))
                 .count();
 
@@ -137,7 +137,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
                 continue;
             }
 
-            String virtualTrackSequenceName = imfCompositionPlaylist.getSequenceNameForVirtualTrackID(virtualTrack.getTrackID());
+            String virtualTrackSequenceName = imfCompositionPlaylist.getSequenceTypeForVirtualTrackID(virtualTrack.getTrackID());
 
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
 
@@ -211,7 +211,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                                         String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that refers to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
                                                         "whose indicated %s value is %s, however the Resource Edit Rate is %s"
-                                                , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
+                                                , imfCompositionPlaylist.getUUID().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, essenceEditRate.toString(), imfBaseResourceType.getEditRate().toString()));
                             }
                         }
                     }
@@ -220,7 +220,7 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                             String.format("This Composition represented by the ID %s is invalid since the VirtualTrack represented by ID %s has a Resource represented by ID %s that seems to refer to a EssenceDescriptor in the CPL's EssenceDescriptorList represented by the ID %s " +
                                             "which does not have a value set for the field %s, however the Resource Edit Rate is %s"
-                                    , imfCompositionPlaylist.getId().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
+                                    , imfCompositionPlaylist.getUUID().toString(), virtualTrack.getTrackID().toString(), imfBaseResourceType.getId(), imfTrackFileResourceType.getSourceEncoding(), essenceDescriptorField, imfBaseResourceType.getEditRate().toString()));
                 }
                 virtualTrackEssenceDescriptors.add(domNodeObjectModel);
             }

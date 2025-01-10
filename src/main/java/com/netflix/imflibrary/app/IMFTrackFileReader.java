@@ -141,7 +141,7 @@ public final class IMFTrackFileReader
         }
         catch (MXFException | IMFException e){
             if(headerPartition == null){
-                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors")));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors"));
             }
             else {
                 Preface preface = headerPartition.getPreface();
@@ -590,8 +590,8 @@ public final class IMFTrackFileReader
     BigInteger getEssenceEditRate(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         BigInteger result = BigInteger.valueOf(0);
         if(!(this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().size() > 0)){
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No EssenceDescriptors were found in " +
-                    "the MXF essence Header Partition")));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No EssenceDescriptors were found in " +
+                    "the MXF essence Header Partition"));
         }
         InterchangeObject.InterchangeObjectBO essenceDescriptor = this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().get(0);
         if(FileDescriptor.FileDescriptorBO.class.isAssignableFrom(essenceDescriptor.getClass())){

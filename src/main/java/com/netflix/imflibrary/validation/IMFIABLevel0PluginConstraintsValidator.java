@@ -180,7 +180,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                     GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                     SourcePackage filePackage = (SourcePackage) genericPackage;
                     UUID packageUUID = filePackage.getPackageMaterialNumberasUUID();
-                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString())));
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile with ID %s has fatal errors", packageUUID.toString()));
                 }
                 if(e instanceof IMFException){
                     IMFException imfException = (IMFException)e;

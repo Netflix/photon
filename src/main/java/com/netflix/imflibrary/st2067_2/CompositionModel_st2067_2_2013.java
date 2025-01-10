@@ -100,7 +100,7 @@ final class CompositionModel_st2067_2_2013 {
                 .extensionProperties(null);
     }
 
-    @Nonnull static org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    @Nonnull static org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, IMFException
     {
         try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
              InputStream inputStream = Channels.newInputStream(byteChannel);)

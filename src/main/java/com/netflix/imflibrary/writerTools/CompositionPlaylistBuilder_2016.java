@@ -386,7 +386,7 @@ public class CompositionPlaylistBuilder_2016 {
 
         org.smpte_ra.schemas._2067_3._2016.ContentKindType contentKindType = new org.smpte_ra.schemas._2067_3._2016.ContentKindType();
         if(!scope.matches("^[a-zA-Z0-9._-]+") == true) {
-            this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope)));
+            this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope));
             contentKindType.setScope(scope);
         }
         else{
