@@ -126,7 +126,7 @@ public final class AssetMap
      * @param resourceByteRangeProvider that supports the mark() (mark position should be set to point to the beginning of the file) and reset() methods corresponding to the input XML file
      * @throws IOException - any I/O related error is exposed through an IOException
      */
-    public AssetMap(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException
+    public AssetMap(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException, IMFException
     {
         imfErrorLogger = new IMFErrorLoggerImpl();
 

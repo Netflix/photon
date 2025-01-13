@@ -90,12 +90,12 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
     }
 
     @Override
-    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         try {
-            List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = IMFCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
+            List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
 
             if (imageDescriptorModels.isEmpty()) {
                 imfErrorLogger.addError(

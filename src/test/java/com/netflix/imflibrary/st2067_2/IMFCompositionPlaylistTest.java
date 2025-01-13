@@ -119,7 +119,7 @@ public class IMFCompositionPlaylistTest
 
         List<ErrorLogger.ErrorObject> errors = IMFCompositionPlaylist.validateCompositionPlaylistSchema(resourceByteRangeProvider);
         Assert.assertEquals(errors.size(), 1);
-        Assert.assertTrue(errors.getFirst().getErrorDescription().contains("Invalid content was found starting with element"));
+        Assert.assertTrue(errors.get(0).getErrorDescription().contains("Invalid content was found starting with element"));
     }
 
     @Test

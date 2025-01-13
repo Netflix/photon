@@ -22,7 +22,7 @@ public interface ConstraintsValidator {
      * @param headerPartitionPayloads
      * @return a list of errors encountered while validating the input CPL
      */
-    List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist IMFCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads);
+    List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads);
 
     /**
      * A static factory method that instantiates and returns the validator object associated with the provided namespace

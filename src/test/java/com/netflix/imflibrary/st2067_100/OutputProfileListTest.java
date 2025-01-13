@@ -50,12 +50,12 @@ public class OutputProfileListTest
     public void testOutputProfileListOnCOmposition() throws Exception
     {
         Path inputFileCPL = TestHelper.findResourceByPath("TestIMP/OPL/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
-        IMFCompositionPlaylist IMFCompositionPlaylist = new IMFCompositionPlaylist(inputFileCPL);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFileCPL);
 
         Path inputFileOPL = TestHelper.findResourceByPath("TestIMP/OPL/OPL_8cf83c32-4949-4f00-b081-01e12b18932f.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         OutputProfileList outputProfileList = OutputProfileList.getOutputProfileListType(new FileByteRangeProvider(inputFileOPL), imfErrorLogger);
-        outputProfileList.applyOutputProfileOnComposition(IMFCompositionPlaylist);
+        outputProfileList.applyOutputProfileOnComposition(imfCompositionPlaylist);
 
         Assert.assertEquals(outputProfileList.getCompositionPlaylistId().toString(), "0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85");
         Assert.assertEquals(outputProfileList.getAliasMap().size(), 3);
@@ -64,7 +64,7 @@ public class OutputProfileListTest
 
         Assert.assertEquals(outputProfileList.getMacroMap().size(), 5);
 
-        Assert.assertEquals(outputProfileList.getHandleMapWithApplicationComposition(IMFCompositionPlaylist, imfErrorLogger).size(), 28);
+        Assert.assertEquals(outputProfileList.getHandleMapWithApplicationComposition(imfCompositionPlaylist, imfErrorLogger).size(), 28);
         Assert.assertEquals(outputProfileList.getErrors().size(), 0);
     }
 }
