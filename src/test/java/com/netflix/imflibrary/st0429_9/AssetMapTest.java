@@ -1,13 +1,18 @@
 package com.netflix.imflibrary.st0429_9;
 
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.FileByteRangeProvider;
+import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas._429_9._2007.am.AssetMapType;
 import org.smpte_ra.schemas._429_9._2007.am.AssetType;
 import org.smpte_ra.schemas._429_9._2007.am.ChunkType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import testUtils.TestHelper;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.util.List;
 
 @Test(groups = "unit")
@@ -86,5 +91,37 @@ public class AssetMapTest
 
         List errors = AssetMap.checkConformance(assetMapType);
         Assert.assertEquals(errors.size(), 1);
+    }
+
+    @Test
+    public void testAssetMapSchemaError() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath
+                ("ASSETMAP_schemaViolation.xml");
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        try {
+            AssetMap assetMap = new AssetMap(resourceByteRangeProvider);
+            Assert.fail();
+        } catch (Exception ex) {
+            Assert.assertEquals(ex.getClass(), IMFException.class);
+        }
+    }
+
+    @Test
+    public void testAssetMapUnsupportedNamespaceError() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath
+                ("ASSETMAP_unsupportedNamespace.xml");
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        try {
+            AssetMap assetMap = new AssetMap(resourceByteRangeProvider);
+            Assert.fail();
+        } catch (Exception ex) {
+            Assert.assertEquals(ex.getClass(), IMFException.class);
+        }
     }
 }
