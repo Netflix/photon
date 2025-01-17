@@ -67,13 +67,14 @@ javadoc {
 
 dependencies {
     implementation 'com.github.spotbugs:spotbugs-annotations:latest.release'
-    //implementation "com.sandflow:regxmllib:1.1.5"
-    implementation files('libs/regxmllib-1.1.4.jar')
+    implementation "com.sandflow:regxmllib:1.1.6-rc.1"
     testImplementation "org.mockito:mockito-core:3.3+"
     testImplementation "org.testng:testng:7.5+"
     implementation "org.slf4j:slf4j-simple:latest.release"
     implementation "org.slf4j:slf4j-api:latest.release"
-    
+
+    runtimeOnly 'software.amazon.nio.s3:aws-java-nio-spi-for-s3:latest.release'
+
     // JAX-B dependencies for JDK 9+
     implementation "org.glassfish.jaxb:jaxb-runtime:4.0.5"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
@@ -110,6 +111,6 @@ jacocoTestReport {
 //assemble.dependsOn getDependencies
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
