@@ -508,7 +508,7 @@ public class IMPAnalyzer {
 
         if (Files.isDirectory(input)) {
             logger.info("==========================================================================" );
-            logger.info(String.format("Analyzing IMF package %s", inputFileName));
+            logger.info(String.format("Analyzing IMF delivery: %s", inputFileName));
             logger.info("==========================================================================");
 
             Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(input);
@@ -524,7 +524,7 @@ public class IMPAnalyzer {
                 namespace = args[1];
             if (filename != null) {
                 logger.info("==========================================================================\n" );
-                logger.info(String.format("Analyzing path %s", filename.toString()));
+                logger.info(String.format("Analyzing file: %s", filename.toString()));
                 logger.info("==========================================================================\n");
                 List<ErrorLogger.ErrorObject>errors = analyzeFile(input, namespace);
                 logErrors(filename.toString(), errors);
