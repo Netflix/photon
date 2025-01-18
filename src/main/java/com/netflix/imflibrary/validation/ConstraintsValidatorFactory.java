@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * Factory class that manages instantiation of concrete validator classes .
+ */
 public class ConstraintsValidatorFactory {
 
     private static final Map<String, Supplier<ConstraintsValidator>> registry = new HashMap<>();

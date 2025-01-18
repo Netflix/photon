@@ -7,6 +7,9 @@ import jakarta.annotation.Nonnull;
 
 import java.util.List;
 
+/**
+ * Interface implemented by concrete validator classes that cover specific versions of applications, plugins, core constraints or CPL specifications.
+ */
 public interface ConstraintsValidator {
 
     /**
@@ -17,22 +20,18 @@ public interface ConstraintsValidator {
     String getConstraintsSpecification();
 
     /**
-     * This method validates the input CPL and takes any associated MXF header metadata into account that is passed along.
-     * @param IMFCompositionPlaylist the IMF Composition Playlist object to validate
-     * @param headerPartitionPayloads
+     * Implementations of this method validate the input CPL, taking into account any provided MXF header metadata for descriptor verification etc.
+     * @param imfCompositionPlaylist the IMF Composition Playlist object to validate
+     * @param headerPartitionPayloads a list of header partition payload records
      * @return a list of errors encountered while validating the input CPL
      */
     List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads);
 
     /**
-     * A static factory method that instantiates and returns the validator object associated with the provided namespace
-     * @param headerPartition the namespace URI for which a validator object is requested. Such namespace URI typically
-     *                     represents one of the following:
-     *                     - a CPL schema namespace URI
-     *                     - the XML namespace for a CPL sequence
-     *                     - an ApplicationID
-     * @param indexPartitionPayloads
-     * @return an object that implements the ConstraintsValidator interface, or null if no matching class is registered.
+     * Implementations of this method validate the input header/index partition payloads.
+     * @param headerPartition a list of header partition payload records
+     * @param indexPartitionPayloads a list of index partition payload records
+     * @return a list of errors encountered while validating the input partition payloads.
      */
     List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads);
 }

@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
+/**
+ * Collection of properties and validations specific to ST 2067-21:2014.
+ */
 public class IMFApp2E2014ConstraintsValidator extends IMFApp2EConstraintsValidator {
 
     private static final String applicationCompositionType = "SMPTE ST 2067-21:2014 IMF Application #2E";

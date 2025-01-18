@@ -10,6 +10,9 @@ import com.netflix.imflibrary.utils.Fraction;
 
 import java.util.*;
 
+/**
+ * Collection of properties and validations specific to ST 2067-21:2023.
+ */
 public class IMFApp2E2021ConstraintsValidator extends IMFApp2EConstraintsValidator {
 
     private static final String applicationCompositionType = "SMPTE ST 2067-21:2021 IMF Application #2E";

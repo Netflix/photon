@@ -21,6 +21,9 @@ import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescript
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.RGBAComponentType.Null;
 import static com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor.componentSizeUL;
 
+/**
+ * Collection of properties and validations specific to ST 2067-50.
+ */
 public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
     static final String CONSTRAINTS_SPEC = "SMPTE ST 2067-50:2018 IMF Application #5";
@@ -111,6 +114,12 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
 
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+
+        /*
+            Core validation is covered in IMPValidator.validateEssencePartitions().
+            App5 specific validation is currently not implemented, but descriptors are indirectly validated by validateCompositionConstraints().
+         */
+
         return List.of();
     }
 

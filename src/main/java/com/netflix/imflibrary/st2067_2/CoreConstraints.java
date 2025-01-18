@@ -22,22 +22,6 @@ public final class CoreConstraints
     public static final List<String> SUPPORTED_NAMESPACES = Collections.unmodifiableList(Arrays.asList(
             NAMESPACE_IMF_2013, NAMESPACE_IMF_2016, NAMESPACE_IMF_2020));
 
-    /**
-     * @deprecated Remove once all deprecated, package-based, 'getCoreConstraintsVersion' methods are removed.
-     */
-    @Deprecated
-    static String packageFromSchema(String coreConstraintsSchema)
-    {
-        if (coreConstraintsSchema.equals(NAMESPACE_IMF_2013))
-            return "org.smpte_ra.schemas._2067_3._2013";
-        else if (coreConstraintsSchema.equals(NAMESPACE_IMF_2016))
-            return "org.smpte_ra.schemas.st2067_2_2016";
-        else if (coreConstraintsSchema.equals(NAMESPACE_IMF_2020))
-            return "org.smpte_ra.schemas.st2067_2_2020";
-        else
-            return coreConstraintsSchema; // No mapping, just return the schema value
-    }
-
     // Determine the highest Core Constraints version based on the ApplicationIds used
     @Nullable public static String fromApplicationId(@Nonnull Collection<String> applicationIds)
     {

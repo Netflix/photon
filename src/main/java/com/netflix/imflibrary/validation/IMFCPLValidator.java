@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract class providing functionality common across various versions of ST 2067-3.
+ */
 abstract public class IMFCPLValidator implements ConstraintsValidator {
 
     private static final Set<String> supportedCPLSchemaURIs = Collections.unmodifiableSet(new HashSet<String>() {{

@@ -270,8 +270,6 @@ public class IMPAnalyzer {
                                 compositionErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, payloadRecords));
                             } catch (IMFException e) {
                                 compositionErrorLogger.addAllErrors(e.getErrors());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
                             } finally {
                                 List<ErrorLogger.ErrorObject> aggregateErrors = new ArrayList<>();
                                 aggregateErrors.addAll(compositionErrorLogger.getErrors());

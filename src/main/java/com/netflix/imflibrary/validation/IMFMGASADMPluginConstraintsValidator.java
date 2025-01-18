@@ -20,6 +20,9 @@ import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Collection of properties and validations specific to ST 2067-203A.
+ */
 public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidator {
 
     @Override

@@ -168,63 +168,6 @@ public class CompositionPlaylistBuilder_2013 {
         }
         this.trackResourceSourceEncodingMap = Collections.unmodifiableMap(trackEncodingMap);
     }
-
-    /**
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfEssenceDescriptorBaseTypeList List of IMFEssenceDescriptorBaseType
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull Path workingDirectory,
-                                           @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2013, null);
-    }
-
-
-    /**
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull Path workingDirectory){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileInfoMap, workingDirectory, new ArrayList<>());
-    }
     
 
     /**

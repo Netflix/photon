@@ -9,6 +9,9 @@ import jakarta.annotation.Nonnull;
 
 import java.util.*;
 
+/**
+ * Collection of properties and validations specific to ST 2067-2:2013.
+ */
 public class IMFCoreConstraints2013Validator extends IMFCoreConstraintsValidator {
 
     private static final String CCNamespaceURI = "http://www.smpte-ra.org/schemas/2067-2/2013";

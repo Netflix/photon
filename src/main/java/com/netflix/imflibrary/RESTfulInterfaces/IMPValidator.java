@@ -24,18 +24,18 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * A RESTful interface for validating an IMF Master Package.
+ * A RESTful interface for validating the various components of an IMF Package.
  */
 public class IMPValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(IMPValidator.class);
 
     /**
-     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition
+     * A stateless method that determines if the Asset type of the payload is an IMF AssetMap, Packinglist or Composition.
      * @param payloadRecord - a payload record corresponding to the asset whose type needs to be confirmed
      *                      Note: for now this method only supports text/xml documents identified in the PKL
      *                      application/mxf asset types cannot be determined.
-     * @return asset type of the payload either one of AssetMap, PackingList or Composition
+     * @return the asset type of the payload: either one of AssetMap, PackingList or Composition
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static PayloadRecord.PayloadAssetType getPayloadType(PayloadRecord payloadRecord) throws IOException {
@@ -57,7 +57,7 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that will validate an IMF PackingList document
+     * A stateless method that will validate an IMF PackingList document.
      * @param pkl - a payload record for a Packing List document
      * @return list of error messages encountered while validating a Packing List document
      * @throws IOException - any I/O related error is exposed through an IOException
@@ -81,9 +81,9 @@ public class IMPValidator {
     }
 
     /**
-     * A stateless method that will validate an IMF AssetMap document
+     * A stateless method that will validate an IMF AssetMap document.
      * @param assetMapPayload - a payload record for an AssetMap document
-     * @return list of error messages encountered while validating an AssetMap document
+     * @return a list of error messages encountered while validating an AssetMap document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> validateAssetMap(PayloadRecord assetMapPayload) throws IOException {
@@ -103,10 +103,10 @@ public class IMPValidator {
 
     /**
      * A stateless method that will validate IMF AssetMap and PackingList documents for all the data
-     * that should be cross referenced by both
+     * that should be cross-referenced by both.
      * @param assetMapPayload - a payload record for an AssetMap document
      * @param pklPayloads - a list of payload records for Packing List documents referenced by the AssetMap
-     * @return list of error messages encountered while validating an AssetMap document
+     * @return a list of error messages encountered while validating AssetMap/PackingList documents
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> validatePKLAndAssetMap(PayloadRecord assetMapPayload, List<PayloadRecord> pklPayloads) throws IOException {
@@ -243,7 +243,7 @@ public class IMPValidator {
     /**
      * A stateless method that will validate an IMF Composition document
      * @param cpl - a payload record for a Composition document
-     * @return list of error messages encountered while validating an AssetMap document
+     * @return list of error messages encountered while validating the CPL document
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<ErrorLogger.ErrorObject> validateCPL(PayloadRecord cpl) throws IOException {
@@ -267,8 +267,17 @@ public class IMPValidator {
 
 
 
-
-    public static List<ErrorLogger.ErrorObject> validateComposition(IMFCompositionPlaylist imfCompositionPlaylist, List<PayloadRecord> headerPartitionPayloads) throws IOException {
+    /**
+     * A stateless method that will validate an IMF Composition, based on an IMF CPL and a number of MXF header partition payloads.
+     * This method will determine application IDs, sequence namespaces and CPL schema namespace from the provided
+     * IMFCompositionPlaylist and run validation based these values.
+     * @param imfCompositionPlaylist - an IMFCompositionPlaylist object
+     * @param headerPartitionPayloads - a list of PayloadRecord objects of type EssencePartition
+     * @return a list of error messages encountered while validating the composition. A WARNING is provided for each
+     * unsupported application ID, sequence namespace and/or CPL schema namespace that may be present in the provided
+     * IMFCompositionPlaylist.
+     */
+    public static List<ErrorLogger.ErrorObject> validateComposition(IMFCompositionPlaylist imfCompositionPlaylist, List<PayloadRecord> headerPartitionPayloads) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -297,8 +306,15 @@ public class IMPValidator {
 
 
 
-    /* IMF essence related inspection calls*/
-
+    /**
+     * A stateless method that will validate MXF essence partitions, (optionally) taking into account the CPL sequence namespace used for the associated
+     * MXF Track Files.
+     * @param essencePartitionPayloadRecords - a list of PayloadRecord objects of type EssencePartition
+     * @param sequenceNamespace - the sequence namespace used by the virtual track that references the associated MXF Track File(s)
+     * @return a list of error messages encountered while validating the composition. A WARNING is provided for each
+     * unsupported application ID, sequence namespace and/or CPL schema namespace that may be present in the provided
+     * IMFCompositionPlaylist.
+     */
     public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> essencePartitionPayloadRecords, String sequenceNamespace) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
@@ -368,6 +384,10 @@ public class IMPValidator {
 
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
+
+        /*
+            If a sequence namespace is provided, an appropriate validator is requested to run validations specific to that sequence type.
+         */
 
         if (sequenceNamespace != null && !sequenceNamespace.isEmpty())  {
 

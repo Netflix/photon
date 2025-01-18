@@ -16,6 +16,9 @@ import java.util.*;
 
 import static com.netflix.imflibrary.validation.ConstraintsValidatorUtils.checkVirtualTrackHomogeneity;
 
+/**
+ * Abstract class providing functionality common across various versions of ST 2067-2.
+ */
 abstract public class IMFCoreConstraintsValidator implements ConstraintsValidator {
 
     @Override

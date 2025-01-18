@@ -48,7 +48,7 @@ public final class BasicMapProfileV2MappedFileSet
     /**
      * Constructor for a MappedFileSet object from a path representing the root of a directory tree
      * @param rootFile the directory which serves as the tree root of the Mapped File Set
-     * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.io.File) AssetMap} constructor
+     * @throws IOException - forwarded from {@link AssetMap#AssetMap(java.nio.file.Path) AssetMap} constructor
      */
     public BasicMapProfileV2MappedFileSet(Path rootFile) throws IOException
     {

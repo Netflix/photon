@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Abstract class providing functionality common across various versions of ST 2067-21.
+ */
 abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidator {
 
     protected static final UL JPEG2000PICTURECODINGSCHEME = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
@@ -86,6 +89,12 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
 
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+
+        /*
+            Core validation is covered in IMPValidator.validateEssencePartitions().
+            App2E specific validation is currently not implemented, but descriptors are indirectly validated by validateCompositionConstraints().
+         */
+
         return List.of();
     }
 

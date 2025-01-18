@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Collection of properties and validations specific to ST 2067-2:2020.
+ */
 public class IMFCoreConstraints2020Validator extends IMFCoreConstraintsValidator {
 
     private static final String CCNamespaceURI = "http://www.smpte-ra.org/ns/2067-2/2020";

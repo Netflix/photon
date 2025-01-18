@@ -172,36 +172,6 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     /**
-     * @deprecated Instead use {{@link #CompositionPlaylistBuilder_2016(UUID, UserTextType, UserTextType, UserTextType, List, Composition.EditRate, Set, long, Map, Path, List, String, Map<UUID, UUID>)}}
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2016 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfEssenceDescriptorBaseTypeList List of IMFEssenceDescriptorBaseType
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2016(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull Path workingDirectory,
-                                           @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2016, null);
-    }
-
-    /**
      * A method to build a CompositionPlaylist document conforming to the st2067-2/3:2016 schema
      * @return a list of errors resulting during the creation of the CPL document
      * @throws IOException - any I/O related error is exposed through an IOException
