@@ -59,7 +59,6 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
             validatePictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
             parseApp5PixelLayout(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
             parseApp5SubDescriptors(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
-            parseApp5VideoLineMap(imageDescriptorModel.getImageEssencedescriptorID(), imageDescriptorModel.getImageEssencedescriptorDOMNode(), regXMLLibDictionary, imfErrorLogger);
         });
 
         // validate descriptor homogeneity
@@ -507,20 +506,6 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
         }
         return;
     }
-
-    private void parseApp5VideoLineMap(UUID imageEssencedescriptorID,
-                                       DOMNodeObjectModel imageEssencedescriptorDOMNode,
-                                       RegXMLLibDictionary regXMLLibDictionary,
-                                       IMFErrorLogger imfErrorLogger) {
-        DOMNodeObjectModel videoLineMap = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(videoLineMapUL));
-        if (videoLineMap == null) {
-            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                    String.format("EssenceDescriptor with ID %s shall have a Video Line Map item",
-                            imageEssencedescriptorID.toString()));
-        }
-    }
-
 
 
     private void parseApp5PixelLayout(UUID imageEssencedescriptorID,

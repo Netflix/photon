@@ -194,6 +194,7 @@ public final class CompositionImageEssenceDescriptorModel {
                 this.sampling = parseSampling(this.colorModel);
             }
 
+            this.parseVideoLineMap();
             this.j2kParameters = J2KHeaderParameters.fromDOMNode(imageEssencedescriptorDOMNode);
         }
         else {
@@ -581,6 +582,16 @@ public final class CompositionImageEssenceDescriptorModel {
             }
         }
         return sampling;
+    }
+
+    private void parseVideoLineMap() {
+        DOMNodeObjectModel videoLineMap = imageEssencedescriptorDOMNode.getDOMNode(regXMLLibDictionary.getSymbolNameFromURN(videoLineMapUL));
+        if (videoLineMap == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s shall have a Video Line Map item",
+                            imageEssencedescriptorID.toString()));
+        }
     }
 
 }
