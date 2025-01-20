@@ -12,6 +12,9 @@ import com.netflix.imflibrary.utils.Utilities;
 
 import java.util.*;
 
+/**
+ * A collection of static methods used across classes in this package.
+ */
 public class ConstraintsValidatorUtils {
 
     /**

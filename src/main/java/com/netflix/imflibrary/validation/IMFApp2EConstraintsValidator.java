@@ -24,6 +24,12 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
 
     protected static final UL JPEG2000PICTURECODINGSCHEME = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
 
+    protected IMFApp2EConstraintsValidator() {}
+
+    /**
+     * Class modelling image characteristics for ST 2067-21. This is used to specify supported combinations of
+     * image characteristics in subclasses of {@link com.netflix.imflibrary.validation.IMFApp2EConstraintsValidator}.
+     */
     protected static class CharacteristicsSet {
         private Integer maxWidth;
         private Integer maxHeight;
@@ -36,6 +42,18 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
         private HashSet<Colorimetry.ColorModel> colorModels;
         /* Stereoscopic images are not supported */
 
+        /**
+         * Constructor for class {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}.
+         * @param maxWidth maximum image frame width
+         * @param maxHeight maximum image frame height
+         * @param colorSystems List of colorimetry values
+         * @param bitDepths List of pixel bit depth values
+         * @param frameStructures List of frame structures
+         * @param frameRates List of frame rate values
+         * @param samplings List of sampling values
+         * @param quantizations List of quantization systems
+         * @param colorModels List of color components
+         */
         public CharacteristicsSet(Integer maxWidth,
                                   Integer maxHeight,
                                   List<Colorimetry> colorSystems,
@@ -56,6 +74,20 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
             this.colorModels = new HashSet<Colorimetry.ColorModel>(colorModels);
         }
 
+        /**
+         * Method to check if the provided combination of specific properties is part of the
+         * {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}.
+         * @param width image frame width
+         * @param height image frame height
+         * @param colorSystem colorimetry
+         * @param bitDepth pixel bit depth
+         * @param frameStructure frame structure
+         * @param frameRate frame rate
+         * @param sampling sampling
+         * @param quantization quantization system
+         * @param colorModel color components
+         * @return true if the provided combination of properties is included, false otherwise.
+         */
         public boolean has(Integer width,
                            Integer height,
                            Colorimetry colorSystem,
@@ -77,13 +109,17 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
         }
     }
 
-    /*
-    *
+    /**
+     * Implementations of this method provide an array of {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}
+     * that are supported by the implemented specification.
+     * @return an array of CharacteristicsSets, modelling the image characteristics table(s) specified in ST 2067-21:20xx.
     */
     protected abstract IMFApp2E2021ConstraintsValidator.CharacteristicsSet[] getValidImageCharacteristicsSets();
 
-    /*
-     *
+    /**
+     * Implementations of this method validate whether the provided {@link com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel}
+     * signals a valid J2K Profile.
+     * @return empty List if profile is valid, List of errors otherwise.
      */
     protected abstract List<ErrorLogger.ErrorObject> validateJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor);
 
@@ -92,7 +128,8 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
 
         /*
             Core validation is covered in IMPValidator.validateEssencePartitions().
-            App2E specific validation is currently not implemented, but descriptors are indirectly validated by validateCompositionConstraints().
+            App2E specific validation of standalone Track Files is CURRENTLY NOT IMPLEMENTED,
+            but descriptors are indirectly validated by validateCompositionConstraints().
          */
 
         return List.of();
@@ -137,8 +174,7 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
     }
 
 
-    private void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor,
-                                             IMFErrorLogger logger) {
+    private void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor, IMFErrorLogger logger) {
 
         // J2K profiles
         logger.addAllErrors(validateJ2KProfile(imageDescriptor));
@@ -275,11 +311,5 @@ abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidat
             }
         }
     }
-
-
-
-
-
-
 
 }
