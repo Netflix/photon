@@ -74,7 +74,7 @@ public class IMFApp2E2020ConstraintsValidatorTest
     @Test
     public void InvalidCPLBadJ2kProfile_04() throws IOException
     {
-        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2020/CPL_46154ef9-7b54-45eb-a85c-00efcb0d47a7_hd_resolution.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Application2E2020/CPL_46154ef9-7b54-45eb-a85c-00efcb0d47a7_HD_resolution.xml");
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
