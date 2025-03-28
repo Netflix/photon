@@ -4,23 +4,26 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.UUIDHelper;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2016;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.ExtensionProperties;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +36,8 @@ import java.util.stream.Collectors;
  */
 final class CompositionModel_st2067_2_2016 {
 
+    private static final String cplNamespaceURI = "http://www.smpte-ra.org/schemas/2067-3/2016";
+
     //To prevent instantiation
     private CompositionModel_st2067_2_2016(){
 
@@ -44,7 +49,7 @@ final class CompositionModel_st2067_2_2016 {
      * @param imfErrorLogger - an object for logging errors
      * @return A canonical, version-independent, instance of IMFCompositionPlaylistType
      */
-    @Nonnull public static IMFCompositionPlaylistType getCompositionPlaylist (@Nonnull org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
+    @Nonnull public static IMFCompositionPlaylist.Builder getApplicationCompositionBuilder (@Nonnull org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType compositionPlaylistType, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         // Parse each Segment
         List<IMFSegmentType> segmentList = compositionPlaylistType.getSegmentList().getSegment().stream()
@@ -81,24 +86,27 @@ final class CompositionModel_st2067_2_2016 {
 
         ExtensionProperties extensionProperties = compositionPlaylistType.getExtensionProperties();
 
-        return new IMFCompositionPlaylistType( compositionPlaylistType.getId(),
-                compositionPlaylistType.getEditRate(),
-                (compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue()),
-                (compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue()),
-                (compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue()),
-                (compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue()),
-                (compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue()),
-                segmentList,
-                essenceDescriptorList,
-                coreConstraintsSchema,
-                applicationIDs,
-                extensionProperties
-                );
+        IMFCompositionPlaylist.Builder builder = new IMFCompositionPlaylist.Builder();
+        return builder.id(UUIDHelper.fromUUIDAsURNStringToUUID(compositionPlaylistType.getId()))
+                .imfErrorLogger(imfErrorLogger)
+                .editRate(new Composition.EditRate(compositionPlaylistType.getEditRate()))
+                .annotation(compositionPlaylistType.getAnnotation() == null ? null : compositionPlaylistType.getAnnotation().getValue())
+                .issuer(compositionPlaylistType.getIssuer() == null ? null : compositionPlaylistType.getIssuer().getValue())
+                .creator(compositionPlaylistType.getCreator() == null ? null : compositionPlaylistType.getCreator().getValue())
+                .contentOriginator(compositionPlaylistType.getContentOriginator() == null ? null : compositionPlaylistType.getContentOriginator().getValue())
+                .contentTitle(compositionPlaylistType.getContentTitle() == null ? null : compositionPlaylistType.getContentTitle().getValue())
+                .segmentList(segmentList)
+                .essenceDescriptorList(essenceDescriptorList)
+                .coreConstraintsSchema(coreConstraintsSchema)
+                .cplSchema(cplNamespaceURI)
+                .applicationIdSet(applicationIDs)
+                .extensionProperties(extensionProperties);
     }
 
-    @Nonnull static org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    @Nonnull static org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType unmarshallCpl(@Nonnull ResourceByteRangeProvider resourceByteRangeProvider, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException, IMFException
     {
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1))
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);)
         {
             // Validate the document against the CPL schemas, when unmarshalling
             Schema schema = ValidationSchema.INSTANCE;
@@ -184,10 +192,13 @@ final class CompositionModel_st2067_2_2016 {
             // Get the JAXB SequenceType object
             JAXBElement jaxbElement = (JAXBElement)(object);
             org.smpte_ra.schemas._2067_3._2016.SequenceType sequence = (org.smpte_ra.schemas._2067_3._2016.SequenceType) jaxbElement.getValue();
+
             // Determine the type of Sequence being parsed
-            Composition.SequenceTypeEnum sequenceType = Composition.SequenceTypeEnum.getSequenceTypeEnum(jaxbElement.getName().getLocalPart());
+            String sequenceType = jaxbElement.getName().getLocalPart();
+            String sequenceNamespace = jaxbElement.getName().getNamespaceURI();
+
             // Parse the Sequence
-            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, imfErrorLogger));
+            sequenceList.add(parseSequence(sequence, cplEditRate, sequenceType, sequenceNamespace, imfErrorLogger));
         }
         return new IMFSegmentType(segment.getId(), sequenceList);
     }
@@ -220,14 +231,16 @@ final class CompositionModel_st2067_2_2016 {
         }
         return new IMFSequenceType(markerSequence.getId(),
                 markerSequence.getTrackId(),
-                Composition.SequenceTypeEnum.MarkerSequence,
+                Composition.MARKER_SEQUENCE,
+                cplNamespaceURI,
                 sequenceResources);
     }
 
     // Converts an instance of the JAXB class org.smpte_ra.schemas._2067_3._2016.SequenceType
     // Into a canonical, version-independent, instance of IMFSequenceType
     @Nonnull private static IMFSequenceType parseSequence(@Nonnull org.smpte_ra.schemas._2067_3._2016.SequenceType sequence,
-                                                 @Nonnull List<Long> cplEditRate, Composition.SequenceTypeEnum sequenceType, @Nonnull IMFErrorLogger imfErrorLogger)
+                                                          @Nonnull List<Long> cplEditRate, @Nonnull String sequenceType,
+                                                          @Nonnull String sequenceNamespace, @Nonnull IMFErrorLogger imfErrorLogger)
     {
         List<IMFBaseResourceType> sequenceResources = new ArrayList<>();
         for (org.smpte_ra.schemas._2067_3._2016.BaseResourceType resource : sequence.getResourceList().getResource())
@@ -254,6 +267,7 @@ final class CompositionModel_st2067_2_2016 {
         return new IMFSequenceType(sequence.getId(),
                 sequence.getTrackId(),
                 sequenceType,
+                sequenceNamespace,
                 sequenceResources);
     }
 
@@ -337,8 +351,7 @@ final class CompositionModel_st2067_2_2016 {
                  InputStream xsd_cpl_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                  InputStream xsd_core_constraints_2016 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
                  InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
-                 InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");
-            )
+                 InputStream xsd_sadm_2067_203 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_203_2023/st2067-203-2023.xsd");)
             {
                 // Build a schema from all of the XSD files provided
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

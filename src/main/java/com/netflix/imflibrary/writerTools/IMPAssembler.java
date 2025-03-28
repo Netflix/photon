@@ -8,29 +8,18 @@ import com.netflix.imflibrary.app.IMPFixer;
 import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
-import com.netflix.imflibrary.st2067_2.Composition;
-import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
-import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFMarkerResourceType;
-import com.netflix.imflibrary.st2067_2.IMFMarkerVirtualTrack;
-import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
-import com.netflix.imflibrary.st2067_2.IMFMarkerType;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.st2067_2.*;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.IMFUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.xml.bind.JAXBException;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -38,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
+
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -53,7 +44,7 @@ public class IMPAssembler {
      * @param outputDirectory - the destination directory for the generated files
      * @param copyTrackFiles - whether to copy the track files to the output directory
      */
-    public AssembledIMPResult assembleIMFFromFiles(SimpleTimeline simpleTimeline, File outputDirectory, boolean copyTrackFiles) throws IOException, JAXBException, ParserConfigurationException, URISyntaxException, SAXException {
+    public AssembledIMPResult assembleIMFFromFiles(SimpleTimeline simpleTimeline, Path outputDirectory, boolean copyTrackFiles) throws IOException, JAXBException, ParserConfigurationException, URISyntaxException, SAXException {
         Map<UUID, IMPBuilder.IMFTrackFileMetadata> imfTrackFileMetadataMap = new HashMap<>();
         IMFErrorLogger imfErrors = new IMFErrorLoggerImpl();
         List<Composition.VirtualTrack> virtualTracks = new ArrayList<>();
@@ -71,46 +62,47 @@ public class IMPAssembler {
             for (TrackEntry trackEntry : track.getTrackEntries()) {
                 if (trackEntry instanceof EssenceTrackEntry) {
                     EssenceTrackEntry essenceTrackEntry = (EssenceTrackEntry) trackEntry;
-                    logger.info("track: {}, file: {}: path: {}", simpleTimeline.getEssenceTracks().indexOf(track), track.getTrackEntries().indexOf(trackEntry), essenceTrackEntry.getFile().getAbsolutePath());
-                    ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceTrackEntry.getFile());
+                    logger.info("track: {}, file: {}: path: {}", simpleTimeline.getEssenceTracks().indexOf(track), track.getTrackEntries().indexOf(trackEntry), essenceTrackEntry.getPath().toString());
+                    ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(essenceTrackEntry.getPath());
                     PayloadRecord headerPartitionPayloadRecord = IMPFixer.getHeaderPartitionPayloadRecord(resourceByteRangeProvider, imfErrors);
                     if (headerPartitionPayloadRecord == null) {
-                        throw new IOException("Could not get header partition for file: " + essenceTrackEntry.getFile().getAbsolutePath());
+                        throw new IOException("Could not get header partition for file: " + essenceTrackEntry.getPath().toString());
                     }
                     byte[] headerPartitionBytes = headerPartitionPayloadRecord.getPayload();
-
 
                     // get sha-1 hash or use cached value
                     byte[] hash = null;
                     if (essenceTrackEntry.getHash() != null) {
                         logger.info("Using hash from user: {}", essenceTrackEntry.getHash());
                         hash = essenceTrackEntry.getHash();
-                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), essenceTrackEntry.getHash());
-                    } else if (hashMap.containsKey(IMPFixer.getTrackFileId(headerPartitionPayloadRecord))) {
-                        logger.info("Using cached hash: {}", hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord)));
-                        hash = hashMap.get(IMPFixer.getTrackFileId(headerPartitionPayloadRecord));
+                        hashMap.put(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors), essenceTrackEntry.getHash());
+                    } else if (hashMap.containsKey(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors))) {
+                        logger.info("Using cached hash: {}", hashMap.get(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors)));
+                        hash = hashMap.get(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors));
                     } else {
-                        logger.info("Generating hash for file: {}", essenceTrackEntry.getFile().getAbsolutePath());
+                        logger.info("Generating hash for file: {}", essenceTrackEntry.getPath().toString());
                         hash = IMFUtils.generateSHA1Hash(resourceByteRangeProvider);
-                        hashMap.put(IMPFixer.getTrackFileId(headerPartitionPayloadRecord), hash);
+                        hashMap.put(MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors), hash);
                     }
 
-                    UUID trackFileId = IMPFixer.getTrackFileId(headerPartitionPayloadRecord);
-                    logger.info("UUID read from file: {}: {}", essenceTrackEntry.getFile().getName(), trackFileId.toString());
-                    logger.info("Adding file {} to imfTrackFileMetadataMap", essenceTrackEntry.getFile().getName());
+                    String essenceTrackFilename = Utilities.getFilenameFromPath(essenceTrackEntry.getPath());
+
+                    UUID trackFileId = MXFUtils.getTrackFileId(headerPartitionPayloadRecord, imfErrors);
+                    logger.info("UUID read from file: {}: {}", essenceTrackFilename, trackFileId.toString());
+                    logger.info("Adding file {} to imfTrackFileMetadataMap", essenceTrackFilename);
                     imfTrackFileMetadataMap.put(
                             trackFileId,
                             new IMPBuilder.IMFTrackFileMetadata(headerPartitionBytes,
                                     hash,   // a byte[] containing the SHA-1, Base64 encoded hash of the IMFTrack file
                                     CompositionPlaylistBuilder_2016.defaultHashAlgorithm,
-                                    essenceTrackEntry.getFile().getName(),
+                                    essenceTrackFilename,
                                     resourceByteRangeProvider.getResourceSize())
                     );
 
                     if (copyTrackFiles) {
-                        File outputTrackFile = new File(outputDirectory.getAbsolutePath() + File.separator + essenceTrackEntry.getFile().getName());
-                        logger.info("Copying track file from\n{} to\n{}", essenceTrackEntry.getFile().getAbsolutePath(), outputTrackFile.getAbsolutePath());
-                        Files.copy(essenceTrackEntry.getFile().toPath(), outputTrackFile.toPath(), REPLACE_EXISTING);
+                        Path outputTrackFile = outputDirectory.resolve(Utilities.getFilenameFromPath(essenceTrackEntry.getPath()));
+                        logger.info("Copying track file from\n{} to\n{}", essenceTrackEntry.getPath().toString(), outputTrackFile.toString());
+                        Files.copy(essenceTrackEntry.getPath(), outputTrackFile, REPLACE_EXISTING);
                     }
 
                     IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(outputDirectory, resourceByteRangeProvider);
@@ -150,15 +142,15 @@ public class IMPAssembler {
                     }
 
                     // delete temporary file left over from FileByteRangeProvider or ByteArrayByteRangeProvider
-                    Path tempFilePath = Paths.get(outputDirectory.getAbsolutePath(), "range");
+                    Path tempFilePath = outputDirectory.resolve("range");
                     logger.info("Deleting temporary file if it exists: {}", tempFilePath);
                     Files.deleteIfExists(tempFilePath);
 
 
                     // add to resources
-                    logger.info("Adding file to resources: {}..", essenceTrackEntry.getFile().getName());
+                    logger.info("Adding file to resources: {}..", essenceTrackFilename);
 
-                    if (track.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MainImageSequence)) {
+                    if (track.getSequenceType().equals(CoreConstraints.MAIN_IMAGE_SEQUENCE)) {
                         videoTotalSourceDuration += (essenceTrackEntry.getDuration() == null ? sampleCount : essenceTrackEntry.getDuration()).longValue();
                     }
 
@@ -183,7 +175,7 @@ public class IMPAssembler {
             logger.info("Creating virtual track..");
             Composition.VirtualTrack  virtualTrack = new IMFEssenceComponentVirtualTrack(
                         IMFUUIDGenerator.getInstance().generateUUID(),
-                        track.getSequenceTypeEnum(),
+                        track.getSequenceType(),
                         trackFileResources,
                         simpleTimeline.getEditRate()
                 );
@@ -217,7 +209,7 @@ public class IMPAssembler {
 
             logger.info("Creating marker track..");
             Composition.VirtualTrack virtualTrack = new IMFMarkerVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(),
-                    track.getSequenceTypeEnum(),
+                    track.getSequenceType(),
                     markerResources,
                     simpleTimeline.getEditRate());
             virtualTracks.add(virtualTrack);
@@ -226,7 +218,7 @@ public class IMPAssembler {
         logger.debug("Created list of virtual tracks: {}", virtualTracks);
         logger.debug("Created track file metadata map: {}", imfTrackFileMetadataMap);
 
-        logger.info("Building IMP here: {}...", outputDirectory.getAbsolutePath());
+        logger.info("Building IMP here: {}...", outputDirectory.toString());
         imfErrors.addAllErrors(IMPBuilder.buildIMP_2016("IMP",
                 "Netflix",
                 virtualTracks,
@@ -236,40 +228,40 @@ public class IMPAssembler {
                 outputDirectory));
 
         logger.info("Listing files in output dir..");
-        if (outputDirectory.isDirectory()) {
-            File[] files = outputDirectory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file != null) {
-                        logger.info("File in output dir: {}", file.getAbsolutePath());
-                    }
-                }
+        if (Files.isDirectory(outputDirectory)) {
+            try (Stream<Path> filesStream = Files.list(outputDirectory)) {
+                filesStream.forEach(file -> {
+                    logger.info("File in output dir: {}", file.toString());
+                });
+            } catch (IOException e) {
+                logger.error("Unable to list list files in output dir: {}", outputDirectory.toString());
+                logger.error(e.toString());
             }
         }
 
         BasicMapProfileV2MappedFileSet mapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(outputDirectory);
         AssetMap assetMap = mapProfileV2MappedFileSet.getAssetMap();
-        File assetMapOutputFile = new File(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI());
-        File pklOutputFile = null;
-        File cplOutputFile = null;
-        List<File> outputTrackFiles = new ArrayList<>();
+        Path assetMapOutputFile = Paths.get(mapProfileV2MappedFileSet.getAbsoluteAssetMapURI());
+        Path pklOutputFile = null;
+        Path cplOutputFile = null;
+        List<Path> outputTrackFiles = new ArrayList<>();
 
         if (assetMap.getPackingListAssets().size() > 1) {
             throw new IllegalArgumentException("More than one packing list found in the output asset map");
         }
         for (AssetMap.Asset packingListAsset: assetMap.getPackingListAssets()) {
             if (packingListAsset.isPackingList()) {
-                pklOutputFile = new File(outputDirectory, packingListAsset.getPath().toString());
+                pklOutputFile = outputDirectory.resolve(packingListAsset.getPath().toString());
                 PackingList packingList = new PackingList(pklOutputFile);
                 for (PackingList.Asset asset : packingList.getAssets()) {
                     logger.debug("Asset from packing list: {}", asset);
                     if (asset.getType().equals(PackingList.Asset.TEXT_XML_TYPE)
-                            && ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider((new File(outputDirectory, asset.getOriginalFilename()))))) {
+                            && IMFCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(outputDirectory.resolve(asset.getOriginalFilename())))) {
                         logger.info("Adding output CPL asset to response: {}", asset);
-                        cplOutputFile = new File(outputDirectory, asset.getOriginalFilename());
+                        cplOutputFile = outputDirectory.resolve(asset.getOriginalFilename());
                     } else if (asset.getOriginalFilename() != null) {
-                        logger.info("Adding output track file to response: {}", asset);
-                        outputTrackFiles.add(new File(outputDirectory, asset.getOriginalFilename()));
+                        logger.info("Adding output Track file to response: {}", asset);
+                        outputTrackFiles.add(outputDirectory.resolve(asset.getOriginalFilename()));
                     }
                 }
             }
@@ -306,27 +298,27 @@ public class IMPAssembler {
      * Contains the paths to the generated IMP files and a list of errors encountered when creating the IMP
      */
     public static class AssembledIMPResult {
-        public File getCpl() {
+        public Path getCpl() {
             return cpl;
         }
 
-        public void setCpl(File cpl) {
+        public void setCpl(Path cpl) {
             this.cpl = cpl;
         }
 
-        public File getPkl() {
+        public Path getPkl() {
             return pkl;
         }
 
-        public void setPkl(File pkl) {
+        public void setPkl(Path pkl) {
             this.pkl = pkl;
         }
 
-        public File getAssetMap() {
+        public Path getAssetMap() {
             return assetMap;
         }
 
-        public void setAssetMap(File assetMap) {
+        public void setAssetMap(Path assetMap) {
             this.assetMap = assetMap;
         }
 
@@ -338,30 +330,30 @@ public class IMPAssembler {
             this.errors = errors;
         }
 
-        private File cpl;
-        private File pkl;
-        private File assetMap;
+        private Path cpl;
+        private Path pkl;
+        private Path assetMap;
 
-        public List<File> getTrackFiles() {
+        public List<Path> getTrackFiles() {
             return trackFiles;
         }
 
-        public void setTrackFiles(List<File> trackFiles) {
+        public void setTrackFiles(List<Path> trackFiles) {
             this.trackFiles = trackFiles;
         }
 
-        private List<File> trackFiles;
+        private List<Path> trackFiles;
         private List<ErrorLogger.ErrorObject> errors;
 
         /**
          * Constructor for an assembled IMP result
-         * @param cpl - the CPL file
-         * @param pkl - the PKL file
-         * @param assetMap - the AssetMap file
+         * @param cpl - the CPL path
+         * @param pkl - the PKL path
+         * @param assetMap - the AssetMap path
          * @param trackFiles - a list of track files used in the IMP
          * @param errors - a list of errors encountered when creating the IMP
          */
-        public AssembledIMPResult(File cpl, File pkl, File assetMap, List<File> trackFiles, List<ErrorLogger.ErrorObject> errors) {
+        public AssembledIMPResult(Path cpl, Path pkl, Path assetMap, List<Path> trackFiles, List<ErrorLogger.ErrorObject> errors) {
             this.cpl = cpl;
             this.pkl = pkl;
             this.assetMap = assetMap;
@@ -425,19 +417,19 @@ public class IMPAssembler {
         /**
          * Constructor for a track to be used to construct a simple timeline
          * @param trackEntries - a list of entries to use in the track, can contain edits
-         * @param sequenceTypeEnum - describes whether the track is a video, audio, etc..
+         * @param sequenceType - describes whether the track is a video, audio, etc..
          */
-        public Track(List<TrackEntry> trackEntries, Composition.SequenceTypeEnum sequenceTypeEnum) {
+        public Track(List<TrackEntry> trackEntries, String sequenceType) {
             this.trackEntries = trackEntries;
-            this.sequenceTypeEnum = sequenceTypeEnum;
+            this.sequenceType = sequenceType;
         }
 
-        public Composition.SequenceTypeEnum getSequenceTypeEnum() {
-            return sequenceTypeEnum;
+        public String getSequenceType() {
+            return sequenceType;
         }
 
-        public void setSequenceTypeEnum(Composition.SequenceTypeEnum sequenceTypeEnum) {
-            this.sequenceTypeEnum = sequenceTypeEnum;
+        public void setSequenceType(String sequenceType) {
+            this.sequenceType = sequenceType;
         }
 
         public List<TrackEntry> getTrackEntries() {
@@ -448,14 +440,14 @@ public class IMPAssembler {
             this.trackEntries = trackEntries;
         }
 
-        private Composition.SequenceTypeEnum sequenceTypeEnum;
+        private String sequenceType;
         private List<TrackEntry> trackEntries;
     }
 
     public static class EssenceTrackEntry extends TrackEntry{
         /**
          * Constructor for a track entry to be used to construct a simple timeline
-         * @param file - the MXF file
+         * @param path - the MXF file
          * @param sampleRate - the sample rate, optional, introspected if null
          * @param intrinsicDuration - the intrinsic duration, optional, introspected if null
          * @param entryPoint - the entry point, if null, defaults to 0
@@ -463,8 +455,8 @@ public class IMPAssembler {
          * @param repeatCount - the repeat count, if null, defaults to 1
          * @param hash - the SHA-1 hash of the file, optional, introspected if null
          */
-        public EssenceTrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount, @Nullable byte[] hash) {
-            this.file = file;
+        public EssenceTrackEntry(@Nonnull Path path, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount, @Nullable byte[] hash) {
+            this.path = path;
             this.sampleRate = sampleRate;
             this.intrinsicDuration = intrinsicDuration;
             this.entryPoint = entryPoint;
@@ -473,12 +465,12 @@ public class IMPAssembler {
             this.hash = hash;
         }
 
-        public EssenceTrackEntry(@Nonnull File file, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
-            this(file, sampleRate, intrinsicDuration, entryPoint, duration, repeatCount, null);
+        public EssenceTrackEntry(@Nonnull Path path, @Nullable Composition.EditRate sampleRate, @Nullable BigInteger intrinsicDuration, @Nullable BigInteger entryPoint, @Nullable BigInteger duration, @Nullable BigInteger repeatCount) {
+            this(path, sampleRate, intrinsicDuration, entryPoint, duration, repeatCount, null);
         }
 
         public EssenceTrackEntry() {
-            this.file = null;
+            this.path = null;
             this.sampleRate = null;
             this.intrinsicDuration = null;
             this.entryPoint = null;
@@ -487,12 +479,12 @@ public class IMPAssembler {
             this.hash = null;
         }
 
-        public File getFile() {
-            return file;
+        public Path getPath() {
+            return path;
         }
 
-        public void setFile(File file) {
-            this.file = file;
+        public void setPath(Path file) {
+            this.path = file;
         }
 
         public Composition.EditRate getSampleRate() {
@@ -535,7 +527,7 @@ public class IMPAssembler {
             this.repeatCount = repeatCount;
         }
 
-        private File file;
+        private Path path;
         private Composition.EditRate sampleRate;
         private BigInteger intrinsicDuration;
         private BigInteger entryPoint;

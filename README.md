@@ -6,9 +6,13 @@ Photon is a Java implementation of the [Interoperable Master Format (IMF)](https
 - AssetMap (ST 429-9)
 - PackingList (ST 429-8) 
 - Composition Playlist (ST 2067-3) 
-- IMF track files (ST 2067-5)
+- IMF Track Files (ST 2067-5)
 
-Photon parses and reads IMF track files and serializes the metadata into the IMF Composition Playlist structure. Currently, Photon provides support for IMF Application #2E (ST 2067-21) and Application #5 ACES (ST 2067-50), and the Immersive Audio Bitstream (IAB) Plug-in (ST 2067-201).
+Photon parses and reads IMF track files and serializes the metadata into the IMF Composition Playlist structure. Currently, Photon provides support for 
+- IMF Application #2E (ST 2067-21)
+- Application #5 ACES (ST 2067-50)
+- Immersive Audio Bitstream (IAB) Level 0 Plug-in (ST 2067-201).
+- Audio with Frame-based S-ADM Metadata Plug-in (ST 2067-203).
 
 The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
 
@@ -16,26 +20,27 @@ The goal of the Photon is to provide a simple standardized interface to complete
 
 ### JDK requirements
 
-Photon can be built using JDK-8. Support for earlier jdk versions has not been tested and/or verified.
+Photon can be built using JDK-11.
 
 ### Gradle
 Photon can be built very easily by using the included Gradle wrapper. Having downloaded the sources, simply invoke the following commands inside the folder containing the sources:
 
+Linux/macOS:
 ```
 $ ./gradlew clean
 $ ./gradlew build
+$ ./gradlew getDependencies
 ```
 
-For Windows
+Windows:
 ```
 $ gradlew.bat clean
 $ gradlew.bat build
+$ gradlew.bat getDependencies
 ```
 
-## Full Documentation
-
-- [Wiki](https://github.com/Netflix/photon/wiki)
-- [Javadoc](http://netflix.github.io/photon/)
+> [!NOTE]
+> `getDependencies` downloads all dependencies into the `./build/libs` directory.
 
 ## Binaries
 Binaries and dependency information for Maven, Ivy, Gradle and others can be found at [http://search.maven.org](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.netflix.photon%22).
@@ -48,63 +53,57 @@ Example for Maven:
 <dependency>
     <groupId>com.netflix.photon</groupId>
     <artifactId>Photon</artifactId>
-    <version>0.1.1</version>
+    <version>4.10.8</version>
 </dependency>
 ```
 and for Ivy:
 
 ```xml
-<dependency org="com.netflix.photon" name="Photon" rev="0.1.1" />
+<dependency org="com.netflix.photon" name="Photon" rev="4.10.8" />
 ```
 
-If you need to download all dependencies, you just have to run:
+## Documentation
 
-```
-$ ./gradlew getDependencies
-```
+### Sample Applications
+Multiple sample applications have been provided with this project (e.g., com.netflix.imflibrary.app.IMFTrackFileReader). Having obtained the dependencies, you can run an application as follows:
 
-It will download all dependencies into ./build/libs directory, where Photon.*.jar is built. Multiple sample applications have been provided with this project (e.g., com.netflix.imflibrary.app.IMFTrackFileReader). Having obtained the dependencies, you can run an application as follows:
+#### Linux/macOS:
+```
+java -cp "./build/libs/*:" <fully qualified class name> <arguments>
+```
+Example:
+```
+// Analyze an IMF Delivery locally
+java -cp "./build/libs/*:" com.netflix.imflibrary.app.IMPAnalyzer local_folder_path
 
-```
-java -cp ./build/libs/*: <fully qualified class name> <zero or more arguments>
-```
-E.g.,
-```
-java -cp ./build/libs/*: com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
-```
-```
-java -cp ./build/libs/*: com.netflix.imflibrary.st0429_8.PackingList packing_list_file_path
-```
-```
-java -cp ./build/libs/*: com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
-```
-```
-java -cp ./build/libs/*: com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path
+// Analyze an IMF Delivery in a S3 bucket
+java -cp "./build/libs/*:" com.netflix.imflibrary.app.IMPAnalyzer s3://path/to/IMFDelivery/
+
+// Analyze an individual IMF asset (e.g. AssetMap, PKL, CPL, MXF Track File)
+java -cp "./build/libs/*:" com.netflix.imflibrary.app.IMPAnalyzer local_file_path
 ```
 
-For Windows please refer to the following examples
-
-To download all dependencies, you just have to run:
-
+#### Windows:
 ```
-$ gradlew.bat getDependencies
+java -cp build\libs\*; <fully qualified class name> <arguments>
 ```
-
-It will download all dependencies into build\libs directory, where Photon.*.jar is built. Multiple sample applications have been provided with this project (e.g., com.netflix.imflibrary.app.IMFTrackFileReader). Having obtained the dependencies, you can run an application as follows:
-
+Example:
 ```
-java -cp build\libs\*; <fully qualified class name> <zero or more arguments>
-```
-E.g.,
-```
-java -cp build\libs\*; com.netflix.imflibrary.st0429_9.AssetMap asset_map_file_path
-```
-```
-java -cp build\libs\*; com.netflix.imflibrary.st0429_8.PackingList packing_list_file_path
-```
-```
-java -cp build\libs\*; com.netflix.imflibrary.st2067_2.Composition composition_playlist_file_path
-```
-```
+// Analyze an IMF Delivery locally
 java -cp build\libs\*; com.netflix.imflibrary.app.IMPAnalyzer IMP_folder_path
 ```
+### S3 Access
+Photon supports S3 URIs through [aws-java-nio-spi-for-s3](https://github.com/awslabs/aws-java-nio-spi-for-s3). No Photon-specific setup is needed, instead the S3 CLI config and credentials are used directly (see [here](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html) for instructions).
+
+Example (Linux/macOS):
+```
+// Analyze an IMF Delivery in a S3 bucket
+java -cp "./build/libs/*:" com.netflix.imflibrary.app.IMPAnalyzer s3://imf-plugfest-imf-plugfest/plugfest_2024_11/source_test_vectors/From_Colorfront/HTJ2K/plugest_FTR_C_EN-XX_US-NR_51_UHD_20241105_OV/
+```
+
+
+### API and Developer Documentation
+
+API documentation is available via [Javadoc](http://netflix.github.io/photon/).
+
+More information is available in the [Wiki](https://github.com/Netflix/photon/wiki).

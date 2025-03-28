@@ -35,10 +35,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,8 +61,8 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
     @Test
     public void RegXMLLibTest() throws IOException, ParserConfigurationException, TransformerException {
         /*AudioEssence*/
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
         IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, new FileByteRangeProvider(inputFile));
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
@@ -82,9 +81,9 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
     @Test
     public void EssenceDescriptorTest() throws IOException, ParserConfigurationException, TransformerException {
         /*Audio Essence*/
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf.hdr");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        byte[] headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        byte[] headerPartitionBytes = Files.readAllBytes(inputFile);
         ByteProvider byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
         HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
         List<InterchangeObject.InterchangeObjectBO> list = headerPartition.getEssenceDescriptors();
@@ -96,7 +95,7 @@ public class IMFTrackFileCPLBuilderFunctionalTests {
 
         /*Image Essence*/
         inputFile = TestHelper.findResourceByPath("CHIMERA_NETFLIX_2398.mxf.hdr");
-        headerPartitionBytes = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        headerPartitionBytes = Files.readAllBytes(inputFile);
         byteProvider = new ByteArrayDataProvider(headerPartitionBytes);
         headerPartition = new HeaderPartition(byteProvider, 0L, headerPartitionBytes.length, imfErrorLogger);
         list = headerPartition.getEssenceDescriptors();

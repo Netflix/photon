@@ -25,9 +25,9 @@ import testUtils.TestHelper;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.mockito.Mockito.*;
 
@@ -37,8 +37,8 @@ public class IMFTrackFileReaderTest
     @Test
     public void IMFTrackFileReaderTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         Assert.assertTrue(imfTrackFileReader.toString().length() > 0);
@@ -47,11 +47,11 @@ public class IMFTrackFileReaderTest
     @Test(expectedExceptions = MXFException.class, expectedExceptionsMessageRegExp = "RandomIndexPackSize = .*")
     public void badRandomIndexPackLength() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
         ResourceByteRangeProvider resourceByteRangeProvider = mock(ResourceByteRangeProvider.class);
         when(resourceByteRangeProvider.getResourceSize()).thenReturn(16L);
-        when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(File.class))).thenReturn(inputFile);
+        when(resourceByteRangeProvider.getByteRange(anyLong(), anyLong(), any(Path.class))).thenReturn(inputFile);
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         imfTrackFileReader.getRandomIndexPack(imfErrorLogger);

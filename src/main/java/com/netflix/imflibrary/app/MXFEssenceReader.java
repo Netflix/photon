@@ -26,11 +26,10 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +37,14 @@ public class MXFEssenceReader {
 
     private final IMFErrorLogger imfErrorLogger;
     private final ResourceByteRangeProvider resourceByteRangeProvider;
-    private final File workingDirectory;
+    private final Path workingDirectory;
 
     /**
      * A constructor for the MXFEssenceReader object
      * @param workingDirectory the working directory
      * @param resourceByteRangeProvider corresponding to the MXF essence, referred to as the essence in the rest of the documentation
      */
-    public MXFEssenceReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
+    public MXFEssenceReader(Path workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
     {
         this.imfErrorLogger = new IMFErrorLoggerImpl();
         this.workingDirectory = workingDirectory;
@@ -65,8 +64,8 @@ public class MXFEssenceReader {
             long rangeEnd = archiveFileSize - 1;
             long rangeStart = archiveFileSize - 4;
 
-            File fileWithRandomIndexPackSize = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
-            byte[] bytes = Files.readAllBytes(Paths.get(fileWithRandomIndexPackSize.toURI()));
+            Path pathWithRandomIndexPackSize = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
+            byte[] bytes = Files.readAllBytes(pathWithRandomIndexPackSize);
             randomIndexPackSize = (long)(ByteBuffer.wrap(bytes).getInt());
         }
 
@@ -80,8 +79,8 @@ public class MXFEssenceReader {
                         randomIndexPackSize, archiveFileSize));
             }
 
-            File fileWithRandomIndexPack = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithRandomIndexPack);
+            Path pathWithRandomIndexPack = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithRandomIndexPack);
             randomIndexPack = new RandomIndexPack(byteProvider, rangeStart, randomIndexPackSize);
         }
 
@@ -99,8 +98,8 @@ public class MXFEssenceReader {
         long inclusiveRangeStart = allPartitionByteOffsets.get(0);
         long inclusiveRangeEnd = allPartitionByteOffsets.get(1) - 1;
 
-        File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
-        ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
+        Path pathWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
+        ByteProvider byteProvider = this.getByteProvider(pathWithHeaderPartition);
         HeaderPartition headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, this.imfErrorLogger);
 
         return headerPartition;
@@ -124,7 +123,7 @@ public class MXFEssenceReader {
         try {
             //validate partition packs
             MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-            IMFConstraints.checkIMFCompliance(partitionPacks, imfErrorLogger);
+            IMFConstraints.checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
         }
         catch (IMFException | MXFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));
@@ -206,8 +205,8 @@ public class MXFEssenceReader {
                     (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPackKLVPacketHeader);
+            Path pathWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPackKLVPacketHeader);
             header = new KLVPacket.Header(byteProvider, resourceOffset);
         }
 
@@ -220,8 +219,8 @@ public class MXFEssenceReader {
                     -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPack = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPack);
+            Path pathWithPartitionPack = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPack);
             partitionPack = new PartitionPack(byteProvider, resourceOffset, true);
 
         }
@@ -260,22 +259,22 @@ public class MXFEssenceReader {
     }
 
     private ByteProvider getByteProvider(KLVPacket.Header header) throws IOException {
-        File file = this.resourceByteRangeProvider.getByteRange(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize(), this.workingDirectory);
-        return this.getByteProvider(file);
+        Path path = this.resourceByteRangeProvider.getByteRange(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize(), this.workingDirectory);
+        return this.getByteProvider(path);
     }
 
-    private ByteProvider getByteProvider(File file) throws IOException {
+    private ByteProvider getByteProvider(Path path) throws IOException {
         ByteProvider byteProvider;
-        Long size = file.length();
+        long size = Files.size(path);
         if(size <= 0){
             throw new IOException(String.format("Range of bytes (%d) has to be +ve and non-zero", size));
         }
         if(size <= Integer.MAX_VALUE) {
-            byte[] bytes = Files.readAllBytes(Paths.get(file.toURI()));
+            byte[] bytes = Files.readAllBytes(path);
             byteProvider = new ByteArrayDataProvider(bytes);
         }
         else{
-            byteProvider = new FileDataProvider(file);
+            byteProvider = new FileDataProvider(path);
         }
         return byteProvider;
     }

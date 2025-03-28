@@ -41,27 +41,29 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,7 +88,7 @@ public class CompositionPlaylistBuilder_2013 {
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
     private final Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas._2067_3._2013.SegmentType> segments = new ArrayList<>();
@@ -124,7 +126,7 @@ public class CompositionPlaylistBuilder_2013 {
                                            @Nonnull Set<String> applicationIds,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList,
                                            @Nonnull String coreConstraintsSchema,
                                            Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap){
@@ -165,63 +167,6 @@ public class CompositionPlaylistBuilder_2013 {
             }
         }
         this.trackResourceSourceEncodingMap = Collections.unmodifiableMap(trackEncodingMap);
-    }
-
-    /**
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfEssenceDescriptorBaseTypeList List of IMFEssenceDescriptorBaseType
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
-                                           @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2013, null);
-    }
-
-
-    /**
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2013 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2013(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, applicationId, totalRunningTime, trackFileInfoMap, workingDirectory, new ArrayList<>());
     }
     
 
@@ -269,7 +214,7 @@ public class CompositionPlaylistBuilder_2013 {
              */
             UUID sequenceId = IMFUUIDGenerator.getInstance().generateUUID();
             UUID trackId = IMFUUIDGenerator.getInstance().generateUUID();
-            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
+            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceType());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
         org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
@@ -290,8 +235,8 @@ public class CompositionPlaylistBuilder_2013 {
             cplRoot.setExtensionProperties( extensionProperties);
         }
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
-        List errors = serializeCPLToXML(cplRoot, outputFile);
+        Path outputPath = this.workingDirectory.resolve(this.cplFileName);
+        List errors = serializeCPLToXML(cplRoot, outputPath);
         imfErrorLogger.addAllErrors(errors);
         return imfErrorLogger.getErrors();
     }
@@ -318,7 +263,7 @@ public class CompositionPlaylistBuilder_2013 {
     }
 
     private List<ErrorLogger.ErrorObject> serializeCPLToXML(org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType cplRoot,
-                                                 File outputFile) throws IOException
+                                                 Path outputPath) throws IOException
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         boolean formatted = true;
@@ -328,8 +273,15 @@ public class CompositionPlaylistBuilder_2013 {
         InputStream dcmlSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0433_2008/dcmlTypes/dcmlTypes.xsd");
         try(InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream
                 ("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-        InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
-        OutputStream outputStream = new FileOutputStream(outputFile);)
+            InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2013/imf-core-constraints-20130620-pal.xsd");
+
+            SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
+
+            OutputStream outputStream = Channels.newOutputStream(byteChannel);)
+
         {
             try
             {
@@ -397,7 +349,7 @@ public class CompositionPlaylistBuilder_2013 {
 
         org.smpte_ra.schemas._2067_3._2013.ContentKindType contentKindType = new org.smpte_ra.schemas._2067_3._2013.ContentKindType();
         if(!scope.matches("^[a-zA-Z0-9._-]+") == true) {
-            this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope)));
+            this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope));
             contentKindType.setScope(scope);
         }
         else{
@@ -564,7 +516,7 @@ public class CompositionPlaylistBuilder_2013 {
     public SequenceTypeTuple buildSequenceTypeTuple(UUID id,
                                                     UUID trackId,
                                                     org.smpte_ra.schemas._2067_3._2013.SequenceType.ResourceList resourceList,
-                                                    Composition.SequenceTypeEnum sequenceType){
+                                                    String sequenceType){
         org.smpte_ra.schemas._2067_3._2013.SequenceType sequence = new org.smpte_ra.schemas._2067_3._2013.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
@@ -598,18 +550,18 @@ public class CompositionPlaylistBuilder_2013 {
 
         for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
             switch(sequenceTypeTuple.getSequenceType()){
-                case MainImageSequence:
+                case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                     any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                     break;
-                case MainAudioSequence:
+                case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                     any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                     break;
-                case MarkerSequence:
+                case Composition.MARKER_SEQUENCE:
                     segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                     break;
                 default:
                     throw new IMFAuthoringException(String.format("Currently we only support %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                            Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                            CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
             }
         }
     }
@@ -710,9 +662,9 @@ public class CompositionPlaylistBuilder_2013 {
      */
     public static class SequenceTypeTuple{
         private final org.smpte_ra.schemas._2067_3._2013.SequenceType sequence;
-        private final Composition.SequenceTypeEnum sequenceType;
+        private final String sequenceType;
 
-        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2013.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
+        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2013.SequenceType sequence, String sequenceType){
             this.sequence = sequence;
             this.sequenceType = sequenceType;
         }
@@ -721,7 +673,7 @@ public class CompositionPlaylistBuilder_2013 {
             return this.sequence;
         }
 
-        private Composition.SequenceTypeEnum getSequenceType(){
+        private String getSequenceType(){
             return this.sequenceType;
         }
     }

@@ -20,26 +20,33 @@ package com.netflix.imflibrary.utils;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * This class is an non-thread-safe implementation of {@link com.netflix.imflibrary.utils.ByteProvider}. The underlying input
- * sequence of bytes is sourced from a file. While this implementation could be enhanced to make it thread-safe, it is
+ * sequence of bytes is sourced from a path. While this implementation could be enhanced to make it thread-safe, it is
  * difficult to envision an application scenario where an input stream could be shared meaningfully among multiple callers
  */
 @NotThreadSafe
 public final class FileDataProvider implements ByteProvider {
 
-    private final File inputFile;
+    private final Path inputPath;
     private Long position = 0L;
+    private final SeekableByteChannel inputChannel;
 
     /**
      * Instantiates a new FileDataProvider object
      *
-     * @param file the input file
+     * @param path the input path
      */
-    public FileDataProvider(File file)
+    public FileDataProvider(Path path) throws IOException
     {
-        this.inputFile = file;
+        this.inputPath = path;
+        this.inputChannel = Files.newByteChannel(path, StandardOpenOption.READ);
     }
 
     /**
@@ -54,24 +61,24 @@ public final class FileDataProvider implements ByteProvider {
         if(totalNumBytesToRead < 0){
             throw new IOException(String.format("Cannot read %d bytes, should be non-negative and non-zero", totalNumBytesToRead));
         }
-        byte[] bytes = new byte[totalNumBytesToRead];
-        Integer bytesRead = 0;
-        Integer totalBytesRead = 0;
-        try(BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(this.inputFile))) {
-            skipBytes(inputStream, this.position); //reach current position
-            while (bytesRead != -1
-                    && totalBytesRead < totalNumBytesToRead) {
-                bytesRead = inputStream.read(bytes, totalBytesRead, totalNumBytesToRead - totalBytesRead);
-                if (bytesRead != -1) {
-                    totalBytesRead += bytesRead;
+
+        ByteBuffer buffer = ByteBuffer.allocate(totalNumBytesToRead);
+
+        try {
+            while (totalNumBytesToRead > 0) {
+                int numBytesRead = inputChannel.read(buffer);
+                if (numBytesRead == -1) {
+                    throw new IOException("Unexpected end of stream while reading bytes.");
                 }
+                totalNumBytesToRead -= numBytesRead;
+                this.position += numBytesRead;
             }
+        } catch (IOException e) {
+            throw new IOException("Error reading bytes from input channel: " + e.getMessage(), e);
         }
-        if(totalBytesRead < totalNumBytesToRead) {
-            throw new IOException(String.format("Could not read %d bytes of data, only read %d bytes of data, possible truncated data", totalNumBytesToRead, totalBytesRead));
-        }
-        this.position += totalBytesRead;
-        return bytes;
+
+        buffer.flip();
+        return buffer.array();
     }
 
     /**
@@ -82,27 +89,16 @@ public final class FileDataProvider implements ByteProvider {
      */
     public void skipBytes(long totalNumBytesToSkip) throws IOException
     {
-        try(BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(this.inputFile)))
-        {
-            skipBytes(inputStream, this.position + totalNumBytesToSkip);
-            this.position += totalNumBytesToSkip;
-        }
-    }
-
-    private void skipBytes(InputStream inputStream, long totalNumBytesToSkip) throws IOException
-    {
-        long bytesSkipped = 0;
-        long totalBytesSkipped = 0;
-        while ((bytesSkipped != -1) && (totalBytesSkipped < totalNumBytesToSkip))
-        {
-            bytesSkipped = inputStream.skip(totalNumBytesToSkip - totalBytesSkipped);
-            {
-                totalBytesSkipped += bytesSkipped;
-            }
-        }
-        if(totalBytesSkipped != totalNumBytesToSkip){
-            throw new IOException(String.format("Could not skip %d bytes of data, possible truncated data", totalNumBytesToSkip));
+        if (this.position + totalNumBytesToSkip > this.inputChannel.size()) {
+            throw new IOException("Target position exceeds input size.");
         }
 
+        try {
+            inputChannel.position(totalNumBytesToSkip);
+        } catch (IOException e) {
+            throw new IOException("Failed to set position in input channel: " + e.getMessage(), e);
+        }
+
+        this.position += totalNumBytesToSkip;
     }
 }

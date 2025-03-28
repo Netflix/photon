@@ -1,0 +1,315 @@
+package com.netflix.imflibrary.validation;
+
+import com.netflix.imflibrary.Colorimetry;
+import com.netflix.imflibrary.IMFErrorLogger;
+import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
+import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0422.JP2KContentKind;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
+import com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel;
+import com.netflix.imflibrary.utils.ErrorLogger;
+import com.netflix.imflibrary.utils.Fraction;
+import jakarta.annotation.Nonnull;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Abstract class providing functionality common across various versions of ST 2067-21.
+ */
+abstract public class IMFApp2EConstraintsValidator implements ConstraintsValidator {
+
+    protected static final UL JPEG2000PICTURECODINGSCHEME = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.04010107.04010202.03010000");
+
+    protected IMFApp2EConstraintsValidator() {}
+
+    /**
+     * Class modelling image characteristics for ST 2067-21. This is used to specify supported combinations of
+     * image characteristics in subclasses of {@link com.netflix.imflibrary.validation.IMFApp2EConstraintsValidator}.
+     */
+    protected static class CharacteristicsSet {
+        private Integer maxWidth;
+        private Integer maxHeight;
+        private HashSet<Colorimetry> colorSystems;
+        private HashSet<Integer> bitDepths;
+        private HashSet<GenericPictureEssenceDescriptor.FrameLayoutType> frameStructures;
+        private HashSet<Fraction> frameRates;
+        private HashSet<Colorimetry.Sampling> samplings;
+        private HashSet<Colorimetry.Quantization> quantizations;
+        private HashSet<Colorimetry.ColorModel> colorModels;
+        /* Stereoscopic images are not supported */
+
+        /**
+         * Constructor for class {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}.
+         * @param maxWidth maximum image frame width
+         * @param maxHeight maximum image frame height
+         * @param colorSystems List of colorimetry values
+         * @param bitDepths List of pixel bit depth values
+         * @param frameStructures List of frame structures
+         * @param frameRates List of frame rate values
+         * @param samplings List of sampling values
+         * @param quantizations List of quantization systems
+         * @param colorModels List of color components
+         */
+        public CharacteristicsSet(Integer maxWidth,
+                                  Integer maxHeight,
+                                  List<Colorimetry> colorSystems,
+                                  List<Integer> bitDepths,
+                                  List<GenericPictureEssenceDescriptor.FrameLayoutType> frameStructures,
+                                  List<Fraction> frameRates,
+                                  List<Colorimetry.Sampling> samplings,
+                                  List<Colorimetry.Quantization> quantizations,
+                                  List<Colorimetry.ColorModel> colorModels) {
+            this.maxWidth = maxWidth;
+            this.maxHeight = maxHeight;
+            this.colorSystems = new HashSet<Colorimetry>(colorSystems);
+            this.bitDepths = new HashSet<Integer>(bitDepths);
+            this.frameStructures = new HashSet<GenericPictureEssenceDescriptor.FrameLayoutType>(frameStructures);
+            this.frameRates = new HashSet<Fraction>(frameRates);
+            this.samplings = new HashSet<Colorimetry.Sampling>(samplings);
+            this.quantizations = new HashSet<Colorimetry.Quantization>(quantizations);
+            this.colorModels = new HashSet<Colorimetry.ColorModel>(colorModels);
+        }
+
+        /**
+         * Method to check if the provided combination of specific properties is part of the
+         * {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}.
+         * @param width image frame width
+         * @param height image frame height
+         * @param colorSystem colorimetry
+         * @param bitDepth pixel bit depth
+         * @param frameStructure frame structure
+         * @param frameRate frame rate
+         * @param sampling sampling
+         * @param quantization quantization system
+         * @param colorModel color components
+         * @return true if the provided combination of properties is included, false otherwise.
+         */
+        public boolean has(Integer width,
+                           Integer height,
+                           Colorimetry colorSystem,
+                           Integer bitDepth,
+                           GenericPictureEssenceDescriptor.FrameLayoutType frameStructure,
+                           Fraction frameRate,
+                           Colorimetry.Sampling sampling,
+                           Colorimetry.Quantization quantization,
+                           Colorimetry.ColorModel colorModel) {
+            return width <= this.maxWidth &&
+                    height <= this.maxHeight &&
+                    this.colorSystems.contains(colorSystem) &&
+                    this.bitDepths.contains(bitDepth) &&
+                    this.frameStructures.contains(frameStructure) &&
+                    this.frameRates.contains(frameRate) &&
+                    this.samplings.contains(sampling) &&
+                    this.quantizations.contains(quantization) &&
+                    this.colorModels.contains(colorModel);
+        }
+    }
+
+    /**
+     * Implementations of this method provide an array of {@link com.netflix.imflibrary.validation.IMFApp2E2021ConstraintsValidator.CharacteristicsSet}
+     * that are supported by the implemented specification.
+     * @return an array of CharacteristicsSets, modelling the image characteristics table(s) specified in ST 2067-21:20xx.
+    */
+    protected abstract IMFApp2E2021ConstraintsValidator.CharacteristicsSet[] getValidImageCharacteristicsSets();
+
+    /**
+     * Implementations of this method validate whether the provided {@link com.netflix.imflibrary.st2067_2.CompositionImageEssenceDescriptorModel}
+     * signals a valid J2K Profile.
+     * @return empty List if profile is valid, List of errors otherwise.
+     */
+    protected abstract List<ErrorLogger.ErrorObject> validateJ2KProfile(CompositionImageEssenceDescriptorModel imageDescriptor);
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+
+        /*
+            Core validation is covered in IMPValidator.validateEssencePartitions().
+            App2E specific validation of standalone Track Files is CURRENTLY NOT IMPLEMENTED,
+            but descriptors are indirectly validated by validateCompositionConstraints().
+         */
+
+        return List.of();
+    }
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateCompositionConstraints(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist, @Nonnull List<PayloadRecord> headerPartitionPayloads) {
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        try {
+            List<CompositionImageEssenceDescriptorModel> imageDescriptorModels = imfCompositionPlaylist.getCompositionImageEssenceDescriptorModels();
+
+            if (imageDescriptorModels.isEmpty()) {
+                imfErrorLogger.addError(
+                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        "Unable to retrieve picture descriptor from CPL for validation.");
+
+                return imfErrorLogger.getErrors();
+            }
+
+            // validate each image descriptor individually
+            imageDescriptorModels.forEach(imageDescriptorModel -> {
+                imfErrorLogger.addAllErrors(imageDescriptorModel.getErrors());
+                validateGenericPictureEssenceDescriptor(imageDescriptorModel, imfErrorLogger);
+                validateImageCharacteristics(imageDescriptorModel, imfErrorLogger);
+            });
+
+        } catch (Exception e) {
+            imfErrorLogger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format(
+                            "Exception in validating EssenceDescriptors per %s: %s ",
+                            getConstraintsSpecification(),
+                            e.getMessage()));
+        }
+
+
+        return imfErrorLogger.getErrors();
+    }
+
+
+    private void validateImageCharacteristics(CompositionImageEssenceDescriptorModel imageDescriptor, IMFErrorLogger logger) {
+
+        // J2K profiles
+        logger.addAllErrors(validateJ2KProfile(imageDescriptor));
+
+        boolean isValid = false;
+
+        for (IMFApp2E2021ConstraintsValidator.CharacteristicsSet imgCharacteristicsSet : getValidImageCharacteristicsSets()) {
+            isValid = imgCharacteristicsSet.has(
+                    imageDescriptor.getStoredWidth(),
+                    imageDescriptor.getStoredHeight(),
+                    imageDescriptor.getColor(),
+                    imageDescriptor.getPixelBitDepth(),
+                    imageDescriptor.getFrameLayoutType(),
+                    imageDescriptor.getSampleRate(),
+                    imageDescriptor.getSampling(),
+                    imageDescriptor.getQuantization(),
+                    imageDescriptor.getColorModel()
+            );
+
+            if (isValid)
+                break;
+        }
+
+        if (!isValid) {
+            logger.addError(
+                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    "Invalid combination of image characteristics per " + getConstraintsSpecification() + ": "
+                        + "StoredWidth: " + imageDescriptor.getStoredWidth()
+                        + ", StoredHeight: " + imageDescriptor.getStoredHeight()
+                        + ", Color: " + imageDescriptor.getColor()
+                        + ", PixelBitDepht: " + imageDescriptor.getPixelBitDepth()
+                        + ", FrameLayoutType: " + imageDescriptor.getFrameLayoutType()
+                        + ", SampleRate: " + imageDescriptor.getSampleRate()
+                        + ", Sampling: " + imageDescriptor.getSampling()
+                        + ", Quantization: " + imageDescriptor.getQuantization()
+                        + ", ColorModel: " + imageDescriptor.getColorModel()
+            );
+        }
+    }
+
+
+    private void validateGenericPictureEssenceDescriptor(CompositionImageEssenceDescriptorModel imageEssenceDescriptorModel,
+                                                               IMFErrorLogger imfErrorLogger)
+    {
+        UUID imageEssenceDescriptorID = imageEssenceDescriptorModel.getImageEssencedescriptorID();
+
+        Colorimetry.ColorModel colorModel = imageEssenceDescriptorModel.getColorModel();
+        if( colorModel.equals(Colorimetry.ColorModel.Unknown)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has Invalid color components as per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+            return;
+        }
+
+        Integer componentDepth = imageEssenceDescriptorModel.getComponentDepth();
+        if (colorModel.equals(Colorimetry.ColorModel.YUV) && componentDepth == null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s is missing component depth required per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+        }
+
+        Integer storedWidth = imageEssenceDescriptorModel.getStoredWidth();
+        Integer storedHeight = imageEssenceDescriptorModel.getStoredHeight();
+        if ((storedWidth <= 0) || (storedHeight <= 0)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid storedWidth(%d) or storedHeight(%d) as per %s",
+                            imageEssenceDescriptorID.toString(), storedWidth, storedHeight, getConstraintsSpecification()));
+        }
+
+        Integer sampleWidth = imageEssenceDescriptorModel.getSampleWidth();
+        Integer sampleHeight = imageEssenceDescriptorModel.getSampleHeight();
+        if ((sampleWidth != null && !sampleWidth.equals(storedWidth)) ||
+                (sampleHeight != null && !sampleHeight.equals(storedHeight))) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid sampleWidth(%d) or sampleHeight(%d) as per %s",
+                            imageEssenceDescriptorID.toString(), sampleWidth != null ? sampleWidth : 0, sampleHeight != null ? sampleHeight : 0,
+                            getConstraintsSpecification()));
+        }
+
+        if( imageEssenceDescriptorModel.getStoredOffset() != null) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s invalid StoredOffset as per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+        }
+
+        Colorimetry.ColorPrimaries colorPrimaries = imageEssenceDescriptorModel.getColorPrimaries();
+        if(colorPrimaries.equals(Colorimetry.ColorPrimaries.Unknown)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries as per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+        }
+
+        Colorimetry.TransferCharacteristic transferCharacteristic = imageEssenceDescriptorModel.getTransferCharacteristic();
+        if(transferCharacteristic.equals(Colorimetry.TransferCharacteristic.Unknown)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid TransferCharacteristic as per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+        }
+
+        Colorimetry.CodingEquation codingEquation = imageEssenceDescriptorModel.getCodingEquation();
+        if(codingEquation.equals(Colorimetry.CodingEquation.Unknown)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid CodingEquation as per %s",
+                            imageEssenceDescriptorID.toString(), getConstraintsSpecification()));
+        }
+
+        Colorimetry color = imageEssenceDescriptorModel.getColor();
+        if(color.equals(Colorimetry.Unknown)) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                    String.format("EssenceDescriptor with ID %s has invalid ColorPrimaries(%s)-TransferCharacteristic(%s)-CodingEquation(%s) combination as per %s",
+                            imageEssenceDescriptorID.toString(), colorPrimaries.name(), transferCharacteristic.name(), codingEquation.name(), getConstraintsSpecification()));
+        }
+
+        GenericPictureEssenceDescriptor.FrameLayoutType frameLayoutType = imageEssenceDescriptorModel.getFrameLayoutType();
+        UL essenceContainerFormatUL = imageEssenceDescriptorModel.getEssenceContainerFormatUL();
+        if(essenceContainerFormatUL != null) {
+            JP2KContentKind contentKind = JP2KContentKind.valueOf(essenceContainerFormatUL.getULAsBytes()[14]);
+            if ((frameLayoutType.equals(GenericPictureEssenceDescriptor.FrameLayoutType.FullFrame) && !contentKind.equals(JP2KContentKind.P1)) ||
+                    (frameLayoutType.equals(GenericPictureEssenceDescriptor.FrameLayoutType.SeparateFields) && !contentKind.equals(JP2KContentKind.I1))) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                        String.format("EssenceDescriptor with ID %s has invalid JPEG-2000 ContentKind (%s) indicated by the ContainerFormat as per %s",
+                                imageEssenceDescriptorID.toString(), contentKind, getConstraintsSpecification()));
+            }
+        }
+    }
+
+}

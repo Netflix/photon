@@ -1,10 +1,8 @@
 package com.netflix.imflibrary.RESTfulInterfaces;
 
-import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.MXFUtils;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +23,7 @@ public class HeaderPartitionExtractor {
      * @return a long integer value representing the size of the RandomIndexPack
      */
     public static Long getRandomIndexPackSize(PayloadRecord essenceFooter4Bytes){
-        return IMPValidator.getRandomIndexPackSize(essenceFooter4Bytes);
+        return MXFUtils.getRandomIndexPackSize(essenceFooter4Bytes);
     }
 
     /**
@@ -39,7 +37,7 @@ public class HeaderPartitionExtractor {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static List<Long> getHeaderPartitionByteOffsets(PayloadRecord randomIndexPackPayload, Long randomIndexPackSize) throws IOException{
-        List<Long> partitionByteOffsets = IMPValidator.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
+        List<Long> partitionByteOffsets = MXFUtils.getEssencePartitionOffsets(randomIndexPackPayload, randomIndexPackSize);
         return partitionByteOffsets.subList(0, 2);
     }
 }

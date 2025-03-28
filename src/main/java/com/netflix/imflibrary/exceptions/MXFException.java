@@ -21,7 +21,7 @@ package com.netflix.imflibrary.exceptions;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

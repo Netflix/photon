@@ -28,24 +28,28 @@ import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -59,7 +63,7 @@ public class PackingListBuilder {
     private final XMLGregorianCalendar issueDate;
     private final String iconId;
     private final String groupId;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     public final static String defaultHashAlgorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
     private final String pklFileName;
@@ -73,7 +77,7 @@ public class PackingListBuilder {
      */
     public PackingListBuilder(@Nonnull UUID uuid,
                               @Nonnull XMLGregorianCalendar issueDate,
-                              @Nonnull File workingDirectory,
+                              @Nonnull Path workingDirectory,
                               @Nonnull IMFErrorLogger imfErrorLogger){
         this.uuid = uuid;
         this.issueDate = issueDate;
@@ -97,7 +101,7 @@ public class PackingListBuilder {
                               @Nonnull XMLGregorianCalendar issueDate,
                               @Nonnull String iconId,
                               @Nonnull String groupId,
-                              @Nonnull File workingDirectory,
+                              @Nonnull Path workingDirectory,
                               @Nonnull IMFErrorLogger imfErrorLogger){
         this.uuid = uuid;
         this.issueDate = issueDate;
@@ -197,14 +201,19 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-
-        File outputFile = new File(this.workingDirectory + File.separator + this.pklFileName);
+        Path outputPath = this.workingDirectory.resolve(this.pklFileName);
         boolean formatted = true;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
                 InputStream packingListSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st0429_8_2007/PKL/packingList_schema.xsd");
                 InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-                OutputStream outputStream = new FileOutputStream(outputFile);
+
+                SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE);
+
+                OutputStream outputStream = Channels.newOutputStream(byteChannel);
         )
         {
             try
@@ -440,13 +449,19 @@ public class PackingListBuilder {
         packingListType.setSigner(null);
         packingListType.setSignature(null);
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.pklFileName);
+        Path outputPath = this.workingDirectory.resolve(this.pklFileName);
         boolean formatted = true;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try(
                 InputStream packingListSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/PKL/packingList_schema.xsd");
                 InputStream dsigSchemaAsAStream = contextClassLoader.getResourceAsStream("org/w3/_2000_09/xmldsig/xmldsig-core-schema.xsd");
-                OutputStream outputStream = new FileOutputStream(outputFile);
+
+                SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE);
+
+                OutputStream outputStream = Channels.newOutputStream(byteChannel);
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );

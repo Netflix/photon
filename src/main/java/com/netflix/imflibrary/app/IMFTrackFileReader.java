@@ -49,19 +49,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,7 +74,7 @@ import java.util.UUID;
 @ThreadSafe
 public final class IMFTrackFileReader
 {
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final ResourceByteRangeProvider resourceByteRangeProvider;
     private volatile RandomIndexPack randomIndexPack = null;
     private volatile List<PartitionPack> partitionPacks = null;
@@ -91,13 +90,13 @@ public final class IMFTrackFileReader
      * @param workingDirectory the working directory
      * @param resourceByteRangeProvider the MXF file represented as a {@link com.netflix.imflibrary.utils.ResourceByteRangeProvider}
      */
-    public IMFTrackFileReader(File workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
+    public IMFTrackFileReader(Path workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
     {
         this.workingDirectory = workingDirectory;
         this.resourceByteRangeProvider = resourceByteRangeProvider;
     }
 
-    private IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    public IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.headerPartition == null)
         {
@@ -127,14 +126,14 @@ public final class IMFTrackFileReader
 
     private void setHeaderPartitionIMF(long inclusiveRangeStart, long inclusiveRangeEnd, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
-        File fileWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
-        ByteProvider byteProvider = this.getByteProvider(fileWithHeaderPartition);
+        Path pathWithHeaderPartition = this.resourceByteRangeProvider.getByteRange(inclusiveRangeStart, inclusiveRangeEnd, this.workingDirectory);
+        ByteProvider byteProvider = this.getByteProvider(pathWithHeaderPartition);
         HeaderPartition headerPartition = null;
         try {
             headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            this.headerPartition = IMFConstraints.checkIMFCompliance(headerPartitionOP1A, imfErrorLogger);
+            this.headerPartition = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             if (this.headerPartition != null) {
                 IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
                 MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
@@ -142,7 +141,7 @@ public final class IMFTrackFileReader
         }
         catch (MXFException | IMFException e){
             if(headerPartition == null){
-                imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors")));
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("IMFTrackFile has fatal errors"));
             }
             else {
                 Preface preface = headerPartition.getPreface();
@@ -199,8 +198,8 @@ public final class IMFTrackFileReader
                     (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPackKLVPacketHeader);
+            Path pathWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPackKLVPacketHeader);
             header = new KLVPacket.Header(byteProvider, inclusivePartitionStart);
         }
 
@@ -211,8 +210,8 @@ public final class IMFTrackFileReader
                     (KLVPacket.KEY_FIELD_SIZE + header.getLSize() + header.getVSize()) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPack = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPack);
+            Path pathWithPartitionPack = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPack);
             partitionPack = new PartitionPack(byteProvider, inclusivePartitionStart, false);
         }
 
@@ -223,8 +222,8 @@ public final class IMFTrackFileReader
             long rangeEnd = inclusivePartitionEnd;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartition = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartition);
+            Path pathWithPartition = this.resourceByteRangeProvider.getByteRange(inclusivePartitionStart, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartition);
 
             long numBytesToRead = rangeEnd - inclusivePartitionStart + 1;
             long numBytesRead = 0;
@@ -338,7 +337,7 @@ public final class IMFTrackFileReader
         try {
             //validate partition packs
             MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-            IMFConstraints.checkIMFCompliance(partitionPacks, imfErrorLogger);
+            IMFConstraints.checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
         }
         catch (IMFException | MXFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));
@@ -365,8 +364,8 @@ public final class IMFTrackFileReader
                     (KLVPacket.KEY_FIELD_SIZE + KLVPacket.LENGTH_FIELD_SUFFIX_MAX_SIZE) -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPackKLVPacketHeader);
+            Path pathWithPartitionPackKLVPacketHeader = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPackKLVPacketHeader);
             header = new KLVPacket.Header(byteProvider, resourceOffset);
         }
 
@@ -379,8 +378,8 @@ public final class IMFTrackFileReader
                     -1;
             rangeEnd = rangeEnd < (archiveFileSize - 1) ? rangeEnd : (archiveFileSize - 1);
 
-            File fileWithPartitionPack = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithPartitionPack);
+            Path pathWithPartitionPack = this.resourceByteRangeProvider.getByteRange(resourceOffset, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithPartitionPack);
             partitionPack = new PartitionPack(byteProvider, resourceOffset, true);
 
         }
@@ -411,8 +410,8 @@ public final class IMFTrackFileReader
             long rangeEnd = archiveFileSize - 1;
             long rangeStart = archiveFileSize - 4;
 
-            File fileWithRandomIndexPackSize = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
-            byte[] bytes = Files.readAllBytes(Paths.get(fileWithRandomIndexPackSize.toURI()));
+            Path pathWithRandomIndexPackSize = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
+            byte[] bytes = Files.readAllBytes(pathWithRandomIndexPackSize);
             randomIndexPackSize = (long)(ByteBuffer.wrap(bytes).getInt());
         }
         //RandomIndexPack size min value = 16 + 4 + 36 + 4
@@ -431,8 +430,8 @@ public final class IMFTrackFileReader
                         randomIndexPackSize, archiveFileSize));
             }
 
-            File fileWithRandomIndexPack = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
-            ByteProvider byteProvider = this.getByteProvider(fileWithRandomIndexPack);
+            Path pathWithRandomIndexPack = this.resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, this.workingDirectory);
+            ByteProvider byteProvider = this.getByteProvider(pathWithRandomIndexPack);
             randomIndexPack = new RandomIndexPack(byteProvider, rangeStart, randomIndexPackSize);
         }
 
@@ -549,22 +548,22 @@ public final class IMFTrackFileReader
      * @throws IOException
      */
     ByteProvider getByteProvider(KLVPacket.Header header) throws IOException {
-        File file = this.resourceByteRangeProvider.getByteRange(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize(), this.workingDirectory);
-        return this.getByteProvider(file);
+        Path path = this.resourceByteRangeProvider.getByteRange(header.getByteOffset(), header.getByteOffset() + header.getKLSize() + header.getVSize(), this.workingDirectory);
+        return this.getByteProvider(path);
     }
 
-    private ByteProvider getByteProvider(File file) throws IOException {
+    private ByteProvider getByteProvider(Path path) throws IOException {
         ByteProvider byteProvider;
-        Long size = file.length();
+        long size = Files.size(path);
         if(size <= 0){
             throw new IOException(String.format("Range of bytes (%d) has to be +ve and non-zero", size));
         }
         if(size <= Integer.MAX_VALUE) {
-            byte[] bytes = Files.readAllBytes(Paths.get(file.toURI()));
+            byte[] bytes = Files.readAllBytes(path);
             byteProvider = new ByteArrayDataProvider(bytes);
         }
         else{
-            byteProvider = new FileDataProvider(file);
+            byteProvider = new FileDataProvider(path);
         }
         return byteProvider;
     }
@@ -591,8 +590,8 @@ public final class IMFTrackFileReader
     BigInteger getEssenceEditRate(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         BigInteger result = BigInteger.valueOf(0);
         if(!(this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().size() > 0)){
-            imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No EssenceDescriptors were found in " +
-                    "the MXF essence Header Partition")));
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("No EssenceDescriptors were found in " +
+                    "the MXF essence Header Partition"));
         }
         InterchangeObject.InterchangeObjectBO essenceDescriptor = this.getHeaderPartition(imfErrorLogger).getEssenceDescriptors().get(0);
         if(FileDescriptor.FileDescriptorBO.class.isAssignableFrom(essenceDescriptor.getClass())){
@@ -697,20 +696,25 @@ public final class IMFTrackFileReader
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path input = Utilities.getPathFromString(args[0]);
+        if (!Files.isRegularFile(input)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        File workingDirectory = new File(args[1]);
 
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        Path workingDirectory = Utilities.getPathFromString(args[1]);
+        if (!Files.isDirectory(workingDirectory)) {
+            logger.error(String.format("Target folder %s does not exist", args[1]));
+            System.exit(-1);
+        }
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
         IMFTrackFileReader imfTrackFileReader = null;
         IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = null;
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         try {
             imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
-            imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
+            imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, input);
         }
         catch (IMFException | MXFException e){
             if(e instanceof IMFException){
@@ -740,8 +744,8 @@ public final class IMFTrackFileReader
                 /*Output file containing the RegXML representation of the EssenceDescriptor*/
                     KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();
                     List<KLVPacket.Header> subDescriptorHeaders = imfTrackFileReader.getSubDescriptorKLVHeader(essenceDescriptor, imfErrorLogger);
-                    File outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders, imfErrorLogger);
-                    logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.getAbsolutePath()));
+                    Path outputFile = imfTrackFileCPLBuilder.getEssenceDescriptorAsXMLFile(document, essenceDescriptorHeader, subDescriptorHeaders, imfErrorLogger);
+                    logger.info(String.format("The EssenceDescriptor in the IMFTrackFile has been written to a XML document at the following location %s", outputFile.toString()));
                 }
             } catch (ParserConfigurationException | TransformerException e) {
                 throw new MXFException(e);

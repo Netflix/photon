@@ -5,10 +5,10 @@ import com.netflix.imflibrary.st0377.RandomIndexPack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -20,18 +20,18 @@ public class IMFTrackFilePartitionsExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(IMFTrackFilePartitionsExtractor.class);
 
-    private static File extractHeaderPartition(File input, File workingDirectory) throws IOException {
+    private static Path extractHeaderPartition(Path input, Path workingDirectory) throws IOException {
 
         //Code to extract the HeaderPartition and write to a file
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
-        Long archiveFileSize = resourceByteRangeProvider.getResourceSize();
-        Long randomIndexPackSize;
+        long archiveFileSize = resourceByteRangeProvider.getResourceSize();
+        long randomIndexPackSize;
         {//logic to provide as an input stream the portion of the archive that contains randomIndexPack size
             long rangeEnd = archiveFileSize - 1;
             long rangeStart = archiveFileSize - 4;
 
-            File fileWithRandomIndexPackSize = resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, workingDirectory);
-            byte[] bytes = Files.readAllBytes(Paths.get(fileWithRandomIndexPackSize.toURI()));
+            Path pathWithRandomIndexPackSize = resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, workingDirectory);
+            byte[] bytes = Files.readAllBytes(pathWithRandomIndexPackSize);
             randomIndexPackSize = (long)(ByteBuffer.wrap(bytes).getInt());
         }
 
@@ -44,16 +44,20 @@ public class IMFTrackFilePartitionsExtractor {
                     randomIndexPackSize, archiveFileSize));
         }
 
-        File fileWithRandomIndexPack = resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, workingDirectory);
-        ByteProvider byteProvider = new FileDataProvider(fileWithRandomIndexPack);
+        Path pathWithRandomIndexPack = resourceByteRangeProvider.getByteRange(rangeStart, rangeEnd, workingDirectory);
+        ByteProvider byteProvider = new FileDataProvider(pathWithRandomIndexPack);
         randomIndexPack = new RandomIndexPack(byteProvider, rangeStart, randomIndexPackSize);
         List<Long> partitionByteOffsets = randomIndexPack.getAllPartitionByteOffsets();
 
-        File headerPartition = resourceByteRangeProvider.getByteRange(partitionByteOffsets.get(0), partitionByteOffsets.get(1) - 1, workingDirectory);
-        String inputPath = input.getAbsolutePath();
-        if(!headerPartition.renameTo(new File(inputPath + ".hdr"))){
-            logger.info(String.format("Couldn't rename the file containing the header partition"));
+        Path headerPartition = resourceByteRangeProvider.getByteRange(partitionByteOffsets.get(0), partitionByteOffsets.get(1) - 1, workingDirectory);
+        String inputPath = input.toString();
+
+        try {
+            Files.move(headerPartition, Utilities.getPathFromString(inputPath  + ".hdr"));
+        } catch (Exception e) {
+            logger.info(String.format("Couldn't rename the path containing the header partition"));
         }
+
         return headerPartition;
     }
 
@@ -72,10 +76,10 @@ public class IMFTrackFilePartitionsExtractor {
             System.exit(-1);
         }
 
-        File input = new File(args[0]);
-        File workingDirectory = new File(args[1]);
+        Path input = Utilities.getPathFromString(args[0]);
+        Path workingDirectory = Utilities.getPathFromString(args[1]);
 
-        File fileWithHeaderPartition = extractHeaderPartition(input, workingDirectory);
-        assert fileWithHeaderPartition.length() > 0;
+        Path fileWithHeaderPartition = extractHeaderPartition(input, workingDirectory);
+        assert Files.size(fileWithHeaderPartition) > 0;
     }
 }

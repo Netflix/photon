@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st2067_2;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.math.BigInteger;
 import java.util.Arrays;

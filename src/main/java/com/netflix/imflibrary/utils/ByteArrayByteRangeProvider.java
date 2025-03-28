@@ -1,13 +1,15 @@
 package com.netflix.imflibrary.utils;
 
 import javax.annotation.concurrent.Immutable;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 /**
@@ -51,7 +53,7 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
      * @return file containing desired byte range from rangeStart through end of file
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getByteRange(long rangeStart, File workingDirectory) throws IOException
+    public Path getByteRange(long rangeStart, Path workingDirectory) throws IOException
     {
         return this.getByteRange(rangeStart, this.resourceSize - 1, workingDirectory);
     }
@@ -65,15 +67,18 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
      * @return file containing desired byte range
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getByteRange(long rangeStart, long rangeEnd, File workingDirectory) throws IOException
+    public Path getByteRange(long rangeStart, long rangeEnd, Path workingDirectory) throws IOException
     {
         //validation of range request guarantees that 0 <= rangeStart <= rangeEnd <= (resourceSize - 1)
         ResourceByteRangeProvider.Utilities.validateRangeRequest(this.resourceSize, rangeStart, rangeEnd);
 
-        File rangeFile = new File(workingDirectory, "range");
+        Path rangePath = workingDirectory.resolve("range");
 
         try(ByteArrayInputStream bis = new ByteArrayInputStream(this.bytes);
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rangeFile)))
+            SeekableByteChannel sbc = Files.newByteChannel(rangePath,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING))
         {
             long numBytesSkipped = 0;
             while (numBytesSkipped < rangeStart)
@@ -83,6 +88,8 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
 
             long totalNumberOfBytesRead = 0;
             byte[] bytes = new byte[BUFFER_SIZE];
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+
             while (totalNumberOfBytesRead < (rangeEnd - rangeStart + 1))
             {
                 int numBytesToRead = (int)Math.min(BUFFER_SIZE, rangeEnd - rangeStart + 1 - totalNumberOfBytesRead);
@@ -91,12 +98,20 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
                 {
                     throw new EOFException();
                 }
-                bos.write(bytes, 0, numBytesRead);
+
+                buffer.clear();
+                buffer.put(bytes, 0, numBytesRead);
+                buffer.flip();
+
+                while (buffer.hasRemaining()) {
+                    sbc.write(buffer);
+                }
+
                 totalNumberOfBytesRead += numBytesRead;
             }
         }
 
-        return rangeFile;
+        return rangePath;
     }
 
     /**
@@ -147,8 +162,11 @@ public class ByteArrayByteRangeProvider implements ResourceByteRangeProvider {
         return bytes;
     }
 
-    public InputStream getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException {
-        byte[] bytes = this.getByteRangeAsBytes(rangeStart, rangeEnd);
-        return new ByteArrayInputStream(bytes);
+    public SeekableByteChannel getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException {
+        Path tempDir = Files.createTempDirectory(null);
+        Path tempFile = this.getByteRange(rangeStart, rangeEnd, tempDir);
+
+        // Open the file as a SeekableByteChannel for reading
+        return Files.newByteChannel(tempFile, StandardOpenOption.READ);
     }
 }

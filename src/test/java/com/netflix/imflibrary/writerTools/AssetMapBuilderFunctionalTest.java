@@ -33,17 +33,16 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A test for the AssetMapBuilder
@@ -55,7 +54,7 @@ public class AssetMapBuilderFunctionalTest {
     @Test
     public void assetMapBuilderTest() throws IOException, SAXException, JAXBException, URISyntaxException {
 
-        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/ASSETMAP.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         AssetMap assetMap = new AssetMap(resourceByteRangeProvider);
 
@@ -82,11 +81,10 @@ public class AssetMapBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-        File tempDir = tempPath.toFile();
+        Path tempPath = Files.createTempDirectory("IMFDocuments");
 
         IMFErrorLogger assetMapBuilderErrorLogger = new IMFErrorLoggerImpl();
-        List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempDir, assetMapBuilderErrorLogger).build();
+        List<ErrorLogger.ErrorObject> errors = new AssetMapBuilder(assetMap.getUUID(), annotationText, creator, issueDate, issuer, assetMapBuilderAssets, tempPath, assetMapBuilderErrorLogger).build();
 
         List<ErrorLogger.ErrorObject> fatalErrors = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger
                 .IMFErrors.ErrorLevels.FATAL)).collect(Collectors.toList());
@@ -95,21 +93,24 @@ public class AssetMapBuilderFunctionalTest {
                     "Please see following error messages %s", Utilities.serializeObjectCollectionToString(fatalErrors)));
         }
 
-        File assetMapFile = null;
-        for(File file : tempDir.listFiles()){
-            if(file.getName().contains("ASSETMAP.xml")){
-                assetMapFile = file;
-            }
-        }
-        if(assetMapFile == null){
-            throw new IMFAuthoringException(String.format("AssetMap file does not exist in the working directory %s, IMP is incomplete", tempDir.getAbsolutePath()));
-        }
-        Assert.assertTrue(assetMapFile.length() > 0);
+        Path assetMapFile = null;
+        Stream<Path> filesStream = Files.list(tempPath);
+        List<Path> filesList = filesStream.collect(Collectors.toList());
+        for (Path path : filesList) {
+            if(path.getFileName().toString().contains("ASSETMAP.xml"))
+                assetMapFile = path;
 
-        List<ErrorLogger.ErrorObject> assetMapValidationErrors = IMPValidator.validateAssetMap(new PayloadRecord(new FileByteRangeProvider(assetMapFile).getByteRangeAsBytes(0, assetMapFile.length()-1), PayloadRecord.PayloadAssetType.AssetMap, 0L, 0L));
-        Assert.assertTrue(assetMapValidationErrors.size() == 0);
+        }
+
+        if(assetMapFile == null){
+            throw new IMFAuthoringException(String.format("AssetMap path does not exist in the working directory %s, IMP is incomplete", tempPath.toString()));
+        }
+        Assert.assertTrue(Files.size(assetMapFile) > 0);
+
+        List<ErrorLogger.ErrorObject> assetMapValidationErrors = IMPValidator.validateAssetMap(new PayloadRecord(new FileByteRangeProvider(assetMapFile).getByteRangeAsBytes(0, Files.size(assetMapFile)-1), PayloadRecord.PayloadAssetType.AssetMap, 0L, 0L));
+        Assert.assertEquals(assetMapValidationErrors.size(), 0);
 
         //Destroy the temporary working directory
-        tempDir.delete();
+        Utilities.recursivelyDeleteFolder(tempPath);
     }
 }

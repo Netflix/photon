@@ -22,7 +22,7 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.IMFErrorLogger.IMFErrors;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

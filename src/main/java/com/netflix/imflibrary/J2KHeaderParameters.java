@@ -5,7 +5,7 @@ import com.netflix.imflibrary.st0377.header.JPEG2000PictureComponent;
 import com.netflix.imflibrary.st0377.header.JPEG2000PictureSubDescriptor;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

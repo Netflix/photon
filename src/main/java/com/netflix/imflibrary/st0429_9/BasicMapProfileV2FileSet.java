@@ -21,16 +21,18 @@ package com.netflix.imflibrary.st0429_9;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
-import java.io.File;
+import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class represents an immutable implementation of 'Basic Map Profile v2' defined in Annex A of st0429-9:2014
@@ -47,10 +49,10 @@ public final class BasicMapProfileV2FileSet
      * Constructor for a {@link BasicMapProfileV2FileSet BasicMapProfilev2FileSet} from a {@link BasicMapProfileV2MappedFileSet MappedFileSet} object. Construction
      * succeeds if the constraints specified in Section A.1 in Annex A of st0429-9:2014 are satisfied
      * @param basicMapProfileV2MappedFileSet the Mapped File Set object corresponding to this object
-     * @throws IOException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws SAXException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws JAXBException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
-     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.io.File) MappedFileSet} constructor
+     * @throws IOException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.nio.file.Path) MappedFileSet} constructor
+     * @throws SAXException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.nio.file.Path) MappedFileSet} constructor
+     * @throws JAXBException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.nio.file.Path) MappedFileSet} constructor
+     * @throws URISyntaxException - forwarded from {@link BasicMapProfileV2MappedFileSet#BasicMapProfileV2MappedFileSet(java.nio.file.Path) MappedFileSet} constructor
      */
     public BasicMapProfileV2FileSet(BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet) throws IOException, SAXException, JAXBException, URISyntaxException
     {
@@ -95,7 +97,7 @@ public final class BasicMapProfileV2FileSet
 
     public static void main(String[] args) throws IOException, SAXException, JAXBException, URISyntaxException
     {
-        File rootFile = new File(args[0]);
+        Path rootFile = Utilities.getPathFromString(args[0]);
 
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(new BasicMapProfileV2MappedFileSet(rootFile));
         logger.warn(basicMapProfileV2FileSet.getAssetMap().toString());
