@@ -68,7 +68,7 @@ javadoc {
 
 dependencies {
     implementation 'com.github.spotbugs:spotbugs-annotations:latest.release'
-    implementation "com.sandflow:regxmllib:1.2.0-rc.1"
+    implementation "com.sandflow:regxmllib:1.2.+"
     testImplementation "org.mockito:mockito-core:3.3+"
     testImplementation "org.testng:testng:7.5+"
     implementation "org.slf4j:slf4j-simple:latest.release"

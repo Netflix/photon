@@ -139,7 +139,7 @@ public class IMPAnalyzer {
                             if (!Files.isRegularFile(assetPath)) {
                                 packingListErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_PKL_ERROR,
                                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                                        String.format("Cannot find asset with path %s.", assetPath));
+                                        String.format("Cannot find asset with id: urn:uuid:%s (path according to asset map: %s)", asset.getUUID().toString(), assetPath));
                                 continue;
                             }
 

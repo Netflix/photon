@@ -283,7 +283,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             if (referencedHeaderPayloads.get(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId())) == null ) {
                 imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_MASTER_PACKAGE_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                        String.format("Unable to validate essence descriptors: no matching essence partition payload provided for ID %s", tf.getTrackFileId())));
+                        String.format("Skipping validation for track file with id: %s. File referenced from CPL, but not available for validation.", tf.getTrackFileId())));
             }
         }
 

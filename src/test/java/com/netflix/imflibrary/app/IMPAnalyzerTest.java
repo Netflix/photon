@@ -77,7 +77,7 @@ public class IMPAnalyzerTest
                     if (e.getKey().matches("PKL.*")) {
                         Assert.assertEquals(e.getValue().size(), 4);
                         Assert.assertTrue(e.getValue().get(0).getErrorDescription().contains("Failed to get path for Asset with ID = bc1a3912-a90a-41b2-b16c-0915a2a1e088"));
-                        Assert.assertTrue(e.getValue().get(2).getErrorDescription().contains("Cannot find asset with path"));
+                        Assert.assertTrue(e.getValue().get(2).getErrorDescription().contains("Cannot find asset"));
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
