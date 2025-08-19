@@ -102,6 +102,7 @@ public final class Utilities {
     public static Path getPathFromString(String directory, String filename) throws IOException
     {
         try {
+			// 1) S3 URL
             if (directory.startsWith("s3://")) {
                 String s3Url = directory;
                 if (filename != null && !filename.isEmpty()) {
@@ -110,23 +111,38 @@ public final class Utilities {
 
                 // Input is an S3 URL, aws-nio-spi-for-s3 will be invoked when retrieving Path:
                 return Paths.get(new URI(s3Url));
-            } else {
-                // Assume input is a local file path
-                Path fullPath;
-                if (filename != null && !filename.isEmpty()) {
-                    // Combine directory and filename into a Path
-                    fullPath = Paths.get(directory, filename);
-                } else {
-                    // Only use the directory as the Path
-                    fullPath = Paths.get(directory);
-                }
-                // Convert to a file URI
-                return fullPath;
-            }
+            } 
+			
+			// 2) file: URI-k (cross-platform)
+			if (directory.startsWith("file:")) {
+				Path base = Paths.get(URI.create(directory));
+				return (filename != null && !filename.isEmpty()) ? base.resolve(filename) : base;
+			}
+
+			// 3) WINDOWS fix: "/C:/..." => "C:/..."
+			if (isWindows()
+					&& directory.length() >= 3
+					&& directory.charAt(0) == '/'
+					&& Character.isLetter(directory.charAt(1))
+					&& directory.charAt(2) == ':') {
+				directory = directory.substring(1);
+			}
+
+			// 4) local file path
+			Path fullPath = (filename != null && !filename.isEmpty())
+					? Paths.get(directory, filename)
+					: Paths.get(directory);
+
+			return fullPath;
         } catch (Exception e) {
             throw new IOException("Unable to create path from string: " + e.toString());
         }
     }
+	
+	private static boolean isWindows() {
+		String os = System.getProperty("os.name");
+		return os != null && os.toLowerCase(java.util.Locale.ROOT).contains("win");
+	}
 
     public static Path getPathFromString(String input) throws IOException
     {
