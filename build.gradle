@@ -106,12 +106,3 @@ jacocoTestReport {
         html.required = false
     }
 }
-
-//Following line will enable including compile time dependencies as a part of the
-//compile and build process.
-//assemble.dependsOn getDependencies
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
