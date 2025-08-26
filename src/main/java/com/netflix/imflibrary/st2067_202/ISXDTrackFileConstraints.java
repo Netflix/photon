@@ -47,12 +47,6 @@ public final class ISXDTrackFileConstraints {
                                 String.format("ISXDEssenceDescriptor in the IMFTrackFile represented by ID %s does not use as Essence Container Label item the IMF Frame-Wrapped ISXD Essence Container Label %s but %s.", packageID.toString(), ISXDDataEssenceDescriptor.IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL.toString(), isxdEssenceDescriptor.getEssenceContainerUL().toString()));
                     }
 
-                    // Section 9.2
-                    if (isxdEssenceDescriptor.usesRdd47DataEssenceDescriptorUL()) {
-                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
-                                String.format("ISXDEssenceDescriptor in the IMFTrackFile represented by ID %s uses the legacy ISXD Data Essence Descriptor UL from SMPTE RDD 47.", packageID.toString()));
-                    }
-
                     // Section 9.3
                     if (!isxdEssenceDescriptor.getDataEssenceCoding().equals(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +

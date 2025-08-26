@@ -59,8 +59,7 @@ public final class StructuralMetadata
 
 
     private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR   = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
-    private static final byte[] RDD47_DATA_ESSENCE_DESCRIPTOR        = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00};
-    private static final byte[] ISXD_DATA_ESSENCE_DESCRIPTOR        = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x7f, 0x01, 0x05, 0x0e, 0x09, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00};
+    private static final byte[] ISXD_DATA_ESSENCE_DESCRIPTOR        = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00};
 
     private static final Map<MXFUID, String> ItemULToItemName;
     static
@@ -751,11 +750,6 @@ public final class StructuralMetadata
             return true;
         }
 
-        if (isRDD47EssenceDescriptor(key))
-        {
-            return true;
-        }
-
         for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (StructuralMetadata.KEY_MASK[i] != 0) && (StructuralMetadata.KEY_BASE[i] != key[i]) )
@@ -815,22 +809,6 @@ public final class StructuralMetadata
         return false;
     }
 
-    /**
-     * A method that determines if the key passed in corresponds to a ISXD.
-     *
-     * @param key the key
-     * @return the boolean
-     */
-    public static boolean isRDD47EssenceDescriptor(byte[] key)
-    {
-        if (Arrays.equals(key, StructuralMetadata.RDD47_DATA_ESSENCE_DESCRIPTOR))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public static boolean isAudioWaveClipWrapped(int contentKind){
         if(contentKind == 0x02){
             return true;
@@ -855,9 +833,6 @@ public final class StructuralMetadata
         }
         else if (isISXDDataEssenceDescriptor(key)) {
             return ISXDDataEssenceDescriptor.ISXDEssenceDescriptorBO.class;
-        }
-        else if (isRDD47EssenceDescriptor(key)) {
-            return ISXDDataEssenceDescriptor.RDD47EssenceDescriptorBO.class;
         }
         else if (isStructuralMetadata(key) && (key[13] == 0x01))
         {
