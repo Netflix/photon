@@ -22,6 +22,7 @@ package com.netflix.imflibrary.st0377.header;
 import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_202.ISXDDataEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGAAudioMetadataSubDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
@@ -31,6 +32,8 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.utils.MXFUtils;
+import com.sandflow.smpte.util.UL;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,8 +58,9 @@ public final class StructuralMetadata
     private static final byte[] DESCRIPTIVE_METADATA_KEY_MASK = {   1,    1,    1,    1,    1,    0,    1,    0,    1,    1,    1,    1,    0,    0,    0,    1};
 
 
-    private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
-
+    private static final byte[] PHDR_METADATA_TRACK_SUBDESCRIPTOR   = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x06, 0x07, 0x01, 0x01, 0x01, 0x03};
+    private static final byte[] RDD47_DATA_ESSENCE_DESCRIPTOR        = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x53, 0x01, 0x05, 0x0e, 0x09, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00};
+    private static final byte[] ISXD_DATA_ESSENCE_DESCRIPTOR        = {0x06, 0x0e, 0x2b, 0x34, 0x02, 0x7f, 0x01, 0x05, 0x0e, 0x09, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00};
 
     private static final Map<MXFUID, String> ItemULToItemName;
     static
@@ -344,6 +348,12 @@ public final class StructuralMetadata
             byte[] byteArray = {0x06, 0x0e ,0x2b ,0x34 ,0x01 ,0x01 ,0x01 ,0x0e  ,0x04 ,0x02 ,0x01 ,0x01 ,0x07 ,0x00 ,0x00 ,0x00};
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "reference_audio_alignment_level");
+        }
+        //GenericDataEssenceDescriptor
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x03, 0x04, 0x03, 0x03, 0x02, 0x00, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "data_essence_coding");
         }
         //AudioChannelLabelSubDescriptor
         {
@@ -736,6 +746,16 @@ public final class StructuralMetadata
             return true;
         }
 
+        if (isISXDDataEssenceDescriptor(key))
+        {
+            return true;
+        }
+
+        if (isRDD47EssenceDescriptor(key))
+        {
+            return true;
+        }
+
         for (int i=0; i< KLVPacket.KEY_FIELD_SIZE; i++)
         {
             if( (StructuralMetadata.KEY_MASK[i] != 0) && (StructuralMetadata.KEY_BASE[i] != key[i]) )
@@ -779,6 +799,38 @@ public final class StructuralMetadata
         return Arrays.equals(key, StructuralMetadata.PHDR_METADATA_TRACK_SUBDESCRIPTOR);
     }
 
+    /**
+     * A method that determines if the key passed in corresponds to a ISXD.
+     *
+     * @param key the key
+     * @return the boolean
+     */
+    public static boolean isISXDDataEssenceDescriptor(byte[] key)
+    {
+        if (Arrays.equals(key, StructuralMetadata.ISXD_DATA_ESSENCE_DESCRIPTOR))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * A method that determines if the key passed in corresponds to a ISXD.
+     *
+     * @param key the key
+     * @return the boolean
+     */
+    public static boolean isRDD47EssenceDescriptor(byte[] key)
+    {
+        if (Arrays.equals(key, StructuralMetadata.RDD47_DATA_ESSENCE_DESCRIPTOR))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public static boolean isAudioWaveClipWrapped(int contentKind){
         if(contentKind == 0x02){
             return true;
@@ -800,6 +852,12 @@ public final class StructuralMetadata
         if (isPHDRMetadataTrackSubDescriptor(key))
         {
             return PHDRMetaDataTrackSubDescriptor.PHDRMetaDataTrackSubDescriptorBO.class;
+        }
+        else if (isISXDDataEssenceDescriptor(key)) {
+            return ISXDDataEssenceDescriptor.ISXDEssenceDescriptorBO.class;
+        }
+        else if (isRDD47EssenceDescriptor(key)) {
+            return ISXDDataEssenceDescriptor.RDD47EssenceDescriptorBO.class;
         }
         else if (isStructuralMetadata(key) && (key[13] == 0x01))
         {
@@ -848,7 +906,7 @@ public final class StructuralMetadata
                 case 0x42 :
                     return GenericSoundEssenceDescriptor.GenericSoundEssenceDescriptorBO.class;
                 case 0x43 :
-                    return Object.class; //Generic Data Essence Descriptor
+                    return GenericDataEssenceDescriptor.GenericDataEssenceDescriptorBO.class; //Generic Data Essence Descriptor
                 case 0x44 :
                     return Object.class; //Multiple Descriptor
                 case 0x32 :

@@ -39,6 +39,7 @@ public class ConstraintsValidatorFactory {
 
         // Plugins
         registerValidator("http://www.smpte-ra.org/ns/2067-201/2019", IMFIABLevel0PluginConstraintsValidator::new);
+        registerValidator("http://www.smpte-ra.org/ns/2067-202/2022", IMFISXDPluginConstraintsValidator::new);
         registerValidator("http://www.smpte-ra.org/ns/2067-203/2022", IMFMGASADMPluginConstraintsValidator::new);
     }
 
