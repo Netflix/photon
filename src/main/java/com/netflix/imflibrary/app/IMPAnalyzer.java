@@ -18,12 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.netflix.imflibrary.RESTfulInterfaces.IMPValidator.validateAssetMap;
@@ -473,8 +468,12 @@ public class IMPAnalyzer {
     private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
     {
         if(errors.size()>0)
-
         {
+            // deduplicate errors first
+            Set<ErrorLogger.ErrorObject> set = new HashSet<>(errors);
+            errors.clear();
+            errors.addAll(set);
+
             long warningCount = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
                     .WARNING)).count();
             logger.info(String.format("%s has %d errors and %d warnings", file,

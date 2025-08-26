@@ -188,7 +188,7 @@ public final class HeaderPartition
                             prefaceSetCount));
         }
 
-        if (imfErrorLogger.getNumberOfErrors() > numErrors)//Flag an exception if any errors were accumulated while parsing and reading the HeaderPartition
+        if (imfErrorLogger.hasFatalErrors(numErrors, imfErrorLogger.getNumberOfErrors())) //Flag exception if fatal errors occured
         {
             List<ErrorLogger.ErrorObject> errorObjectList = imfErrorLogger.getErrors();
             for(int i=numErrors; i< errorObjectList.size(); i++) {
