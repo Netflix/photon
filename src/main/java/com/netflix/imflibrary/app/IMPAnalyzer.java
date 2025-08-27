@@ -465,20 +465,18 @@ public class IMPAnalyzer {
     }
 
 
-    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errors)
+    private static void logErrors(String file, List<ErrorLogger.ErrorObject> errorsList)
     {
-        if(errors.size()>0)
+        if(errorsList.size()>0)
         {
             // deduplicate errors first
-            Set<ErrorLogger.ErrorObject> set = new HashSet<>(errors);
-            errors.clear();
-            errors.addAll(set);
+            Set<ErrorLogger.ErrorObject> errorsDeduped = new HashSet<>(errorsList);
 
-            long warningCount = errors.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
+            long warningCount = errorsDeduped.stream().filter(e -> e.getErrorLevel().equals(IMFErrorLogger.IMFErrors.ErrorLevels
                     .WARNING)).count();
             logger.info(String.format("%s has %d errors and %d warnings", file,
-                    errors.size() - warningCount, warningCount));
-            for (ErrorLogger.ErrorObject errorObject : errors) {
+                    errorsDeduped.size() - warningCount, warningCount));
+            for (ErrorLogger.ErrorObject errorObject : errorsDeduped) {
                 if (errorObject.getErrorLevel() != IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
                     logger.error("\t\t" + errorObject.toString());
                 } else if (errorObject.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING) {
