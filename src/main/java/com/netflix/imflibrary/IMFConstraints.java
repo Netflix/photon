@@ -18,18 +18,22 @@
 
 package com.netflix.imflibrary;
 
+import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.PartitionPack;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +64,21 @@ public final class IMFConstraints
     private IMFConstraints()
     {}
 
+
+
+    public static List<ErrorLogger.ErrorObject> checkMXFHeaderMetadata(HeaderPartition headerPartition) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        try {
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
+            checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+        } catch (IMFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+
     /**
      * Checks the compliance of an OP1A-conformant header partition with st2067-5:2013. A runtime
      * exception is thrown in case of non-compliance
@@ -69,7 +88,7 @@ public final class IMFConstraints
      * @throws IOException - any I/O related error is exposed through an IOException
      * @return the same header partition wrapped in a HeaderPartitionIMF object
      */
-    public static HeaderPartitionIMF checkIMFCompliance(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    public static HeaderPartitionIMF checkMXFHeaderMetadata(MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
 
@@ -169,7 +188,7 @@ public final class IMFConstraints
                                 //Section 6.3.6 st377-4:2012
                                 if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(headerPartition.getAudioEssenceSpokenLanguage())) {
                                     List<String> strings = IMFConstraints.getPrimarySpokenLanguageUnicodeString(headerPartition.getAudioEssenceSpokenLanguage());
-                                    imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in SoundFieldGroupLabelSubdescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", strings, packageID.toString())));
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in SoundFieldGroupLabelSubdescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", strings, packageID.toString()));
                                 }
                             }
 
@@ -305,7 +324,6 @@ public final class IMFConstraints
             //TODO: data essence core constraints check st 2067-2, 2067-5 and 429-5
             //TODO: check for data essence clip wrap
 
-
         }
 
         if(imfErrorLogger.hasFatalErrors(previousNumberOfErrors, imfErrorLogger.getNumberOfErrors())){
@@ -313,6 +331,22 @@ public final class IMFConstraints
         }
         return new HeaderPartitionIMF(headerPartitionOP1A);
     }
+
+
+
+    public static List<ErrorLogger.ErrorObject> checkMXFPartitionPackCompliance(PartitionPack partitionPack) throws IOException {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        try {
+            List<PartitionPack> partitionPacks = new ArrayList<>();
+            partitionPacks.add(partitionPack);
+            checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
+        } catch (IMFException e) {
+            imfErrorLogger.addAllErrors(e.getErrors());
+        }
+        return imfErrorLogger.getErrors();
+    }
+
 
     /**
      * Checks the compliance of partition packs found in an MXF file with st2067-5:2013. A runtime
@@ -322,7 +356,7 @@ public final class IMFConstraints
      * @param imfErrorLogger - an object for logging errors
      */
     @SuppressWarnings({"PMD.CollapsibleIfStatements"})
-    public static void checkIMFCompliance(List<PartitionPack> partitionPacks, IMFErrorLogger imfErrorLogger)
+    public static void checkMXFPartitionPackCompliance(List<PartitionPack> partitionPacks, IMFErrorLogger imfErrorLogger)
     {
         int previousNumberOfErrors = imfErrorLogger.getErrors().size();
 
@@ -359,62 +393,6 @@ public final class IMFConstraints
         }
     }
 
-    /**
-     * Checks if an MXF file containing audio essence is "clip-wrapped" (see st379:2009, st379-2:2010). A
-     * runtime exception is thrown in case the MXF file contains audio essence that is not clip-wrapped
-     * This method does nothing if the MXF file does not contain audio essence
-     *
-     * @param headerPartition the header partition
-     * @param partitionPacks the partition packs
-     */
-    public static void checkIMFCompliance(HeaderPartition headerPartition, List<PartitionPack> partitionPacks)
-    {
-        Preface preface = headerPartition.getPreface();
-        MXFDataDefinition filePackageMxfDataDefinition = null;
-        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-        SourcePackage filePackage = (SourcePackage)genericPackage;
-        UUID packageID = filePackage.getPackageMaterialNumberasUUID();
-        //get essence type
-        {
-
-            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks())
-            {
-                Sequence sequence = timelineTrack.getSequence();
-                if(sequence == null){
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("TimelineTrack with instanceUID = %s in the IMFTrackFile represented by ID %s has no sequence.",
-                            timelineTrack.getInstanceUID(), packageID.toString()));
-                }
-                else if (!sequence.getMxfDataDefinition().equals(MXFDataDefinition.OTHER))
-                {
-                    filePackageMxfDataDefinition = sequence.getMxfDataDefinition();
-                }
-            }
-        }
-
-        //check if audio essence is clip-wrapped
-        if (filePackageMxfDataDefinition != null
-                && filePackageMxfDataDefinition.equals(MXFDataDefinition.SOUND))
-        {
-            int numPartitionsWithEssence = 0;
-            for (PartitionPack partitionPack : partitionPacks)
-            {
-                if (partitionPack.hasEssenceContainer())
-                {
-                    numPartitionsWithEssence++;
-                }
-            }
-            //Section 5.1.5 st2067-5:2013
-            if (numPartitionsWithEssence != 1)
-            {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("Number of partitions with essence = %d in MXF file with data definition = %s, which is different from 1 in the IMFTrackFile represented by ID %s.",
-                        numPartitionsWithEssence, filePackageMxfDataDefinition, packageID.toString()));
-            }
-        }
-        if(imfErrorLogger.hasFatalErrors()){
-            throw new MXFException(String.format("Found fatal errors in the IMFTrackFile represented by ID %s that violate the IMF Core constraints.", packageID.toString()), imfErrorLogger);
-        }
-    }
 
     /**
      * This class wraps an OP1A-conformant MXF header partition object - wrapping can be done

@@ -29,7 +29,7 @@ import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 

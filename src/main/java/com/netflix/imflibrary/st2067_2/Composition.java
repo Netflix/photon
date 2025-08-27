@@ -27,15 +27,19 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
-import java.io.File;
+import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,6 +55,8 @@ import java.util.UUID;
 @Immutable
 public final class Composition {
     private static final Logger logger = LoggerFactory.getLogger(Composition.class);
+
+    public static final String MARKER_SEQUENCE = "MarkerSequence";
 
     private Composition() {
 
@@ -259,7 +265,7 @@ public final class Composition {
     @Immutable
     public abstract static class VirtualTrack {
         protected final UUID trackID;
-        protected final SequenceTypeEnum sequenceTypeEnum;
+        protected final String sequenceType;
         protected final List<? extends IMFBaseResourceType> resources;
         protected final Composition.EditRate compositionEditRate;
 
@@ -267,13 +273,13 @@ public final class Composition {
          * Constructor for a VirtualTrack object
          *
          * @param trackID          the UUID associated with this VirtualTrack object
-         * @param sequenceTypeEnum the type of the associated sequence
+         * @param sequenceType     the type of the associated sequence
          * @param resources        the resource list of the Virtual Track
          * @param compositionEditRate the edit rate of the composition
          */
-        public VirtualTrack(UUID trackID, SequenceTypeEnum sequenceTypeEnum, List<? extends IMFBaseResourceType> resources, Composition.EditRate compositionEditRate) {
+        public VirtualTrack(UUID trackID, String sequenceType, List<? extends IMFBaseResourceType> resources, Composition.EditRate compositionEditRate) {
             this.trackID = trackID;
-            this.sequenceTypeEnum = sequenceTypeEnum;
+            this.sequenceType = sequenceType;
             this.resources = resources;
             this.compositionEditRate = compositionEditRate;
         }
@@ -283,8 +289,8 @@ public final class Composition {
          *
          * @return the sequence type associated with this VirtualTrack object as an enum
          */
-        public SequenceTypeEnum getSequenceTypeEnum() {
-            return this.sequenceTypeEnum;
+        public String getSequenceType() {
+            return this.sequenceType;
         }
 
         /**
@@ -326,7 +332,7 @@ public final class Composition {
          */
         public long getDuration(){
             long duration = getDurationInTrackEditRateUnits();
-            Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();//Resources of this virtual track should all have the same edit rate we enforce that check during IMFCoreConstraintsChecker.checkVirtualTracks()
+            Composition.EditRate resourceEditRate = this.resources.get(0).getEditRate();
             long durationInCompositionEditUnits = Math.round((double) duration * (((double)this.compositionEditRate.getNumerator()/this.compositionEditRate.getDenominator()) / ((double)resourceEditRate.getNumerator()/resourceEditRate.getDenominator())));
             return durationInCompositionEditUnits;
         }
@@ -339,7 +345,7 @@ public final class Composition {
          */
         public boolean equivalent(Composition.VirtualTrack other) {
             if (other == null
-                    || (!this.getSequenceTypeEnum().equals(other.getSequenceTypeEnum()))
+                    || (!this.getSequenceType().equals(other.getSequenceType()))
                     || (this.resources.size() == 0 || other.resources.size() == 0)) {
                 return false;
             }
@@ -468,12 +474,13 @@ public final class Composition {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path input = Utilities.getPathFromString(args[0]);
+        if (!Files.isRegularFile(input)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(input);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.CompositionPlaylist, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateCPL(payloadRecord);

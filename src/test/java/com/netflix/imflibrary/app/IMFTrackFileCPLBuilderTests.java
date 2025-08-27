@@ -22,9 +22,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import testUtils.TestHelper;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Test(groups = "unit")
 public class IMFTrackFileCPLBuilderTests {
@@ -32,10 +32,10 @@ public class IMFTrackFileCPLBuilderTests {
     @Test
     public void IMFTrackFileCPLBuilderTest() throws IOException
     {
-        File inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
-        File workingDirectory = Files.createTempDirectory(null).toFile();
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
         IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Assert.assertTrue(imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger).length() > 0);
+        Assert.assertTrue(Files.size(imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger)) > 0);
     }
 }

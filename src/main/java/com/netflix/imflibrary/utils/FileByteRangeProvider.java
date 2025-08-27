@@ -19,11 +19,16 @@
 package com.netflix.imflibrary.utils;
 
 import javax.annotation.concurrent.Immutable;
-import java.io.*;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * This class is an implementation of {@link com.netflix.imflibrary.utils.ResourceByteRangeProvider} - the underlying
- * resource is a file. Unless the underlying file is changed externally, this can be considered to be an immutable
+ * resource is a path. Unless the underlying path is changed externally, this can be considered to be an immutable
  * implementation
  */
 @Immutable
@@ -32,17 +37,19 @@ public final class FileByteRangeProvider implements ResourceByteRangeProvider
     private static final int EOF = -1;
     private static final int BUFFER_SIZE = 1024;
 
-    private final File resourceFile;
+    private final Path resourcePath;
     private final long fileSize;
+    private final SeekableByteChannel inputChannel;
+
 
     /**
      * Constructor for a FileByteRangeProvider
-     * @param resourceFile whose data will be read by this data provider
+     * @param resourcePath whose data will be read by this data provider
      */
-    public FileByteRangeProvider(File resourceFile)
-    {
-        this.resourceFile = resourceFile;
-        this.fileSize = this.resourceFile.length();
+    public FileByteRangeProvider(Path resourcePath) throws IOException {
+        this.resourcePath = resourcePath;
+        this.fileSize = Files.size(resourcePath);
+        this.inputChannel = Files.newByteChannel(resourcePath, StandardOpenOption.READ);
     }
 
     /**
@@ -55,20 +62,20 @@ public final class FileByteRangeProvider implements ResourceByteRangeProvider
     }
 
     /**
-     * A method to obtain bytes in the inclusive range [start, endOfFile] as a file
+     * A method to obtain bytes in the inclusive range [start, endOfFile] as a path
      *
      * @param rangeStart zero indexed inclusive start offset; ranges from 0 through (resourceSize -1) both included
      * @param workingDirectory the working directory where the output file is placed
      * @return file containing desired byte range from rangeStart through end of file
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getByteRange(long rangeStart, File workingDirectory) throws IOException
+    public Path getByteRange(long rangeStart, Path workingDirectory) throws IOException
     {
         return this.getByteRange(rangeStart, this.fileSize - 1, workingDirectory);
     }
 
     /**
-     * A method to obtain bytes in the inclusive range [start, end] as a file
+     * A method to obtain bytes in the inclusive range [start, end] as a path
      *
      * @param rangeStart zero indexed inclusive start offset; range from [0, (resourceSize -1)] inclusive
      * @param rangeEnd zero indexed inclusive end offset; range from [0, (resourceSize -1)] inclusive
@@ -76,38 +83,55 @@ public final class FileByteRangeProvider implements ResourceByteRangeProvider
      * @return file containing desired byte range
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public File getByteRange(long rangeStart, long rangeEnd, File workingDirectory) throws IOException
+    public synchronized Path getByteRange(long rangeStart, long rangeEnd, Path workingDirectory) throws IOException
     {
         //validation of range request guarantees that 0 <= rangeStart <= rangeEnd <= (resourceSize - 1)
-        ResourceByteRangeProvider.Utilities.validateRangeRequest(this.fileSize, rangeStart, rangeEnd);
+        try {
+            ResourceByteRangeProvider.Utilities.validateRangeRequest(this.fileSize, rangeStart, rangeEnd);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Invalid range request: " + e.getMessage(), e);
+        }
 
-        File rangeFile = new File(workingDirectory, "range");
+        Path rangeFilePath = workingDirectory.resolve("range");
 
-        try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(this.resourceFile));
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rangeFile)))
-        {
-            long numBytesSkipped = 0;
-            while (numBytesSkipped < rangeStart)
-            {
-                numBytesSkipped += bis.skip(rangeStart - numBytesSkipped);
+        try (SeekableByteChannel outputChannel = Files.newByteChannel(rangeFilePath,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE)) {
+
+            try {
+                inputChannel.position(rangeStart);
+            } catch (IOException e) {
+                throw new IOException("Failed to set position in input channel: " + e.getMessage(), e);
             }
 
-            long totalNumberOfBytesRead = 0;
-            byte[] bytes = new byte[BUFFER_SIZE];
-            while (totalNumberOfBytesRead < (rangeEnd - rangeStart + 1))
-            {
-                int numBytesToRead = (int)Math.min(BUFFER_SIZE, rangeEnd - rangeStart + 1 - totalNumberOfBytesRead);
-                int numBytesRead = bis.read(bytes, 0, numBytesToRead);
-                if (numBytesRead == EOF)
-                {
-                    throw new EOFException();
+            long bytesToRead = rangeEnd - rangeStart + 1;
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+
+            try {
+                while (bytesToRead > 0) {
+                    buffer.clear();
+                    int numBytesToRead = (int) Math.min(buffer.capacity(), bytesToRead);
+                    buffer.limit(numBytesToRead);
+
+                    int numBytesRead = inputChannel.read(buffer);
+                    if (numBytesRead == -1) {
+                        throw new IOException("Unexpected end of stream");
+                    }
+
+                    buffer.flip();
+                    while (buffer.hasRemaining()) {
+                        outputChannel.write(buffer);
+                    }
+
+                    bytesToRead -= numBytesRead;
                 }
-                bos.write(bytes, 0, numBytesRead);
-                totalNumberOfBytesRead += numBytesRead;
+            } catch (IOException e) {
+                throw new IOException("Error reading bytes from input channel: " + e.getMessage(), e);
             }
         }
 
-        return rangeFile;
+        return rangeFilePath;
     }
 
     /**
@@ -120,46 +144,50 @@ public final class FileByteRangeProvider implements ResourceByteRangeProvider
      * @return byte[] containing desired byte range
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public byte[] getByteRangeAsBytes(long rangeStart, long rangeEnd) throws IOException
-    {
-        //validation of range request guarantees that 0 <= rangeStart <= rangeEnd <= (resourceSize - 1)
-        ResourceByteRangeProvider.Utilities.validateRangeRequest(this.fileSize, rangeStart, rangeEnd);
-        if((rangeEnd - rangeStart + 1) > Integer.MAX_VALUE){
-                throw new IOException(String.format("Number of bytes requested = %d is greater than %d", (rangeEnd - rangeStart + 1), Integer.MAX_VALUE));
+    public synchronized byte[] getByteRangeAsBytes(long rangeStart, long rangeEnd) throws IOException {
+        // Validation of range request guarantees that 0 <= rangeStart <= rangeEnd <= (resourceSize - 1)
+        try {
+            ResourceByteRangeProvider.Utilities.validateRangeRequest(this.fileSize, rangeStart, rangeEnd);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Invalid range request: " + e.getMessage(), e);
         }
 
-        int totalNumBytesToRead = (int)(rangeEnd - rangeStart + 1);
-        byte[] bytes = new byte[totalNumBytesToRead];
-        try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(this.resourceFile)))
-        {
-            long bytesSkipped = bis.skip(rangeStart);
-            if(bytesSkipped != rangeStart){
-                throw new IOException(String.format("Could not skip %d bytes of data, possible truncated data", rangeStart));
-            }
-
-            int totalNumBytesRead = 0;
-            while (totalNumBytesRead < totalNumBytesToRead)
-            {
-                int numBytesRead;
-                numBytesRead = bis.read(bytes, totalNumBytesRead, totalNumBytesToRead - totalNumBytesRead);
-                if (numBytesRead != -1)
-                {
-                    totalNumBytesRead += numBytesRead;
-                }
-                else
-                {
-                    throw new EOFException(String.format("Tried to read %d bytes from input stream, which ended after reading %d bytes",
-                            totalNumBytesToRead, totalNumBytesRead));
-                }
-
-            }
+        if ((rangeEnd - rangeStart + 1) > Integer.MAX_VALUE) {
+            throw new IOException(String.format("Number of bytes requested = %d is greater than %d", (rangeEnd - rangeStart + 1), Integer.MAX_VALUE));
         }
 
-        return bytes;
+        int bytesToRead = (int) (rangeEnd - rangeStart + 1);
+
+        try {
+            inputChannel.position(rangeStart);
+        } catch (IOException e) {
+            throw new IOException("Failed to set position in input channel: " + e.getMessage(), e);
+        }
+
+
+        ByteBuffer buffer = ByteBuffer.allocate(bytesToRead);
+
+        try {
+            while (bytesToRead > 0) {
+                int numBytesRead = inputChannel.read(buffer);
+                if (numBytesRead == -1) {
+                    throw new IOException("Unexpected end of stream while reading bytes.");
+                }
+                bytesToRead -= numBytesRead;
+            }
+        } catch (IOException e) {
+            throw new IOException("Error reading bytes from input channel: " + e.getMessage(), e);
+        }
+
+        buffer.flip();
+        return buffer.array();
     }
 
-    public InputStream getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException {
-        byte[] bytes = this.getByteRangeAsBytes(rangeStart, rangeEnd);
-        return new ByteArrayInputStream(bytes);
+    public SeekableByteChannel getByteRangeAsStream(long rangeStart, long rangeEnd) throws IOException {
+        Path tempDir = Files.createTempDirectory(null);
+        Path tempFile = this.getByteRange(rangeStart, rangeEnd, tempDir);
+
+        // Open the file as a SeekableByteChannel for reading
+        return Files.newByteChannel(tempFile, StandardOpenOption.READ);
     }
 }

@@ -20,22 +20,24 @@ package com.netflix.imflibrary.writerTools.utils;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.IMFException;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
 import org.smpte_ra.schemas._2067_3._2013.BaseResourceType;
 import org.smpte_ra.schemas._2067_3._2013.CompositionPlaylistType;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nullable;
-import javax.xml.bind.JAXBException;
+import jakarta.annotation.Nullable;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -90,12 +92,12 @@ public class IMFUtils {
     /**
      * A method that generates a SHA-1 hash of the file.
      *
-     * @param file - the file whose SHA-1 hash is to be generated
      * @return a byte[] representing the generated hash of the file
+     * @param path - the path whose SHA-1 hash is to be generated
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static byte[] generateSHA1Hash(File file) throws IOException {
-            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(file);
+    public static byte[] generateSHA1Hash(Path path) throws IOException {
+            ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(path);
             return IMFUtils.generateHash(resourceByteRangeProvider, "SHA-1");
     }
 
@@ -113,12 +115,12 @@ public class IMFUtils {
     /**
      * A method that generates a SHA-1 hash of the file and Base64 encode the result.
      *
-     * @param file - the file whose SHA-1 hash is to be generated
      * @return a byte[] representing the generated base64 encoded hash of the file
+     * @param path - the path whose SHA-1 hash is to be generated
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static byte[] generateSHA1HashAndBase64Encode(File file) throws IOException {
-        return generateBase64Encode(generateSHA1Hash(file));
+    public static byte[] generateSHA1HashAndBase64Encode(Path path) throws IOException {
+        return generateBase64Encode(generateSHA1Hash(path));
     }
 
     /**
@@ -193,28 +195,36 @@ public class IMFUtils {
      * A utility method that writes out the serialized IMF CPL document to a file
      *
      * @param compositionPlaylistType an instance of the composition playlist type
-     * @param outputFile the file that the serialized XML is written to
+     * @param outputPath the file that the serialized XML is written to
      * @throws IOException - any I/O related error will be exposed through an IOException
      */
-    public static void writeCPLToFile(CompositionPlaylistType compositionPlaylistType, File outputFile) throws IOException {
+    public static void writeCPLToFile(CompositionPlaylistType compositionPlaylistType, Path outputPath) throws IOException {
         try {
             IMFCPLSerializer imfcplSerializer = new IMFCPLSerializer();
-            FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-            imfcplSerializer.write(compositionPlaylistType, fileOutputStream, true);
-            fileOutputStream.close();
+
+            SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
+
+            OutputStream outputStream = Channels.newOutputStream(byteChannel);
+
+            imfcplSerializer.write(compositionPlaylistType, outputStream, true);
+            outputStream.close();
         }
         catch (FileNotFoundException e){
-            throw new IMFException(String.format("Error occurred while trying to serialize the CompositionPlaylistType, file %s not found", outputFile.getName()));
+            throw new IMFException(String.format("Error occurred while trying to serialize the CompositionPlaylistType, file %s not found", outputPath.toString()));
         }
         catch(SAXException | JAXBException e ){
             throw new IMFException(e);
         }
     }
 
-    public static UUID extractUUIDFromCPLFile(File cplFile, IMFErrorLogger imfErrorLogger) {
+    public static UUID extractUUIDFromCPLFile(Path cplFile, IMFErrorLogger imfErrorLogger) {
         try {
-            ApplicationComposition applicationComposition = com.netflix.imflibrary.st2067_2.ApplicationCompositionFactory.getApplicationComposition(cplFile, imfErrorLogger);
-            return applicationComposition.getUUID();
+            IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(cplFile);
+            imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+            return imfCompositionPlaylist.getUUID();
         } catch (IOException e) {
             throw new IMFException(String.format("Error occurred while parsing CPL File %s", cplFile.toString()));
         }

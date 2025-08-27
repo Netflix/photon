@@ -22,17 +22,19 @@ import com.netflix.imflibrary.st0429_8.PackingList;
 import com.netflix.imflibrary.st0429_9.AssetMap;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2FileSet;
 import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
+import com.netflix.imflibrary.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,7 +70,7 @@ public final class IMPDelivery
         for (AssetMap.Asset packingListAsset : packingListAssets)
         {
             URI absolutePackingListURI = basicMapProfileV2FileSet.getAbsoluteAssetMapURI().resolve(packingListAsset.getPath());
-            PackingList packingList = new PackingList(new File(absolutePackingListURI));
+            PackingList packingList = new PackingList(Paths.get(absolutePackingListURI));
 
             List<IMPAsset> referencedAssets = new ArrayList<>();
             for (PackingList.Asset referencedAsset : packingList.getAssets())
@@ -121,7 +123,7 @@ public final class IMPDelivery
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, URISyntaxException, JAXBException
     {
-        File rootFile = new File(args[0]);
+        Path rootFile = Utilities.getPathFromString(args[0]);
 
         BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(rootFile);
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);

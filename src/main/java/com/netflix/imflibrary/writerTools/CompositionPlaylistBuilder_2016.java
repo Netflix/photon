@@ -39,31 +39,32 @@ import org.smpte_ra.schemas._2067_3._2016.ContentVersionType;
 import org.smpte_ra.schemas._2067_3._2016.EssenceDescriptorBaseType;
 import org.smpte_ra.schemas._2067_3._2016.SegmentType;
 import org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,7 +89,7 @@ public class CompositionPlaylistBuilder_2016 {
     private final List<Long> compositionEditRate;
     private final Long totalRunningTime;
     private final Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap;
-    private final File workingDirectory;
+    private final Path workingDirectory;
     private final IMFErrorLogger imfErrorLogger;
     private final Map<Node, String> essenceDescriptorIDMap = new HashMap<>();
     private final List<org.smpte_ra.schemas._2067_3._2016.SegmentType> segments = new ArrayList<>();
@@ -126,7 +127,7 @@ public class CompositionPlaylistBuilder_2016 {
                                            @Nonnull Set<String> applicationIds,
                                            long totalRunningTime,
                                            @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
+                                           @Nonnull Path workingDirectory,
                                            @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList,
                                            @Nonnull String coreConstraintsSchema,
                                            Map<UUID, UUID> trackFileIdToEssenceDescriptorIdMap){
@@ -168,36 +169,6 @@ public class CompositionPlaylistBuilder_2016 {
             }
         }
         this.trackResourceSourceEncodingMap = Collections.unmodifiableMap(trackEncodingMap);
-    }
-
-    /**
-     * @deprecated Instead use {{@link #CompositionPlaylistBuilder_2016(UUID, UserTextType, UserTextType, UserTextType, List, Composition.EditRate, Set, long, Map, File, List, String)}}
-     * A constructor for CompositionPlaylistBuilder class to build a CompositionPlaylist document compliant with st2067-2:2016 schema
-     * @param uuid identifying the CompositionPlaylist document
-     * @param annotationText a free form human readable text
-     * @param issuer a free form human readable text describing the issuer of the CompositionPlaylist document
-     * @param creator a free form human readable text describing the tool used to create the CompositionPlaylist document
-     * @param virtualTracks a list of VirtualTracks of the Composition
-     * @param compositionEditRate the edit rate of the Composition
-     * @param applicationId ApplicationId for the composition
-     * @param totalRunningTime a long value representing in seconds the total running time of this composition
-     * @param trackFileInfoMap a map of the IMFTrackFile's UUID to the track file info
-     * @param workingDirectory a folder location where the constructed CPL document can be written to
-     * @param imfEssenceDescriptorBaseTypeList List of IMFEssenceDescriptorBaseType
-     */
-    @Deprecated
-    public CompositionPlaylistBuilder_2016(@Nonnull UUID uuid,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType annotationText,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType issuer,
-                                           @Nonnull org.smpte_ra.schemas._433._2008.dcmltypes.UserTextType creator,
-                                           @Nonnull List<? extends Composition.VirtualTrack> virtualTracks,
-                                           @Nonnull Composition.EditRate compositionEditRate,
-                                           @Nonnull String applicationId,
-                                           long totalRunningTime,
-                                           @Nonnull Map<UUID, IMPBuilder.IMFTrackFileInfo> trackFileInfoMap,
-                                           @Nonnull File workingDirectory,
-                                           @Nonnull List<IMFEssenceDescriptorBaseType> imfEssenceDescriptorBaseTypeList){
-        this(uuid, annotationText, issuer, creator, virtualTracks, compositionEditRate, Collections.singleton(applicationId), totalRunningTime, trackFileInfoMap, workingDirectory, imfEssenceDescriptorBaseTypeList, CoreConstraints.NAMESPACE_IMF_2016, null);
     }
 
     /**
@@ -249,7 +220,7 @@ public class CompositionPlaylistBuilder_2016 {
              */
             UUID sequenceId = IMFUUIDGenerator.getInstance().generateUUID();
             UUID trackId = IMFUUIDGenerator.getInstance().generateUUID();
-            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceTypeEnum());
+            SequenceTypeTuple sequenceTypeTuple = buildSequenceTypeTuple(sequenceId, trackId, buildResourceList(trackResourceList), virtualTrack.getSequenceType());
             sequenceTypeTuples.add(sequenceTypeTuple);
         }
         org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType.EssenceDescriptorList essenceDescriptorListType = buildEssenceDescriptorList(this.imfEssenceDescriptorBaseTypeList);
@@ -278,8 +249,8 @@ public class CompositionPlaylistBuilder_2016 {
             cplRoot.setExtensionProperties( extensionProperties);
         }
 
-        File outputFile = new File(this.workingDirectory + File.separator + this.cplFileName);
-        serializeCPLToXML(cplRoot, outputFile);
+        Path outputPath = this.workingDirectory.resolve(this.cplFileName);
+        serializeCPLToXML(cplRoot, outputPath);
         return imfErrorLogger.getErrors();
     }
 
@@ -305,7 +276,7 @@ public class CompositionPlaylistBuilder_2016 {
     }
 
     // TODO- Refactor this and consolidate all marshall/unmarshall logic into CompositionModel_st2067_2_2016.java
-    private void serializeCPLToXML(org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType cplRoot, File outputFile) throws IOException, JAXBException, SAXException{
+    private void serializeCPLToXML(org.smpte_ra.schemas._2067_3._2016.CompositionPlaylistType cplRoot, Path outputPath) throws IOException, JAXBException, SAXException{
 
         int numErrors = imfErrorLogger.getNumberOfErrors();
         boolean formatted = true;
@@ -316,7 +287,13 @@ public class CompositionPlaylistBuilder_2016 {
                 InputStream cplSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_3_2016/imf-cpl-20160411.xsd");
                 InputStream coreConstraintsSchemaAsAStream = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2016/imf-core-constraints-20160411.xsd");
                 InputStream xsd_core_constraints_2020 = contextClassLoader.getResourceAsStream("org/smpte_ra/schemas/st2067_2_2020/imf-core-constraints-2020.xsd");
-                OutputStream outputStream = new FileOutputStream(outputFile)
+
+                SeekableByteChannel byteChannel = Files.newByteChannel(outputPath,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE);
+
+                OutputStream outputStream = Channels.newOutputStream(byteChannel);
         )
         {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI );
@@ -379,7 +356,7 @@ public class CompositionPlaylistBuilder_2016 {
 
         org.smpte_ra.schemas._2067_3._2016.ContentKindType contentKindType = new org.smpte_ra.schemas._2067_3._2016.ContentKindType();
         if(!scope.matches("^[a-zA-Z0-9._-]+") == true) {
-            this.imfErrorLogger.addError(new ErrorLogger.ErrorObject(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope)));
+            this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The ContentKind scope %s does not follow the syntax of a valid URI (a-z, A-Z, 0-9, ., _, -)", scope));
             contentKindType.setScope(scope);
         }
         else{
@@ -546,7 +523,7 @@ public class CompositionPlaylistBuilder_2016 {
     public SequenceTypeTuple buildSequenceTypeTuple(UUID id,
                                                     UUID trackId,
                                                     org.smpte_ra.schemas._2067_3._2016.SequenceType.ResourceList resourceList,
-                                                    Composition.SequenceTypeEnum sequenceType){
+                                                    String sequenceType){
         org.smpte_ra.schemas._2067_3._2016.SequenceType sequence = new org.smpte_ra.schemas._2067_3._2016.SequenceType();
         sequence.setId(UUIDHelper.fromUUID(id));
         sequence.setTrackId(UUIDHelper.fromUUID(trackId));
@@ -582,26 +559,26 @@ public class CompositionPlaylistBuilder_2016 {
             org.smpte_ra.ns._2067_203._2022.ObjectFactory mgasadmFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
-                    case MainImageSequence:
+                    case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                         any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MainAudioSequence:
+                    case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                         any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case IABSequence:
+                    case "IABSequence":
                         // JAXB class for IABSequence was generated in the CC 2016 package. Use that
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MGASADMSignalSequence:
+                    case "MGASADMSignalSequence":
                         // JAXB class for MGASADMSignalSequence was generated in the CC 2016 package. Use that
                         any.add(mgasadmFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MarkerSequence:
+                    case Composition.MARKER_SEQUENCE:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
                         throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                                CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, "IABSequence", "MGASADMSignalSequence", Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }
@@ -612,24 +589,24 @@ public class CompositionPlaylistBuilder_2016 {
             org.smpte_ra.ns._2067_203._2022.ObjectFactory mgaFactory = new org.smpte_ra.ns._2067_203._2022.ObjectFactory();
             for(SequenceTypeTuple sequenceTypeTuple : sequenceTypeTuples){
                 switch(sequenceTypeTuple.getSequenceType()){
-                    case MainImageSequence:
+                    case CoreConstraints.MAIN_IMAGE_SEQUENCE:
                         any.add(objectFactory.createMainImageSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MainAudioSequence:
+                    case CoreConstraints.MAIN_AUDIO_SEQUENCE:
                         any.add(objectFactory.createMainAudioSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case IABSequence:
+                    case "IABSequence":
                         any.add(iabFactory.createIABSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MGASADMSignalSequence:
+                    case "MGASADMSignalSequence":
                         any.add(mgaFactory.createMGASADMSignalSequence(sequenceTypeTuple.getSequence()));
                         break;
-                    case MarkerSequence:
+                    case Composition.MARKER_SEQUENCE:
                         segment.getSequenceList().setMarkerSequence(sequenceTypeTuple.getSequence());
                         break;
                     default:
                         throw new IMFAuthoringException(String.format("Currently we only support %s, %s, %s, %s, %s, and %s sequence types in building a Composition Playlist document, the type of sequence being requested is %s",
-                                Composition.SequenceTypeEnum.MainAudioSequence, Composition.SequenceTypeEnum.MainImageSequence, Composition.SequenceTypeEnum.IABSequence, Composition.SequenceTypeEnum.MGASADMSignalSequence, Composition.SequenceTypeEnum.MarkerSequence, sequenceTypeTuple.getSequenceType()));
+                                CoreConstraints.MAIN_IMAGE_SEQUENCE, CoreConstraints.MAIN_AUDIO_SEQUENCE, "IABSequence", "MGASADMSignalSequence", Composition.MARKER_SEQUENCE, sequenceTypeTuple.getSequenceType()));
                 }
             }
         }
@@ -732,9 +709,9 @@ public class CompositionPlaylistBuilder_2016 {
      */
     public static class SequenceTypeTuple{
         private final org.smpte_ra.schemas._2067_3._2016.SequenceType sequence;
-        private final Composition.SequenceTypeEnum sequenceType;
+        private final String sequenceType;
 
-        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2016.SequenceType sequence, Composition.SequenceTypeEnum sequenceType){
+        private SequenceTypeTuple(org.smpte_ra.schemas._2067_3._2016.SequenceType sequence, String sequenceType){
             this.sequence = sequence;
             this.sequenceType = sequenceType;
         }
@@ -743,7 +720,7 @@ public class CompositionPlaylistBuilder_2016 {
             return this.sequence;
         }
 
-        private Composition.SequenceTypeEnum getSequenceType(){
+        private String getSequenceType(){
             return this.sequenceType;
         }
     }

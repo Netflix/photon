@@ -20,19 +20,14 @@ package com.netflix.imflibrary.st2067_203;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.st0377_41.*;
-import com.netflix.imflibrary.st2067_2.AbstractApplicationComposition;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
 import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
-import com.netflix.imflibrary.st2067_2.Composition.SequenceTypeEnum;
-import com.netflix.imflibrary.st2067_2.Composition.VirtualTrack;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.UUIDHelper;
 
 import java.util.ArrayList;
@@ -65,13 +60,12 @@ public class IMFMGASADMConstraintsChecker {
     public static List<ErrorLogger.ErrorObject> checkMGASADMVirtualTrack(Composition.EditRate compositionEditRate,
                                                                      Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
                                                                      Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                                                     RegXMLLibDictionary regXMLLibDictionary,
                                                                      Set<String> homogeneitySelectionSet) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Iterator iterator = virtualTrackMap.entrySet().iterator();
         while(iterator.hasNext()) {
             Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (!virtualTrack.getSequenceTypeEnum().equals(Composition.SequenceTypeEnum.MGASADMSignalSequence)) continue;
+            if (!virtualTrack.getSequenceType().equals("MGASADMSignalSequence")) continue;
 
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             for(IMFBaseResourceType baseResource : virtualTrackResourceList) {
@@ -218,15 +212,15 @@ public class IMFMGASADMConstraintsChecker {
         }
         return imfErrorLogger.getErrors();
     }
-    public static List<ErrorLogger.ErrorObject> checkMGASADMVirtualTrackParameterSet(ApplicationComposition applicationComposition) {
+    public static List<ErrorLogger.ErrorObject> checkMGASADMVirtualTrackParameterSet(IMFCompositionPlaylist imfCompositionPlaylist) {
 
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         List<MGASADMVirtualTrackParameterSet> mgaSADMVirtualTrackParameterSetList = new ArrayList<>();
         List<String> mgaSADMSignalSequenceTrackIds = new ArrayList<>();
         Map<UUID , List<String>> mgaSadmResourceHash = new LinkedHashMap<>();
         Set<Object> virtualTrackParameterSet = Collections.emptySet();
-        if (applicationComposition.getExtensionProperties() != null) {
-            virtualTrackParameterSet = applicationComposition.getExtensionProperties().getAny().stream().collect(Collectors.toSet());
+        if (imfCompositionPlaylist.getExtensionProperties() != null) {
+            virtualTrackParameterSet = imfCompositionPlaylist.getExtensionProperties().getAny().stream().collect(Collectors.toSet());
             Iterator<Object> iterator = virtualTrackParameterSet.iterator();
             while (iterator != null && iterator.hasNext()) {
                 Object obj = iterator.next();
@@ -241,9 +235,9 @@ public class IMFMGASADMConstraintsChecker {
                 }
             }
         }
-        for (IMFEssenceComponentVirtualTrack virtualTrack : applicationComposition.getEssenceVirtualTracks()) {
+        for (IMFEssenceComponentVirtualTrack virtualTrack : imfCompositionPlaylist.getEssenceVirtualTracks()) {
             // ST 2067-203, section 6.3.4, check for a MGA S-ADM Virtual Track Parameter Set for each MGA S-ADM Virtual Track
-            if (virtualTrack.getSequenceTypeEnum() == SequenceTypeEnum.MGASADMSignalSequence) {
+            if (virtualTrack.getSequenceType() == "MGASADMSignalSequence") {
                 mgaSADMSignalSequenceTrackIds.add(UUIDHelper.fromUUID(virtualTrack.getTrackID()));
                 List<String> resource_id_list = new ArrayList<>();
                 for (IMFBaseResourceType resource : virtualTrack.getResourceList()) {
@@ -252,7 +246,7 @@ public class IMFMGASADMConstraintsChecker {
                 }
                 mgaSadmResourceHash.put(virtualTrack.getTrackID(), resource_id_list);
 
-                if (applicationComposition.getExtensionProperties() != null) {
+                if (imfCompositionPlaylist.getExtensionProperties() != null) {
                     int trackIdsFound = 0;
                     for (MGASADMVirtualTrackParameterSet vps : mgaSADMVirtualTrackParameterSetList) {
                         if (UUIDHelper.fromUUID(virtualTrack.getTrackID()).matches(vps.getTrackId())) trackIdsFound++;
@@ -285,12 +279,12 @@ public class IMFMGASADMConstraintsChecker {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
                                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("MGASADMSoundfieldGroupSelector for Track ID %s references an unknown resource %s", vps.getTrackId(), mga_sg_selector.getResourceId()));
                         } else {
-                            Optional<IMFEssenceComponentVirtualTrack> optional = applicationComposition.getEssenceVirtualTracks().stream().filter(e->e.getTrackID().equals(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId()))).findAny();
+                            Optional<IMFEssenceComponentVirtualTrack> optional = imfCompositionPlaylist.getEssenceVirtualTracks().stream().filter(e->e.getTrackID().equals(UUIDHelper.fromUUIDAsURNStringToUUID(vps.getTrackId()))).findAny();
                             if (optional.isPresent()) {
                                 IMFEssenceComponentVirtualTrack virtual_track = optional.get();
                                 Optional<IMFTrackFileResourceType> optional2 = virtual_track.getTrackFileResourceList().stream().filter(e->e.getId().equals(mga_sg_selector.getResourceId())).findAny();
                                 if (optional2.isPresent()) {
-                                    DOMNodeObjectModel essence_descriptor_dom_node = applicationComposition.getEssenceDescriptor(UUIDHelper.fromUUIDAsURNStringToUUID(optional2.get().getTrackFileId()));
+                                    DOMNodeObjectModel essence_descriptor_dom_node = imfCompositionPlaylist.getEssenceDescriptor(UUIDHelper.fromUUIDAsURNStringToUUID(optional2.get().getTrackFileId()));
                                     List<UUID> mca_sg_link_id_list = new ArrayList<>();
                                     for (Map.Entry<DOMNodeObjectModel, Integer> entry : essence_descriptor_dom_node.getChildrenDOMNodes().entrySet()) {
                                         if (!entry.getKey().getLocalName().equals("SubDescriptors")) continue;

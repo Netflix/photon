@@ -25,13 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -566,24 +561,6 @@ public class DOMNodeObjectModel {
         }
         sb.append(String.format("</%s>", this.localName) + "\n");
         return sb.toString();
-    }
-
-    private String readFile(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        String         line = null;
-        StringBuilder  stringBuilder = new StringBuilder();
-        String         ls = System.getProperty("line.separator");
-
-        try {
-            while((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-
-            return stringBuilder.toString();
-        } finally {
-            reader.close();
-        }
     }
 
     /**

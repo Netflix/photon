@@ -33,14 +33,10 @@ import com.netflix.imflibrary.st2067_100.handle.VirtualTrackHandle;
 import com.netflix.imflibrary.st2067_100.macro.Macro;
 import com.netflix.imflibrary.st2067_100.macro.Sequence;
 import com.netflix.imflibrary.st2067_100.macro.preset.PresetMacro;
-import com.netflix.imflibrary.st2067_2.ApplicationComposition;
+import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFEssenceComponentVirtualTrack;
-import com.netflix.imflibrary.utils.DOMNodeObjectModel;
-import com.netflix.imflibrary.utils.ErrorLogger;
-import com.netflix.imflibrary.utils.FileByteRangeProvider;
-import com.netflix.imflibrary.utils.ResourceByteRangeProvider;
-import com.netflix.imflibrary.utils.UUIDHelper;
+import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.writerTools.utils.ValidationEventHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +46,10 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,9 +57,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +158,9 @@ public final class OutputProfileList {
      * @throws IOException - any I/O related error is exposed through an IOException
      */
     public static boolean isOutputProfileList(ResourceByteRangeProvider resourceByteRangeProvider) throws IOException {
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);) {
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);)
+        {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -186,7 +187,8 @@ public final class OutputProfileList {
     public static OutputProfileList getOutputProfileListType(ResourceByteRangeProvider resourceByteRangeProvider, IMFErrorLogger imfErrorLogger) throws IOException {
         JAXBElement jaxbElement = null;
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream inputStream = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize() - 1);
+        try (SeekableByteChannel byteChannel = resourceByteRangeProvider.getByteRangeAsStream(0, resourceByteRangeProvider.getResourceSize()-1);
+             InputStream inputStream = Channels.newInputStream(byteChannel);
              InputStream xmldsig_core_is = contextClassLoader.getResourceAsStream(xmldsig_core_schema_path);
              InputStream dcmlTypes_is = contextClassLoader.getResourceAsStream(dcmlTypes_schema_path);
              InputStream imf_opl_100a_is = contextClassLoader.getResourceAsStream(opl_100a_schema_path);
@@ -198,7 +200,8 @@ public final class OutputProfileList {
              InputStream imf_opl_101f_is = contextClassLoader.getResourceAsStream(opl_101f_schema_path);
              InputStream imf_opl_102a_is = contextClassLoader.getResourceAsStream(opl_102a_schema_path);
              InputStream imf_opl_103b_is = contextClassLoader.getResourceAsStream(opl_103b_schema_path)
-             ) {
+             )
+        {
             StreamSource[] streamSources = new StreamSource[11];
             streamSources[0] = new StreamSource(xmldsig_core_is);
             streamSources[1] = new StreamSource(dcmlTypes_is);
@@ -250,12 +253,12 @@ public final class OutputProfileList {
 
     /**
      * A method to apply output profile on an application composition
-     * @param applicationComposition ApplicationComposition related to this output profile
+     * @param imfCompositionPlaylist IMFCompositionPlaylist related to this output profile
      * @return List of errors that occurred while applying output profile on the application composition
      */
-    public List<ErrorLogger.ErrorObject> applyOutputProfileOnComposition(ApplicationComposition applicationComposition) {
+    public List<ErrorLogger.ErrorObject> applyOutputProfileOnComposition(IMFCompositionPlaylist imfCompositionPlaylist) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Map<String, Handle> handleMapConformed = getHandleMapWithApplicationComposition(applicationComposition, imfErrorLogger);
+        Map<String, Handle> handleMapConformed = getHandleMapWithApplicationComposition(imfCompositionPlaylist, imfErrorLogger);
 
         /**
          * Validate alias handles
@@ -273,17 +276,17 @@ public final class OutputProfileList {
 
     /**
      * A method to get handle map with Application Composition applied on output profile
-     * @param applicationComposition ApplicationComposition related to this output profile
+     * @param imfCompositionPlaylist IMFCompositionPlaylist related to this output profile
      * @param imfErrorLogger logger for recording any parsing errors
      * @return Map containing a string handle to object representation of the handle
      */
-    public Map<String, Handle> getHandleMapWithApplicationComposition(ApplicationComposition applicationComposition, IMFErrorLogger imfErrorLogger) {
+    public Map<String, Handle> getHandleMapWithApplicationComposition(IMFCompositionPlaylist imfCompositionPlaylist, IMFErrorLogger imfErrorLogger) {
         Map<String, Handle> handleMapConformed = new HashMap<>();
 
         /**
          * Add handles for CPL tracks
          */
-        populateCPLVirtualTrackHandles(applicationComposition, handleMapConformed);
+        populateCPLVirtualTrackHandles(imfCompositionPlaylist, handleMapConformed);
 
         /**
          * Add handles for OPL macros
@@ -308,22 +311,22 @@ public final class OutputProfileList {
     }
 
 
-    private static Map<String, Handle> populateCPLVirtualTrackHandles(ApplicationComposition applicationComposition, Map<String, Handle> handleMap) {
-        List<? extends Composition.VirtualTrack> virtualTrackList = applicationComposition.getVirtualTracks();
+    private static Map<String, Handle> populateCPLVirtualTrackHandles(IMFCompositionPlaylist imfCompositionPlaylist, Map<String, Handle> handleMap) {
+        List<? extends Composition.VirtualTrack> virtualTrackList = imfCompositionPlaylist.getVirtualTracks();
         for(Composition.VirtualTrack virtualTrack: virtualTrackList) {
-            switch(virtualTrack.getSequenceTypeEnum()) {
+            switch(virtualTrack.getSequenceType()) {
 
-                case MainImageSequence: {
+                case "MainImageSequence": {
                     StringBuilder handleBuilder = new StringBuilder();
                     handleBuilder.append("cpl/virtual-tracks/" + virtualTrack.getTrackID());
                     Handle handleType = new VirtualTrackHandle(handleBuilder.toString(), virtualTrack);
                     handleMap.put(handleBuilder.toString(), handleType);                }
                 break;
 
-                case MainAudioSequence: {
+                case "MainAudioSequence": {
                     IMFEssenceComponentVirtualTrack imfEssenceComponentVirtualTrack = (IMFEssenceComponentVirtualTrack) virtualTrack;
                     for (UUID uuid : imfEssenceComponentVirtualTrack.getTrackResourceIds()) {
-                        DOMNodeObjectModel domNodeObjectModel = applicationComposition.getEssenceDescriptor(uuid);
+                        DOMNodeObjectModel domNodeObjectModel = imfCompositionPlaylist.getEssenceDescriptor(uuid);
                         if (domNodeObjectModel != null) {
                             Set<UL> mcaLabelDictionaryIDs = domNodeObjectModel.getFieldsAsUL("MCALabelDictionaryID");
                             for (UL mcaLabelDictionaryID : mcaLabelDictionaryIDs) {
@@ -478,12 +481,13 @@ public final class OutputProfileList {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        File inputFile = new File(args[0]);
-        if(!inputFile.exists()){
-            logger.error(String.format("File %s does not exist", inputFile.getAbsolutePath()));
+        Path inputPath = Utilities.getPathFromString(args[0]);
+        if (!Files.isRegularFile(inputPath)) {
+            logger.error(String.format("File %s does not exist", args[0]));
             System.exit(-1);
         }
-        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputPath);
         byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize()-1);
         PayloadRecord payloadRecord = new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.OutputProfileList, 0L, resourceByteRangeProvider.getResourceSize());
         List<ErrorLogger.ErrorObject>errors = IMPValidator.validateOPL(payloadRecord);

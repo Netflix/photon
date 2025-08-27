@@ -17,8 +17,8 @@ import testUtils.TestHelper;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +36,7 @@ public class DOMNodeObjectModelTest {
         return byteProvider;
     }
 
-    public List<DOMNodeObjectModel> setUp(File inputFile) throws IOException, ParserConfigurationException {
+    public List<DOMNodeObjectModel> setUp(Path inputFile) throws IOException, ParserConfigurationException {
 
         IMFErrorLogger imfErrorLogger1 = new IMFErrorLoggerImpl();
         List<Node> essenceDescriptorNodes1 = new ArrayList<>();
@@ -85,8 +85,8 @@ public class DOMNodeObjectModelTest {
 
     @Test
     public void domNodeObjectModelEquivalenceNegativeTest() throws IOException, ParserConfigurationException {
-        File inputFile1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
-        File inputFile2 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
+        Path inputFile1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
+        Path inputFile2 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG51.mxf.hdr");
 
         List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
         domNodeObjectModels.addAll(setUp(inputFile1));
@@ -104,7 +104,7 @@ public class DOMNodeObjectModelTest {
 
     @Test
     public void domNodeObjectModelEquivalencePositiveTest() throws IOException, ParserConfigurationException {
-        File inputFile1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
+        Path inputFile1 = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
 
         List<DOMNodeObjectModel> domNodeObjectModels = new ArrayList<>();
         domNodeObjectModels.addAll(setUp(inputFile1));

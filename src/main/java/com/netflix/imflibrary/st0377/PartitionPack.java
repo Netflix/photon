@@ -26,7 +26,7 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.util.ArrayList;

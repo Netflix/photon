@@ -30,10 +30,10 @@ import java.util.*;
 public final class IMFEssenceComponentVirtualTrack extends Composition.VirtualTrack {
     private final Set<UUID> resourceIds = new HashSet<>();
 
-    public IMFEssenceComponentVirtualTrack(UUID trackID, Composition.SequenceTypeEnum sequenceTypeEnum,
+    public IMFEssenceComponentVirtualTrack(UUID trackID, String sequenceType,
                                            List<IMFTrackFileResourceType> resourceList,
                                            Composition.EditRate compositionEditRate){
-        super(trackID, sequenceTypeEnum, resourceList, compositionEditRate);
+        super(trackID, sequenceType, resourceList, compositionEditRate);
         for(IMFTrackFileResourceType trackFileResource : resourceList){
             this.resourceIds.add(UUIDHelper.fromUUIDAsURNStringToUUID(trackFileResource.getTrackFileId()));
         }

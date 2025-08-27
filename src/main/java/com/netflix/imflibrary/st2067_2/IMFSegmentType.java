@@ -26,7 +26,7 @@ import java.util.List;
  * A class that models Segment structure of an IMF Composition Playlist.
  */
 @Immutable
-final class IMFSegmentType {
+public final class IMFSegmentType {
     protected final String id;
     protected final List<IMFSequenceType> sequenceList;
 

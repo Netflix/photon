@@ -2,6 +2,7 @@ package com.netflix.imflibrary.st2067_2;
 
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
+import com.netflix.imflibrary.RESTfulInterfaces.IMPValidator;
 import com.netflix.imflibrary.utils.FileByteRangeProvider;
 import com.netflix.imflibrary.writerTools.CompositionPlaylistBuilder_2013;
 import com.netflix.imflibrary.writerTools.utils.IMFUUIDGenerator;
@@ -9,9 +10,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -23,52 +24,58 @@ public class CompositionTest
     public void testCompositionPlaylist() throws Exception
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        File inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(ApplicationComposition.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
-        Assert.assertTrue(applicationComposition.toString().length() > 0);
-        Assert.assertEquals(applicationComposition.getEditRate().getNumerator().longValue(), 24);
-        Assert.assertEquals(applicationComposition.getEditRate().getDenominator().longValue(), 1);
-        Assert.assertEquals(applicationComposition.getUUID(), UUID.fromString("682feecb-7516-4d93-b533-f40d4ce60539"));
+        Path inputFile = TestHelper.findResourceByPath("test_mapped_file_set/CPL_682feecb-7516-4d93-b533-f40d4ce60539.xml");
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        Assert.assertTrue(imfCompositionPlaylist.isCompositionPlaylist(new FileByteRangeProvider(inputFile)));
+        Assert.assertTrue(imfCompositionPlaylist.toString().length() > 0);
+        Assert.assertEquals(imfCompositionPlaylist.getEditRate().getNumerator().longValue(), 24);
+        Assert.assertEquals(imfCompositionPlaylist.getEditRate().getDenominator().longValue(), 1);
+        Assert.assertEquals(imfCompositionPlaylist.getUUID(), UUID.fromString("682feecb-7516-4d93-b533-f40d4ce60539"));
 
         UUID uuid = UUID.fromString("586286d2-c45f-4b2f-ad76-58eecd0202b4");
-        Assert.assertEquals(applicationComposition.getVirtualTracks().size(), 2);
-        Composition.VirtualTrack virtualTrack = applicationComposition.getVideoVirtualTrack();
-        Assert.assertEquals(virtualTrack.getSequenceTypeEnum(), Composition.SequenceTypeEnum.MainImageSequence);
+        Assert.assertEquals(imfCompositionPlaylist.getVirtualTracks().size(), 2);
+        Composition.VirtualTrack virtualTrack = imfCompositionPlaylist.getVideoVirtualTrack();
+        Assert.assertEquals(virtualTrack.getSequenceType(), CoreConstraints.MAIN_IMAGE_SEQUENCE);
 
-        Assert.assertTrue(applicationComposition.getAnnotation().length() > 0);
-        Assert.assertTrue(applicationComposition.getIssuer().length() > 0);
-        Assert.assertTrue(applicationComposition.getCreator().length() > 0);
-        Assert.assertTrue(applicationComposition.getContentOriginator().length() > 0);
-        Assert.assertTrue(applicationComposition.getContentTitle().length() > 0);
+        Assert.assertTrue(imfCompositionPlaylist.getAnnotation().length() > 0);
+        Assert.assertTrue(imfCompositionPlaylist.getIssuer().length() > 0);
+        Assert.assertTrue(imfCompositionPlaylist.getCreator().length() > 0);
+        Assert.assertTrue(imfCompositionPlaylist.getContentOriginator().length() > 0);
+        Assert.assertTrue(imfCompositionPlaylist.getContentTitle().length() > 0);
     }
 
     @Test
     public void compositionPositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/MERIDIAN_Netflix_Photon_161006/CPL_0eb3d1b9-b77b-4d3f-bbe5-7c69b15dca85.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 1);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 2);
     }
 
     @Test
     public void compositionWithMultipleImageResourcesPositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 0);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 1);
     }
 
 
     @Test
     public void compositionNegativeTestInconsistentURI() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_LAS_8fad47bb-ab01-4f0d-a08c-d1e6c6cb62b4_InconsistentNamespaceURI.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertTrue(imfErrorLogger.getErrors().size() == 11);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertTrue(imfErrorLogger.getErrors().size() == 22);
     }
 
     @Test
@@ -279,16 +286,16 @@ public class CompositionTest
         resourceList10.add(imfTrackFileResourceType3);
 
         Composition.EditRate compositionEditRate = new Composition.EditRate(editRate);
-        Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList1, compositionEditRate);
-        Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList2, compositionEditRate);
-        Composition.VirtualTrack virtualTrack3 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList3, compositionEditRate);
-        Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList4, compositionEditRate);
-        Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList5, compositionEditRate);
-        Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList6, compositionEditRate);
-        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList7, compositionEditRate);
-        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList8, compositionEditRate);
-        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList9, compositionEditRate);
-        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), Composition.SequenceTypeEnum.MainImageSequence, resourceList10, compositionEditRate);
+        Composition.VirtualTrack virtualTrack1 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList1, compositionEditRate);
+        Composition.VirtualTrack virtualTrack2 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList2, compositionEditRate);
+        Composition.VirtualTrack virtualTrack3 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList3, compositionEditRate);
+        Composition.VirtualTrack virtualTrack4 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList4, compositionEditRate);
+        Composition.VirtualTrack virtualTrack5 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList5, compositionEditRate);
+        Composition.VirtualTrack virtualTrack6 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList6, compositionEditRate);
+        Composition.VirtualTrack virtualTrack7 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList7, compositionEditRate);
+        Composition.VirtualTrack virtualTrack8 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList8, compositionEditRate);
+        Composition.VirtualTrack virtualTrack9 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList9, compositionEditRate);
+        Composition.VirtualTrack virtualTrack10 = new IMFEssenceComponentVirtualTrack(IMFUUIDGenerator.getInstance().generateUUID(), CoreConstraints.MAIN_IMAGE_SEQUENCE, resourceList10, compositionEditRate);
 
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack2) == false);
         Assert.assertTrue(virtualTrack1.equivalent(virtualTrack3) == true);
@@ -300,68 +307,79 @@ public class CompositionTest
 
     @Test
     public void compositionWithMultipleApplicationIdentificationPositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/ApplicationIdentification/CPL-multiple-values-supported.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
     }
 
     @Test
     public void compositionWithMultipleApplicationIdentificationDuplicatePositiveTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/ApplicationIdentification/CPL-multiple-values-supported-duplicated.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
     }
 
     @Test
     public void compositionWithMultipleApplicationIdentificationPartialNegativeTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/ApplicationIdentification/CPL-multiple-values-partially-supported.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
     public void compositionWithMultipleApplicationIdentificationFullyNegativeTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/ApplicationIdentification/CPL-multiple-values-non-supported.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
     public void composition2020Test() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IMF-2020/CPL-2020_updated-core-constraints.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
-        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+        Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
     }
 
     @Test
     public void composition2020WithoutAudioTrackTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IMF-2020/CPL-2020_no-audio-track.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
-        Assert.assertEquals(applicationComposition.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+        Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
+
+        IMPValidator.validateComposition(imfCompositionPlaylist, null);
     }
 
     @Test
     public void composition2016WithoutAudioTrackNegativeTest() throws IOException {
-        File inputFile = TestHelper.findResourceByPath
+        Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IMF-2020/CPL-2016_no-audio-track.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        ApplicationComposition applicationComposition = ApplicationCompositionFactory.getApplicationComposition(inputFile, imfErrorLogger);
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
         Assert.assertTrue(imfErrorLogger.getErrors().stream().anyMatch(e ->
                 e.getErrorCode() == IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR));
-        Assert.assertNull(applicationComposition);
     }
 }

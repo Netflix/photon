@@ -7,8 +7,7 @@ import com.netflix.imflibrary.st0429_9.BasicMapProfileV2MappedFileSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
-
-import java.io.File;
+import java.nio.file.Path;
 
 @Test(groups = "unit")
 public class IMPDeliveryTest
@@ -16,7 +15,7 @@ public class IMPDeliveryTest
     @Test
     public void testIMPDelivery() throws Exception
     {
-        File inputFile = TestHelper.findResourceByPath("test_mapped_file_set");
+        Path inputFile = TestHelper.findResourceByPath("test_mapped_file_set");
         BasicMapProfileV2MappedFileSet basicMapProfileV2MappedFileSet = new BasicMapProfileV2MappedFileSet(inputFile);
         BasicMapProfileV2FileSet basicMapProfileV2FileSet = new BasicMapProfileV2FileSet(basicMapProfileV2MappedFileSet);
         IMPDelivery impDelivery = new IMPDelivery(basicMapProfileV2FileSet);
@@ -25,7 +24,7 @@ public class IMPDeliveryTest
 
         Assert.assertEquals(impDelivery.getInteroperableMasterPackages().size(), 1);
         InteroperableMasterPackage interoperableMasterPackage = impDelivery.getInteroperableMasterPackages().get(0);
-        Assert.assertEquals(interoperableMasterPackage.getPackingListURI(), TestHelper.findResourceByPath("test_mapped_file_set/PKL_51edd4be-4506-494d-a58e-516553055c33.xml").toURI());
+        Assert.assertEquals(interoperableMasterPackage.getPackingListURI(), TestHelper.findResourceByPath("test_mapped_file_set/PKL_51edd4be-4506-494d-a58e-516553055c33.xml").toUri());
         Assert.assertEquals(interoperableMasterPackage.getReferencedAssets().size(), 3);
         Assert.assertEquals(interoperableMasterPackage.getPackingList().getAssets().size(), 3);
     }

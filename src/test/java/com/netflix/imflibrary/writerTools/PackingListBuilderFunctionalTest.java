@@ -37,22 +37,22 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import testUtils.TestHelper;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Test(groups = "functional")
 public class PackingListBuilderFunctionalTest {
 
     @Test
     public void packingListBuilder_2007_Test() throws IOException, SAXException, JAXBException {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/PKL_0429fedd-b55d-442a-aa26-2a81ec71ed05.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/NYCbCrLT_3840x2160x23.98x10min/PKL_0429fedd-b55d-442a-aa26-2a81ec71ed05.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -76,44 +76,45 @@ public class PackingListBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-        File tempDir = tempPath.toFile();
-
+        Path tempPath = Files.createTempDirectory("IMFDocuments");
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
         org.smpte_ra.schemas._429_8._2007.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2007("Photon PackingListBuilder", "en");
         org.smpte_ra.schemas._429_8._2007.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
         org.smpte_ra.schemas._429_8._2007.pkl.UserText issuer = PackingListBuilder.buildPKLUserTextType_2007("Netflix", "en");
-        new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
+        new PackingListBuilder(packingList.getUUID(), issueDate, tempPath, packingListBuilderErrorLogger).buildPackingList_2007(annotationText, issuer, creator, packingListBuilderAssets);
 
         imfErrorLogger.addAllErrors(packingList.getErrors());
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
         }
 
-        File pklOutputFile = null;
-        for(File file : tempDir.listFiles()){
-            if(file.getName().contains("PKL-")){
-                pklOutputFile = file;
+        Path pklOutputFile = null;
+        Stream<Path> filesStream = Files.list(tempPath);
+        List<Path> filesList = filesStream.collect(Collectors.toList());
+        for (Path path : filesList) {
+            if(path.getFileName().toString().contains("PKL-")){
+                pklOutputFile = path;
             }
         }
+
         if(pklOutputFile == null){
-            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", tempDir.getAbsolutePath()));
+            throw new IMFAuthoringException(String.format("PackingList path does not exist in the working directory %s, cannot generate the rest of the documents", tempPath.toString()));
         }
-        Assert.assertTrue(pklOutputFile.length() > 0);
+        Assert.assertTrue(Files.size(pklOutputFile) > 0);
 
         resourceByteRangeProvider = new FileByteRangeProvider(pklOutputFile);
-        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, Files.size(pklOutputFile)-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
         Assert.assertEquals(errors.size(), 0);
 
         //Destroy the temporary working directory
-        tempDir.delete();
+        Utilities.recursivelyDeleteFolder(tempPath);
     }
 
     @Test
     public void packingListBuilder_2016_Test() throws IOException, SAXException, JAXBException {
-        File inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c_corrected.xml");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/PKL_befcd2d4-f35c-45d7-99bb-7f64b51b103c_corrected.xml");
         ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
@@ -142,36 +143,38 @@ public class PackingListBuilderFunctionalTest {
         /**
          * Create a temporary working directory under home
          */
-        Path tempPath = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "IMFDocuments");
-        File tempDir = tempPath.toFile();
+        Path tempPath = Files.createTempDirectory("IMFDocuments");
 
         IMFErrorLogger packingListBuilderErrorLogger = new IMFErrorLoggerImpl();
         org.smpte_ra.schemas._2067_2._2016.pkl.UserText annotationText = PackingListBuilder.buildPKLUserTextType_2016("Photon PackingListBuilder", "en");
         org.smpte_ra.schemas._2067_2._2016.pkl.UserText creator = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
         XMLGregorianCalendar issueDate = IMFUtils.createXMLGregorianCalendar();
         org.smpte_ra.schemas._2067_2._2016.pkl.UserText issuer = PackingListBuilder.buildPKLUserTextType_2016("Netflix", "en");
-        new PackingListBuilder(packingList.getUUID(), issueDate, tempDir, packingListBuilderErrorLogger).buildPackingList_2016(annotationText, issuer, creator, packingListBuilderAssets);
+        new PackingListBuilder(packingList.getUUID(), issueDate, tempPath, packingListBuilderErrorLogger).buildPackingList_2016(annotationText, issuer, creator, packingListBuilderAssets);
 
         if(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()).size() > 0){
             throw new IMFAuthoringException(String.format("Fatal errors occurred while generating the PackingList. Please see following error messages %s", Utilities.serializeObjectCollectionToString(imfErrorLogger.getErrors(IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, 0, imfErrorLogger.getNumberOfErrors()))));
         }
 
-        File pklOutputFile = null;
-        for(File file : tempDir.listFiles()){
-            if(file.getName().contains("PKL-")){
-                pklOutputFile = file;
+        Path pklOutputFile = null;
+        Stream<Path> filesStream = Files.list(tempPath);
+        List<Path> filesList = filesStream.collect(Collectors.toList());
+        for (Path path : filesList) {
+            if(path.getFileName().toString().contains("PKL-")){
+                pklOutputFile = path;
             }
         }
+
         if(pklOutputFile == null){
-            throw new IMFAuthoringException(String.format("PackingList file does not exist in the working directory %s, cannot generate the rest of the documents", tempDir.getAbsolutePath()));
+            throw new IMFAuthoringException(String.format("PackingList path does not exist in the working directory %s, cannot generate the rest of the documents", tempPath.toString()));
         }
-        Assert.assertTrue(pklOutputFile.length() > 0);
+        Assert.assertTrue(Files.size(pklOutputFile) > 0);
 
         resourceByteRangeProvider = new FileByteRangeProvider(pklOutputFile);
-        List<ErrorLogger.ErrorObject> pklValidationErrors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, pklOutputFile.length()-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
+        List<ErrorLogger.ErrorObject> pklValidationErrors = IMPValidator.validatePKL(new PayloadRecord(resourceByteRangeProvider.getByteRangeAsBytes(0, Files.size(pklOutputFile)-1), PayloadRecord.PayloadAssetType.PackingList, 0L, 0L));
         Assert.assertTrue(pklValidationErrors.size() == 0);
 
         //Destroy the temporary working directory
-        tempDir.delete();
+        Utilities.recursivelyDeleteFolder(tempPath);
     }
 }
