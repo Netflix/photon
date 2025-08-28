@@ -3,6 +3,7 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'nebula.release' version '20.1.0'
+    id 'nebula.netflixoss' version '11.6.0'
 }
 
 group = 'com.netflix.photon'
@@ -98,6 +99,14 @@ test {
 task getDependencies(type: Copy) {
   from sourceSets.main.runtimeClasspath
   into 'build/libs/'
+}
+
+tasks.named('sourcesJar') {
+    dependsOn generateSources
+}
+
+tasks.named('licenseMain') {
+    dependsOn generateSources
 }
 
 jacocoTestReport {
