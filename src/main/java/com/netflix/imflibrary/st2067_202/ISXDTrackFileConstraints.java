@@ -7,10 +7,12 @@ import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.IndexTableSegment;
 import com.netflix.imflibrary.st0377.header.*;
 
+import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class ISXDTrackFileConstraints {
 
@@ -22,6 +24,11 @@ public final class ISXDTrackFileConstraints {
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         List<UL> partitionPackEssenceContainerULs = headerPartition.getPartitionPack().getEssenceContainerULs();
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
+        Preface preface = headerPartition.getPreface();
+        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        SourcePackage filePackage = (SourcePackage) genericPackage;
+        UUID packageID = filePackage.getPackageMaterialNumberasUUID();
 
         // Ensure that Essence Container UL in the Partition Pack is the one for ISXD
         if (!partitionPackEssenceContainerULs.contains(ISXDDataEssenceDescriptor.getEssenceContainerUL())) {
@@ -29,19 +36,12 @@ public final class ISXDTrackFileConstraints {
                     String.format("The MXF Partition Pack does not contain the ISXD Data Essence Container UL."));
         }
 
-        Preface preface = headerPartition.getPreface();
-
         // Ensure that Essence Container UL in the Preface is the one for ISXD
         List<UL> prefaceEssenceContainerULs = preface.getEssenceContainerULs();
         if (!prefaceEssenceContainerULs.contains(ISXDDataEssenceDescriptor.getEssenceContainerUL())) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                     String.format("The MXF Preface does not contain the ISXD Data Essence Container UL."));
         }
-
-        GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
-        SourcePackage filePackage;
-        filePackage = (SourcePackage) genericPackage;
-        UUID packageID = filePackage.getPackageMaterialNumberasUUID();
 
         for (TimelineTrack timelineTrack : filePackage.getTimelineTracks()) {
             Sequence sequence = timelineTrack.getSequence();
@@ -64,6 +64,25 @@ public final class ISXDTrackFileConstraints {
                     if (!isxdEssenceDescriptor.getDataEssenceCoding().equals(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("Data Essence Coding shall be %s but is %s.", ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL.toString(), isxdEssenceDescriptor.getDataEssenceCoding().toString()));
+                    }
+
+                    if (subDescriptors.size() == 0) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
+                                String.format("ISXDDataEssenceDescriptor in the IMFTrackFile represented by ID %s does not have subdescriptors, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", packageID.toString()));
+                    } else {
+                        //
+                        // ContainerConstraintsSubDescriptor (ST 379-2)
+                        //
+                        List<InterchangeObject.InterchangeObjectBO> containerConstraintsSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ContainerConstraintsSubDescriptor.class)).collect(Collectors.toList());
+                        if (containerConstraintsSubDescriptors.isEmpty()) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("Track File with ID %s: A ContainerConstraintsSubDescriptor shall be present per ST 379-2, but is missing", packageID.toString()));
+                        } else if (containerConstraintsSubDescriptors.size() != 1) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
+                                    IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                    String.format("Track File with ID %s: One ContainerConstraintsSubDescriptor shall be present per ST 379-2, but %d are present", packageID.toString(), containerConstraintsSubDescriptors.size()));
+                        }
                     }
                 }
             }

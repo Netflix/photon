@@ -16,6 +16,32 @@ import java.nio.file.Path;
 public class ISXDCompositionTest {
 
     @Test
+    public void compositionTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ISXD/CPL_ISXD_TEST_1.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+    }
+
+    @Test
+    public void compositionSubDescriptorMissingTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ISXD/CPL_ISXD_TEST_SubDescriptorMissingTest.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
     public void compositionNotHomogeneousTest() throws IOException {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/ISXD/CPL_ISXD_TEST_NamespaceUriMismatch.xml");
@@ -25,7 +51,7 @@ public class ISXDCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
         Assert.assertTrue(imfErrorLogger.getErrors().get(0).getErrorDescription().contains("not homogeneous"));
     }
 
@@ -39,8 +65,23 @@ public class ISXDCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+        Assert.assertTrue(imfErrorLogger.getErrors().stream()
+                .anyMatch(e -> e.getErrorDescription().contains("not equal")));
+    }
+
+    @Test
+    public void compositionEmptyIsxdTrackTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ISXD/CPL_ISXD_TEST_EmptyIsxdTrack.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
-        Assert.assertTrue(imfErrorLogger.getErrors().get(0).getErrorDescription().contains("not equal"));
+        Assert.assertTrue(imfErrorLogger.getErrors().get(0).getErrorDescription().contains("associated resources"));
     }
 
 }

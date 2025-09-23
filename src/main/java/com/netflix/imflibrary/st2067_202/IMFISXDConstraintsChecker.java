@@ -36,6 +36,11 @@ public class IMFISXDConstraintsChecker {
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
             }
 
+            if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                        "an ISXD VirtualTrack Resource has no SubDescriptor, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", imfTrackFileResourceType.getSourceEncoding()));
+            }
+
             // Per ST 2067-202 Section 6: The Edit Rate of an ISXD Virtual Track shall be equal to the Edit Rate of the Main Image Virtual Track as defined in SMPTE ST 2067-2.
             if (imfTrackFileResourceType.getEditRate().getNumerator() * compositionEditRate.getDenominator() !=
                     imfTrackFileResourceType.getEditRate().getDenominator() * compositionEditRate.getNumerator()) {

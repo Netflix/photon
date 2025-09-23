@@ -24,9 +24,9 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("CPL_ISXD_TEST_1.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 4);
+                        Assert.assertEquals(e.getValue().size(), 5);
                     } else if (e.getKey().matches("ISXD_TEST_1_01_dovi_isxd.mxf")) {
-                        Assert.assertEquals(e.getValue().size(), 3);
+                        Assert.assertEquals(e.getValue().size(), 4);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
