@@ -36,8 +36,10 @@ public class IMFISXDConstraintsChecker {
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
             }
 
-            if (((imfTrackFileResourceType.getEditRate().getNumerator()*compositionEditRate.getDenominator()) % (imfTrackFileResourceType.getEditRate().getDenominator()*compositionEditRate.getNumerator()) != 0)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not a multiple of the EditRate of the Main Image Virtual Track %s/%s",
+            // Per ST 2067-202 Section 6: The Edit Rate of an ISXD Virtual Track shall be equal to the Edit Rate of the Main Image Virtual Track as defined in SMPTE ST 2067-2.
+            if (imfTrackFileResourceType.getEditRate().getNumerator() * compositionEditRate.getDenominator() !=
+                    imfTrackFileResourceType.getEditRate().getDenominator() * compositionEditRate.getNumerator()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not equal to the EditRate of the Main Image Virtual Track %s/%s",
                         imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
             }
 
