@@ -94,7 +94,22 @@ public final class IMFConstraints
 
         HeaderPartition headerPartition = headerPartitionOP1A.getHeaderPartition();
 
+        // Issue warnings if more than one Essence Container UL is present in Partition Pack or Preface
+        // legacy files may contain multiple Essence Container ULs due to some unexpected behaviour in earlier versions of asdcplib:
+        // https://github.com/cinecert/asdcplib/blob/9baa76f3e5b910c63e3e2355568eb409618d1a3d/CHANGES#L82
         Preface preface = headerPartition.getPreface();
+        List<UL> prefaceEssenceContainerULs = preface.getEssenceContainerULs();
+        if (prefaceEssenceContainerULs.size() != 1) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ESSENCE_EXCEPTION_PREFIX +
+                    String.format("The MXF Preface is expected to contain a single Essence Container UL, but contains %d.", prefaceEssenceContainerULs.size()));
+        }
+
+        List<UL> partitionPackEssenceContainerULs = headerPartition.getPartitionPack().getEssenceContainerULs();
+        if (partitionPackEssenceContainerULs.size() != 1) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_ESSENCE_EXCEPTION_PREFIX +
+                    String.format("The MXF Partition Pack is expected to contain a single Essence Container UL, but contains %d.", partitionPackEssenceContainerULs.size()));
+        }
+
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage;
         filePackage = (SourcePackage)genericPackage;

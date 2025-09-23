@@ -25,7 +25,7 @@ public class ISXDDataEssenceDescriptor extends GenericDataEssenceDescriptor {
      * Getter for the Essence Container UL of this FileDescriptor
      * @return a UL representing the Essence Container
      */
-    public UL getEssenceContainerUL(){
+    public static UL getEssenceContainerUL(){
         return IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL;
     }
 

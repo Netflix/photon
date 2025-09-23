@@ -28,6 +28,7 @@ import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import jakarta.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,6 +92,15 @@ public final class Preface extends InterchangeObject
     public int getNumberOfEssenceContainerULs()
     {
         return this.prefaceBO.essencecontainers.size();
+    }
+
+    /**
+     * Getter for a list of labels of EssenceContainers used in or referenced by this MXF file
+     * @return list of labels of EssenceContainers used in or referenced by this MXF file
+     */
+    public List<UL> getEssenceContainerULs()
+    {
+        return this.prefaceBO.essencecontainers.getEntries();
     }
 
     /**

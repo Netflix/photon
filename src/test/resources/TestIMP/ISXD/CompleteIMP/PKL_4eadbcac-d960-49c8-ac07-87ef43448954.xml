@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+    <!-- 
+      MANUALLY EDITED FOR PHOTON TESTING 
+  -->
+  <Id>urn:uuid:4eadbcac-d960-49c8-ac07-87ef43448954</Id>
+  <AnnotationText>ISXD_TEST_1</AnnotationText>
+  <IssueDate>2025-08-18T15:30:43-00:00</IssueDate>
+  <Issuer>Colorfront</Issuer>
+  <Creator>Colorfront Transkoder Dev build66261</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:a7d447a3-a05d-4aa3-a124-13ab3c23937c</Id>
+      <AnnotationText>ISXD_TEST_1_01_dovi_isxd.mxf</AnnotationText>
+      <Hash>xpHLpxDearq5nMADAc1uRYgJ4R8=</Hash>
+      <Size>2396822</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>ISXD_TEST_1_01_dovi_isxd.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:af6b288d-27e8-441f-9a36-2c4ab9025d19</Id>
+      <AnnotationText>ISXD_TEST_1</AnnotationText>
+      <Hash>093B0a2negr8zFYbp2hXooa01r0=</Hash>
+      <Size>727</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>OPL_af6b288d-27e8-441f-9a36-2c4ab9025d19.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:b2d74f92-1990-41e0-869f-2179a50f7090</Id>
+      <AnnotationText>CPL_ISXD_TEST_1.xml</AnnotationText>
+      <Hash>KZ1jNEvIrxkLM9wsWWCrGcdtxNk=</Hash>
+      <Size>18354</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_ISXD_TEST_1.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
