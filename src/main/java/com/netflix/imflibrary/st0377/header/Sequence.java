@@ -215,8 +215,10 @@ public final class Sequence extends StructuralComponent
 
             if (this.duration == null)
             {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        Sequence.ERROR_DESCRIPTION_PREFIX + "duration is null");
+                // the duration is not present when the sequence is referenced from a static track, as is the case for generic stream partitions typically contained in ISXD and IAB track files
+
+                //imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                //        Sequence.ERROR_DESCRIPTION_PREFIX + "duration is null");
             }
 
         }
