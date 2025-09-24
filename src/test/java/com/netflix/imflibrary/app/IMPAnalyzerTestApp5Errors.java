@@ -41,7 +41,9 @@ public class IMPAnalyzerTestApp5Errors
         errorMap.entrySet().stream().forEach( e ->
                 {
                 	if (e.getKey().matches("CPL.*")) {
-                        Assert.assertEquals(e.getValue().size(), 5);
+                        Assert.assertEquals(e.getValue().size(), 7);
+                    } else if (e.getKey().endsWith(".mxf")) {
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

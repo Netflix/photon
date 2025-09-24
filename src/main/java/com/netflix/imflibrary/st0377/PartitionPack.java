@@ -164,6 +164,16 @@ public final class  PartitionPack
         return this.essenceContainerBatch.size();
     }
 
+
+    /**
+     * Getter for the number of essence container ULs that are referred by this partition pack
+     * @return the number of essence container ULs that are referred by this partition pack
+     */
+    public List<UL> getEssenceContainerULs()
+    {
+        return this.essenceContainerBatch.getEntries();
+    }
+
     /**
      * Instantiates a new Partition pack.
      *

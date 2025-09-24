@@ -46,7 +46,10 @@ public class IMPAnalyzerTestApp5
         errorMap.entrySet().stream().forEach( e ->
                 {
                 	if (e.getKey().matches("CPL_cfad00b4-77b5-4d06-bd9d-48bc21c8fc0e.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 3);
+                        Assert.assertEquals(e.getValue().size(), 5);
+                    } else if (e.getKey().endsWith(".mxf"))  {
+                        // those legacy MXF files contain two Essence Container ULs in Partition Pack/Preface
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

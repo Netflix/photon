@@ -19,20 +19,38 @@
 package com.netflix.imflibrary.st0377.header;
 
 import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.annotations.MXFProperty;
 
 /**
  * Object model corresponding to GenericDataEssenceDescriptor structural metadata set defined in st377-1:2011
  */
 public abstract class GenericDataEssenceDescriptor extends FileDescriptor {
 
+    protected GenericDataEssenceDescriptorBO genericDataEssenceDescriptorBO;
+
+    public UL getDataEssenceCoding() {
+        return genericDataEssenceDescriptorBO.data_essence_coding;
+    }
+
     public static abstract class GenericDataEssenceDescriptorBO extends FileDescriptorBO {
+
+        @MXFProperty(size=16) protected final UL data_essence_coding = null;
+
         /**
          * Constructor for a File descriptor ByteObject.
          *
          * @param header the MXF KLV header (Key and Length field)
          */
-        GenericDataEssenceDescriptorBO(final KLVPacket.Header header) {
+        protected GenericDataEssenceDescriptorBO(final KLVPacket.Header header) {
             super(header);
+        }
+
+        /**
+         * Accessor for the data essence coding UL
+         * @return a UL representing the data essence coding
+         */
+        public UL getDataEssenceCoding(){
+            return this.data_essence_coding;
         }
     }
 }
