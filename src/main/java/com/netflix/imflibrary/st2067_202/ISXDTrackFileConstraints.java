@@ -70,9 +70,7 @@ public final class ISXDTrackFileConstraints {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("ISXDDataEssenceDescriptor in the IMFTrackFile represented by ID %s does not have subdescriptors, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", packageID.toString()));
                     } else {
-                        //
-                        // ContainerConstraintsSubDescriptor (ST 379-2)
-                        //
+                        // ContainerConstraintsSubDescriptor required per ST 379-2
                         List<InterchangeObject.InterchangeObjectBO> containerConstraintsSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(ContainerConstraintsSubDescriptor.class)).collect(Collectors.toList());
                         if (containerConstraintsSubDescriptors.isEmpty()) {
                             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,
@@ -84,6 +82,10 @@ public final class ISXDTrackFileConstraints {
                                     String.format("Track File with ID %s: One ContainerConstraintsSubDescriptor shall be present per ST 379-2, but %d are present", packageID.toString(), containerConstraintsSubDescriptors.size()));
                         }
                     }
+                } else {
+                    // Section 9.2
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
+                            String.format("Track File with ID %s does not contain ISXDDataEssenceDescriptor", packageID.toString()));
                 }
             }
         }
@@ -104,11 +106,13 @@ public final class ISXDTrackFileConstraints {
                         timelineTrack.getInstanceUID(), packageID.toString()));
             } else {
                 GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
-                if (genericDescriptor instanceof ISXDDataEssenceDescriptor) { // Support for st2067-201
+                if (genericDescriptor instanceof ISXDDataEssenceDescriptor) { // Support for st2067-202
                     ISXDDataEssenceDescriptor isxdEssenceDescriptor = (ISXDDataEssenceDescriptor) genericDescriptor;
 
-                    // Section 5.7
-                    if (timelineTrack.getEditRateNumerator() != indexTableSegment.getIndexEditRate().getNumerator() || timelineTrack.getEditRateDenominator() != indexTableSegment.getIndexEditRate().getDenominator()) {
+                    // index edit rate is expected to match essence edit rate
+                    if ( (indexTableSegment.getIndexEditRate().getDenominator() == 0 && indexTableSegment.getIndexEditRate().getNumerator() == 0) ||
+                            (timelineTrack.getEditRateNumerator() * indexTableSegment.getIndexEditRate().getDenominator() !=
+                            indexTableSegment.getIndexEditRate().getNumerator() * timelineTrack.getEditRateDenominator())) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("Timeline Track Edit Rate %d/%d does not match Index Table Segment Index Edit Rate %d/%d in the IMFTrackFile represented by ID %s.", timelineTrack.getEditRateNumerator(), timelineTrack.getEditRateDenominator(), indexTableSegment.getIndexEditRate().getNumerator(), indexTableSegment.getIndexEditRate().getDenominator(), packageID.toString()));
                     }

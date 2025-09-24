@@ -34,11 +34,18 @@ public class IMFISXDConstraintsChecker {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                 "an ISXD VirtualTrack Resource does not have an ISXDDataEssenceDescriptor but %s",
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
-            }
+            } else {
+                // this is actually a ISXDDataEssenceDescriptor, so check the descriptor constraints
+                if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                            "an ISXD VirtualTrack Resource has no SubDescriptor, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", imfTrackFileResourceType.getSourceEncoding()));
+                }
 
-            if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                        "an ISXD VirtualTrack Resource has no SubDescriptor, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", imfTrackFileResourceType.getSourceEncoding()));
+                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                    "an ISXD VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
+                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL));
+                }
             }
 
             // Per ST 2067-202 Section 6: The Edit Rate of an ISXD Virtual Track shall be equal to the Edit Rate of the Main Image Virtual Track as defined in SMPTE ST 2067-2.
@@ -47,13 +54,6 @@ public class IMFISXDConstraintsChecker {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not equal to the EditRate of the Main Image Virtual Track %s/%s",
                         imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
             }
-
-            if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
-                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                "an ISXD VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
-                        imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL));
-            }
-
         }
         return imfErrorLogger.getErrors();
     }

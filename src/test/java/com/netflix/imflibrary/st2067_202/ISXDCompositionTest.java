@@ -84,4 +84,17 @@ public class ISXDCompositionTest {
         Assert.assertTrue(imfErrorLogger.getErrors().get(0).getErrorDescription().contains("associated resources"));
     }
 
+    @Test
+    public void compositionNonIsxdResourceTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ISXD/CPL_ISXD_TEST_NonIsxdResource.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+    }
+
 }
