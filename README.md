@@ -12,6 +12,7 @@ Photon parses and reads IMF track files and serializes the metadata into the IMF
 - IMF Application #2E (ST 2067-21)
 - Application #5 ACES (ST 2067-50)
 - Immersive Audio Bitstream (IAB) Level 0 Plug-in (ST 2067-201).
+- Isochronous Stream of XML Documents (ISXD) Plug-in (ST 2067-202).
 - Audio with Frame-based S-ADM Metadata Plug-in (ST 2067-203).
 
 The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
@@ -53,13 +54,13 @@ Example for Maven:
 <dependency>
     <groupId>com.netflix.photon</groupId>
     <artifactId>Photon</artifactId>
-    <version>4.10.8</version>
+    <version>5.0.0</version>
 </dependency>
 ```
 and for Ivy:
 
 ```xml
-<dependency org="com.netflix.photon" name="Photon" rev="4.10.8" />
+<dependency org="com.netflix.photon" name="Photon" rev="5.0.0" />
 ```
 
 ## Documentation

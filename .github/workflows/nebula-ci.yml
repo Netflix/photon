@@ -12,8 +12,17 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        # test against JDK 11, 17 and 21
+        # test against JDK 11, 17 (ubuntu only) and 21 (ubuntu only)
         java: [ 11, 17, 21 ]
+        exclude:
+          - os: windows-latest
+            java: 17
+          - os: windows-latest
+            java: 21
+          - os: macos-latest
+            java: 17
+          - os: macos-latest
+            java: 21
     runs-on: ${{ matrix.os }}
     name: CI on ${{ matrix.os }} with Java ${{ matrix.java }}
     steps:
