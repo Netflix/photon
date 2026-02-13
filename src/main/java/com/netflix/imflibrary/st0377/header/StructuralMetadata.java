@@ -32,6 +32,9 @@ import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.KLVPacket;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
+import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.MXFUtils;
 import com.sandflow.smpte.util.UL;
 
@@ -1008,6 +1011,72 @@ public final class StructuralMetadata
             numBytesRead += length;
         }
 
+    }
+
+    /**
+     * Extracts the instance_uid (16 bytes) from an MXF local set value.
+     * Used for unknown structural metadata sets so they can be registered in uidToBOs
+     * and strong references (e.g. SubDescriptors) resolve correctly.
+     *
+     * @param valueBytes the raw value bytes of the KLV local set
+     * @param localTagToUIDMap primer pack local tag to UL map
+     * @param header the KLV header (for length field encoding)
+     * @return the 16-byte instance_uid, or null if not found
+     */
+    public static byte[] extractInstanceUid(byte[] valueBytes, Map<Integer, MXFUID> localTagToUIDMap, KLVPacket.Header header) {
+
+        // Step 1: Get the UL for "instance_uid"
+        MXFUID instanceUidUL = null;
+        for (Map.Entry<MXFUID, String> e : ItemULToItemName.entrySet()) {
+            if ("instance_uid".equals(e.getValue())) {
+                instanceUidUL = e.getKey();
+                break;
+            }
+        }
+        if (instanceUidUL == null) {
+            return null;
+        }
+
+        // Step 2: Get the local tag for the "instance_uid" UL
+        Integer instanceUidTag = null;
+        for (Map.Entry<Integer, MXFUID> e : localTagToUIDMap.entrySet()) {
+            if (e.getValue() != null && Arrays.equals(e.getValue().getUID(), instanceUidUL.getUID())) {
+                instanceUidTag = e.getKey();
+                break;
+            }
+        }
+        if (instanceUidTag == null) {
+            return null;
+        }
+
+        // Step 3: Walk the local set and find that item
+        try {
+            ByteProvider provider = new ByteArrayDataProvider(valueBytes);
+            long numBytesRead = 0;
+            while (numBytesRead < valueBytes.length) {
+                byte[] tagBytes = provider.getBytes(2);
+                numBytesRead += 2;
+                int localTag = ((tagBytes[0] & 0xFF) << 8) | (tagBytes[1] & 0xFF);
+                long length;
+                if (header.getRegistryDesignator() == 0x53) {
+                    byte[] lenBytes = provider.getBytes(2);
+                    numBytesRead += 2;
+                    length = ((lenBytes[0] & 0xFF) << 8) | (lenBytes[1] & 0xFF);
+                } else {
+                    KLVPacket.LengthField lengthField = KLVPacket.getLength(provider);
+                    numBytesRead += lengthField.sizeOfLengthField;
+                    length = lengthField.value;
+                }
+                if (localTag == instanceUidTag && length == 16) {
+                    return provider.getBytes(16);
+                }
+                provider.skipBytes(length);
+                numBytesRead += length;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return null;
     }
 
 }

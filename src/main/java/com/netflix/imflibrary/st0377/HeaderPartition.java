@@ -165,7 +165,24 @@ public final class HeaderPartition
                 }
                 else
                 {
-                    byteProvider.skipBytes(header.getVSize());
+                    // Unknown structural metadata (e.g. new sub-descriptor types from updated registers).
+                    // Parse enough to get instance_uid and register so strong references resolve.
+                    byte[] valueBytes = byteProvider.getBytes((int) header.getVSize());
+                    byte[] instanceUid = StructuralMetadata.extractInstanceUid(valueBytes,
+                            this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), header);
+                    if (instanceUid != null) {
+                        GenericInterchangeObject.GenericInterchangeObjectBO genericBO =
+                                new GenericInterchangeObject.GenericInterchangeObjectBO(header, instanceUid);
+                        List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(
+                                GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName());
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            this.interchangeObjectBOsMap.put(
+                                    GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName(), list);
+                        }
+                        list.add(genericBO);
+                        uidToBOs.put(genericBO.getInstanceUID(), genericBO);
+                    }
                 }
 
             }
