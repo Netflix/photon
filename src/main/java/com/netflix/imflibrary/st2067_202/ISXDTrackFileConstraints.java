@@ -55,15 +55,23 @@ public final class ISXDTrackFileConstraints {
                     ISXDDataEssenceDescriptor isxdEssenceDescriptor = (ISXDDataEssenceDescriptor) genericDescriptor;
 
                     // Section 9.1
-                    if (!isxdEssenceDescriptor.getEssenceContainerUL().equals(ISXDDataEssenceDescriptor.IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
+                    UL essenceContainerUL = isxdEssenceDescriptor.getEssenceContainerUL();
+                    if (essenceContainerUL == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
-                                String.format("The MXF ISXDEssenceDescriptor does not contain the ISXD Data Essence Container UL, but %s.", isxdEssenceDescriptor.getEssenceContainerUL().toString()));
+                                String.format("The MXF ISXDEssenceDescriptor does not contain an Essence Container UL."));
+                    } else if (!essenceContainerUL.equals(ISXDDataEssenceDescriptor.IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
+                                String.format("The MXF ISXDEssenceDescriptor does not contain the ISXD Data Essence Container UL, but %s.", essenceContainerUL.toString()));
                     }
 
                     // Section 9.3
-                    if (!isxdEssenceDescriptor.getDataEssenceCoding().equals(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL)) {
+                    UL dataEssenceCoding = isxdEssenceDescriptor.getDataEssenceCoding();
+                    if (dataEssenceCoding == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
-                                String.format("Data Essence Coding shall be %s but is %s.", ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL.toString(), isxdEssenceDescriptor.getDataEssenceCoding().toString()));
+                                String.format("The MXF ISXDEssenceDescriptor does not contain a Data Essence Coding UL."));
+                    } else if (!dataEssenceCoding.equals(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
+                                String.format("Data Essence Coding shall be %s but is %s.", ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL.toString(), dataEssenceCoding.toString()));
                     }
 
                     if (subDescriptors.size() == 0) {

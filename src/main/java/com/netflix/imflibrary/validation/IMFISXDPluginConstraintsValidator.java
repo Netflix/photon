@@ -105,6 +105,12 @@ public class IMFISXDPluginConstraintsValidator implements ConstraintsValidator {
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
                     "Unable to validate any essence descriptors: unable to parse essence partition payload");
             return imfErrorLogger.getErrors();
+        } catch (Exception e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Exception in validating EssenceDescriptors per %s: %s",
+                            getConstraintsSpecification(), e.getMessage()));
+            return imfErrorLogger.getErrors();
         }
 
         try {
