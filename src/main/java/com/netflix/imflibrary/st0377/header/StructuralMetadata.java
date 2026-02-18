@@ -1069,6 +1069,11 @@ public final class StructuralMetadata
                 if (localTag == instanceUidTag && length == 16) {
                     return provider.getBytes(16);
                 }
+                // Validate length before skipping to avoid reading past the end of valueBytes
+                if (length < 0 || numBytesRead + length > valueBytes.length) {
+                    // Malformed data; abort parsing
+                    return null;
+                }
                 provider.skipBytes(length);
                 numBytesRead += length;
             }
