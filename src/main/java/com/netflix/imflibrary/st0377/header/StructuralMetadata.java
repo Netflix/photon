@@ -33,7 +33,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.MXFUtils;
 import com.sandflow.smpte.util.UL;
 
