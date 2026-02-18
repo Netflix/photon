@@ -57,10 +57,13 @@ public final class GenericInterchangeObject extends InterchangeObject {
         }
     }
 
+    private final GenericInterchangeObjectBO genericInterchangeObjectBO;
+
     /**
      * @param genericInterchangeObjectBO the byte-object for this generic set
      */
     public GenericInterchangeObject(GenericInterchangeObjectBO genericInterchangeObjectBO) {
         // placeholder for unknown structural metadata sets; no parent constructor
+        this.genericInterchangeObjectBO = genericInterchangeObjectBO;
     }
 }
