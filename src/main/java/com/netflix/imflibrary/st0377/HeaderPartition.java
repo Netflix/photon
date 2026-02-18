@@ -165,7 +165,33 @@ public final class HeaderPartition
                 }
                 else
                 {
-                    byteProvider.skipBytes(header.getVSize());
+                    // Unknown structural metadata (e.g. new sub-descriptor types from updated registers).
+                    // Parse enough to get instance_uid and register so strong references resolve.
+                    // Validate VSize before attempting to read the entire value into memory to avoid
+                    // excessive allocations or integer overflow on cast.
+                    final long vSize = header.getVSize();
+                    // Define a conservative upper bound for KLV values we are willing to fully buffer.
+                    final long MAX_REASONABLE_KLV_VALUE_SIZE = 1024L * 1024L * 1024L; // 1 GiB
+                    if (vSize < 0 || vSize > Integer.MAX_VALUE || vSize > MAX_REASONABLE_KLV_VALUE_SIZE) {
+                        throw new MXFException(String.format(
+                                "KLV value size %d is invalid or too large to buffer safely.", vSize));
+                    }
+                    byte[] valueBytes = byteProvider.getBytes((int) vSize);
+                    byte[] instanceUid = StructuralMetadata.extractInstanceUid(valueBytes,
+                            this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), header);
+                    if (instanceUid != null) {
+                        GenericInterchangeObject.GenericInterchangeObjectBO genericBO =
+                                new GenericInterchangeObject.GenericInterchangeObjectBO(header, instanceUid);
+                        List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(
+                                GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName());
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            this.interchangeObjectBOsMap.put(
+                                    GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName(), list);
+                        }
+                        list.add(genericBO);
+                        uidToBOs.put(genericBO.getInstanceUID(), genericBO);
+                    }
                 }
 
             }
