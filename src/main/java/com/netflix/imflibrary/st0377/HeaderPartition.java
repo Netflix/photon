@@ -31,8 +31,10 @@ import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_202.ISXDDataEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -492,6 +494,21 @@ public final class HeaderPartition
                     DescriptiveMarkerSegment descriptiveMarkerSegment = new DescriptiveMarkerSegment((DescriptiveMarkerSegment.DescriptiveMarkerSegmentBO) interchangeObjectBO, dmFramework);
                     this.cacheInterchangeObject(descriptiveMarkerSegment);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), descriptiveMarkerSegment);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(ISXDDataEssenceDescriptor.class)){
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        /*Although we do retrieve the dependent SubDescriptor for this ISXDDataEssenceDescriptor we do not really have a need for it,
+                        * since it can always be retrieved using the strong reference present in the subDescriptors collection of the ISXDDataEssenceDescriptor
+                        * on the other hand passing a reference to the SubDescriptor to the constructor can be problematic since SubDescriptors are optional*/
+                        ContainerConstraintsSubDescriptor containerConstraintsSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof ContainerConstraintsSubDescriptor){
+                            containerConstraintsSubDescriptor = (ContainerConstraintsSubDescriptor) dependentInterchangeObject;
+                        }
+                        /*Add similar casting code for other sub descriptors when relevant*/
+                    }
+                    ISXDDataEssenceDescriptor isxdDataEssenceDescriptor = new ISXDDataEssenceDescriptor((ISXDDataEssenceDescriptor.ISXDEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(isxdDataEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), isxdDataEssenceDescriptor);
                 }
             }
         }
