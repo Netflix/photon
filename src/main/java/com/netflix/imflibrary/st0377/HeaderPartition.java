@@ -31,8 +31,10 @@ import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
+import com.netflix.imflibrary.st2067_202.ISXDDataEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundEssenceDescriptor;
 import com.netflix.imflibrary.st2067_203.MGASoundfieldGroupLabelSubDescriptor;
+import com.netflix.imflibrary.st379_2.ContainerConstraintsSubDescriptor;
 import com.netflix.imflibrary.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +167,33 @@ public final class HeaderPartition
                 }
                 else
                 {
-                    byteProvider.skipBytes(header.getVSize());
+                    // Unknown structural metadata (e.g. new sub-descriptor types from updated registers).
+                    // Parse enough to get instance_uid and register so strong references resolve.
+                    // Validate VSize before attempting to read the entire value into memory to avoid
+                    // excessive allocations or integer overflow on cast.
+                    final long vSize = header.getVSize();
+                    // Define a conservative upper bound for KLV values we are willing to fully buffer.
+                    final long MAX_REASONABLE_KLV_VALUE_SIZE = 1024L * 1024L * 1024L; // 1 GiB
+                    if (vSize < 0 || vSize > Integer.MAX_VALUE || vSize > MAX_REASONABLE_KLV_VALUE_SIZE) {
+                        throw new MXFException(String.format(
+                                "KLV value size %d is invalid or too large to buffer safely.", vSize));
+                    }
+                    byte[] valueBytes = byteProvider.getBytes((int) vSize);
+                    byte[] instanceUid = StructuralMetadata.extractInstanceUid(valueBytes,
+                            this.primerPack.getLocalTagEntryBatch().getLocalTagToUIDMap(), header);
+                    if (instanceUid != null) {
+                        GenericInterchangeObject.GenericInterchangeObjectBO genericBO =
+                                new GenericInterchangeObject.GenericInterchangeObjectBO(header, instanceUid);
+                        List<InterchangeObject.InterchangeObjectBO> list = this.interchangeObjectBOsMap.get(
+                                GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName());
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            this.interchangeObjectBOsMap.put(
+                                    GenericInterchangeObject.GenericInterchangeObjectBO.class.getSimpleName(), list);
+                        }
+                        list.add(genericBO);
+                        uidToBOs.put(genericBO.getInstanceUID(), genericBO);
+                    }
                 }
 
             }
@@ -466,6 +494,21 @@ public final class HeaderPartition
                     DescriptiveMarkerSegment descriptiveMarkerSegment = new DescriptiveMarkerSegment((DescriptiveMarkerSegment.DescriptiveMarkerSegmentBO) interchangeObjectBO, dmFramework);
                     this.cacheInterchangeObject(descriptiveMarkerSegment);
                     uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), descriptiveMarkerSegment);
+                } else if(interchangeObjectBO.getClass().getEnclosingClass().equals(ISXDDataEssenceDescriptor.class)){
+                    for(Node dependent : node.depends) {
+                        InterchangeObject dependentInterchangeObject = uidToMetadataSets.get(dependent.uid);
+                        /*Although we do retrieve the dependent SubDescriptor for this ISXDDataEssenceDescriptor we do not really have a need for it,
+                        * since it can always be retrieved using the strong reference present in the subDescriptors collection of the ISXDDataEssenceDescriptor
+                        * on the other hand passing a reference to the SubDescriptor to the constructor can be problematic since SubDescriptors are optional*/
+                        ContainerConstraintsSubDescriptor containerConstraintsSubDescriptor = null;
+                        if(dependentInterchangeObject instanceof ContainerConstraintsSubDescriptor){
+                            containerConstraintsSubDescriptor = (ContainerConstraintsSubDescriptor) dependentInterchangeObject;
+                        }
+                        /*Add similar casting code for other sub descriptors when relevant*/
+                    }
+                    ISXDDataEssenceDescriptor isxdDataEssenceDescriptor = new ISXDDataEssenceDescriptor((ISXDDataEssenceDescriptor.ISXDEssenceDescriptorBO) interchangeObjectBO);
+                    this.cacheInterchangeObject(isxdDataEssenceDescriptor);
+                    uidToMetadataSets.put(interchangeObjectBO.getInstanceUID(), isxdDataEssenceDescriptor);
                 }
             }
         }
