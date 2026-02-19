@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.imflibrary.validation.IMFApp2E5EDConstraintsValidator;
+
 public final class CoreConstraints
 {
     private CoreConstraints() {} // Prevent instantiation. This class is constants and utilities only
@@ -27,7 +29,9 @@ public final class CoreConstraints
     {
         // NOTE- When adding new namespaces or core constraint versions, be sure that the most recent core constraints
         // are checked first. That way if there are multiple ApplicationIdentifications, the newest version is returned.
-        if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2020") || (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2021")))
+        if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2020") || 
+            applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2021") ||
+            applicationIds.contains(IMFApp2E5EDConstraintsValidator.applicationIdentification))
         {
             return CoreConstraints.NAMESPACE_IMF_2020;
         }
