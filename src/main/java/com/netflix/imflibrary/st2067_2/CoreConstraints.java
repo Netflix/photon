@@ -27,7 +27,7 @@ public final class CoreConstraints
     {
         // NOTE- When adding new namespaces or core constraint versions, be sure that the most recent core constraints
         // are checked first. That way if there are multiple ApplicationIdentifications, the newest version is returned.
-        if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2020") || (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2021")))
+        if (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/5ED") || applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2020") || (applicationIds.contains("http://www.smpte-ra.org/ns/2067-21/2021")))
         {
             return CoreConstraints.NAMESPACE_IMF_2020;
         }
