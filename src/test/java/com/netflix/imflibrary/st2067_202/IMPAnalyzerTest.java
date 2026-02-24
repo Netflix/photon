@@ -60,4 +60,28 @@ public class IMPAnalyzerTest
 
     }
 
+    @Test
+    public void IMPAnalyzer3Test() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/ISXD/CompleteIMP3/");
+        Map<String, List<ErrorLogger.ErrorObject>> errorMap = analyzeDelivery(inputFile);
+        Assert.assertEquals(errorMap.size(), 4);
+        errorMap.entrySet().stream().forEach( e ->
+                {
+                    if (e.getKey().matches("CPL_cbbadf7d-5378-4680-8643-d1fdcfde1588.xml")) {
+                        Assert.assertEquals(e.getValue().size(), 5);
+                    } else if (e.getKey().matches("DOLBY_0e1f214d-d63d-478c-bebe-7ea03e9197c6.mxf")) {
+                        Assert.assertEquals(e.getValue().size(), 1);
+                        for (ErrorLogger.ErrorObject error : e.getValue()) {
+                            Assert.assertFalse(error.getErrorDescription().contains("MXF ISXDEssenceDescriptor does not contain a Data Essence Coding UL"),
+                                    "Version byte of DataEssenceCodingUL is known to be incorrect, but should be ignored: " + error.getErrorDescription());
+                        }
+                    } else {
+                        Assert.assertEquals(e.getValue().size(), 0);
+                    }
+                }
+        );
+
+    }
+
  }
