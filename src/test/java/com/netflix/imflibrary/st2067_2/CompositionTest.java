@@ -348,6 +348,18 @@ public class CompositionTest
     }
 
     @Test
+    public void compositionWithoutApplicationIdentificationFullyNegativeTest() throws IOException {
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/ApplicationIdentification/CPL_1371bafb-696f-49b7-ac28-0ca361c851bc.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        Assert.assertTrue(imfErrorLogger.getErrors().get(0).getErrorDescription().contains("SKIPPING APPLICATION-LEVEL VALIDATION."));
+    }
+
+    @Test
     public void composition2020Test() throws IOException {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IMF-2020/CPL-2020_updated-core-constraints.xml");
