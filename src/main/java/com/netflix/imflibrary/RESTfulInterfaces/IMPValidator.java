@@ -286,7 +286,15 @@ public class IMPValidator {
          */
 
         Set<String> namespaces = imfCompositionPlaylist.getSequenceNamespaceSet();
-        namespaces.addAll(imfCompositionPlaylist.getApplicationIdSet());
+
+        Set<String> applicationIdentification = imfCompositionPlaylist.getApplicationIdSet();
+
+        if (applicationIdentification.isEmpty()) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "No application identified in CPL. SKIPPING APPLICATION-LEVEL VALIDATION.");
+        }
+
+        namespaces.addAll(applicationIdentification);
         namespaces.add(imfCompositionPlaylist.getCplSchema());
 
         for (String namespace : namespaces) {
