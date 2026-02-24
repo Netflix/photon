@@ -115,6 +115,58 @@ public class JPEG2000 {
         return false;
     }
 
+    public static boolean isIMF8KProfile(UL pictureEssenceCoding) {
+        if (!pictureEssenceCoding.equalsWithMask(J2K_NODE_UL, 0b1111111011111100))
+            return false;
+
+
+        if (pictureEssenceCoding.getByte(14) == 0x04) {
+            /* lossy profile */
+
+            if (pictureEssenceCoding.getByte(15) < 0x02 || pictureEssenceCoding.getByte(15) > 0x31) {
+                /* Only Mainlevel 1-10 are allowed */
+                return false;
+            }
+
+            /* Sublevel 0 is not allowed */
+            switch (pictureEssenceCoding.getByte(15)) {
+                case 0x02: /* J2K_8KIMF_SingleTileLossyProfile_M1S0 */
+                case 0x04: /* J2K_8KIMF_SingleTileLossyProfile_M2S0 */
+                case 0x06: /* J2K_8KIMF_SingleTileLossyProfile_M3S0 */
+                case 0x08: /* J2K_8KIMF_SingleTileLossyProfile_M4S0 */
+                case 0x00: /* J2K_8KIMF_SingleTileLossyProfile_M5S0 */
+                case 0x0f: /* J2K_8KIMF_SingleTileLossyProfile_M6S0 */
+                case 0x14: /* J2K_8KIMF_SingleTileLossyProfile_M7S0 */
+                case 0x1a: /* J2K_8KIMF_SingleTileLossyProfile_M8S0 */
+                case 0x21: /* J2K_8KIMF_SingleTileLossyProfile_M9S0 */
+                case 0x29: /* J2K_8KIMF_SingleTileLossyProfile_M10S0 */
+                    return false;
+            }
+
+            return true;
+
+        } else if (pictureEssenceCoding.getByte(14) == 0x07) {
+            /* lossless profile */
+
+            switch (pictureEssenceCoding.getByte(15)) {
+                case 0x02: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M1S0 */
+                case 0x04: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M2S0 */
+                case 0x06: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M3S0 */
+                case 0x08: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M4S0 */
+                case 0x0b: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M5S0 */
+                case 0x0f: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M6S0 */
+                case 0x14: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M7S0 */
+                case 0x1a: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M8S0 */
+                case 0x21: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M8S0 */
+                case 0x29: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M8S0 */
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
     public static boolean isAPP2HT(UL pictureEssenceCoding) {
         return pictureEssenceCoding.equalsIgnoreVersion(HTJ2K_UL);
     }
