@@ -74,7 +74,7 @@ public enum Colorimetry {
 
         public static @Nonnull CodingEquation valueOf(@Nullable UL codingEquationUL) {
             for(CodingEquation codingEquation: CodingEquation.values()) {
-                if( codingEquation.getCodingEquationUL() != null && codingEquation.getCodingEquationUL().equals(codingEquationUL)) {
+                if( codingEquation.getCodingEquationUL() != null && codingEquationUL != null && codingEquation.getCodingEquationUL().equalsIgnoreVersion(codingEquationUL)) {
                     return codingEquation;
                 }
             }
@@ -102,7 +102,7 @@ public enum Colorimetry {
 
         public static @Nonnull TransferCharacteristic valueOf(@Nullable UL transferCharacteristicUL) {
             for(TransferCharacteristic transferCharacteristic: TransferCharacteristic.values()) {
-                if( transferCharacteristic.getTransferCharacteristicUL() != null && transferCharacteristic.getTransferCharacteristicUL().equals(transferCharacteristicUL)) {
+                if( transferCharacteristic.getTransferCharacteristicUL() != null && transferCharacteristicUL != null && transferCharacteristic.getTransferCharacteristicUL().equalsIgnoreVersion(transferCharacteristicUL)) {
                     return transferCharacteristic;
                 }
             }
@@ -130,7 +130,7 @@ public enum Colorimetry {
 
         public static @Nonnull ColorPrimaries valueOf(@Nullable UL colorPrimariesUL) {
             for(ColorPrimaries colorPrimaries: ColorPrimaries.values()) {
-                if( colorPrimaries.getColorPrimariesUL() != null && colorPrimaries.getColorPrimariesUL().equals(colorPrimariesUL)) {
+                if( colorPrimaries.getColorPrimariesUL() != null && colorPrimariesUL != null && colorPrimaries.getColorPrimariesUL().equalsIgnoreVersion(colorPrimariesUL)) {
                     return colorPrimaries;
                 }
             }

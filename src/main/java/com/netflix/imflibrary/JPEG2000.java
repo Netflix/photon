@@ -168,7 +168,7 @@ public class JPEG2000 {
 
 
     public static boolean isAPP2HT(UL pictureEssenceCoding) {
-        return pictureEssenceCoding.equalsWithMask(HTJ2K_UL, 0b1111111011111111);
+        return pictureEssenceCoding.equalsIgnoreVersion(HTJ2K_UL);
     }
 
 }

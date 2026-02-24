@@ -47,7 +47,7 @@ public class IMFIABConstraintsChecker {
                         imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
             }
 
-            if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equals(IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL)) {
+            if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equalsIgnoreVersion(IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                 "an IAB VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), IMF_IAB_ESSENCE_CLIP_WRAPPED_CONTAINER_UL));
@@ -59,7 +59,7 @@ public class IMFIABConstraintsChecker {
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("Codec")));
             }
 
-            if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equals(IMMERSIVE_AUDIO_CODING_LABEL)) {
+            if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equalsIgnoreVersion(IMMERSIVE_AUDIO_CODING_LABEL)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                 "an IAB VirtualTrack Resource does not use the correct Sound Compression UL: %s vs. %s",
                         imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("SoundCompression"), IMMERSIVE_AUDIO_CODING_LABEL));
@@ -110,7 +110,7 @@ public class IMFIABConstraintsChecker {
 //                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
 //                                            "an IAB VirtualTrack Resource misses MCATitleVersion", imfTrackFileResourceType.getSourceEncoding()));
 //                                }
-                            if (!IABSoundfieldLabelSubDescriptor.IAB_MCA_LABEL_DICTIONNARY_ID_UL.equals(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
+                            if (!IABSoundfieldLabelSubDescriptor.IAB_MCA_LABEL_DICTIONNARY_ID_UL.equalsIgnoreVersion(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                         "an IAB VirtualTrack Resource has invalid MCA Label Dictionary ID (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), IABSoundfieldLabelSubDescriptor.IAB_MCA_LABEL_DICTIONNARY_ID_UL));
                             }
