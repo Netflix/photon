@@ -82,13 +82,13 @@ public class IMFMGASADMConstraintsChecker {
                             imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId(), compositionEditRate.getNumerator(), compositionEditRate.getDenominator()));
                 }
 
-                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equalsWithMask(MXF_GC_CLIP_WRAPPED_MGA, 0b1111111011111111)) {
+                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equalsIgnoreVersion(MXF_GC_CLIP_WRAPPED_MGA)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an MGA S-ADM VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
                             imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), MXF_GC_CLIP_WRAPPED_MGA));
                 }
 
-                if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equalsWithMask(MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, 0b1111111011111111)) {
+                if (!domNodeObjectModel.getFieldAsUL("SoundCompression").equalsIgnoreVersion(MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an MGA S-ADM VirtualTrack Resource does not use the correct Sound Compression UL: %s vs. %s",
                             imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("SoundCompression"), MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING));
@@ -127,7 +127,7 @@ public class IMFMGASADMConstraintsChecker {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource is missing MCA Label Dictionary ID", imfTrackFileResourceType.getSourceEncoding()));
 
-                                } else if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL.equalsWithMask(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), 0b1111111011111111)) {
+                                } else if (!MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL.equalsIgnoreVersion(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
                                             "an MGA S-ADM VirtualTrack Resource does not have the  MCA Label Dictionary ID for MGA (%s vs. %s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL));
                                 }

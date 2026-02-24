@@ -80,6 +80,16 @@ public final class MXFUID
     }
 
     /**
+     * Compares this UID to another UID, ignoring the version byte (byte 7)
+     *
+     * @param other Other MXFUID to compare
+     * @return true if the UIDs are equal ignoring the version byte
+     */
+    public boolean equalsIgnoreVersion(MXFUID other) {
+        return equalsWithMask(other, 0b1111111011111111);
+    }
+
+    /**
      * A method that compares 2 MXF UIDs.
      * Note: this method would return true if and only if the 2 MXF UIDs match. If the object
      * passed in is not a MXF UID type then this method would return false

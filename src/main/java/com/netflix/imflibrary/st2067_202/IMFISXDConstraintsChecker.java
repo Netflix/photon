@@ -41,7 +41,7 @@ public class IMFISXDConstraintsChecker {
                             "an ISXD VirtualTrack Resource has no SubDescriptor, but a ContainerConstraintsSubDescriptor shall be present per ST 379-2.", imfTrackFileResourceType.getSourceEncoding()));
                 }
 
-                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equalsWithMask(IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL, 0b1111111011111111)) {
+                if (!domNodeObjectModel.getFieldAsUL("ContainerFormat").equalsIgnoreVersion(IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an ISXD VirtualTrack Resource does not use the correct Essence Container UL: %s vs. %s",
                             imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsUL("ContainerFormat"), IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL));
