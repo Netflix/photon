@@ -191,7 +191,7 @@ public final class IMFConstraints
                         if (genericDescriptor instanceof WaveAudioEssenceDescriptor) {
                             WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = (WaveAudioEssenceDescriptor) genericDescriptor;
                             if ((waveAudioEssenceDescriptor.getChannelAssignmentUL() == null) ||
-                                    (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equals(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL)))) {
+                                    (!waveAudioEssenceDescriptor.getChannelAssignmentUL().equalsWithMask(new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL), 0b1111111011111111))) {
                                 //Section 5.3.4.2 st2067-2:2016
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMFConstraints.IMF_ESSENCE_EXCEPTION_PREFIX + String.format("ChannelAssignment UL for WaveAudioEssenceDescriptor = %s is different from %s in the IMFTrackFile represented by ID %s.",
                                         waveAudioEssenceDescriptor.getChannelAssignmentUL(), new MXFUID(IMFConstraints.IMF_CHANNEL_ASSIGNMENT_UL), packageID.toString()));

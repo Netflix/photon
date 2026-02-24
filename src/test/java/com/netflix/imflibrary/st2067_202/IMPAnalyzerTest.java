@@ -27,6 +27,10 @@ public class IMPAnalyzerTest
                         Assert.assertEquals(e.getValue().size(), 5);
                     } else if (e.getKey().matches("ISXD_TEST_1_01_dovi_isxd.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 4);
+                        for (ErrorLogger.ErrorObject error : e.getValue()) {
+                            Assert.assertFalse(error.getErrorDescription().contains("MXF ISXDEssenceDescriptor does not contain a Data Essence Coding UL"),
+                                    "Version byte of DataEssenceCodingUL is known to be incorrect, but should be ignored: " + error.getErrorDescription());
+                        }
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

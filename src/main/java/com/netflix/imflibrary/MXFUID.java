@@ -64,6 +64,22 @@ public final class MXFUID
     }
 
     /**
+     * Compares this UID to another UID, ignoring specific bytes based on a mask
+     *
+     * @param other Other MXFUID to compare
+     * @param byteMask 16-bit mask, where octet[n] of the UID is ignored if bit[15 - n] is 0
+     * @return true if the UIDs are equal
+     */
+    public boolean equalsWithMask(MXFUID other, int byteMask) {
+        for (int i = 0; i < 16; i++) {
+            if ((byteMask & 0x8000) != 0 && this.uid[i] != other.uid[i])
+                return false;
+            byteMask = byteMask << 1;
+        }
+        return true;
+    }
+
+    /**
      * A method that compares 2 MXF UIDs.
      * Note: this method would return true if and only if the 2 MXF UIDs match. If the object
      * passed in is not a MXF UID type then this method would return false
