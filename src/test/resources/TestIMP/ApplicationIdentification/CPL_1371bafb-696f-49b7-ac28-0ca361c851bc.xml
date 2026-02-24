@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:imf="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:imf20="http://www.smpte-ra.org/schemas/2067-2/2020" xmlns:a2e="http://www.smpte-ra.org/schemas/2067-21/2016" xmlns:isxd="http://www.dolby.com/schemas/RDD-47/2018" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CompositionPlaylist xmlns="http://www.smpte-ra.org/schemas/2067-3/2016" xmlns:imf="http://www.smpte-ra.org/schemas/2067-2/2016" xmlns:imf20="http://www.smpte-ra.org/schemas/2067-2/2020" xmlns:a2e="http://www.smpte-ra.org/schemas/2067-21/2016" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Id>urn:uuid:1371bafb-696f-49b7-ac28-0ca361c851bc</Id>
   <Annotation>2001_8K_HDR_PQ_reel5_clip</Annotation>
   <IssueDate>2026-02-20T16:45:10.2273680-08:00</IssueDate>
