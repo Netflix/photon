@@ -176,7 +176,7 @@ public class HeaderPartitionTest
         Assert.assertTrue(headerPartition.hasCDCIPictureEssenceDescriptor());
         Assert.assertEquals(headerPartition.getImageColorModel(), Colorimetry.ColorModel.YUV);
         Assert.assertEquals(headerPartition.getImageCodingEquation(), Colorimetry.CodingEquation.ITU709);
-        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.Unknown);
+        Assert.assertEquals(headerPartition.getImageColorPrimaries(), Colorimetry.ColorPrimaries.ITU709);
         Assert.assertEquals(headerPartition.getImageTransferCharacteristic(), Colorimetry.TransferCharacteristic.ITU709);
         Assert.assertEquals(headerPartition.getImageQuantization(), Colorimetry.Quantization.QE2);
         Assert.assertEquals(headerPartition.getImageSampling(), Colorimetry.Sampling.Sampling422);

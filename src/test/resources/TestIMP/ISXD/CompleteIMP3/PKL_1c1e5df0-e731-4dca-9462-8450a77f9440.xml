@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:1c1e5df0-e731-4dca-9462-8450a77f9440</Id>
+  <AnnotationText>Untitled Project 18</AnnotationText>
+  <IssueDate>2026-02-20T15:13:02</IssueDate>
+  <Issuer>Blackmagic Design</Issuer>
+  <Creator>Blackmagic Design DaVinci Resolve Studio 20.3.1.0006</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:0e1f214d-d63d-478c-bebe-7ea03e9197c6</Id>
+      <AnnotationText>DOLBY_0e1f214d-d63d-478c-bebe-7ea03e9197c6.mxf</AnnotationText>
+      <Hash>VlU+SWBUNw+zZnVNCgzgaBONuCY=</Hash>
+      <Size>1866014</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>DOLBY_0e1f214d-d63d-478c-bebe-7ea03e9197c6.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:cbbadf7d-5378-4680-8643-d1fdcfde1588</Id>
+      <AnnotationText>Untitled Project 18</AnnotationText>
+      <Hash>PAh8+kgMXLzGAvEClAaV496I5Dk=</Hash>
+      <Size>22474</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_cbbadf7d-5378-4680-8643-d1fdcfde1588.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
