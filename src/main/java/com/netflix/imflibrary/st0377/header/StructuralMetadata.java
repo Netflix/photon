@@ -33,8 +33,6 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.MXFPropertyPopulator;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
-import com.netflix.imflibrary.utils.MXFUtils;
-import com.sandflow.smpte.util.UL;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -733,6 +731,28 @@ public final class StructuralMetadata
         ItemULToItemName = Collections.unmodifiableMap(map);
     }
 
+    private static final int VERSION_IGNORE_MASK = 0b1111111011111111;
+
+    /**
+     * Looks up a property name in the ItemULToItemName registry, ignoring the UL version byte (byte 7).
+     * First attempts an exact match for performance, then falls back to a masked comparison.
+     *
+     * @param mxfUL the UL to look up
+     * @return the property name, or null if not found
+     */
+    private static String getItemName(MXFUID mxfUL) {
+        String exactMatch = ItemULToItemName.get(mxfUL);
+        if (exactMatch != null) {
+            return exactMatch;
+        }
+        for (Map.Entry<MXFUID, String> entry : ItemULToItemName.entrySet()) {
+            if (entry.getKey().equalsWithMask(mxfUL, VERSION_IGNORE_MASK)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
     /**
      * A method that determines of the key passed in corresponds to a structural metadata set.
      *
@@ -991,9 +1011,9 @@ public final class StructuralMetadata
 
             //read or skip value
             MXFUID mxfUL = localTagToUIDMap.get(localTag);
-            if ((mxfUL != null) && (StructuralMetadata.ItemULToItemName.get(mxfUL) != null))
+            String itemName = (mxfUL != null) ? getItemName(mxfUL) : null;
+            if (itemName != null)
             {
-                String itemName = StructuralMetadata.ItemULToItemName.get(mxfUL);
                 int expectedLength = MXFPropertyPopulator.getFieldSizeInBytes(object, itemName);
                 if((expectedLength > 0) && (length != expectedLength))
                 {
