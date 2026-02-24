@@ -214,7 +214,7 @@ public class IMFApp5ConstraintsValidator implements ConstraintsValidator {
                     String.format("EssenceDescriptor with ID %s does not contain a ContainerFormat as per %s",
                             imageEssenceDescriptorID.toString(), CONSTRAINTS_SPEC));
         } else  {
-            if (!essenceContainerFormatUL.equals(MXFGCFrameWrappedACESPictures)) {
+            if (!essenceContainerFormatUL.equalsWithMask(MXFGCFrameWrappedACESPictures, 0b1111111011111111)) {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                         IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         String.format("EssenceDescriptor with ID %s has invalid ContainerFormat(%s) as per %s",

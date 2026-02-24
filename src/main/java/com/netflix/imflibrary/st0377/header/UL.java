@@ -24,6 +24,7 @@ import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.exceptions.IMFException;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Object model corresponding to a Universal Label defined in st377-1:2011
@@ -143,6 +144,23 @@ public class UL {
         }
 
         return true;
+    }
+
+    /**
+     * Checks whether a collection of ULs contains an entry matching the given UL,
+     * ignoring specific bytes based on a mask
+     *
+     * @param ulCollection Collection of ULs to search
+     * @param ul UL to search for
+     * @param byteMask 16-bit mask, where octet[n] of the UL is ignored if bit[15 - n] is 0
+     * @return true if a matching UL is found in the collection
+     */
+    public static boolean containsWithMask(Collection<UL> ulCollection, UL ul, int byteMask) {
+        for (UL entry : ulCollection) {
+            if (entry.equalsWithMask(ul, byteMask))
+                return true;
+        }
+        return false;
     }
 
     /**

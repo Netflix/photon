@@ -61,15 +61,15 @@ public enum MXFDataDefinition
      */
     public static MXFDataDefinition getDataDefinition(MXFUID mxfUL)
     {
-        if (mxfUL.equals(PICTURE.mxfUL))
+        if (mxfUL.equalsWithMask(PICTURE.mxfUL, 0b1111111011111111))
         {
             return PICTURE;
         }
-        else if (mxfUL.equals(SOUND.mxfUL))
+        else if (mxfUL.equalsWithMask(SOUND.mxfUL, 0b1111111011111111))
         {
             return SOUND;
         }
-        else if (mxfUL.equals(DATA.mxfUL))
+        else if (mxfUL.equalsWithMask(DATA.mxfUL, 0b1111111011111111))
         {
             return DATA;
         }

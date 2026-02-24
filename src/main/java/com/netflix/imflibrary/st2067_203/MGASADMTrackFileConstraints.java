@@ -99,12 +99,12 @@ public final class MGASADMTrackFileConstraints {
                     }
 
                     // ST 2067-203 section 5.4
-                    if (!mgaEssenceDescriptor.getEssenceContainerUL().equals(MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA)) {
+                    if (!mgaEssenceDescriptor.getEssenceContainerUL().equalsWithMask(MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA, 0b1111111011111111)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                 String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not use as Essence Container Label item the IMF Clip-Wrapped MGA Essence Container Label %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MXF_GC_CLIP_WRAPPED_MGA, mgaEssenceDescriptor.getEssenceContainerUL().toString()));
                     }
                     // ST 2127-10, Section 6
-                    if (!mgaEssenceDescriptor.getSoundEssenceCoding().equals(MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING)) {
+                    if (!mgaEssenceDescriptor.getSoundEssenceCoding().equalsWithMask(MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, 0b1111111011111111)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                 String.format("MGASoundEssenceDescriptor in the IMFTrackFile represented by ID %s does not indicate the MGA Audio Essence Coding value in its Sound Essence Coding item %s but %s.", packageID.toString(), MGASoundEssenceDescriptor.MGA_AUDIO_ESSENCE_UNCOMPRESSED_SOUND_CODING, mgaEssenceDescriptor.getSoundEssenceCoding().toString()));
                     }
@@ -197,7 +197,7 @@ public final class MGASADMTrackFileConstraints {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                             String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 } else {
-                                    if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL)) {
+                                    if (!mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equalsWithMask(MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL, 0b1111111011111111)) {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_MGASADM_EXCEPTION_PREFIX +
                                                 String.format("MGASoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s does not have the MCA Label Dictionary Id for MGA %s but %s", sub_descriptor.getInstanceUID().toString(), packageID.toString(), MGASoundfieldGroupLabelSubDescriptor.MGA_MCA_LABEL_DICTIONNARY_ID_UL, mgaSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().toString()));
                                     }
@@ -268,7 +268,7 @@ public final class MGASADMTrackFileConstraints {
                             for (InterchangeObject.InterchangeObjectBO sub_descriptor : mgaAudioMetadataSubDescriptors) {
                                 mgaAudioMetadataSubDescriptorBO = MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class.cast(sub_descriptor);
                                 if (mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataIndex() == 1) {
-                                    if (mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().getEntries().contains(SerialAudioDefinitionModelMetadataPayload)) {
+                                    if (UL.containsWithMask(mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().getEntries(), SerialAudioDefinitionModelMetadataPayload, 0b1111111011111111)) {
                                         if (!foundSADMSection) {
                                             foundSADMSection = true;
                                             mgaAudioMetadataSubDescriptorBO = MGAAudioMetadataSubDescriptor.MGAAudioMetadataSubDescriptorBO.class.cast(sub_descriptor);
@@ -280,7 +280,7 @@ public final class MGASADMTrackFileConstraints {
                                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                                 String.format("IMFTrackFile represented by ID %s has a non S-ADM Audio Metada Section with index 1", packageID.toString()));
                                     }
-                                } else if (mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().getEntries().contains(SerialAudioDefinitionModelMetadataPayload)) {
+                                } else if (UL.containsWithMask(mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataPayloadULArrray().getEntries(), SerialAudioDefinitionModelMetadataPayload, 0b1111111011111111)) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_MGASADM_EXCEPTION_PREFIX +
                                             String.format("IMFTrackFile represented by ID %s has an S-ADM section with MGAAudioMetadataIndex %d, the index shall be 1 per ST 2067-203", packageID.toString(), mgaAudioMetadataSubDescriptorBO.getMGAAudioMetadataIndex()));
                                 }

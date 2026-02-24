@@ -31,14 +31,14 @@ public final class ISXDTrackFileConstraints {
         UUID packageID = filePackage.getPackageMaterialNumberasUUID();
 
         // Ensure that Essence Container UL in the Partition Pack is the one for ISXD
-        if (!partitionPackEssenceContainerULs.contains(ISXDDataEssenceDescriptor.getEssenceContainerUL())) {
+        if (!UL.containsWithMask(partitionPackEssenceContainerULs, ISXDDataEssenceDescriptor.getEssenceContainerUL(), 0b1111111011111111)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                     String.format("The MXF Partition Pack does not contain the ISXD Data Essence Container UL."));
         }
 
         // Ensure that Essence Container UL in the Preface is the one for ISXD
         List<UL> prefaceEssenceContainerULs = preface.getEssenceContainerULs();
-        if (!prefaceEssenceContainerULs.contains(ISXDDataEssenceDescriptor.getEssenceContainerUL())) {
+        if (!UL.containsWithMask(prefaceEssenceContainerULs, ISXDDataEssenceDescriptor.getEssenceContainerUL(), 0b1111111011111111)) {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                     String.format("The MXF Preface does not contain the ISXD Data Essence Container UL."));
         }
@@ -59,7 +59,7 @@ public final class ISXDTrackFileConstraints {
                     if (essenceContainerUL == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("The MXF ISXDEssenceDescriptor does not contain an Essence Container UL."));
-                    } else if (!essenceContainerUL.equals(ISXDDataEssenceDescriptor.IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL)) {
+                    } else if (!essenceContainerUL.equalsWithMask(ISXDDataEssenceDescriptor.IMF_ISXD_ESSENCE_FRAME_WRAPPED_CONTAINER_UL, 0b1111111011111111)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("The MXF ISXDEssenceDescriptor does not contain the ISXD Data Essence Container UL, but %s.", essenceContainerUL.toString()));
                     }
@@ -69,7 +69,7 @@ public final class ISXDTrackFileConstraints {
                     if (dataEssenceCoding == null) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("The MXF ISXDEssenceDescriptor does not contain a Data Essence Coding UL."));
-                    } else if (!dataEssenceCoding.equals(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL)) {
+                    } else if (!dataEssenceCoding.equalsWithMask(ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL, 0b1111111011111111)) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ISXD_EXCEPTION_PREFIX +
                                 String.format("Data Essence Coding shall be %s but is %s.", ISXDDataEssenceDescriptor.UTF8_TEXT_DATA_ESSENCE_CODING_LABEL.toString(), dataEssenceCoding.toString()));
                     }
