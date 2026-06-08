@@ -264,6 +264,9 @@ public class IMFApp2E5EDConstraintsValidator extends IMFApp2EConstraintsValidato
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                     String.format("APP2.HT: Invalid number (%d) of components", p.csiz.length));
+
+            /* immediately return since the tests below depend on a certain number of components */
+            return logger.getErrors();
         }
 
         /* x sub-sampling */

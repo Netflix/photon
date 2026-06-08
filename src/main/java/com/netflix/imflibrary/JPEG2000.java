@@ -148,6 +148,7 @@ public class JPEG2000 {
         } else if (pictureEssenceCoding.getByte(14) == 0x07) {
             /* lossless profile */
 
+            /* Only sublevel 0 is allowed */
             switch (pictureEssenceCoding.getByte(15)) {
                 case 0x02: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M1S0 */
                 case 0x04: /* J2K_8KIMF_SingleMultiTileReversibleProfile_M2S0 */
