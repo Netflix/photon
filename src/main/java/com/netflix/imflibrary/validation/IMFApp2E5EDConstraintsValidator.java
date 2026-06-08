@@ -357,12 +357,12 @@ public class IMFApp2E5EDConstraintsValidator extends IMFApp2EConstraintsValidato
                     "APP2.HT: Invalid default code-block style");
         }
 
-        /* progression order - RPCL is not required, but ST 2067-21:2023 Annex I Note 3 implies a preference */
+        /* RPCL progression order is required per SMPTE ST 2067-21 5ED, Annex H */
         if (p.cod.progressionOrder != ProgressionOrder.RPCL.value())
             logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    "APP2.HT: JPEG 2000 progression order is not RPCL");
+                    "APP2.HT: JPEG 2000 progression order shall be RPCL");
 
         /* resolution layers */
         if (p.cod.numDecompLevels == 0) {
@@ -453,16 +453,25 @@ public class IMFApp2E5EDConstraintsValidator extends IMFApp2EConstraintsValidato
         /* codestream value */
         int codestreamB = (p.cap.ccap[0] & 0b11111) + 8;
 
-        if (codestreamB > 31) {
-            logger.addError(
+        if (isReversibleFilter) {
+            if (codestreamB != maxB) {
+                logger.addError(
                     IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
                     IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
-                    "APP2.HT: Parameter B has exceeded its limit to an extent that decoder issues are to be expected");
-        } else if (codestreamB > maxB) {
-            logger.addError(
-                    IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                    "APP2.HT: Parameter B has exceeded expected limits");
+                    "APP2.HT: Parameter B (" + codestreamB + ") is not equal to its expected value " + maxB);
+            }
+        } else {
+            if (codestreamB > 31) {
+                logger.addError(
+                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                        "APP2.HT: Parameter B has exceeded its limit to an extent that decoder issues are to be expected");
+            } else if (codestreamB > maxB) {
+                logger.addError(
+                        IMFErrorLogger.IMFErrors.ErrorCodes.APPLICATION_COMPOSITION_ERROR,
+                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                        "APP2.HT: Parameter B has exceeded expected limits");
+            }
         }
 
         return logger.getErrors();
