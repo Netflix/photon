@@ -29,6 +29,7 @@ public class ConstraintsValidatorFactory {
         registerValidator("http://www.smpte-ra.org/schemas/2067-3/2016", IMFCPL2016Validator::new);
 
         // IMF App #2E
+        registerValidator(IMFApp2E5EDConstraintsValidator.applicationIdentification, IMFApp2E5EDConstraintsValidator::new);
         registerValidator("http://www.smpte-ra.org/ns/2067-21/2021", IMFApp2E2021ConstraintsValidator::new);
         registerValidator("http://www.smpte-ra.org/ns/2067-21/2020", IMFApp2E2020ConstraintsValidator::new);
         registerValidator("http://www.smpte-ra.org/schemas/2067-21/2016", IMFApp2E2016ConstraintsValidator::new);
