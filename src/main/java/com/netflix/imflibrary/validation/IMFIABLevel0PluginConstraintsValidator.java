@@ -38,7 +38,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
     @Override
     public String getConstraintsSpecification() {
-        return "SMPTE ST 2067-201:2021 Immersive Audio Bitstream Level 0 Plug-in";
+        return "SMPTE ST 2067-201:2026 Immersive Audio Bitstream Level 0 Plug-in";
     }
 
     @Override
@@ -123,7 +123,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
 
 
     /**
-     * A stateless method, used for IMP containing IAB and/or MGA S-ADM tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7 of SMPTE ST 2067-201:2019)
+     * A stateless method, used for IMP containing IAB and/or MGA S-ADM tracks, that will validate that the index edit rate in the index segment matches the one in the descriptor (according to Section 5.7.1 of SMPTE ST 2067-201:2026)
      * @param headerPartitionPayloadRecord - an IMF Essence Component partition payload for header partitions
      * @param indexSegmentPayloadRecords - a list of IMF Essence Component partition payloads for index partitions
      * @return list of error messages encountered while validating

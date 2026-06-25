@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
 
 import javax.annotation.concurrent.Immutable;
 import jakarta.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -297,8 +298,15 @@ public final class IMFTrackFileCPLBuilder {
         else if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals(HeaderPartition.EssenceTypeEnum.MainAudioEssence)){
             element = objectFactory.createMainAudioSequence(sequenceType);
         }
+        else if(this.imfTrackFileReader.getEssenceType(imfErrorLogger).equals(HeaderPartition.EssenceTypeEnum.IABEssence)){
+            /* The IABSequence element (SMPTE ST 2067-201) lives in a foreign namespace relative to the 2067-3:2013
+             * CPL produced here. The SequenceList accepts it via xs:any (##other, lax), so it is wrapped directly
+             * as a JAXBElement carrying the 2067-201 QName rather than through the 2067-3:2013 ObjectFactory. */
+            element = new JAXBElement<>(new QName("http://www.smpte-ra.org/ns/2067-201/2019", "IABSequence"),
+                    SequenceType.class, sequenceType);
+        }
         else{
-            String message = String.format("Currently only Audio/Image sequence types are supported");
+            String message = String.format("Currently only Audio/Image/IAB sequence types are supported");
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR, IMFErrorLogger.IMFErrors
                     .ErrorLevels.FATAL,
                     message);

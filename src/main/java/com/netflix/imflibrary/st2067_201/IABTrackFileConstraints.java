@@ -22,6 +22,8 @@ import com.netflix.imflibrary.utils.ErrorLogger;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,55 @@ public final class IABTrackFileConstraints {
 
     private static final String IMF_IAB_EXCEPTION_PREFIX = "IMF IAB check: ";
 
+    /** Valid MCA Use Class symbols - SMPTE ST 377-41:2023, Table 3. */
+    static final Set<String> MCA_USE_CLASS_VALUES = Set.of("FCMP", "ICMP", "SMPL", "SING");
+
+    /**
+     * Valid MCA Content symbols (keys) and, for each, the MCA Use Class symbols permitted in combination with it -
+     * SMPTE ST 377-41:2023, Table 2 (vocabulary) and Table 4 (allowed combinations). Custom content ("x-" prefix,
+     * Table 2) is not listed; Table 4 defines no combination for it.
+     */
+    static final Map<String, Set<String>> MCA_CONTENT_TO_USE_CLASS = Map.ofEntries(
+            Map.entry("PRM", Set.of("FCMP", "SMPL")),
+            Map.entry("SAP", Set.of("FCMP", "SMPL")),
+            Map.entry("HI", Set.of("FCMP")),
+            Map.entry("DV", Set.of("FCMP")),
+            Map.entry("CM", Set.of("FCMP", "SING")),
+            Map.entry("DX", Set.of("ICMP", "SMPL")),
+            Map.entry("MX", Set.of("ICMP", "SMPL")),
+            Map.entry("FX", Set.of("ICMP", "SMPL")),
+            Map.entry("FFX", Set.of("ICMP", "SMPL")),
+            Map.entry("ME", Set.of("ICMP", "SMPL")),
+            Map.entry("OP", Set.of("ICMP", "SMPL")),
+            Map.entry("MESP", Set.of("ICMP", "SMPL")),
+            Map.entry("DME", Set.of("ICMP", "SMPL")),
+            Map.entry("NDME", Set.of("ICMP", "SMPL")),
+            Map.entry("PNAR", Set.of("SING")),
+            Map.entry("ONAR", Set.of("SING")),
+            Map.entry("LCM", Set.of("SING")),
+            Map.entry("VO", Set.of("SING")),
+            Map.entry("VI", Set.of("SING")),
+            Map.entry("MOS", Set.of("FCMP", "SMPL")),
+            Map.entry("ADR", Set.of("ICMP")),
+            Map.entry("GRP", Set.of("ICMP")),
+            Map.entry("CRD", Set.of("ICMP")),
+            Map.entry("WLA", Set.of("ICMP")),
+            Map.entry("VOC", Set.of("ICMP", "SMPL")),
+            Map.entry("FOL", Set.of("ICMP")),
+            Map.entry("BG", Set.of("ICMP")));
+
     // Prevent instantiation
     public IABTrackFileConstraints() {}
+
+    /**
+     * Indicates whether the supplied MCA Content value is valid per SMPTE ST 377-41:2023, Table 2 - i.e. one of the
+     * defined symbols or a custom value whose symbol begins with "x-".
+     * @param mcaContent the MCA Content value to test
+     * @return true if the value is a valid MCA Content symbol
+     */
+    static boolean isValidMCAContent(String mcaContent) {
+        return MCA_CONTENT_TO_USE_CLASS.containsKey(mcaContent) || mcaContent.startsWith("x-");
+    }
 
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
@@ -181,13 +230,36 @@ public final class IABTrackFileConstraints {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in IABSoundfieldLabelSubDescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", iabSoundFieldLabelSubDescriptorBO.getRFC5646SpokenLanguage(), packageID.toString()));
                             }
 
-                            if (iabSoundFieldLabelSubDescriptorBO.getMCAAudioContentKind() == null) {
+                            // Section 5.10.3 (ST 2067-201:2026): MCA Content and MCA Use Class should be present.
+                            // They supersede MCA Audio Content Kind and MCA Audio Element Kind, whose use is no longer
+                            // recommended (NOTE 3 of 5.10.3); accordingly, absence of the legacy items is no longer flagged.
+                            // When present, both items shall be set according to SMPTE ST 377-41:2023 (Subclauses 5.4 and 5.5).
+                            String mcaContent = iabSoundFieldLabelSubDescriptorBO.getMCAContent();
+                            String mcaUseClass = iabSoundFieldLabelSubDescriptorBO.getMCAUseClass();
+                            if (mcaContent == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAAudioContentKind", packageID.toString()));
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAContent", packageID.toString()));
+                            } else if (!isValidMCAContent(mcaContent)) {
+                                // ST 377-41:2023, Subclause 5.4 / Table 2
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAContent value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 2) symbol", packageID.toString(), mcaContent));
                             }
-                            if (iabSoundFieldLabelSubDescriptorBO.getMCAAudioElementKind() == null) {
+                            if (mcaUseClass == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAAudioElementKind", packageID.toString()));
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAUseClass", packageID.toString()));
+                            } else if (!MCA_USE_CLASS_VALUES.contains(mcaUseClass)) {
+                                // ST 377-41:2023, Subclause 5.5.1 / Table 3
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAUseClass value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 3) symbol", packageID.toString(), mcaUseClass));
+                            }
+                            // ST 377-41:2023, Subclause 5.5.2 / Table 4: the MCA Use Class shall be compatible with the MCA Content.
+                            // Skipped for custom ("x-") content, for which Table 4 defines no combination.
+                            if (mcaContent != null && mcaUseClass != null
+                                    && MCA_CONTENT_TO_USE_CLASS.containsKey(mcaContent)
+                                    && MCA_USE_CLASS_VALUES.contains(mcaUseClass)
+                                    && !MCA_CONTENT_TO_USE_CLASS.get(mcaContent).contains(mcaUseClass)) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has an MCAContent/MCAUseClass combination '%s'/'%s' that is not permitted by SMPTE ST 377-41:2023 (Table 4)", packageID.toString(), mcaContent, mcaUseClass));
                             }
                             if (iabSoundFieldLabelSubDescriptorBO.getMCATitle() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
@@ -202,6 +274,41 @@ public final class IABTrackFileConstraints {
                             if (iabSoundFieldLabelSubDescriptorBO.getMCAChannelID() != null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
                                         String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has forbidden MCAChannelID %d", packageID.toString(), iabSoundFieldLabelSubDescriptorBO.getMCAChannelID()));
+                            }
+                        }
+
+                        // Section 5.10.2 / Annex E (ST 2067-201:2026): IAB Channel SubDescriptors are permitted
+                        // (one per channel of each BedDefinition is recommended). Photon cannot cross-check the count
+                        // against the bitstream bed channels without decoding the essence, but it validates the items
+                        // of each instance that is present.
+                        List<InterchangeObject.InterchangeObjectBO> iabChannelSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(IABChannelSubDescriptor.class)).collect(Collectors.toList());
+                        for (InterchangeObject.InterchangeObjectBO subDescriptorBO : iabChannelSubDescriptors) {
+                            IABChannelSubDescriptor.IABChannelSubDescriptorBO iabChannelSubDescriptorBO = IABChannelSubDescriptor.IABChannelSubDescriptorBO.class.cast(subDescriptorBO);
+
+                            // Annex E.2.1: IABBedMetaID, IABChannelID and IABAudioDescription are required items.
+                            if (iabChannelSubDescriptorBO.getIABBedMetaID() == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABChannelSubDescriptor in the IMFTrackFile represented by ID %s is missing the required IABBedMetaID item", packageID.toString()));
+                            }
+                            if (iabChannelSubDescriptorBO.getIABChannelID() == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABChannelSubDescriptor in the IMFTrackFile represented by ID %s is missing the required IABChannelID item", packageID.toString()));
+                            }
+                            if (iabChannelSubDescriptorBO.getIABAudioDescription() == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                        String.format("IABChannelSubDescriptor in the IMFTrackFile represented by ID %s is missing the required IABAudioDescription item", packageID.toString()));
+                            } else {
+                                // Annex E.2.5: IABAudioDescriptionText is present if and only if the most significant
+                                // bit of IABAudioDescription is set.
+                                boolean expectsText = iabChannelSubDescriptorBO.isAudioDescriptionTextExpected();
+                                boolean hasText = iabChannelSubDescriptorBO.getIABAudioDescriptionText() != null;
+                                if (expectsText && !hasText) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABChannelSubDescriptor in the IMFTrackFile represented by ID %s has the IABAudioDescription text-present bit set but is missing IABAudioDescriptionText", packageID.toString()));
+                                } else if (!expectsText && hasText) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABChannelSubDescriptor in the IMFTrackFile represented by ID %s has IABAudioDescriptionText present but the IABAudioDescription text-present bit is not set", packageID.toString()));
+                                }
                             }
                         }
                     }

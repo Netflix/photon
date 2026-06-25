@@ -226,6 +226,62 @@ public class IABCompositionTest {
     }
 
     @Test
+    public void compositionPositiveTestMCAContentUseClass() throws IOException {
+        // Valid MCA Content / MCA Use Class value and a permitted combination (PRM/FCMP) per SMPTE ST 377-41:2023.
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_valid_mca_content_useclass.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+    }
+
+    @Test
+    public void compositionNegativeTestMCAContentValue() throws IOException {
+        // MCAContent value not in SMPTE ST 377-41:2023, Table 2.
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_content_value.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void compositionNegativeTestMCAUseClassValue() throws IOException {
+        // MCAUseClass value not in SMPTE ST 377-41:2023, Table 3.
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_use_class_value.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void compositionNegativeTestMCAContentUseClassCombination() throws IOException {
+        // Individually valid values but a combination disallowed by SMPTE ST 377-41:2023, Table 4 (PRM/ICMP).
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_combination.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
     public void correctDurationTest() throws IOException {
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_valid_iabsequence.xml");

@@ -29,6 +29,7 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.header.*;
 import com.netflix.imflibrary.st2067_2.AudioContentKind;
 import com.netflix.imflibrary.st2067_2.Composition;
+import com.netflix.imflibrary.st2067_201.IABChannelSubDescriptor;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.st2067_202.ISXDDataEssenceDescriptor;
@@ -936,6 +937,15 @@ public final class HeaderPartition
     public List<InterchangeObject> getIABSoundFieldLabelSubDescriptors()
     {
         return this.getInterchangeObjects(IABSoundfieldLabelSubDescriptor.class);
+    }
+
+    /**
+     * Gets all the IAB Channel SubDescriptors associated with this HeaderPartition object
+     * @return list of IAB Channel SubDescriptors contained in this header partition
+     */
+    public List<InterchangeObject> getIABChannelSubDescriptors()
+    {
+        return this.getInterchangeObjects(IABChannelSubDescriptor.class);
     }
 
     /**
