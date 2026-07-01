@@ -89,8 +89,9 @@ public class IMFApp2E2021ConstraintsValidatorTest
         Assert.assertNotNull(imfCompositionPlaylist);
         // the namespace uri assumed based on the application identification
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), CoreConstraints.NAMESPACE_IMF_2020);
-        // a warning is raised when the assumed namespace does match the actual namespace
-        Assert.assertEquals(logger.getErrors().size(), 2);
+        // a warning is raised when the assumed namespace does match the actual namespace, plus two "should be present"
+        // warnings for the IAB soundfield descriptors' absent MCA Content / MCA Use Class (SMPTE ST 2067-201:2026, 5.10.3)
+        Assert.assertEquals(logger.getErrors().size(), 4);
     }
 
 

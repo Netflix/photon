@@ -126,6 +126,41 @@ public class IMFIABConstraintsChecker {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
                                         "an IAB VirtualTrack Resource has forbidden MCAChannelID %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAChannelID")));
                             }
+                            // Section 5.10.3 (ST 2067-201:2026): MCA Content and MCA Use Class should be present and,
+                            // when present, shall be set according to SMPTE ST 377-41:2023 (Subclauses 5.4 and 5.5).
+                            // Per SMPTE ST 377-4:2021 they may only appear as a pair: neither shall be present without
+                            // the other. These mirror the MXF-side checks in IABTrackFileConstraints so a CPL-only
+                            // validation (no track files available) catches the same issues, including their absence.
+                            String mcaContent = subentry.getKey().getFieldAsString("MCAContent");
+                            String mcaUseClass = subentry.getKey().getFieldAsString("MCAUseClass");
+                            if (mcaContent == null && mcaUseClass == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                        "an IAB VirtualTrack Resource is missing MCAContent", imfTrackFileResourceType.getSourceEncoding()));
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
+                                        "an IAB VirtualTrack Resource is missing MCAUseClass", imfTrackFileResourceType.getSourceEncoding()));
+                            } else {
+                                if (mcaContent == null) {
+                                    // ST 377-4:2021: MCA Use Class shall only be present when MCA Content is present.
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an IAB VirtualTrack Resource has MCAUseClass but is missing MCAContent, which SMPTE ST 377-4:2021 requires whenever MCAUseClass is present", imfTrackFileResourceType.getSourceEncoding()));
+                                } else if (!IABTrackFileConstraints.isValidMCAContent(mcaContent)) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an IAB VirtualTrack Resource has MCAContent value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 2) symbol", imfTrackFileResourceType.getSourceEncoding(), mcaContent));
+                                }
+                                if (mcaUseClass == null) {
+                                    // ST 377-4:2021: MCA Content shall only be present when MCA Use Class is present.
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an IAB VirtualTrack Resource has MCAContent but is missing MCAUseClass, which SMPTE ST 377-4:2021 requires whenever MCAContent is present", imfTrackFileResourceType.getSourceEncoding()));
+                                } else if (!IABTrackFileConstraints.isValidMCAUseClass(mcaUseClass)) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an IAB VirtualTrack Resource has MCAUseClass value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 3) symbol", imfTrackFileResourceType.getSourceEncoding(), mcaUseClass));
+                                }
+                                if (mcaContent != null && mcaUseClass != null
+                                        && !IABTrackFileConstraints.isPermittedMCACombination(mcaContent, mcaUseClass)) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                            "an IAB VirtualTrack Resource has an MCAContent/MCAUseClass combination '%s'/'%s' that is not permitted by SMPTE ST 377-41:2023 (Table 4)", imfTrackFileResourceType.getSourceEncoding(), mcaContent, mcaUseClass));
+                                }
+                            }
                         }
                     }
 

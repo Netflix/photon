@@ -38,4 +38,19 @@ public class IMFTrackFileCPLBuilderTests {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         Assert.assertTrue(Files.size(imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger)) > 0);
     }
+
+    @Test
+    public void IMFTrackFileCPLBuilderIABTest() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/IAB/CompleteIMP2026/IAB_3e755a84-10ba-48a8-b577-0271f9ff7d7a.mxf");
+        Path workingDirectory = Files.createTempDirectory(null);
+        IMFTrackFileCPLBuilder imfTrackFileCPLBuilder = new IMFTrackFileCPLBuilder(workingDirectory, inputFile);
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        Path cpl = imfTrackFileCPLBuilder.getCompositionPlaylist(imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        // The generated CPL must carry an IABSequence in the ST 2067-201 namespace.
+        String cplXml = Files.readString(cpl);
+        Assert.assertTrue(cplXml.contains("IABSequence"));
+        Assert.assertTrue(cplXml.contains("http://www.smpte-ra.org/ns/2067-201/2019"));
+    }
 }

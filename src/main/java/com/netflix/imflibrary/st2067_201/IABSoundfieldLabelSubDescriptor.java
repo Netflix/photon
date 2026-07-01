@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Object model corresponding to MultiChannelAudioLabelSubDescriptor structural metadata set defined in st20167-201:201x
+ * Object model corresponding to the IAB Soundfield Label SubDescriptor structural metadata set defined in Annex C of SMPTE ST 2067-201:2026
  */
 @Immutable
 public final class IABSoundfieldLabelSubDescriptor extends MCALabelSubDescriptor {
@@ -53,7 +53,7 @@ public final class IABSoundfieldLabelSubDescriptor extends MCALabelSubDescriptor
     }
 
     /**
-     * Object corresponding to a parsed IABSoundfieldLabelSubDescriptor structural metadata set defined in st20167-201:201x
+     * Object corresponding to a parsed IABSoundfieldLabelSubDescriptor structural metadata set defined in Annex C of SMPTE ST 2067-201:2026
      */
     @Immutable
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})

@@ -20,6 +20,7 @@ package com.netflix.imflibrary.st0377.header;
 
 
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.st2067_201.IABChannelSubDescriptor;
 import com.netflix.imflibrary.st2067_201.IABEssenceDescriptor;
 import com.netflix.imflibrary.st2067_201.IABSoundfieldLabelSubDescriptor;
 import com.netflix.imflibrary.st2067_202.ISXDDataEssenceDescriptor;
@@ -418,6 +419,33 @@ public final class StructuralMetadata
             byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x01, 0x03, 0x07, 0x01, 0x06, 0x00, 0x00, 0x00};
             MXFUID mxfUL = new MXFUID(byteArray);
             map.put(mxfUL, "soundfield_group_link_id");
+        }
+        //IABEssenceDescriptor (ST 2067-201:2026, Table 3)
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x0c, 0x05, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "iab_max_object_count");
+        }
+        //IABChannelSubDescriptor (ST 2067-201:2026, Annex E.1)
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x0c, 0x01, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "iab_bed_meta_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x0c, 0x02, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "iab_channel_id");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x0c, 0x03, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "iab_audio_description");
+        }
+        {
+            byte[] byteArray = {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0x0e, 0x04, 0x02, 0x03, 0x0c, 0x04, 0x00, 0x00, 0x00};
+            MXFUID mxfUL = new MXFUID(byteArray);
+            map.put(mxfUL, "iab_audio_description_text");
         }
 
         /*{
@@ -947,6 +975,8 @@ public final class StructuralMetadata
                         return MGASoundfieldGroupLabelSubDescriptor.MGASoundfieldGroupLabelSubDescriptorBO.class;
                     case 0x09:
                         return SADMAudioMetadataSubDescriptor.SADMAudioMetadataSubDescriptorBO.class;
+                    case 0x15:
+                        return IABChannelSubDescriptor.IABChannelSubDescriptorBO.class;
                     default :
                         return Object.class;
                     }

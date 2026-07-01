@@ -3,6 +3,7 @@ package com.netflix.imflibrary.st2067_201;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.MXFUID;
+import com.netflix.imflibrary.annotations.MXFProperty;
 import com.netflix.imflibrary.st0377.header.GenericSoundEssenceDescriptor;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.UL;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Object model corresponding to IABEssenceDescriptor structural metadata set defined in st2067-201:201x
+ * Object model corresponding to IABEssenceDescriptor structural metadata set defined in SMPTE ST 2067-201:2026
  */
 @Immutable
 public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
@@ -34,10 +35,20 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
     }
 
     /**
-     * Object corresponding to a parsed IABEssenceDescriptor structural metadata set defined in st2067_201
+     * Accessor for the optional IABMaxObjectCount item (ST 2067-201:2026, Table 3 / 5.8.2).
+     * @return the maximum count of Object Definitions per IAFrame, or null if the item is absent
+     */
+    public Integer getMaxObjectCount() {
+        return ((IABEssenceDescriptorBO) this.genericSoundEssenceDescriptorBO).getMaxObjectCount();
+    }
+
+    /**
+     * Object corresponding to a parsed IABEssenceDescriptor structural metadata set defined in SMPTE ST 2067-201:2026
      */
     @Immutable
     public static final class IABEssenceDescriptorBO extends GenericSoundEssenceDescriptor.GenericSoundEssenceDescriptorBO {
+
+        @MXFProperty(size=2) private final Integer iab_max_object_count = null; //Uint16, optional (ST 2067-201:2026, Table 3)
 
         /**
          * Constructor for a IABEssenceDescriptor ByteObject.
@@ -65,6 +76,14 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
         }
 
         /**
+         * Accessor for the optional IABMaxObjectCount item.
+         * @return the maximum count of Object Definitions per IAFrame, or null if the item is absent
+         */
+        public Integer getMaxObjectCount() {
+            return this.iab_max_object_count;
+        }
+
+        /**
          * A method that returns a string representation of a IABEssenceDescriptorBO object
          *
          * @return string representing the object
@@ -73,6 +92,10 @@ public class IABEssenceDescriptor extends GenericSoundEssenceDescriptor {
         {
             StringBuilder sb = new StringBuilder();
             sb.append(super.toString());
+            if (this.iab_max_object_count != null)
+            {
+                sb.append(String.format("iab_max_object_count = %d%n", this.iab_max_object_count));
+            }
             return sb.toString();
         }
     }
