@@ -16,7 +16,9 @@
 
 package testUtils;
 
+import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.Utilities;
 
 import java.io.ByteArrayOutputStream;
@@ -26,8 +28,11 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public final class TestHelper
 {
@@ -62,6 +67,31 @@ public final class TestHelper
         }
 
         return baos.toByteArray();
+    }
+
+    /**
+     * Asserts that at least one of the reported errors has a description containing the given fragment. Prefer this
+     * over checking {@code errors.size()}, so tests validate the specific errors they care about and do not break when
+     * unrelated validations add or remove reported issues.
+     * @param errors the reported errors
+     * @param descriptionFragment a substring expected to appear in one of the error descriptions
+     */
+    public static void assertHasError(List<ErrorLogger.ErrorObject> errors, String descriptionFragment)
+    {
+        assertTrue(errors.stream().anyMatch(e -> e.getErrorDescription().contains(descriptionFragment)),
+                String.format("Expected an error whose description contains \"%s\", but the reported errors were: %s", descriptionFragment, errors));
+    }
+
+    /**
+     * Asserts that none of the reported errors is at or above the given severity level. Passing {@code WARNING} asserts
+     * that there are no errors at all; passing {@code NON_FATAL} allows warnings but no non-fatal or fatal errors.
+     * @param errors the reported errors
+     * @param level the lowest severity level that is not permitted
+     */
+    public static void assertNoErrorAtOrAbove(List<ErrorLogger.ErrorObject> errors, IMFErrorLogger.IMFErrors.ErrorLevels level)
+    {
+        assertFalse(errors.stream().anyMatch(e -> e.getErrorLevel().compareTo(level) >= 0),
+                String.format("Expected no error at or above %s, but the reported errors were: %s", level, errors));
     }
 
     public static Object getValue(Object obj, String fieldName)

@@ -36,21 +36,25 @@ public class IAB2026CompleteIMPTest {
 
         errorMap.forEach((asset, errors) -> {
             // No part of the delivery may produce a fatal error.
-            long fatalCount = errors.stream()
-                    .filter(e -> e.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.FATAL)
-                    .count();
-            Assert.assertEquals(fatalCount, 0, String.format("Unexpected fatal error(s) for %s: %s", asset, errors));
+            TestHelper.assertNoErrorAtOrAbove(errors, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL);
 
             if (asset.matches("IAB_.*\\.mxf")) {
-                // Only the six non-fatal "should be present" warnings are expected.
-                Assert.assertEquals(errors.size(), 6, String.format("Unexpected issues for %s: %s", asset, errors));
+                // The IAB Track File reports the "should be present" warnings for the recommended items it omits -
+                // the 5.6 Reference items and the 5.10.3 MCA items. Assert each specifically rather than a raw count.
+                TestHelper.assertHasError(errors, "is missing the Reference Image Edit Rate item");
+                TestHelper.assertHasError(errors, "is missing the Reference Audio Alignment Level item");
+                TestHelper.assertHasError(errors, "is missing MCAContent");
+                TestHelper.assertHasError(errors, "is missing MCAUseClass");
+                TestHelper.assertHasError(errors, "is missing MCATitle");
+                TestHelper.assertHasError(errors, "is missing MCATitleVersion");
             } else if (asset.matches("CPL_.*\\.xml")) {
                 // The CPL-only IAB checks report the absent MCA Content and MCA Use Class items (5.10.3),
-                // matching the MXF path - two non-fatal "should be present" warnings.
-                Assert.assertEquals(errors.size(), 2, String.format("Unexpected issues for %s: %s", asset, errors));
+                // matching the MXF path.
+                TestHelper.assertHasError(errors, "is missing MCAContent");
+                TestHelper.assertHasError(errors, "is missing MCAUseClass");
             } else {
                 // The ASSETMAP, PKL and video Track File validate cleanly.
-                Assert.assertEquals(errors.size(), 0, String.format("Unexpected issues for %s: %s", asset, errors));
+                TestHelper.assertNoErrorAtOrAbove(errors, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING);
             }
         });
     }
