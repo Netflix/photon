@@ -29,7 +29,9 @@ public class IMFApp2E2020ConstraintsValidatorTest
         Assert.assertEquals(imfCompositionPlaylist.getCoreConstraintsSchema(), "http://www.smpte-ra.org/ns/2067-2/2020");
 
         logger.getErrors().forEach(e -> {System.out.println(e.getErrorDescription());});
-        Assert.assertEquals(logger.getErrors().size(), 0);
+        // Two "should be present" warnings: the IAB soundfield descriptors carry no MCA Content / MCA Use Class
+        // (SMPTE ST 2067-201:2026, 5.10.3).
+        Assert.assertEquals(logger.getErrors().size(), 2);
     }
 
     @Test

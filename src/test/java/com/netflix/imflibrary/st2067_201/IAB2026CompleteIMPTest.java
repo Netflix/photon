@@ -18,9 +18,10 @@ import static com.netflix.imflibrary.app.IMPAnalyzer.analyzeDelivery;
  * SMPTE ST 2067-201:2026 - the IABMaxObjectCount Essence Descriptor item and a set of
  * IABChannelSubDescriptor instances. The package validates without any fatal error; the IAB Track File
  * only emits the expected "should be present" warnings (absent Reference Image Edit Rate, Reference Audio
- * Alignment Level, MCA Content, MCA Use Class, MCA Title, MCA Title Version). This guards that the new
- * descriptor/sub-descriptor parse cleanly and that the CPL essence descriptors stay equivalent to the
- * parsed MXF header metadata.
+ * Alignment Level, MCA Content, MCA Use Class, MCA Title, MCA Title Version). The CPL-only IAB checks
+ * mirror the MXF path (SMPTE ST 2067-201:2026, 5.10.3), so the absent MCA Content and MCA Use Class items
+ * surface again as two warnings against the CPL. This guards that the new descriptor/sub-descriptor parse
+ * cleanly and that the CPL essence descriptors stay equivalent to the parsed MXF header metadata.
  */
 @Test(groups = "unit")
 public class IAB2026CompleteIMPTest {
@@ -43,8 +44,12 @@ public class IAB2026CompleteIMPTest {
             if (asset.matches("IAB_.*\\.mxf")) {
                 // Only the six non-fatal "should be present" warnings are expected.
                 Assert.assertEquals(errors.size(), 6, String.format("Unexpected issues for %s: %s", asset, errors));
+            } else if (asset.matches("CPL_.*\\.xml")) {
+                // The CPL-only IAB checks report the absent MCA Content and MCA Use Class items (5.10.3),
+                // matching the MXF path - two non-fatal "should be present" warnings.
+                Assert.assertEquals(errors.size(), 2, String.format("Unexpected issues for %s: %s", asset, errors));
             } else {
-                // The CPL, ASSETMAP, PKL and video Track File validate cleanly.
+                // The ASSETMAP, PKL and video Track File validate cleanly.
                 Assert.assertEquals(errors.size(), 0, String.format("Unexpected issues for %s: %s", asset, errors));
             }
         });

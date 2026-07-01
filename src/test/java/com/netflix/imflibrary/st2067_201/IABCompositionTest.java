@@ -25,7 +25,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        // Two "should be present" warnings: this pre-2026 fixture carries no MCA Content / MCA Use Class (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
     @Test
@@ -38,7 +39,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 0);
+        // Two "should be present" warnings: this pre-2026 fixture carries no MCA Content / MCA Use Class (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
     }
 
     @Test
@@ -51,7 +53,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(),1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(),3);
     }
 
     @Test
@@ -64,7 +67,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 2);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
     }
 
     @Test
@@ -92,7 +96,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(),2);
+        // +4 for the absent MCA Content / MCA Use Class warnings on each of the two soundfield descriptors (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(),6);
     }
 
     @Test
@@ -118,7 +123,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -131,7 +137,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -144,7 +151,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -157,7 +165,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -170,7 +179,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -183,7 +193,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 3);
     }
 
     @Test
@@ -222,7 +233,8 @@ public class IABCompositionTest {
         imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
         imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
 
-        Assert.assertEquals(imfErrorLogger.getErrors().size(), 4);
+        // +2 for the absent MCA Content / MCA Use Class warnings (5.10.3).
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 6);
     }
 
     @Test
@@ -258,6 +270,34 @@ public class IABCompositionTest {
         // MCAUseClass value not in SMPTE ST 377-41:2023, Table 3.
         Path inputFile = TestHelper.findResourceByPath
                 ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_use_class_value.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void compositionNegativeTestMCAContentWithoutUseClass() throws IOException {
+        // MCAContent present but MCAUseClass absent: SMPTE ST 377-4:2021 requires the two to appear as a pair.
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_content_without_useclass.xml");
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);
+        imfErrorLogger.addAllErrors(imfCompositionPlaylist.getErrors());
+        imfErrorLogger.addAllErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(imfErrorLogger.getErrors().size(), 1);
+    }
+
+    @Test
+    public void compositionNegativeTestMCAUseClassWithoutContent() throws IOException {
+        // MCAUseClass present but MCAContent absent: SMPTE ST 377-4:2021 requires the two to appear as a pair.
+        Path inputFile = TestHelper.findResourceByPath
+                ("TestIMP/IAB/CPL/IAB_CPL_invalid_mca_useclass_without_content.xml");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(inputFile);

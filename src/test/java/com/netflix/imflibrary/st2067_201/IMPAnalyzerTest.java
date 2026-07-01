@@ -25,6 +25,10 @@ public class IMPAnalyzerTest
                 {
                     if (e.getKey().matches("meridian.*")) {
                             Assert.assertEquals(e.getValue().size(), 6);
+                    } else if (e.getKey().matches("CPL_.*\\.xml")) {
+                        // The CPL-only IAB checks report the absent MCA Content and MCA Use Class items (5.10.3),
+                        // matching the MXF path - two non-fatal "should be present" warnings.
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

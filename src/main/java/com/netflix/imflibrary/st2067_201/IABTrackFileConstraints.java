@@ -17,6 +17,8 @@ import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.UL;
+import com.netflix.imflibrary.st0377_41.MCAContent;
+import com.netflix.imflibrary.st0377_41.MCAUseClass;
 import com.netflix.imflibrary.utils.ErrorLogger;
 
 import jakarta.annotation.Nonnull;
@@ -31,54 +33,83 @@ public final class IABTrackFileConstraints {
 
     private static final String IMF_IAB_EXCEPTION_PREFIX = "IMF IAB check: ";
 
-    /** Valid MCA Use Class symbols - SMPTE ST 377-41:2023, Table 3. */
-    static final Set<String> MCA_USE_CLASS_VALUES = Set.of("FCMP", "ICMP", "SMPL", "SING");
-
     /**
-     * Valid MCA Content symbols (keys) and, for each, the MCA Use Class symbols permitted in combination with it -
-     * SMPTE ST 377-41:2023, Table 2 (vocabulary) and Table 4 (allowed combinations). Custom content ("x-" prefix,
-     * Table 2) is not listed; Table 4 defines no combination for it.
+     * For each MCA Content symbol, the MCA Use Class symbols permitted in combination with it -
+     * SMPTE ST 377-41:2023, Table 4. Custom content ({@link MCAContent#x}, "x-" prefix) is not listed; Table 4
+     * defines no combination for it. The vocabulary itself is defined by the {@link MCAContent} / {@link MCAUseClass}
+     * enums (Tables 2 and 3); only the cross-table combinations are captured here.
      */
-    static final Map<String, Set<String>> MCA_CONTENT_TO_USE_CLASS = Map.ofEntries(
-            Map.entry("PRM", Set.of("FCMP", "SMPL")),
-            Map.entry("SAP", Set.of("FCMP", "SMPL")),
-            Map.entry("HI", Set.of("FCMP")),
-            Map.entry("DV", Set.of("FCMP")),
-            Map.entry("CM", Set.of("FCMP", "SING")),
-            Map.entry("DX", Set.of("ICMP", "SMPL")),
-            Map.entry("MX", Set.of("ICMP", "SMPL")),
-            Map.entry("FX", Set.of("ICMP", "SMPL")),
-            Map.entry("FFX", Set.of("ICMP", "SMPL")),
-            Map.entry("ME", Set.of("ICMP", "SMPL")),
-            Map.entry("OP", Set.of("ICMP", "SMPL")),
-            Map.entry("MESP", Set.of("ICMP", "SMPL")),
-            Map.entry("DME", Set.of("ICMP", "SMPL")),
-            Map.entry("NDME", Set.of("ICMP", "SMPL")),
-            Map.entry("PNAR", Set.of("SING")),
-            Map.entry("ONAR", Set.of("SING")),
-            Map.entry("LCM", Set.of("SING")),
-            Map.entry("VO", Set.of("SING")),
-            Map.entry("VI", Set.of("SING")),
-            Map.entry("MOS", Set.of("FCMP", "SMPL")),
-            Map.entry("ADR", Set.of("ICMP")),
-            Map.entry("GRP", Set.of("ICMP")),
-            Map.entry("CRD", Set.of("ICMP")),
-            Map.entry("WLA", Set.of("ICMP")),
-            Map.entry("VOC", Set.of("ICMP", "SMPL")),
-            Map.entry("FOL", Set.of("ICMP")),
-            Map.entry("BG", Set.of("ICMP")));
+    private static final Map<MCAContent, Set<MCAUseClass>> MCA_CONTENT_TO_USE_CLASS = Map.ofEntries(
+            Map.entry(MCAContent.PRM, Set.of(MCAUseClass.FCMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.SAP, Set.of(MCAUseClass.FCMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.HI, Set.of(MCAUseClass.FCMP)),
+            Map.entry(MCAContent.DV, Set.of(MCAUseClass.FCMP)),
+            Map.entry(MCAContent.CM, Set.of(MCAUseClass.FCMP, MCAUseClass.SING)),
+            Map.entry(MCAContent.DX, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.MX, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.FX, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.FFX, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.ME, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.OP, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.MESP, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.DME, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.NDME, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.PNAR, Set.of(MCAUseClass.SING)),
+            Map.entry(MCAContent.ONAR, Set.of(MCAUseClass.SING)),
+            Map.entry(MCAContent.LCM, Set.of(MCAUseClass.SING)),
+            Map.entry(MCAContent.VO, Set.of(MCAUseClass.SING)),
+            Map.entry(MCAContent.VI, Set.of(MCAUseClass.SING)),
+            Map.entry(MCAContent.MOS, Set.of(MCAUseClass.FCMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.ADR, Set.of(MCAUseClass.ICMP)),
+            Map.entry(MCAContent.GRP, Set.of(MCAUseClass.ICMP)),
+            Map.entry(MCAContent.CRD, Set.of(MCAUseClass.ICMP)),
+            Map.entry(MCAContent.WLA, Set.of(MCAUseClass.ICMP)),
+            Map.entry(MCAContent.VOC, Set.of(MCAUseClass.ICMP, MCAUseClass.SMPL)),
+            Map.entry(MCAContent.FOL, Set.of(MCAUseClass.ICMP)),
+            Map.entry(MCAContent.BG, Set.of(MCAUseClass.ICMP)));
 
     // Prevent instantiation
     public IABTrackFileConstraints() {}
 
     /**
      * Indicates whether the supplied MCA Content value is valid per SMPTE ST 377-41:2023, Table 2 - i.e. one of the
-     * defined symbols or a custom value whose symbol begins with "x-".
+     * defined {@link MCAContent} symbols or a custom value whose symbol begins with "x-".
      * @param mcaContent the MCA Content value to test
      * @return true if the value is a valid MCA Content symbol
      */
     static boolean isValidMCAContent(String mcaContent) {
-        return MCA_CONTENT_TO_USE_CLASS.containsKey(mcaContent) || mcaContent.startsWith("x-");
+        return MCA_CONTENT_TO_USE_CLASS.containsKey(MCAContent.getValueFromSymbol(mcaContent)) || isCustomMCAContent(mcaContent);
+    }
+
+    /**
+     * Indicates whether the supplied MCA Use Class value is valid per SMPTE ST 377-41:2023, Table 3 - i.e. one of the
+     * defined {@link MCAUseClass} symbols.
+     * @param mcaUseClass the MCA Use Class value to test
+     * @return true if the value is a valid MCA Use Class symbol
+     */
+    static boolean isValidMCAUseClass(String mcaUseClass) {
+        return MCAUseClass.getValueFromSymbol(mcaUseClass) != MCAUseClass.Unknown;
+    }
+
+    /**
+     * Indicates whether the MCA Content / MCA Use Class combination is permitted by SMPTE ST 377-41:2023, Table 4.
+     * The combination is only constrained when the content is a recognised (non-custom) symbol and the use class is
+     * a recognised symbol; for custom or unknown values Table 4 defines no combination, so this returns true.
+     * @param mcaContent the MCA Content value
+     * @param mcaUseClass the MCA Use Class value
+     * @return false only when both values are recognised and their combination is not permitted
+     */
+    static boolean isPermittedMCACombination(String mcaContent, String mcaUseClass) {
+        MCAContent content = MCAContent.getValueFromSymbol(mcaContent);
+        MCAUseClass useClass = MCAUseClass.getValueFromSymbol(mcaUseClass);
+        if (!MCA_CONTENT_TO_USE_CLASS.containsKey(content) || useClass == MCAUseClass.Unknown) {
+            return true;
+        }
+        return MCA_CONTENT_TO_USE_CLASS.get(content).contains(useClass);
+    }
+
+    private static boolean isCustomMCAContent(String mcaContent) {
+        return mcaContent != null && mcaContent.startsWith("x-");
     }
 
     public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
@@ -233,33 +264,40 @@ public final class IABTrackFileConstraints {
                             // Section 5.10.3 (ST 2067-201:2026): MCA Content and MCA Use Class should be present.
                             // They supersede MCA Audio Content Kind and MCA Audio Element Kind, whose use is no longer
                             // recommended (NOTE 3 of 5.10.3); accordingly, absence of the legacy items is no longer flagged.
-                            // When present, both items shall be set according to SMPTE ST 377-41:2023 (Subclauses 5.4 and 5.5).
+                            // When present, both items shall be set according to SMPTE ST 377-41:2023 (Subclauses 5.4 and 5.5)
+                            // and, per SMPTE ST 377-4:2021, they may only appear as a pair: neither shall be present without the other.
                             String mcaContent = iabSoundFieldLabelSubDescriptorBO.getMCAContent();
                             String mcaUseClass = iabSoundFieldLabelSubDescriptorBO.getMCAUseClass();
-                            if (mcaContent == null) {
+                            if (mcaContent == null && mcaUseClass == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
                                         String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAContent", packageID.toString()));
-                            } else if (!isValidMCAContent(mcaContent)) {
-                                // ST 377-41:2023, Subclause 5.4 / Table 2
-                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAContent value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 2) symbol", packageID.toString(), mcaContent));
-                            }
-                            if (mcaUseClass == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
                                         String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s is missing MCAUseClass", packageID.toString()));
-                            } else if (!MCA_USE_CLASS_VALUES.contains(mcaUseClass)) {
-                                // ST 377-41:2023, Subclause 5.5.1 / Table 3
-                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAUseClass value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 3) symbol", packageID.toString(), mcaUseClass));
-                            }
-                            // ST 377-41:2023, Subclause 5.5.2 / Table 4: the MCA Use Class shall be compatible with the MCA Content.
-                            // Skipped for custom ("x-") content, for which Table 4 defines no combination.
-                            if (mcaContent != null && mcaUseClass != null
-                                    && MCA_CONTENT_TO_USE_CLASS.containsKey(mcaContent)
-                                    && MCA_USE_CLASS_VALUES.contains(mcaUseClass)
-                                    && !MCA_CONTENT_TO_USE_CLASS.get(mcaContent).contains(mcaUseClass)) {
-                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
-                                        String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has an MCAContent/MCAUseClass combination '%s'/'%s' that is not permitted by SMPTE ST 377-41:2023 (Table 4)", packageID.toString(), mcaContent, mcaUseClass));
+                            } else {
+                                if (mcaContent == null) {
+                                    // ST 377-4:2021: MCA Use Class shall only be present when MCA Content is present.
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAUseClass but is missing MCAContent, which SMPTE ST 377-4:2021 requires whenever MCAUseClass is present", packageID.toString()));
+                                } else if (!isValidMCAContent(mcaContent)) {
+                                    // ST 377-41:2023, Subclause 5.4 / Table 2
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAContent value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 2) symbol", packageID.toString(), mcaContent));
+                                }
+                                if (mcaUseClass == null) {
+                                    // ST 377-4:2021: MCA Content shall only be present when MCA Use Class is present.
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAContent but is missing MCAUseClass, which SMPTE ST 377-4:2021 requires whenever MCAContent is present", packageID.toString()));
+                                } else if (!isValidMCAUseClass(mcaUseClass)) {
+                                    // ST 377-41:2023, Subclause 5.5.1 / Table 3
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has MCAUseClass value '%s' which is not a valid SMPTE ST 377-41:2023 (Table 3) symbol", packageID.toString(), mcaUseClass));
+                                }
+                                // ST 377-41:2023, Subclause 5.5.2 / Table 4: the MCA Use Class shall be compatible with the MCA Content.
+                                // Skipped for custom ("x-") content, for which Table 4 defines no combination.
+                                if (mcaContent != null && mcaUseClass != null && !isPermittedMCACombination(mcaContent, mcaUseClass)) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_IAB_EXCEPTION_PREFIX +
+                                            String.format("IABSoundfieldLabelSubDescriptor in the IMFTrackFile represented by ID %s has an MCAContent/MCAUseClass combination '%s'/'%s' that is not permitted by SMPTE ST 377-41:2023 (Table 4)", packageID.toString(), mcaContent, mcaUseClass));
+                                }
                             }
                             if (iabSoundFieldLabelSubDescriptorBO.getMCATitle() == null) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, IMF_IAB_EXCEPTION_PREFIX +
