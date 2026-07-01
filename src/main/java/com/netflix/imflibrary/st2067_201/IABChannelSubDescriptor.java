@@ -40,7 +40,7 @@ import java.util.Map;
 public final class IABChannelSubDescriptor extends SubDescriptor {
 
     /** Most significant bit of IABAudioDescription. When set, IABAudioDescriptionText is present (Annex E.2.5). */
-    public static final short IAB_AUDIO_DESCRIPTION_TEXT_PRESENT_MASK = (short) 0x80;
+    private static final short IAB_AUDIO_DESCRIPTION_TEXT_PRESENT_MASK = (short) 0x80;
 
     private final IABChannelSubDescriptorBO iabChannelSubDescriptorBO;
 
@@ -158,7 +158,7 @@ public final class IABChannelSubDescriptor extends SubDescriptor {
          * significant bit of IABAudioDescription is set (Annex E.2.5 of SMPTE ST 2067-201:2026).
          * @return true if the IABAudioDescriptionText item is required to be present
          */
-        public boolean isAudioDescriptionTextExpected(){
+        boolean isAudioDescriptionTextExpected(){
             return this.iab_audio_description != null
                     && (this.iab_audio_description & IAB_AUDIO_DESCRIPTION_TEXT_PRESENT_MASK) != 0;
         }
