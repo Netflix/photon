@@ -245,7 +245,7 @@
           <xs:simpleContent>
             <xs:extension base="xs:string">
               <xs:attribute name="scope" type="xs:anyURI" use="optional"
-                default="http://www.smpte-ra.org/schemas/2067-3/XXXX#standard-markers"/>
+                default="http://www.smpte-ra.org/schemas/2067-3/2013#standard-markers"/>
             </xs:extension>
           </xs:simpleContent>
         </xs:complexType>
