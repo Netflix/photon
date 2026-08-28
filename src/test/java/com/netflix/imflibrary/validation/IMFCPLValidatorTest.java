@@ -92,6 +92,40 @@ public class IMFCPLValidatorTest
     }
 
     @Test
+    public void unsupportedMarkerResourceIsReportedWithoutThrowing() throws IOException
+    {
+        String cpl = markerCpl();
+        int markerSequenceIndex = cpl.indexOf("<cc:MarkerSequence");
+        Assert.assertTrue(markerSequenceIndex >= 0, "Unable to locate the MarkerSequence in the CPL fixture");
+        int resourceListStart = cpl.indexOf("<ResourceList>", markerSequenceIndex);
+        int resourceListEnd = cpl.indexOf("</ResourceList>", resourceListStart);
+        Assert.assertTrue(resourceListStart >= 0, "Unable to locate the marker ResourceList in the CPL fixture");
+        Assert.assertTrue(resourceListEnd >= 0, "Unable to locate the end of the marker ResourceList in the CPL fixture");
+
+        String unsupportedMarkerResourceList = "<ResourceList>" +
+                "<Resource xsi:type=\"TrackFileResourceType\">" +
+                "<Id>urn:uuid:41301aa3-2b05-4650-a4d2-9b3a8c618589</Id>" +
+                "<IntrinsicDuration>5971</IntrinsicDuration>" +
+                "<SourceEncoding>urn:uuid:79c477f4-6e31-4a7e-9bf8-eef60cb73c1b</SourceEncoding>" +
+                "<TrackFileId>urn:uuid:cccad3b4-3b2e-4994-90f6-2779a587f51c</TrackFileId>" +
+                "</Resource>" +
+                "</ResourceList>";
+        String cplWithUnsupportedMarkerResource = cpl.substring(0, resourceListStart) +
+                unsupportedMarkerResourceList +
+                cpl.substring(resourceListEnd + "</ResourceList>".length());
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(
+                new ByteArrayByteRangeProvider(cplWithUnsupportedMarkerResource.getBytes(StandardCharsets.UTF_8)));
+        Assert.assertTrue(imfCompositionPlaylist.getErrors().stream().anyMatch(error ->
+                error.getErrorDescription().contains("Unsupported Resource type in Marker Sequence")));
+
+        List<ErrorLogger.ErrorObject> errors = IMPValidator.validateComposition(imfCompositionPlaylist, null);
+        Assert.assertTrue(errors.stream().anyMatch(error ->
+                error.getErrorCode() == IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR &&
+                        error.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.FATAL &&
+                        error.getErrorDescription().contains("does not have any associated resources")));
+    }
+
+    @Test
     public void unknownMarkerScopeIsReportedAsWarning() throws IOException
     {
         String scope = "https://example.com/custom-markers";
@@ -122,8 +156,7 @@ public class IMFCPLValidatorTest
 
     private static List<ErrorLogger.ErrorObject> validateFirstMarker(String labelElement) throws IOException
     {
-        Path inputFile = TestHelper.findResourceByPath(MARKER_CPL);
-        String cpl = Files.readString(inputFile, StandardCharsets.UTF_8);
+        String cpl = markerCpl();
         int markerLabelIndex = cpl.indexOf(FIRST_MARKER_LABEL);
         Assert.assertTrue(markerLabelIndex >= 0, "Unable to locate the marker label in the CPL fixture");
 
@@ -133,6 +166,12 @@ public class IMFCPLValidatorTest
                 new ByteArrayByteRangeProvider(updatedCpl.getBytes(StandardCharsets.UTF_8)));
 
         return IMPValidator.validateComposition(imfCompositionPlaylist, null);
+    }
+
+    private static String markerCpl() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath(MARKER_CPL);
+        return Files.readString(inputFile, StandardCharsets.UTF_8);
     }
 
     private static List<ErrorLogger.ErrorObject> markerLabelErrors(List<ErrorLogger.ErrorObject> errors)

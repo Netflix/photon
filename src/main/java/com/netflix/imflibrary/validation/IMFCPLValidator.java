@@ -75,6 +75,11 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
+            if (virtualTrack instanceof IMFMarkerVirtualTrack) {
+                imfErrorLogger.addAllErrors(checkMarkerLabelConstraints(
+                        IMFMarkerVirtualTrack.class.cast(virtualTrack)));
+            }
+
             // retrieve sequence namespace associated with the virtual track
             String virtualTrackSequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForVirtualTrackID(virtualTrack.getTrackID());
             if (!supportedCPLSchemaURIs.contains(virtualTrackSequenceNamespace)) {
@@ -82,10 +87,6 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             }
 
         }
-
-
-        imfErrorLogger.addAllErrors(checkMarkerLabelConstraints(imfCompositionPlaylist.getMarkerVirtualTrack()));
-
         return imfErrorLogger.getErrors();
     }
 
