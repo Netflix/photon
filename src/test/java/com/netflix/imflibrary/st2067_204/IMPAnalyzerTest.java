@@ -46,7 +46,7 @@ public class IMPAnalyzerTest
                     if (e.getKey().matches("ST2067-204_audio_track_file__non_compliant_44100Hz.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 5);
                     } else if (e.getKey().matches("CPL_dacbd933-466c-4235-aac5-a9998cac5eba.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 1);
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
@@ -86,9 +86,9 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("ST2067-204_audio_track_file__non_compliant_ADMSoundfieldGroupLabelSubDescriptor_missing.mxf")) {
-                        Assert.assertEquals(e.getValue().size(), 1);
+                        Assert.assertEquals(e.getValue().size(), 2);
                     } else if (e.getKey().matches("CPL_35be4818-9e2a-473a-8107-da4ae8745dd0.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 0);
+                        Assert.assertEquals(e.getValue().size(), 1);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
@@ -170,9 +170,9 @@ public class IMPAnalyzerTest
         errorMap.entrySet().stream().forEach( e ->
                 {
                     if (e.getKey().matches("ST2067-204_audio_track_file__non_compliant_MCATagName_missing.mxf")) {
-                        Assert.assertEquals(e.getValue().size(), 8);
+                        Assert.assertEquals(e.getValue().size(), 12);
                     } else if (e.getKey().matches("CPL_d2c9eeb9-26c6-46db-8a47-d6d8a0b0314d.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
+                        Assert.assertEquals(e.getValue().size(), 3);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }
@@ -214,7 +214,7 @@ public class IMPAnalyzerTest
                     if (e.getKey().matches("ST2067-204_audio_track_file__non_compliant_MCATagSymbol_missing.mxf")) {
                         Assert.assertEquals(e.getValue().size(), 8);
                     } else if (e.getKey().matches("CPL_2e1a44fe-0d76-49ef-84aa-1e60cfef1516.xml")) {
-                        Assert.assertEquals(e.getValue().size(), 2);
+                        Assert.assertEquals(e.getValue().size(), 3);
                     } else {
                         Assert.assertEquals(e.getValue().size(), 0);
                     }

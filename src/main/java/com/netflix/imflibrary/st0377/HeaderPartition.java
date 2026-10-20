@@ -450,7 +450,7 @@ public final class HeaderPartition
                     }
                     if(node.depends.size() > 0
                         && subDescriptors.size() == 0){
-                        throw new MXFException(String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
+                        this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
                     }
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
@@ -1476,7 +1476,7 @@ public final class HeaderPartition
                 case MGASADMSignalSequence:
                     return "MGASADMEssence";
                 case ADMAudioSequence:
-                    return "MainAudioEssence";
+                    return "ADMAudioSequence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";

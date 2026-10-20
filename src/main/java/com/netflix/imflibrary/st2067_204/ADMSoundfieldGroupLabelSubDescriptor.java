@@ -39,7 +39,7 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
 
     public static final String ADM_MCA_TAG_SYMBOL = "ADM";
     public static final String ADM_MCA_TAG_NAME = "ADM";
-    public static final UL ADM_MCA_LABEL_DICTIONNARY_ID_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.03020223.00000000");
+    public static final UL ADM_MCA_LABEL_DICTIONARY_ID_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.03020223.00000000");
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + ADMSoundfieldGroupLabelSubDescriptor.class.getSimpleName() + " : ";
     private final ADMSoundfieldGroupLabelSubDescriptorBO admSoundfieldLabelSubDescriptorBO;
 

@@ -176,8 +176,7 @@ public class IMPAnalyzer {
                                     // add entry to track file map for further validation
                                     trackFileMap.put(trackFileID, new TrackFilePartitionsRecord(filename, headerPartitionPayloadRecord, indexTablePartitionPayloadRecords));
                                 } catch( MXFException e) {
-                                    assetErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, e.getMessage());
-                                    //assetErrorLogger.addAllErrors(e.getErrors());
+                                    assetErrorLogger.addAllErrors(e.getErrors());
                                 }
                                 catch( IMFException e) {
                                     assetErrorLogger.addAllErrors(e.getErrors());

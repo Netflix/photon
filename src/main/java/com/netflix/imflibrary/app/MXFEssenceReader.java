@@ -239,9 +239,11 @@ public class MXFEssenceReader {
             if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
                 // For ST 2067-204 validation: Add all ADMChannelMapping sets, as defined in ST 2131, to the references
                 ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
+                if (adm.getADMChannelMappingsArray() != null) {
                     for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
                         references.add(this.getHeaderPartition().getUidToBOs().get(strongRef.getInstanceUID()));
                     }
+                }
             }
         }
         if (!references.isEmpty()) {
