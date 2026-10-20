@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Id>urn:uuid:9fbfe2b5-ab28-452e-ad2f-23561c02f5b4</Id>
+  <IssueDate>2024-01-19T16:06:54Z</IssueDate>
+  <Issuer language="en">WR</Issuer>
+  <Creator language="en">IMF-Tool 1.9.371</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:05f52c63-5a11-4de3-af52-4316d6583d3f</Id>
+      <Hash>/Fh6Bi4uhXWtbGiJVbHbvAafn8A=</Hash>
+      <Size>185499</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName language="en">ST2067-204_audio_track_file__non_compliant_MCAContent_wrong.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:50ea35b8-0ad4-4b73-8091-d045f93f7b41</Id>
+      <Hash>N56UPZv3LhCMImIhDgurzoExAdg=</Hash>
+      <Size>18200</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName language="en">CPL_50ea35b8-0ad4-4b73-8091-d045f93f7b41.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

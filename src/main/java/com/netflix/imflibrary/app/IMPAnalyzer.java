@@ -367,7 +367,6 @@ public class IMPAnalyzer {
    }
 
 
-
     public static List<ErrorLogger.ErrorObject> analyzeFile(Path input) throws IOException {
         return analyzeFile(input, null);
     }
