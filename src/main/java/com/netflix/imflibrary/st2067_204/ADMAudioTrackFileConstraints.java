@@ -34,6 +34,7 @@ import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.StructuralMetadata;
 import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.UL;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -86,6 +87,12 @@ public final class ADMAudioTrackFileConstraints {
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                     String.format("IMFTrackFile represented by ID %s does not contain both a Sound Track and a Wave Audio Essence Descriptor and so is not a valid ADM Audio Track File", packageID.toString()));
             return;
+        }
+
+        // Section 5.3.3 st2067-2:2016 and Section 10 st0382:2007
+        if (!StructuralMetadata.isAudioWaveClipWrapped(waveAudioEssenceDescriptor.getEssenceContainerUL().getULAsBytes()[14])) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
+                    String.format("Wave Audio Essence Descriptor indicates that the Audio Essence within an ADM Audio Track File is not Wave Clip-Wrapped in the IMFTrackFile represented by ID %s.", packageID.toString()));
         }
 
         // ST 2067-2:2020 section 5.3.2.2
