@@ -230,19 +230,19 @@ public final class ADMAudioTrackFileConstraints {
                                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has forbidden MCAChannelID %d", sub_descriptor.getInstanceUID().toString(), packageID.toString(), admSoundfieldGroupLabelSubDescriptorBO.getMCAChannelID()));
                                 }
                                 // ST 2067-204 Table 7
-                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeId() == null) {
+                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioProgrammeID() == null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing ADMAudioProgrammId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                                 // ST 2067-204 Table 7
-                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioContentId() != null) {
+                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioContentID() != null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
-                                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioContentId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioContentID item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                                 // ST 2067-204 Table 7
-                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioObjectId() != null) {
+                                if (admSoundfieldGroupLabelSubDescriptorBO.getADMAudioObjectID() != null) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
-                                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioObjectId item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s has an illegal ADMAudioObjectID item", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                                 }
                             }
                         }

@@ -70,7 +70,7 @@ public final class RIFFChunkDefinitionSubDescriptor extends SubDescriptor {
         @MXFProperty(size=4) protected final Long riff_chunk_stream_id = null; //UINT32
         @MXFProperty(size=4) protected final byte[] riff_chunk_id = null; //ISO7
         @MXFProperty(size=16) protected final byte[] riff_chunk_uuid = null; //UUID
-        @MXFProperty(size=20) protected final byte[] riff_chunk_sha1 = null; //DataValue, unstructured sequence of bytes
+        @MXFProperty(size=20) protected final byte[] riff_chunk_hash_sha1 = null; //DataValue, unstructured sequence of bytes
 
         /**
          * Instantiates a new parsed RIFFChunkDefinitionSubDescriptor object by virtue of parsing the MXF file bitstream
@@ -110,8 +110,8 @@ public final class RIFFChunkDefinitionSubDescriptor extends SubDescriptor {
         }
 
         /**
-         * Accessor for the riff_chunk_stream_id of this RIFFChunkDefinitionSubDescriptor
-         * @return a Long value representing the riff_chunk_stream_id for the RIFFChunkDefinitionSubDescriptor
+         * Accessor for the riff_chunk_id of this RIFFChunkDefinitionSubDescriptor
+         * @return a byte[] value representing the riff_chunk_id for the RIFFChunkDefinitionSubDescriptor
          */
         public byte[] getRIFFChunkID(){
             return this.riff_chunk_id;

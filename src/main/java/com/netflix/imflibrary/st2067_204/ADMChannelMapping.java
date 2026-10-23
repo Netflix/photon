@@ -69,8 +69,8 @@ public final class ADMChannelMapping extends InterchangeObject {
     {
         @MXFProperty(size=4) protected final Long local_channel_id = null; //UINT32
         @MXFProperty(size=0, charset="UTF-16") protected final String adm_audio_track_uid = null; //UTF16String
-        @MXFProperty(size=0, charset="UTF-16") protected final String adm_audio_track_channel_format_uid = null; //UTF16String
-        @MXFProperty(size=0, charset="UTF-16") protected final String adm_audio_pack_format_uid = null; //UTF16String
+        @MXFProperty(size=0, charset="UTF-16") protected final String adm_audio_track_channel_format_id = null; //UTF16String
+        @MXFProperty(size=0, charset="UTF-16") protected final String adm_audio_pack_format_id = null; //UTF16String
 
         /**
          * Instantiates a new parsed ADMChannelMapping object by virtue of parsing the MXF file bitstream
@@ -99,10 +99,10 @@ public final class ADMChannelMapping extends InterchangeObject {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         ADMChannelMapping.ERROR_DESCRIPTION_PREFIX + "ADMAudioTrackUID is null");
             }
-            if (this.adm_audio_track_channel_format_uid == null)
+            if (this.adm_audio_track_channel_format_id == null)
             {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                        ADMChannelMapping.ERROR_DESCRIPTION_PREFIX + "NumADMAudioTrackUIDs is null");
+                        ADMChannelMapping.ERROR_DESCRIPTION_PREFIX + "ADMAudioTrackChannelFormatID is null");
             }
         }
 
@@ -121,15 +121,15 @@ public final class ADMChannelMapping extends InterchangeObject {
             }
             if (this.adm_audio_track_uid != null)
             {
-                sb.append(String.format("NumADMAudioTrackUIDs = %s%n", this.adm_audio_track_uid));
+                sb.append(String.format("ADMAudioTrackUID = %s%n", this.adm_audio_track_uid));
             }
-            if (this.adm_audio_track_channel_format_uid != null)
+            if (this.adm_audio_track_channel_format_id != null)
             {
-                sb.append(String.format("ADMChannelMappingsArray = %s%n", this.adm_audio_track_channel_format_uid));
+                sb.append(String.format("ADMAudioTrackChannelFormatID = %s%n", this.adm_audio_track_channel_format_id));
             }
-            if (this.adm_audio_pack_format_uid != null)
+            if (this.adm_audio_pack_format_id != null)
             {
-                sb.append(String.format("ADMAudioPackFormatID = %s%n", this.adm_audio_pack_format_uid));
+                sb.append(String.format("ADMAudioPackFormatID = %s%n", this.adm_audio_pack_format_id));
             }
 
             return sb.toString();
