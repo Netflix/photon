@@ -94,6 +94,14 @@ public final class RIFFChunkReferencesSubDescriptor extends SubDescriptor {
         }
 
         /**
+         * Accessor for the riff_chunk_stream_ids_array of this RIFFChunkReferencesSubDescriptor
+         * @return a collection representing the riff_chunk_stream_ids_array for the RIFFChunkReferencesSubDescriptor
+         */
+        public CompoundDataTypes.MXFCollections.MXFCollection<Long> getRIFFChunkStreamIDsArray(){
+            return this.riff_chunk_stream_ids_array;
+        }
+
+        /**
          * A method that returns a string representation of the object.
          *
          * @return string representing the object
