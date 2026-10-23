@@ -67,7 +67,7 @@ public final class RIFFChunkReferencesSubDescriptor extends SubDescriptor {
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class RIFFChunkReferencesSubDescriptorBO extends SubDescriptor.SubDescriptorBO
     {
-        @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Integer> riff_chunk_stream_ids_array = null; //UINT32
+        @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Long> riff_chunk_stream_ids_array = null; //UINT32
 
         /**
          * Instantiates a new parsed RIFFChunkReferencesSubDescriptor object by virtue of parsing the MXF file bitstream
