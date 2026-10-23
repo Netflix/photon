@@ -68,8 +68,8 @@ public final class ADM_CHNASubDescriptor extends SubDescriptor {
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class ADM_CHNASubDescriptorBO extends SubDescriptor.SubDescriptorBO
     {
-        @MXFProperty(size=2) protected final Short num_local_channels = null; //UINT16
-        @MXFProperty(size=2) protected final Short num_adm_audio_track_uids = null; //UINT16
+        @MXFProperty(size=2) protected final Integer num_local_channels = null; //UINT16
+        @MXFProperty(size=2) protected final Integer num_adm_audio_track_uids = null; //UINT16
         @MXFProperty(size=0, depends = true) protected final CompoundDataTypes.MXFCollections.MXFCollection<StrongRef> adm_channel_mappings_array = null; //
 
         /**
