@@ -108,6 +108,14 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
         }
 
         /**
+         * Accessor for the riff_chunk_stream_id_link2 of this ADMSoundfieldGroupLabelSubDescriptor
+         * @return a Long representing the riff_chunk_stream_id_link2 for the ADMSoundfieldGroupLabelSubDescriptor
+         */
+        public Long getRIFFChunkStreamID_link2(){
+            return this.riff_chunk_stream_id_link2;
+        }
+
+        /**
          * Accessor for the adm_audio_programme_id_st2131 of this ADMSoundfieldGroupLabelSubDescriptor
          * @return a string representing the adm_audio_programme_id_st2131 for the ADMSoundfieldGroupLabelSubDescriptor
          */
