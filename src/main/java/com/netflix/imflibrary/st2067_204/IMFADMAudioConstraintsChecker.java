@@ -47,11 +47,8 @@ import java.util.stream.Collectors;
 import org.smpte_ra.ns._2067_204._2022.ADMAudioVirtualTrackParameterSet;
 import org.smpte_ra.ns._2067_204._2022.ADMSoundfieldGroupSelectorType;
 
-import static com.netflix.imflibrary.st0377.header.GenericSoundEssenceDescriptor.ElectroSpatialFormulation.MULTI_CHANNEL_MODE;
-
 public class IMFADMAudioConstraintsChecker {
     private static final Integer ADM_BIT_DEPTH = 24;
-    private static final short ADM_CHANNEL_COUNT = 0;
 
     // SMPTE ST 2067-204 Operational Modes
     public static final String ADM_AUDIO_OPERATIONAL_MODE_A = "http://www.smpte-ra.org/ns/2067-204/2022#Operational-Mode-A";
@@ -92,11 +89,6 @@ public class IMFADMAudioConstraintsChecker {
                 if (domNodeObjectModel.getFieldAsString("AudioSampleRate") == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
                                     "an ADM Audio VirtualTrack Resource does not have an AudioSampleRate item.", imfTrackFileResourceType.getSourceEncoding()));
-                }
-
-                if (domNodeObjectModel.getFieldAsInteger("ElectrospatialFormulation") != null && domNodeObjectModel.getFieldAsInteger("ElectrospatialFormulation").intValue() != MULTI_CHANNEL_MODE.value()) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                            "an ADM Audio VirtualTrack Resource has an invalid value of ElectrospatialFormulation: %d vs. %d.", imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsInteger("ElectrospatialFormulation"), MULTI_CHANNEL_MODE.value()));
                 }
 
                 if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {

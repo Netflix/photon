@@ -67,7 +67,7 @@ public final class RIFFChunkReferencesSubDescriptor extends SubDescriptor {
     @SuppressWarnings({"PMD.FinalFieldCouldBeStatic"})
     public static final class RIFFChunkReferencesSubDescriptorBO extends SubDescriptor.SubDescriptorBO
     {
-        @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Integer> riff_chunk_stream_ids_array = null; //UINT32
+        @MXFProperty(size=0) protected final CompoundDataTypes.MXFCollections.MXFCollection<Long> riff_chunk_stream_ids_array = null; //UINT32
 
         /**
          * Instantiates a new parsed RIFFChunkReferencesSubDescriptor object by virtue of parsing the MXF file bitstream
@@ -91,6 +91,14 @@ public final class RIFFChunkReferencesSubDescriptor extends SubDescriptor {
                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_METADATA_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
                         RIFFChunkReferencesSubDescriptor.ERROR_DESCRIPTION_PREFIX + "RIFFChunkStreamIDsArray is null");
             }
+        }
+
+        /**
+         * Accessor for the riff_chunk_stream_ids_array of this RIFFChunkReferencesSubDescriptor
+         * @return a collection representing the riff_chunk_stream_ids_array for the RIFFChunkReferencesSubDescriptor
+         */
+        public CompoundDataTypes.MXFCollections.MXFCollection<Long> getRIFFChunkStreamIDsArray(){
+            return this.riff_chunk_stream_ids_array;
         }
 
         /**

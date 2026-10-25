@@ -41,16 +41,16 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
     public static final String ADM_MCA_TAG_NAME = "ADM";
     public static final UL ADM_MCA_LABEL_DICTIONARY_ID_UL = UL.fromULAsURNStringToUL("urn:smpte:ul:060e2b34.0401010d.03020223.00000000");
     private static final String ERROR_DESCRIPTION_PREFIX = "MXF Header Partition: " + ADMSoundfieldGroupLabelSubDescriptor.class.getSimpleName() + " : ";
-    private final ADMSoundfieldGroupLabelSubDescriptorBO admSoundfieldLabelSubDescriptorBO;
+    private final ADMSoundfieldGroupLabelSubDescriptorBO admSoundfieldGroupLabelSubDescriptorBO;
 
     /**
      * Constructor for an ADMSoundfieldGroupLabelSubDescriptor object
-     * @param admSoundfieldLabelSubDescriptorBO the parsed ADM Soundfield label sub-descriptor object
+     * @param admSoundfieldGroupLabelSubDescriptorBO the parsed ADM Soundfield Group label sub-descriptor object
      */
-    public ADMSoundfieldGroupLabelSubDescriptor(ADMSoundfieldGroupLabelSubDescriptorBO admSoundfieldLabelSubDescriptorBO)
+    public ADMSoundfieldGroupLabelSubDescriptor(ADMSoundfieldGroupLabelSubDescriptorBO admSoundfieldGroupLabelSubDescriptorBO)
     {
-        super(admSoundfieldLabelSubDescriptorBO);
-        this.admSoundfieldLabelSubDescriptorBO = admSoundfieldLabelSubDescriptorBO;
+        super(admSoundfieldGroupLabelSubDescriptorBO);
+        this.admSoundfieldGroupLabelSubDescriptorBO = admSoundfieldGroupLabelSubDescriptorBO;
     }
 
     /**
@@ -58,7 +58,7 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
      * @return string representing the spoken language as defined in RFC-5646
      */
     public String getRFC5646SpokenLanguage(){
-        return this.admSoundfieldLabelSubDescriptorBO.getRFC5646SpokenLanguage();
+        return this.admSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage();
     }
     /**
      * A method that returns a string representation of an ADMSoundfieldGroupLabelSubDescriptor object.
@@ -67,7 +67,7 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
      */
     public String toString()
     {
-        return this.admSoundfieldLabelSubDescriptorBO.toString();
+        return this.admSoundfieldGroupLabelSubDescriptorBO.toString();
     }
 
     /**
@@ -108,26 +108,34 @@ public final class ADMSoundfieldGroupLabelSubDescriptor extends SoundFieldGroupL
         }
 
         /**
-         * Accessor for the adm_audio_programm_id of this ADMSoundfieldGroupLabelSubDescriptor
-         * @return a byte array representing the adm_audio_programm_id for the ADMSoundfieldGroupLabelSubDescriptor
+         * Accessor for the riff_chunk_stream_id_link2 of this ADMSoundfieldGroupLabelSubDescriptor
+         * @return a Long representing the riff_chunk_stream_id_link2 for the ADMSoundfieldGroupLabelSubDescriptor
          */
-        public String getADMAudioProgrammeId(){
+        public Long getRIFFChunkStreamID_link2(){
+            return this.riff_chunk_stream_id_link2;
+        }
+
+        /**
+         * Accessor for the adm_audio_programme_id_st2131 of this ADMSoundfieldGroupLabelSubDescriptor
+         * @return a string representing the adm_audio_programme_id_st2131 for the ADMSoundfieldGroupLabelSubDescriptor
+         */
+        public String getADMAudioProgrammeID(){
             return this.adm_audio_programme_id_st2131;
         }
 
         /**
-         * Accessor for the adm_audio_content_id of this ADMSoundfieldGroupLabelSubDescriptor
-         * @return a byte array representing the adm_audio_content_id for the ADMSoundfieldGroupLabelSubDescriptor
+         * Accessor for the adm_audio_content_id_st2131 of this ADMSoundfieldGroupLabelSubDescriptor
+         * @return a string representing the adm_audio_content_id_st2131 for the ADMSoundfieldGroupLabelSubDescriptor
          */
-        public String getADMAudioContentId(){
+        public String getADMAudioContentID(){
             return this.adm_audio_content_id_st2131;
         }
 
         /**
-         * Accessor for the adm_audio_object_id of this ADMSoundfieldGroupLabelSubDescriptor
-         * @return a byte array representing the adm_audio_object_id for the ADMSoundfieldGroupLabelSubDescriptor
+         * Accessor for the adm_audio_object_id_st2131 of this ADMSoundfieldGroupLabelSubDescriptor
+         * @return a string representing the adm_audio_object_id_st2131 for the ADMSoundfieldGroupLabelSubDescriptor
          */
-        public String getADMAudioObjectId(){
+        public String getADMAudioObjectID(){
             return this.adm_audio_object_id_st2131;
         }
 
