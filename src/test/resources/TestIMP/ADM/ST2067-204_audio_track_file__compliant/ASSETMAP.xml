@@ -1,33 +1,65 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <Id>urn:uuid:00a0bf80-5679-4b89-8b22-a8895ea3f2c4</Id>
-  <Creator language="en">IMF-Tool 1.9.371</Creator>
+<?xml version="1.0" encoding="UTF-8"?>
+<AssetMap xmlns="http://www.smpte-ra.org/schemas/429-9/2007/AM">
+  <Id>urn:uuid:d40072e7-e724-48b5-87bb-25864dfa7e5e</Id>
+  <AnnotationText>ADM Stereo Sample</AnnotationText>
+  <Creator>Colorfront Transkoder DEV</Creator>
   <VolumeCount>1</VolumeCount>
-  <IssueDate>2024-01-22T15:32:12Z</IssueDate>
-  <Issuer language="en">WR</Issuer>
+  <IssueDate>2026-10-26T09:51:57-00:00</IssueDate>
+  <Issuer>Colorfront</Issuer>
   <AssetList>
     <Asset>
-      <Id>urn:uuid:a95f2ddf-a823-4a2d-8098-4ab32c19fb48</Id>
-      <ChunkList>
-        <Chunk>
-          <Path>ST2067-204_audio_track_file__compliant.mxf</Path>
-        </Chunk>
-      </ChunkList>
-    </Asset>
-    <Asset>
-      <Id>urn:uuid:7c943006-a4f1-409e-b46d-141cad85b232</Id>
-      <ChunkList>
-        <Chunk>
-          <Path>CPL_7c943006-a4f1-409e-b46d-141cad85b232.xml</Path>
-        </Chunk>
-      </ChunkList>
-    </Asset>
-    <Asset>
-      <Id>urn:uuid:83cca959-4d9f-49f1-a586-821688077fae</Id>
+      <Id>urn:uuid:70a85734-7196-4609-88b3-7365d74edeb2</Id>
       <PackingList>true</PackingList>
       <ChunkList>
         <Chunk>
-          <Path>PKL_83cca959-4d9f-49f1-a586-821688077fae.xml</Path>
+          <Path>PKL_ADM_Stereo_Sample.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>2036</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:826b6945-a3fe-46d5-966d-da9ad110da05</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>CPL_ADM_Stereo_Sample.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>16131</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:1d6abea6-1588-454a-af46-d33cda53325a</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>ADM_Stereo_Sample_01.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>1140024</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:73eed2d4-96f9-438f-a1fd-29ca02aa4b16</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>ADM_Stereo_Sample_01_EN_20_A.mxf</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>307123</Length>
+        </Chunk>
+      </ChunkList>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e8f98a71-5d13-45fd-9dc0-c0e01404838e</Id>
+      <ChunkList>
+        <Chunk>
+          <Path>OPL_ADM_Stereo_Sample.xml</Path>
+          <VolumeIndex>1</VolumeIndex>
+          <Offset>0</Offset>
+          <Length>722</Length>
         </Chunk>
       </ChunkList>
     </Asset>

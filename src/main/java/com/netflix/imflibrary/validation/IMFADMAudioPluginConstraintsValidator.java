@@ -11,6 +11,7 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
+import com.netflix.imflibrary.st2067_201.IMFIABConstraintsChecker;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_204.ADMAudioTrackFileConstraints;
 import com.netflix.imflibrary.st2067_204.IMFADMAudioConstraintsChecker;
@@ -25,6 +26,14 @@ import java.util.*;
  */
 public class IMFADMAudioPluginConstraintsValidator implements ConstraintsValidator {
 
+    private static final String admAudioPluginNamespaceURI = "http://www.smpte-ra.org/ns/2067-204/2022";
+
+
+    private static final Set<String> homogeneitySelectionSet = new HashSet<String>(){{
+        add("SampleRate");
+        add("EditRate");
+    }};
+
     @Override
     public String getConstraintsSpecification() {
         return "SMPTE ST 2067-204:2026-05 Audio with ADM Metadata Plug-in ";
@@ -36,14 +45,29 @@ public class IMFADMAudioPluginConstraintsValidator implements ConstraintsValidat
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
 
         Composition.EditRate editRate = imfCompositionPlaylist.getEditRate();
-        Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap = imfCompositionPlaylist.getVirtualTrackMap();
         Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap = imfCompositionPlaylist.getEssenceDescriptorListMap();
 
-        // ST 2067-204 ADMAudioVirtualTrackParameterSet checks
-        imfErrorLogger.addAllErrors(IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrackParameterSet(imfCompositionPlaylist));
+        // iterate over virtual tracks
+        for (Map.Entry<UUID, ? extends Composition.VirtualTrack> virtualTrackEntry : imfCompositionPlaylist.getVirtualTrackMap().entrySet()) {
+            Composition.VirtualTrack virtualTrack = virtualTrackEntry.getValue();
 
-        // ST 2067-204 ADMAudioVirtualTrack checks
-        imfErrorLogger.addAllErrors(IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrack(editRate, virtualTrackMap, essenceDescriptorListMap, Set.of()));
+            // retrieve sequence namespace associated with the virtual track
+            String virtualTrackSequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForVirtualTrackID(virtualTrack.getTrackID());
+
+            // skip all virtual tracks that don't fall under CPL namespace
+            if (!admAudioPluginNamespaceURI.equals(virtualTrackSequenceNamespace)) {
+                continue;
+            }
+
+            // validate ADM specific homogeneity requirements
+            imfErrorLogger.addAllErrors(ConstraintsValidatorUtils.checkVirtualTrackHomogeneity(virtualTrack, essenceDescriptorListMap, homogeneitySelectionSet));
+
+            // ST 2067-204 ADMAudioVirtualTrackParameterSet checks
+            imfErrorLogger.addAllErrors(IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrackParameterSet(imfCompositionPlaylist));
+
+            // ST 2067-204 ADMAudioVirtualTrack checks
+            imfErrorLogger.addAllErrors(IMFADMAudioConstraintsChecker.checkADMAudioVirtualTrack(editRate, virtualTrack, essenceDescriptorListMap));
+        }
 
         return imfErrorLogger.getErrors();
     }

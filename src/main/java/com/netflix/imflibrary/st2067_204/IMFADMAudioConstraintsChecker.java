@@ -21,7 +21,6 @@ package com.netflix.imflibrary.st2067_204;
 import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
-import com.netflix.imflibrary.MXFUID;
 import com.netflix.imflibrary.st0377_41.*;
 import com.netflix.imflibrary.st2067_2.Composition;
 import com.netflix.imflibrary.st2067_2.IMFBaseResourceType;
@@ -31,6 +30,7 @@ import com.netflix.imflibrary.st2067_2.IMFTrackFileResourceType;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
 import com.netflix.imflibrary.utils.UUIDHelper;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,112 +56,166 @@ public class IMFADMAudioConstraintsChecker {
             ADM_AUDIO_OPERATIONAL_MODE_A));
 
     public static List<ErrorLogger.ErrorObject> checkADMAudioVirtualTrack(Composition.EditRate compositionEditRate,
-                                                                     Map<UUID, ? extends Composition.VirtualTrack> virtualTrackMap,
-                                                                     Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap,
-                                                                     Set<String> homogeneitySelectionSet) {
+                                                                     Composition.VirtualTrack virtualTrack,
+                                                                     Map<UUID, DOMNodeObjectModel> essenceDescriptorListMap) {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-        Iterator iterator = virtualTrackMap.entrySet().iterator();
-        while(iterator.hasNext()) {
-            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
-            if (!virtualTrack.getSequenceType().equals("ADMAudioSequence")) continue;
 
-            List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
-            for(IMFBaseResourceType baseResource : virtualTrackResourceList) {
-                IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(baseResource);
-                DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
-                if (!domNodeObjectModel.getLocalName().equals("WAVEPCMDescriptor")) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an ADM Audio VirtualTrack Resource does not have a WAVEPCMDescriptor but %s",
-                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
-                }
+        if (!virtualTrack.getSequenceType().equals("ADMAudioSequence")) return imfErrorLogger.getErrors();
 
-                if (((imfTrackFileResourceType.getEditRate().getNumerator() != 48000) && (imfTrackFileResourceType.getEditRate().getNumerator() != 96000)) || (imfTrackFileResourceType.getEditRate().getDenominator() != 1)) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not 48000/1 or 96000/1",
-                            imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId()));
-                }
+        List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
+        for(IMFBaseResourceType baseResource : virtualTrackResourceList) {
+            IMFTrackFileResourceType imfTrackFileResourceType = IMFTrackFileResourceType.class.cast(baseResource);
+            DOMNodeObjectModel domNodeObjectModel = essenceDescriptorListMap.get(UUIDHelper.fromUUIDAsURNStringToUUID(imfTrackFileResourceType.getSourceEncoding()));
+            if (!domNodeObjectModel.getLocalName().equals("WAVEPCMDescriptor")) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                "an ADM Audio VirtualTrack Resource does not have a WAVEPCMDescriptor but %s",
+                        imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getLocalName()));
+            }
 
-                if (domNodeObjectModel.getFieldAsInteger("QuantizationBits") != ADM_BIT_DEPTH.intValue()) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an ADM Audio VirtualTrack Resource has invalid QuantizationBits field: %s vs. %s",
-                            imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsInteger("QuantizationBits"), ADM_BIT_DEPTH));
-                }
+            //
+            // "Regular" Audio Track File checks
+            //
+            // ST 2067-2:2020 section 5.3.2.2
+            if (((imfTrackFileResourceType.getEditRate().getNumerator() != 48000) && (imfTrackFileResourceType.getEditRate().getNumerator() != 96000)) || (imfTrackFileResourceType.getEditRate().getDenominator() != 1)) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("The EditRate %s/%s of resource %s is not 48000/1 or 96000/1",
+                        imfTrackFileResourceType.getEditRate().getNumerator(), imfTrackFileResourceType.getEditRate().getDenominator(), imfTrackFileResourceType.getId()));
+            }
+            // ST 2067-2:2020 section 5.3.2.3
+            if (domNodeObjectModel.getFieldAsInteger("QuantizationBits") != ADM_BIT_DEPTH.intValue()) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                "an ADM Audio VirtualTrack Resource has invalid QuantizationBits field: %s vs. %s",
+                        imfTrackFileResourceType.getSourceEncoding(), domNodeObjectModel.getFieldAsInteger("QuantizationBits"), ADM_BIT_DEPTH));
+            }
+            // ST 377-1:2011 section F.5
+            if (domNodeObjectModel.getFieldAsString("AudioSampleRate") == null) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                "an ADM Audio VirtualTrack Resource does not have an AudioSampleRate item.", imfTrackFileResourceType.getSourceEncoding()));
+            }
 
-                if (domNodeObjectModel.getFieldAsString("AudioSampleRate") == null) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an ADM Audio VirtualTrack Resource does not have an AudioSampleRate item.", imfTrackFileResourceType.getSourceEncoding()));
-                }
+            if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
+                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                "an ADM Audio VirtualTrack Resource has no SubDescriptor", imfTrackFileResourceType.getSourceEncoding()));
+            } else {
+                for (Map.Entry<DOMNodeObjectModel, Integer> entry : domNodeObjectModel.getChildrenDOMNodes().entrySet()) {
+                    if (!entry.getKey().getLocalName().equals("SubDescriptors")) continue;
+                    //
+                    // Check number of occurences of each SubDescriptor
+                    //
+                    long count = entry.getKey().getChildrenDOMNodes().entrySet().stream().filter(myEntry -> "RIFFChunkDefinitionSubDescriptor".equals(myEntry.getKey().getLocalName())).count();
+                    if (count == 0) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("EssenceDescriptor ID %s shall reference exactly one RIFFChunkDefinitionSubDescriptor with RIFFChunkID equal to 'axml', the actual number is %d", imfTrackFileResourceType.getSourceEncoding(), count));
+                    }
+                    count = entry.getKey().getChildrenDOMNodes().entrySet().stream().filter(myEntry -> "ADMSoundfieldGroupLabelSubDescriptor".equals(myEntry.getKey().getLocalName())).count();
+                    if (count == 0) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("EssenceDescriptor ID %s shall reference at least one ADMSoundfieldGroupLabelSubDescriptor, the actual number is %d", imfTrackFileResourceType.getSourceEncoding(), count));
+                    }
+                    // Assuming Operational Mode A
+                    for (String sub_descriptor_name : List.of("RIFFChunkReferencesSubDescriptor", "ADMAudioMetadataSubDescriptor", "ADM_CHNASubDescriptor")) {
+                        count = entry.getKey().getChildrenDOMNodes().keySet().stream().filter(key -> sub_descriptor_name.equals(key.getLocalName())).count();
+                        if (count != 1) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR,IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
+                                String.format("EssenceDescriptor ID %s shall reference exactly one %s, the actual number is %d", imfTrackFileResourceType.getSourceEncoding(), sub_descriptor_name, count
+                                )
+                            );
+                        }
+                    }
+                    for (Map.Entry<DOMNodeObjectModel, Integer> subentry : entry.getKey().getChildrenDOMNodes().entrySet()) {
+                        String subentry_instance_id = subentry.getKey().getFieldAsString("InstanceID");
 
-                if (domNodeObjectModel.getChildrenDOMNodes().size() == 0) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an ADM Audio VirtualTrack Resource has no SubDescriptor", imfTrackFileResourceType.getSourceEncoding()));
-                } else {
-                    for (Map.Entry<DOMNodeObjectModel, Integer> entry : domNodeObjectModel.getChildrenDOMNodes().entrySet()) {
-                        if (!entry.getKey().getLocalName().equals("SubDescriptors")) continue;
+                        if (subentry.getKey().getLocalName().equals("AudioChannelLabelSubDescriptor") || subentry.getKey().getLocalName().equals("SoundFieldGroupLabelSubDescriptor") || subentry.getKey().getLocalName().equals("GroupOfSoundfieldGroupsLabelSubDescriptor")) {
+                            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
+                                "an ADM Audio VirtualTrack Resource has forbidden %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getLocalName()));
+                        //
+                        // ADMSoundfieldGroupLabelSubDescriptor checks
+                        //
+                        } else if (subentry.getKey().getLocalName().equals("ADMSoundfieldGroupLabelSubDescriptor")) {
+                            int num_mca_adm_labels = 0;
+                            if (subentry.getKey().getFieldAsUL("MCALabelDictionaryID") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCALabelDictionaryId", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
 
-                        for (Map.Entry<DOMNodeObjectModel, Integer> subentry : entry.getKey().getChildrenDOMNodes().entrySet()) {
+                            } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_LABEL_DICTIONARY_ID_UL.equalsWithMask(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), 0b1111111011111111)) {//)(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
+                                num_mca_adm_labels++;
+                            }
+                            if (subentry.getKey().getFieldAsString("MCATagSymbol") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCATagSymbol", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
 
-                            if (subentry.getKey().getLocalName().equals("AudioChannelLabelSubDescriptor") || subentry.getKey().getLocalName().equals("SoundFieldGroupLabelSubDescriptor") || subentry.getKey().getLocalName().equals("GroupOfSoundfieldGroupsLabelSubDescriptor")) {
-                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                    "an ADM Audio VirtualTrack Resource has forbidden %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getLocalName()));
-                            } else if (subentry.getKey().getLocalName().equals("ADMSoundfieldGroupLabelSubDescriptor")) {
-                                int num_mca_adm_labels = 0;
-                                if (subentry.getKey().getFieldAsUL("MCALabelDictionaryID") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCA Label Dictionary ID", imfTrackFileResourceType.getSourceEncoding()));
+                            } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_SYMBOL.equals(subentry.getKey().getFieldAsString("MCATagSymbol"))) {
+                                num_mca_adm_labels++;
+                            }
+                            if (subentry.getKey().getFieldAsString("MCATagName") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCATagName", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
 
-                                } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_LABEL_DICTIONARY_ID_UL.equalsWithMask(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"), 0b1111111011111111)) {//)(subentry.getKey().getFieldAsUL("MCALabelDictionaryID"))) {
-                                    num_mca_adm_labels++;
-                                }
-                                if (subentry.getKey().getFieldAsString("MCATagSymbol") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCATagSymbol", imfTrackFileResourceType.getSourceEncoding()));
-
-                                } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_SYMBOL.equals(subentry.getKey().getFieldAsString("MCATagSymbol"))) {
-                                    num_mca_adm_labels++;
-                                }
-                                if (subentry.getKey().getFieldAsString("MCATagName") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCATagName", imfTrackFileResourceType.getSourceEncoding()));
-
-                                } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_NAME.equals(subentry.getKey().getFieldAsString("MCATagName"))) {
-                                    num_mca_adm_labels++;
-                                }
-                                if ((num_mca_adm_labels > 0) && (num_mca_adm_labels < 3)) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource uses ADM Soundfield Group Labels only in %d, but not all of the items MCALabelDictionaryID, MCATagSymbol, MCATagName", imfTrackFileResourceType.getSourceEncoding(), num_mca_adm_labels));
-                                }
-                                if (subentry.getKey().getFieldAsString("MCAContent") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCAContent", imfTrackFileResourceType.getSourceEncoding()));
-                                } else if (MCAContent.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAContent")) == MCAContent.Unknown) {
-                                    // Check against ST 377-41:2021 Table 2
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource has invalid MCA Content (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAContent")));
-                                }
-                                if (subentry.getKey().getFieldAsString("MCAUseClass") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCAUseClass", imfTrackFileResourceType.getSourceEncoding()));
-                                } else if (MCAUseClass.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAUseClass")) == MCAUseClass.Unknown) {
-                                    // Check against ST 377-41:2021 Table 3
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource has invalid MCA Use Class (%s)", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAUseClass")));
-                                }
-                                // Check against ST 2067-203:2023 Table 3
-                                if (subentry.getKey().getFieldAsString("MCATitle") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCATitle", imfTrackFileResourceType.getSourceEncoding()));
-                                }
-                                // Check against ST 2067-203:2023 Table 3
-                                if (subentry.getKey().getFieldAsString("MCATitleVersion") == null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource is missing MCATitleVersion", imfTrackFileResourceType.getSourceEncoding()));
-                                }
-                                if (subentry.getKey().getFieldAsString("MCAChannelID") != null) {
-                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("EssenceDescriptor ID %s referenced by " +
-                                            "an ADM Audio VirtualTrack Resource has forbidden MCAChannelID %s", imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAChannelID")));
+                            } else if (ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_NAME.equals(subentry.getKey().getFieldAsString("MCATagName"))) {
+                                num_mca_adm_labels++;
+                            }
+                            if ((num_mca_adm_labels > 0) && (num_mca_adm_labels < 3)) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource uses ADM Soundfield Group Labels only in %d, but not all of the items MCALabelDictionaryID, MCATagSymbol, MCATagName", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding(), num_mca_adm_labels));
+                            }
+                            if (subentry.getKey().getFieldAsString("RFC5646SpokenLanguage") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                        String.format("ADMSoundfieldGroupLabelSubDescriptor  ID %s referenced by EssenceDescriptor ID %s is missing RFC5646SpokenLanguage. " +
+                                        "It shall be absent if and only if the soundfield group is not associated with a primary spoken language.", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            } else {
+                                if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(subentry.getKey().getFieldAsString("RFC5646SpokenLanguage"))) {
+                                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by " +
+                                        "EssenceDescriptor ID %s is not RFC5646 compliant", subentry.getKey().getFieldAsString("RFC5646SpokenLanguage"), subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
                                 }
                             }
+                            if (subentry.getKey().getFieldAsString("MCAContent") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCAContent", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            } else if (MCAContent.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAContent")) == MCAContent.Unknown) {
+                                // Check against ST 377-41:2021 Table 2
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource has invalid MCA Content (%s)", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAContent")));
+                            }
+                            if (subentry.getKey().getFieldAsString("MCAUseClass") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCAUseClass", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            } else if (MCAUseClass.getValueFromSymbol(subentry.getKey().getFieldAsString("MCAUseClass")) == MCAUseClass.Unknown) {
+                                // Check against ST 377-41:2021 Table 3
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource has invalid MCA Use Class (%s)", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAUseClass")));
+                            }
+                            // Check against ST 2067-203:2023 Table 3
+                            if (subentry.getKey().getFieldAsString("MCATitle") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCATitle", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            }
+                            // Check against ST 2067-203:2023 Table 3
+                            if (subentry.getKey().getFieldAsString("MCATitleVersion") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource is missing MCATitleVersion", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            }
+                            if (subentry.getKey().getFieldAsString("MCAChannelID") != null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CORE_CONSTRAINTS_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "an ADM Audio VirtualTrack Resource has forbidden MCAChannelID %s", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding(), subentry.getKey().getFieldAsString("MCAChannelID")));
+                            }
+                            //
+                            // Assume Operational Mode A: ST 2067-204:2026-05 section 7
+                            //
+                            if (subentry.getKey().getFieldAsString("ADMAudioProgrammeID_ST2131") == null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "is missing ADMAudioProgrammeId. ST 2067-204:2026-05 Table 7 states that it shall be present for Operational Mode A. It is assumed that Operational Mode A is in use.", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            }
+                            if (subentry.getKey().getFieldAsString("ADMAudioContentID_ST2131") != null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "has an illegal ADMAudioContentID item. ST 2067-204:2026-05 Table 7 states that it shall not be present for Operational Mode A. It is assumed that Operational Mode A is in use.", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            }
+                            if (subentry.getKey().getFieldAsString("ADMAudioObjectID_ST2131") != null) {
+                                imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by EssenceDescriptor ID %s referenced by " +
+                                        "has an illegal ADMAudioObjectID item. ST 2067-204:2026-05 Table 7 states that it shall not be present for Operational Mode A. It is assumed that Operational Mode A is in use.", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
+                            }
                         }
+                        //
+                        // Additional checks for RIFFChunkDefinitionSubDescriptor, RIFFChunkReferencesSubDescriptor, ADMAudioMetadataSubDescriptor, ADM_CHNASubDescriptor can be added here
+                        //
                     }
                 }
             }

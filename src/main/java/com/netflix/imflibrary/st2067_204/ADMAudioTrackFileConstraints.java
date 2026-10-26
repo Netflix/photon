@@ -23,7 +23,6 @@ import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.header.AudioChannelLabelSubDescriptor;
-import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
 import com.netflix.imflibrary.st0377_41.MCAContent;
@@ -31,13 +30,10 @@ import com.netflix.imflibrary.st0377_41.MCAUseClass;
 import com.netflix.imflibrary.st0377.header.GroupOfSoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
-import com.netflix.imflibrary.st0377.header.Sequence;
 import com.netflix.imflibrary.st0377.header.SoundFieldGroupLabelSubDescriptor;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
 import com.netflix.imflibrary.st0377.header.StructuralMetadata;
-import com.netflix.imflibrary.st0377.header.TimelineTrack;
 import com.netflix.imflibrary.st0377.header.UL;
-import com.netflix.imflibrary.utils.ErrorLogger;
 
 import jakarta.annotation.Nonnull;
 
@@ -140,6 +136,10 @@ public final class ADMAudioTrackFileConstraints {
         Long axmlStreamID = null;
         int axmlCount = 0;
         List<InterchangeObject.InterchangeObjectBO> riffChunkDefinitionSubDescriptors = subDescriptors.subList(0, subDescriptors.size()).stream().filter(interchangeObjectBO -> interchangeObjectBO.getClass().getEnclosingClass().equals(RIFFChunkDefinitionSubDescriptor.class)).collect(Collectors.toList());
+        if (riffChunkDefinitionSubDescriptors.size() == 0) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
+                    String.format("WAVE Audio Essence Descriptor in the IMFTrackFile represented by ID %s shall reference exactly one RIFFChunkDefinitionSubDescriptor with RIFFChunkID equal to 'axml', the actual number is %d", packageID.toString(), riffChunkDefinitionSubDescriptors.size()));
+        }
         for (InterchangeObject.InterchangeObjectBO sub_descriptor : riffChunkDefinitionSubDescriptors) {
             RIFFChunkDefinitionSubDescriptor.RIFFChunkDefinitionSubDescriptorBO riffChunkDefinitionSubDescriptorBO =
             RIFFChunkDefinitionSubDescriptor.RIFFChunkDefinitionSubDescriptorBO.class.cast(sub_descriptor);
@@ -260,11 +260,11 @@ public final class ADMAudioTrackFileConstraints {
             for (InterchangeObject.InterchangeObjectBO sub_descriptor : admSoundfieldGroupLabelSubDescriptors) {
                 admSoundfieldGroupLabelSubDescriptorBO = ADMSoundfieldGroupLabelSubDescriptor.ADMSoundfieldGroupLabelSubDescriptorBO.class.cast(sub_descriptor);
                 int num_mca_adm_labels = 0;
-                if (admSoundfieldGroupLabelSubDescriptorBO.getMCATagName() == null) {
+                if (admSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId() == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
-                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagName", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                 } else {
-                    if (admSoundfieldGroupLabelSubDescriptorBO.getMCATagName().equals(ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_NAME)) {
+                    if (admSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_LABEL_DICTIONARY_ID_UL)) {
                         num_mca_adm_labels++;
                     }
                 }
@@ -276,11 +276,11 @@ public final class ADMAudioTrackFileConstraints {
                         num_mca_adm_labels++;
                     }
                 }
-                if (admSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId() == null) {
+                if (admSoundfieldGroupLabelSubDescriptorBO.getMCATagName() == null) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
-                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCALabelDictionaryId", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
+                            String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing MCATagName", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                 } else {
-                    if (admSoundfieldGroupLabelSubDescriptorBO.getMCALabelDictionnaryId().equals(ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_LABEL_DICTIONARY_ID_UL)) {
+                    if (admSoundfieldGroupLabelSubDescriptorBO.getMCATagName().equals(ADMSoundfieldGroupLabelSubDescriptor.ADM_MCA_TAG_NAME)) {
                         num_mca_adm_labels++;
                     }
                 }
