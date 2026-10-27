@@ -145,10 +145,21 @@ public final class MXFPropertyPopulator
                 }
                 else if (parameterizedType.getActualTypeArguments()[0] == Integer.class)
                 {
+                    // Collection of MXF Int32 values represented as Java Integers
                     List<Integer> cList = new ArrayList<>();
                     for (long i=0; i<cHeader.getNumberOfElements(); i++)
                     {
                         cList.add(getInt(byteProvider.getBytes(4), KLVPacket.BYTE_ORDER));
+                    }
+                    field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
+                }
+                else if (parameterizedType.getActualTypeArguments()[0] == Long.class)
+                {
+                    // Collection of MXF UInt32 values represented as Java Longs
+                    List<Long> cList = new ArrayList<>();
+                    for (long i=0; i<cHeader.getNumberOfElements(); i++)
+                    {
+                        cList.add(getUnsignedIntAsLong(byteProvider.getBytes(4), KLVPacket.BYTE_ORDER));
                     }
                     field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
                 }

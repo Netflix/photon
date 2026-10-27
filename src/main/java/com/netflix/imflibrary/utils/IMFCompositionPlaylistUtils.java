@@ -43,6 +43,17 @@ public class IMFCompositionPlaylistUtils {
         return false;
     }
 
+    public static boolean hasADMAudioVirtualTracks(@Nonnull IMFCompositionPlaylist imfCompositionPlaylist){
+        Iterator iterator = imfCompositionPlaylist.getVirtualTrackMap().entrySet().iterator();
+        while(iterator.hasNext()) {
+            Composition.VirtualTrack virtualTrack = ((Map.Entry<UUID, ? extends Composition.VirtualTrack>) iterator.next()).getValue();
+            if (virtualTrack.getSequenceType().equals("ADMAudioSequence")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * A stateless method that returns the RFC-5646 Spoken Language Tag present in the Header Partition of an Audio Essence
