@@ -296,6 +296,7 @@ public class IMPAnalyzerTest
 
     }
 
+
     @Test
     public void IMPAnalyzerTest14() throws IOException
     {
@@ -309,4 +310,15 @@ public class IMPAnalyzerTest
         );
 
     }
+
+
+    @Test
+    public void IMPAnalyzerTest15() throws IOException
+    {
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/ADM/ST2067-204_audio_track_file__compliant_one_riff_chunk/ADM_Stereo_axml.mxf");
+        List<ErrorLogger.ErrorObject> errors = analyzeFile(inputFile, "http://www.smpte-ra.org/ns/2067-204/2022");
+        Assert.assertEquals(errors.size(), 0);
+    }
+
+
 }
