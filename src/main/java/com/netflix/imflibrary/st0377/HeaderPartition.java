@@ -58,6 +58,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
@@ -449,7 +450,7 @@ public final class HeaderPartition
                     }
                     if(node.depends.size() > 0
                         && subDescriptors.size() == 0){
-                        throw new MXFException(String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
+                        this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
                     }
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
@@ -1474,6 +1475,8 @@ public final class HeaderPartition
                     return "IABEssence";
                 case MGASADMSignalSequence:
                     return "MGASADMEssence";
+                case ADMAudioSequence:
+                    return "ADMAudioSequence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";
@@ -1586,6 +1589,15 @@ public final class HeaderPartition
             if (sid != -1) break;
         }
         return sid;
+    }
+
+    /**
+     * Getter for a copy of the uidToBOs Hash Map
+     *
+     * @return A copy of the uidToBOs Hash Map
+     */
+    public Map<MXFUID, InterchangeObject.InterchangeObjectBO> getUidToBOs() {
+        return new HashMap<>(this.uidToBOs);
     }
 
 }

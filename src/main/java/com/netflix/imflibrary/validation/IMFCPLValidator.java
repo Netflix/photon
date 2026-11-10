@@ -11,7 +11,10 @@ import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
+import com.netflix.imflibrary.st0377.header.InterchangeObject.InterchangeObjectBO.StrongRef;
 import com.netflix.imflibrary.st2067_2.*;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor;
+import com.netflix.imflibrary.st2067_204.ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO;
 import com.netflix.imflibrary.utils.*;
 import com.sandflow.smpte.klv.Triplet;
 import jakarta.annotation.Nonnull;
@@ -526,6 +529,23 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
     private static List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO> references = new ArrayList<>();
+        for (InterchangeObject.InterchangeObjectBO sub : subDescriptors) {
+            if (sub.getClass().getSimpleName().equals(ADM_CHNASubDescriptorBO.class.getSimpleName())) {
+                // For ST 2067-204 validation: Add all ADMChannelMapping sets, as defined in ST 2131, to the references
+                ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO adm = (ADM_CHNASubDescriptor.ADM_CHNASubDescriptorBO) sub;
+                if (adm.getADMChannelMappingsArray() != null) {
+                    for (StrongRef strongRef : adm.getADMChannelMappingsArray().getEntries()) {
+                        references.add(headerPartition.getUidToBOs().get(strongRef.getInstanceUID()));
+                    }
+                }
+            }
+        }
+        if (!references.isEmpty()) {
+            for (InterchangeObject.InterchangeObjectBO reference: references) {
+                subDescriptors.add(reference);
+            }
+        }
         for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
             if (subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

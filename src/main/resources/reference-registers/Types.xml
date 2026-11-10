@@ -1,28 +1,43 @@
+<!-- Metadata tags to support XML file editing -->
+<!--  -->
+<!-- Please fill these in if you edit this XML file -->
+<!-- author= -->
+<!-- summary_of_edit= -->
+<!--  -->
 <!-- DO NOT EDIT THIS TAG -->
-<!-- master_commit_tag=v000000085 -->
+<!-- master_commit_tag=v000000088 -->
 <!-- DO NOT EDIT THIS TAG -->
-<!--
-Copyright (c) 2024 SMPTE All rights reserved.
-
-The latest version of this document can be retrieved at
-
-http://smpte-ra.org/smpte-metadata-registry
-
-The document is constructed according to 
-
-ST 2003:2012  -  Types Dictionary Structure,
-
-which is available at http://dx.doi.org/10.5594/SMPTE.ST2003.2012
-
-Use of this file without consulting the corresponding SMPTE Engineering Document is NOT supported.  Interoperability will generally require adherence to additional guidelines and constraints specified in the corresponding prose document.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
+<!--  -->
+<!--  -->
+<!-- SMPTE METADATA REGISTER -->
+<!-- ####################### -->
+<!--  -->
+<!-- See https://registry.smpte-ra.org for SMPTE Metadata Registers resources. -->
+<!--  -->
+<!-- Editing these XML Files -->
+<!-- ####################### -->
+<!--  -->
+<!-- If you wish to edit one of these XML files please first complete the metadata tags at the top of the file. -->
+<!-- Then edit existing entries in the XML or add new entries. -->
+<!-- When editing the XML file you may delete some or all of the original entries. Leaving only those that you are -->
+<!-- working on may make editing simpler and less error prone. -->
+<!-- If you think that an entry actually needs to be deleted from the Registers please get in touch. -->
+<!-- You must not edit the UL of an entry - doing so would make it look like you want to create a new entry. -->
+<!-- Please get in touch if you think the UL of an entry in the Registers actually needs to be changed. -->
+<!--  -->
+<!-- Please create a ZIP file containing all of the XML files you have edited. -->
+<!-- This may contain zero or more XML files for each Register. -->
+<!-- Try to only make related edits in the XML files you include in the ZIP - if you have two sets of unrelated changes to make -->
+<!-- please do these in separate XML files that are packaged into two separate ZIP files. All the changes will ultimately be merged into the -->
+<!-- Registers. -->
+<!-- When ready, please send your ZIP file(s) by email (each ZIP file in its own email message). -->
+<!--  -->
+<!-- Contact -->
+<!-- ####### -->
+<!--  -->
+<!-- Please email:  30mr-meta-def@smpte.org -->
+<!--  -->
+<!--  -->
 <TypesRegister xmlns="http://www.smpte-ra.org/schemas/2003/2012">
   <Entries>
     <Entry>
@@ -186,6 +201,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>Int48</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.01010a00.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>48 bit signed integer</Name>
+      <Definition>48 bit signed integer</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Integer</TypeKind>
+      <TypeSize>6</TypeSize>
+      <TypeQualifiers>isNumeric isSigned</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>RenamedIntegerTypes</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.01012000.00000000</UL>
       <Kind>NODE</Kind>
@@ -313,6 +344,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>AbstractContext</ContextScope>
       <TypeKind>Rename</TypeKind>
       <BaseType>urn:smpte:ul:060e2b34.01040101.01010300.00000000</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ST12_3</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0101200a.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ST12-3</Name>
+      <Applications>MXF</Applications>
+      <Notes>big endian</Notes>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>Rename</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01010400.00000000</BaseType>
     </Entry>
     <Entry>
       <Register>Types</Register>
@@ -3521,6 +3566,151 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TimeScaleTagType</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.02020208.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Controlled vocabulary string value identifying a time scale</Name>
+      <Definition>Controlled vocabulary string value identifying a time scale</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Enumeration</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01100400.00000000</BaseType>
+      <Facets>
+        <Facet>
+          <Symbol>Unknown</Symbol>
+          <Name>Unknown</Name>
+          <Value>Unknown</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>None</Symbol>
+          <Name>None</Name>
+          <Value>None</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>TAI</Symbol>
+          <Name>TAI</Name>
+          <Value>TAI</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TimeZoneTagType</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.02020209.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>IANA TZ database Controlled vocabulary string value identifying a time zone</Name>
+      <Definition>IANA TZ database Controlled vocabulary string value identifying a time zone</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Enumeration</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01100400.00000000</BaseType>
+      <Facets>
+        <Facet>
+          <Symbol>Unknown</Symbol>
+          <Name>Unknown</Name>
+          <Value>Unknown</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>None</Symbol>
+          <Name>None</Name>
+          <Value>None</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>UTC</Symbol>
+          <Name>UTC</Name>
+          <Value>UTC</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>CalendarTagType</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0202020a.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ISO 8601 Controlled vocabulary string value identifying a calendar</Name>
+      <Definition>ISO 8601 Controlled vocabulary string value identifying a calendar</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Enumeration</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01100400.00000000</BaseType>
+      <Facets>
+        <Facet>
+          <Symbol>Unknown</Symbol>
+          <Name>Unknown</Name>
+          <Value>Unknown</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>None</Symbol>
+          <Name>None</Name>
+          <Value>None</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>Gregorian</Symbol>
+          <Name>Gregorian</Name>
+          <Value>Gregorian</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TimecodeDisplayFormatType</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0202020b.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Controlled vocabulary string value identifying the preferred text format of Timecode</Name>
+      <Definition>Controlled vocabulary string value identifying the preferred text format of Timecode</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Enumeration</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.01100400.00000000</BaseType>
+      <Facets>
+        <Facet>
+          <Symbol>Unknown</Symbol>
+          <Name>Unknown</Name>
+          <Value>Unknown</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>ST258</Symbol>
+          <Name>ST258</Name>
+          <Value>ST258</Value>
+          <Applications>DMS_TLC</Applications>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>RecordTypes</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.03000000.00000000</UL>
       <Kind>NODE</Kind>
@@ -4038,6 +4228,78 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
           <Symbol>Nanoseconds</Symbol>
           <Name>Nanoseconds</Name>
           <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>BasicTimecode_Count</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.03011100.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Basic Timecode Record</Name>
+      <Definition>Basic Timecode Record</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Record</TypeKind>
+      <Facets>
+        <Facet>
+          <Symbol>Frames</Symbol>
+          <Name>Frames</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01012001.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>PTP_Count</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.03011200.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>PTP Record</Name>
+      <Definition>PTP Record</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Record</TypeKind>
+      <Facets>
+        <Facet>
+          <Symbol>Seconds</Symbol>
+          <Name>Seconds</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01010a00.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+        <Facet>
+          <Symbol>Nanoseconds</Symbol>
+          <Name>Nanoseconds</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01010300.00000000</Type>
+          <IsDeprecated>false</IsDeprecated>
+        </Facet>
+      </Facets>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TLC_time64_t</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.03011300.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>NTP Record</Name>
+      <Definition>NTP Record</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Record</TypeKind>
+      <Facets>
+        <Facet>
+          <Symbol>Seconds</Symbol>
+          <Name>Seconds</Name>
+          <Type>urn:smpte:ul:060e2b34.01040101.01010800.00000000</Type>
           <IsDeprecated>false</IsDeprecated>
         </Facet>
       </Facets>
@@ -5756,6 +6018,137 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>VC6EchelonPropertiesStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023200.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>VC-6 Echelon Properties Strong Reference</Name>
+      <DefiningDocument>ST 2117-10</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010101.01018105</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ADMChannelMappingStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023300.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ADMChannelMappingStrongReference</Name>
+      <DefiningDocument>SMPTE ST 2131</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010101.0101810f</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>DescriptiveFrameworkDefinitionStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023400.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>DescriptiveFrameworkDefinitionStrongReference</Name>
+      <Definition>DescriptiveFrameworkDefinitionStrongReference</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06010200</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ObjectConstraintDefinitionStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023500.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ObjectConstraintDefinitionStrongReference</Name>
+      <Definition>ObjectConstraintDefinitionStrongReference</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06010300</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>DescriptiveSchemeDefinitionStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023600.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>DescriptiveSchemeDefinitionStrongReference</Name>
+      <Definition>DescriptiveSchemeDefinitionStrongReference</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06010100</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TLCIncrementStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023700.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>StrongReference to TLCIncrement</Name>
+      <Definition>StrongReference to TLCIncrement</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06030d00</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TLCTimeScaleStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023800.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>StrongReference to TLCTimeScale</Name>
+      <Definition>StrongReference to TLCTimeScale</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06030e00</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TLCTimeZoneStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023900.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>StrongReference to TLCTimeZone</Name>
+      <Definition>StrongReference to TLCTimeZone</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06030f00</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>TLCCalendarStrongReference</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05023a00.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>StrongReference to TLCCalendar</Name>
+      <Definition>StrongReference to TLCCalendar</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>StrongReference</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.027f0101.0d010401.06031000</BaseType>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>WeakReferenceSets</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.05030000.00000000</UL>
       <Kind>NODE</Kind>
@@ -6187,6 +6580,57 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <Entry>
       <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>DescriptiveFrameworkDefinitionStrongReferenceSet</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05051400.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Descriptive Framework Definition StrongReferenceSet</Name>
+      <Definition>Descriptive Framework Definition StrongReferenceSet</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Set</TypeKind>
+      <TypeSize>0</TypeSize>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023400.00000000</BaseType>
+      <TypeQualifiers>isIdentified</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ObjectConstraintDefinitionStrongReferenceSet</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05051500.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Object Constraint Definition StrongReferenceSet</Name>
+      <Definition>Object Constraint Definition StrongReferenceSet</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Set</TypeKind>
+      <TypeSize>0</TypeSize>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023500.00000000</BaseType>
+      <TypeQualifiers>isIdentified</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>DescriptiveSchemeDefinitionStrongReferenceSet</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05051600.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>Descriptive Scheme Definition StrongReferenceSet</Name>
+      <Definition>Descriptive Scheme Definition StrongReferenceSet</Definition>
+      <Applications>DMS_TLC</Applications>
+      <DefiningDocument>SMPTE ST 2134</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>DefinedContext</ContextScope>
+      <TypeKind>Set</TypeKind>
+      <TypeSize>0</TypeSize>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023600.00000000</BaseType>
+      <TypeQualifiers>isIdentified</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
       <Symbol>StrongReferenceVectors</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.05060000.00000000</UL>
       <Kind>NODE</Kind>
@@ -6402,6 +6846,34 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <ContextScope>UnknownContext</ContextScope>
       <TypeKind>VariableArray</TypeKind>
       <BaseType>urn:smpte:ul:060e2b34.01040101.05022b00.00000000</BaseType>
+      <TypeQualifiers>isOrdered</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>VC6EchelonPropertiesStrongReferenceArray</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05061000.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>VC-6 Echelon Properties Strong Reference in an ordered Array</Name>
+      <DefiningDocument>ST 2117-10</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>VariableArray</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023200.00000000</BaseType>
+      <TypeQualifiers>isOrdered</TypeQualifiers>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012</NamespaceName>
+      <Symbol>ADMChannelMappingStrongReferenceVector</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.05061100.00000000</UL>
+      <Kind>LEAF</Kind>
+      <Name>ADMChannelMappingStrongReferenceVector</Name>
+      <DefiningDocument>SMPTE ST 2131</DefiningDocument>
+      <IsDeprecated>false</IsDeprecated>
+      <ContextScope>UnknownContext</ContextScope>
+      <TypeKind>VariableArray</TypeKind>
+      <BaseType>urn:smpte:ul:060e2b34.01040101.05023300.00000000</BaseType>
       <TypeQualifiers>isOrdered</TypeQualifiers>
     </Entry>
     <Entry>
@@ -10647,6 +11119,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     </Entry>
     <Entry>
       <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012/13/16</NamespaceName>
+      <Symbol>HAND</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0d100000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>HAND</Name>
+      <Definition>Metadata registered by HAND - The Universal Talent Identifier, Inc. for public use</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
       <NamespaceName>http://www.smpte-ra.org/reg/2003/2012/14</NamespaceName>
       <Symbol>OrganizationallyRegisteredasPrivate</Symbol>
       <UL>urn:smpte:ul:060e2b34.01040101.0e000000.00000000</UL>
@@ -10973,6 +11455,36 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <Kind>NODE</Kind>
       <Name>Fraunhofer</Name>
       <Definition>Metadata registered by Fraunhofer for private use</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012/14/34</NamespaceName>
+      <Symbol>RED</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0e220000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>RED</Name>
+      <Definition>Metadata registered by RED Digital Cinema, LLC. for private use</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012/14/35</NamespaceName>
+      <Symbol>CRIFST</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0e230000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>CRIFST</Name>
+      <Definition>Metadata registered by CRIFST for private use</Definition>
+      <IsDeprecated>false</IsDeprecated>
+    </Entry>
+    <Entry>
+      <Register>Types</Register>
+      <NamespaceName>http://www.smpte-ra.org/reg/2003/2012/14/36</NamespaceName>
+      <Symbol>FUJIFILM</Symbol>
+      <UL>urn:smpte:ul:060e2b34.01040101.0e240000.00000000</UL>
+      <Kind>NODE</Kind>
+      <Name>FUJIFILM</Name>
+      <Definition>Metadata registered by FUJIFILM for private use</Definition>
       <IsDeprecated>false</IsDeprecated>
     </Entry>
     <Entry>
