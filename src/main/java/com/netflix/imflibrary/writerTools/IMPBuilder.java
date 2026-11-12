@@ -1,6 +1,6 @@
 package com.netflix.imflibrary.writerTools;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
@@ -873,7 +873,7 @@ public class IMPBuilder {
                 HeaderPartition headerPartition = new HeaderPartition(byteProvider, 0L, (long) imfTrackFileMetadata.getHeaderPartition().length, imfErrorLogger);
 
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+                IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
                 List<InterchangeObject.InterchangeObjectBO> essenceDescriptors = headerPartition.getEssenceDescriptors();
                 for (InterchangeObject.InterchangeObjectBO essenceDescriptor : essenceDescriptors) {
                     KLVPacket.Header essenceDescriptorHeader = essenceDescriptor.getHeader();

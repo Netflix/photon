@@ -94,7 +94,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                     imfErrorLogger);
 
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
         } catch (MXFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
@@ -146,7 +146,7 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
                         0L, (long) headerPartitionPayloadRecord.getPayload().length, imfErrorLogger);
 
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+                HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
 
                 for (PayloadRecord indexPayloadRecord : indexSegmentPayloadRecords) {
                     if (indexPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
@@ -198,4 +198,17 @@ public class IMFIABLevel0PluginConstraintsValidator implements ConstraintsValida
         return imfErrorLogger.getErrors();
     }
 
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateTrackFileHeaderConstraints(@Nonnull HeaderPartitionIMF headerPartitionIMF) {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            IABTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate the IMFTrackFile: " + e.getMessage());
+        }
+        return imfErrorLogger.getErrors();
+    }
 }

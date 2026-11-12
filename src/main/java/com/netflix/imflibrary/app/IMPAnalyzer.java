@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -227,10 +228,14 @@ public class IMPAnalyzer {
                         for (UUID key : trackFileMap.keySet()) {
                             TrackFilePartitionsRecord trackFileEntry = trackFileMap.get(key);
                             String sequenceNamespace = null;
+                            Set<String> applicationIds = new LinkedHashSet<>();
 
                             for (IMFCompositionPlaylist imfCompositionPlaylist : imfCompositionPlaylistMap.values()) {
                                 sequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForTrackFileID(key);
                                 if (sequenceNamespace != null) {
+                                    if (imfCompositionPlaylist.getApplicationIdSet() != null) {
+                                        applicationIds.addAll(imfCompositionPlaylist.getApplicationIdSet());
+                                    }
                                     break;
                                 }
                             }
@@ -242,7 +247,7 @@ public class IMPAnalyzer {
                             essencePartitions.addAll(trackFileEntry.indexPartitions);
 
                             // avoid overwriting
-                            aggregateErrors.addAll(IMPValidator.validateEssencePartitions(essencePartitions, sequenceNamespace));
+                            aggregateErrors.addAll(IMPValidator.validateEssencePartitions(essencePartitions, EssenceValidationContext.of(applicationIds, sequenceNamespace)));
                             if (errorMap.get(trackFileEntry.filename) != null)
                                 aggregateErrors.addAll(errorMap.get(trackFileEntry.filename));
                             errorMap.put(trackFileEntry.filename, aggregateErrors);
