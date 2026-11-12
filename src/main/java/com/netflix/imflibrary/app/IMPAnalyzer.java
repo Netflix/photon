@@ -247,7 +247,7 @@ public class IMPAnalyzer {
                             essencePartitions.addAll(trackFileEntry.indexPartitions);
 
                             // avoid overwriting
-                            aggregateErrors.addAll(IMPValidator.validateEssencePartitions(essencePartitions, EssenceValidationContext.of(applicationIds, sequenceNamespace)));
+                            aggregateErrors.addAll(IMPValidator.validateEssencePartitionsInContext(essencePartitions, EssenceValidationContext.of(applicationIds, sequenceNamespace)));
                             if (errorMap.get(trackFileEntry.filename) != null)
                                 aggregateErrors.addAll(errorMap.get(trackFileEntry.filename));
                             errorMap.put(trackFileEntry.filename, aggregateErrors);

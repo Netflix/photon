@@ -42,6 +42,9 @@ abstract public class IMFCoreConstraintsValidator implements ConstraintsValidato
      */
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
+        if (headerPartition == null) {
+            return List.of(); // a missing header partition is reported by the caller
+        }
         IMFErrorLogger alreadyReported = new IMFErrorLoggerImpl();
         try {
             HeaderPartition parsedHeaderPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartition.getPayload()),

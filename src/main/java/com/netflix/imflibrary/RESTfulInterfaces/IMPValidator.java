@@ -327,11 +327,13 @@ public class IMPValidator {
      * IMFCompositionPlaylist.
      */
     public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> essencePartitionPayloadRecords, String sequenceNamespace) throws IOException {
-        return validateEssencePartitions(essencePartitionPayloadRecords, EssenceValidationContext.forSequenceNamespace(sequenceNamespace));
+        return validateEssencePartitionsInContext(essencePartitionPayloadRecords, EssenceValidationContext.forSequenceNamespace(sequenceNamespace));
     }
 
     /**
-     * Validates the essence partitions of a single MXF Track File. Essence-agnostic structural checks always run. Essence kind
+     * Validates the essence partitions of a single MXF Track File. This is deliberately not an overload of
+     * {@link #validateEssencePartitions(List, String)}, so that calls passing a literal null namespace stay unambiguous.
+     * Essence-agnostic structural checks always run. Essence kind
      * (audio, text, ...) and application specific checks are only run by the validators selected from the validation context
      * (sequence namespace and application identifications), see {@link EssenceValidationContext}.
      *
@@ -339,7 +341,7 @@ public class IMPValidator {
      * @param context - the context in which the Track File is used by a Composition
      * @return a list of error messages encountered while validating the essence partitions
      */
-    public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> essencePartitionPayloadRecords, EssenceValidationContext context) throws IOException {
+    public static List<ErrorLogger.ErrorObject> validateEssencePartitionsInContext(List<PayloadRecord> essencePartitionPayloadRecords, EssenceValidationContext context) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
@@ -408,6 +410,14 @@ public class IMPValidator {
 
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
+
+        // validators need the header partition, e.g. it is absent if the list is empty or only holds index partitions
+        if (headerPartitionPayloadRecord == null) {
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate the essence partitions: no header partition payload was provided");
+            return trackFileErrorLogger.getErrors();
+        }
 
         /*
             If a sequence namespace is provided, an appropriate validator is requested to run validations specific to that sequence type.

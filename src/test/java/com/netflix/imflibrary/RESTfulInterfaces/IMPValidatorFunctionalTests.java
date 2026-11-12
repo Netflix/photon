@@ -20,6 +20,7 @@ package com.netflix.imflibrary.RESTfulInterfaces;
 import com.netflix.imflibrary.HeaderPartitionIMF;
 import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
@@ -321,6 +322,26 @@ public class IMPValidatorFunctionalTests {
             logger.error(errorObject.toString());
         }
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 8);
+    }
+
+    @Test
+    public void validateEssencePartitionsWithoutHeaderPartitionTest() throws IOException {
+        // an empty payload list (or one holding only index partitions) has no header partition to validate:
+        // this must be reported as a fatal error and must not reach the validators (core validator: NullPointerException)
+        List<PayloadRecord> noPayloads = new ArrayList<>();
+        String coreNamespace = "http://www.smpte-ra.org/schemas/2067-2/2013";
+
+        List<List<ErrorLogger.ErrorObject>> results = new ArrayList<>();
+        results.add(IMPValidator.validateEssencePartitions(noPayloads, coreNamespace));
+        results.add(IMPValidator.validateEssencePartitions(noPayloads, null)); // literal null must stay unambiguous
+        results.add(IMPValidator.validateEssencePartitionsInContext(noPayloads, EssenceValidationContext.forSequenceNamespace(coreNamespace)));
+        results.add(IMPValidator.validateEssencePartitionsInContext(noPayloads, EssenceValidationContext.none()));
+
+        for (List<ErrorLogger.ErrorObject> errors : results) {
+            Assert.assertEquals(errors.size(), 1);
+            Assert.assertEquals(errors.get(0).getErrorLevel(), IMFErrorLogger.IMFErrors.ErrorLevels.FATAL);
+            Assert.assertEquals(errors.get(0).getErrorCode(), IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR);
+        }
     }
 
     @Test
