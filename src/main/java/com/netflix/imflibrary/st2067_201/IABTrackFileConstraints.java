@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.st2067_201;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.utils.RFC5646SpokenLanguage;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -112,7 +113,7 @@ public final class IABTrackFileConstraints {
         return mcaContent != null && mcaContent.startsWith("x-");
     }
 
-    public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public static void checkCompliance(HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         Preface preface = headerPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -257,7 +258,7 @@ public final class IABTrackFileConstraints {
                             }
 
                             if (iabSoundFieldLabelSubDescriptorBO.getRFC5646SpokenLanguage() != null &&
-                                    !IMFConstraints.isSpokenLanguageRFC5646Compliant(iabSoundFieldLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
+                                    !RFC5646SpokenLanguage.isCompliant(iabSoundFieldLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
                                 imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in IABSoundfieldLabelSubDescriptor in the IMFTrackfile represented by ID %s is not RFC5646 compliant", iabSoundFieldLabelSubDescriptorBO.getRFC5646SpokenLanguage(), packageID.toString()));
                             }
 
@@ -355,7 +356,7 @@ public final class IABTrackFileConstraints {
         }
     }
 
-    public static void checkIndexEditRate(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, IndexTableSegment indexTableSegment, IMFErrorLogger imfErrorLogger) {
+    public static void checkIndexEditRate(HeaderPartitionIMF headerPartitionIMF, IndexTableSegment indexTableSegment, IMFErrorLogger imfErrorLogger) {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         Preface preface = headerPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();

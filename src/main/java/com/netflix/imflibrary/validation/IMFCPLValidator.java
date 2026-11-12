@@ -1,12 +1,13 @@
 package com.netflix.imflibrary.validation;
 
 
-import com.netflix.imflibrary.IMFConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.MXFOperationalPattern1A;
 import com.netflix.imflibrary.exceptions.MXFException;
 import com.netflix.imflibrary.st0377.HeaderPartition;
 import com.netflix.imflibrary.st0377.PrimerPack;
@@ -231,7 +232,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                         imfErrorLogger);
 
                 // check for compliance
-                imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
+                imfErrorLogger.addAllErrors(IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartition));
                 if (imfErrorLogger.hasFatalErrors())
                     return imfErrorLogger.getErrors();
 
@@ -242,6 +243,25 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                 for (IMFTrackFileResourceType tf : imfCompositionPlaylist.getTrackFileResources()) {
                     if (packageUUID.equals(UUIDHelper.fromUUIDAsURNStringToUUID(tf.getTrackFileId()))) {
                         referencedHeaderPayloads.put(packageUUID, payloadRecord);
+
+                        // essence kind and application specific Track File checks come from the validators this Track File's
+                        // use in the Composition selects: its sequence namespace and the Composition's application identifications
+                        EssenceValidationContext trackFileContext = EssenceValidationContext.of(imfCompositionPlaylist.getApplicationIdSet(),
+                                imfCompositionPlaylist.getSequenceNamespaceForTrackFileID(packageUUID));
+                        try {
+                            HeaderPartitionIMF headerPartitionIMF = HeaderPartitionIMF.wrap(
+                                    MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, new IMFErrorLoggerImpl()));
+                            for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(trackFileContext)) {
+                                // Composition validation has always included the core constraints for the referenced Track Files.
+                                // Plug-in Track File checks are reported by the essence partition validation of the Track File itself
+                                // (see IMPValidator#validateEssencePartitions), so they are not repeated here.
+                                if (validator instanceof IMFCoreConstraintsValidator) {
+                                    imfErrorLogger.addAllErrors(validator.validateTrackFileHeaderConstraints(headerPartitionIMF));
+                                }
+                            }
+                        } catch (IMFException e) {
+                            // already reported by the structural checks above
+                        }
 
                         Composition.HeaderPartitionTuple headerPartitionTuple = new Composition.HeaderPartitionTuple(headerPartition,
                                 new ByteArrayByteRangeProvider(payloadRecord.getPayload()));

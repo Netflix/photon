@@ -17,7 +17,10 @@
  */
 package com.netflix.imflibrary.RESTfulInterfaces;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
+import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
@@ -64,7 +67,7 @@ import java.util.stream.Stream;
 @Test(groups = "functional")
 public class IMPValidatorFunctionalTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMFConstraints.class);
+    private static final Logger logger = LoggerFactory.getLogger(IMPValidatorFunctionalTests.class);
 
     @Test
     public void getPayloadTypeTest() throws IOException {
@@ -308,13 +311,37 @@ public class IMPValidatorFunctionalTests {
                     0L,
                     (long)payload.getPayload().length,
                     imfErrorLogger);
-            imfErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
+            imfErrorLogger.addAllErrors(IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartition));
+            // essence kind (audio, text) constraints are no longer implied by the structural checks, they come from the core
+            // constraints validator selected by the sequence namespace of the Virtual Track (these Track Files are used by 2067-2:2013 sequences)
+            HeaderPartitionIMF headerPartitionIMF = HeaderPartitionIMF.wrap(MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, new IMFErrorLoggerImpl()));
+            imfErrorLogger.addAllErrors(ConstraintsValidatorFactory.getValidator("http://www.smpte-ra.org/schemas/2067-2/2013").validateTrackFileHeaderConstraints(headerPartitionIMF));
         }
 
         for(ErrorLogger.ErrorObject errorObject : imfErrorLogger.getErrors()){
             logger.error(errorObject.toString());
         }
         Assert.assertEquals(imfErrorLogger.getErrors().size(), 8);
+    }
+
+    @Test
+    public void validateEssencePartitionsWithoutHeaderPartitionTest() throws IOException {
+        // an empty payload list (or one holding only index partitions) has no header partition to validate:
+        // this must be reported as a fatal error and must not reach the validators (core validator: NullPointerException)
+        List<PayloadRecord> noPayloads = new ArrayList<>();
+        String coreNamespace = "http://www.smpte-ra.org/schemas/2067-2/2013";
+
+        List<List<ErrorLogger.ErrorObject>> results = new ArrayList<>();
+        results.add(IMPValidator.validateEssencePartitions(noPayloads, coreNamespace));
+        results.add(IMPValidator.validateEssencePartitions(noPayloads, null)); // literal null must stay unambiguous
+        results.add(IMPValidator.validateEssencePartitionsInContext(noPayloads, EssenceValidationContext.forSequenceNamespace(coreNamespace)));
+        results.add(IMPValidator.validateEssencePartitionsInContext(noPayloads, EssenceValidationContext.none()));
+
+        for (List<ErrorLogger.ErrorObject> errors : results) {
+            Assert.assertEquals(errors.size(), 1);
+            Assert.assertEquals(errors.get(0).getErrorLevel(), IMFErrorLogger.IMFErrors.ErrorLevels.FATAL);
+            Assert.assertEquals(errors.get(0).getErrorCode(), IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR);
+        }
     }
 
     @Test
@@ -449,7 +476,7 @@ public class IMPValidatorFunctionalTests {
                 bytes.length,
                 imfErrorLogger);
         MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-        IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+        HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
         Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         SourcePackage filePackage = (SourcePackage) genericPackage;
@@ -471,7 +498,7 @@ public class IMPValidatorFunctionalTests {
                 bytes.length,
                 imfErrorLogger);
         headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-        headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+        headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
         preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
         genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
         filePackage = (SourcePackage) genericPackage;

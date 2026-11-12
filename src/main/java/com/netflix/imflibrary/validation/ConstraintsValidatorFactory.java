@@ -1,8 +1,12 @@
 package com.netflix.imflibrary.validation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -67,4 +71,26 @@ public class ConstraintsValidatorFactory {
         return null;
     }
 
+
+    /**
+     * Resolves all validators that apply in the given context: the validator registered for the sequence namespace
+     * first, followed by the validators registered for each of the application identifications. Namespaces
+     * without a registered validator are skipped; each validator class is returned at most once.
+     */
+    public static List<ConstraintsValidator> getValidators(EssenceValidationContext context) {
+        List<ConstraintsValidator> validators = new ArrayList<>();
+        Set<Class<?>> seen = new HashSet<>();
+        List<String> keys = new ArrayList<>();
+        if (context.getSequenceNamespace() != null && !context.getSequenceNamespace().isEmpty()) {
+            keys.add(context.getSequenceNamespace());
+        }
+        keys.addAll(context.getApplicationIdentifications());
+        for (String key : keys) {
+            ConstraintsValidator validator = getValidator(key);
+            if (validator != null && seen.add(validator.getClass())) {
+                validators.add(validator);
+            }
+        }
+        return validators;
+    }
 }

@@ -18,7 +18,9 @@
 
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
+import com.netflix.imflibrary.validation.MXFPartitionPackConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
@@ -36,8 +38,9 @@ import com.netflix.imflibrary.st0377.header.GenericPackage;
 import com.netflix.imflibrary.st0377.header.InterchangeObject;
 import com.netflix.imflibrary.st0377.header.Preface;
 import com.netflix.imflibrary.st0377.header.SourcePackage;
-import com.netflix.imflibrary.st2067_201.IABTrackFileConstraints;
-import com.netflix.imflibrary.st2067_203.MGASADMTrackFileConstraints;
+import com.netflix.imflibrary.validation.ConstraintsValidator;
+import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.utils.ByteProvider;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -79,7 +82,8 @@ public final class IMFTrackFileReader
     private volatile RandomIndexPack randomIndexPack = null;
     private volatile List<PartitionPack> partitionPacks = null;
     private volatile List<PartitionPack> referencedPartitionPacks = null;
-    private volatile IMFConstraints.HeaderPartitionIMF headerPartition;
+    private volatile HeaderPartitionIMF headerPartition;
+    private final EssenceValidationContext validationContext;
     private volatile List<IndexTableSegment> indexTableSegments = null;
 
 
@@ -92,11 +96,25 @@ public final class IMFTrackFileReader
      */
     public IMFTrackFileReader(Path workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider)
     {
-        this.workingDirectory = workingDirectory;
-        this.resourceByteRangeProvider = resourceByteRangeProvider;
+        this(workingDirectory, resourceByteRangeProvider, EssenceValidationContext.none());
     }
 
-    public IMFConstraints.HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
+    /**
+     * Lazily creates a model instance corresponding to a st2067-5 compliant MXF file. Without a context only essence-agnostic
+     * structural checks are applied to the header metadata.
+     * @param workingDirectory the working directory
+     * @param resourceByteRangeProvider the MXF file represented as a {@link com.netflix.imflibrary.utils.ResourceByteRangeProvider}
+     * @param validationContext the context in which the Track File is used by a Composition, selects the essence kind and
+     *                          application specific validators that are applied to the header metadata
+     */
+    public IMFTrackFileReader(Path workingDirectory, ResourceByteRangeProvider resourceByteRangeProvider, EssenceValidationContext validationContext)
+    {
+        this.workingDirectory = workingDirectory;
+        this.resourceByteRangeProvider = resourceByteRangeProvider;
+        this.validationContext = validationContext;
+    }
+
+    public HeaderPartitionIMF getHeaderPartitionIMF(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         if (this.headerPartition == null)
         {
@@ -116,7 +134,7 @@ public final class IMFTrackFileReader
     private HeaderPartition getHeaderPartition(@Nonnull IMFErrorLogger imfErrorLogger) throws IOException
     {
         try {
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
+            HeaderPartitionIMF headerPartitionIMF = getHeaderPartitionIMF(imfErrorLogger);
             return headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         }
         catch (IMFException e){
@@ -133,10 +151,12 @@ public final class IMFTrackFileReader
             headerPartition = new HeaderPartition(byteProvider, inclusiveRangeStart, inclusiveRangeEnd - inclusiveRangeStart + 1, imfErrorLogger);
             //validate header partition
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            this.headerPartition = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            this.headerPartition = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             if (this.headerPartition != null) {
-                IABTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
-                MGASADMTrackFileConstraints.checkCompliance(this.headerPartition, imfErrorLogger);
+                // essence kind and application specific checks are only run for the validators selected by the context
+                for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(this.validationContext)) {
+                    imfErrorLogger.addAllErrors(validator.validateTrackFileHeaderConstraints(this.headerPartition));
+                }
             }
         }
         catch (MXFException | IMFException e){
@@ -337,7 +357,7 @@ public final class IMFTrackFileReader
         try {
             //validate partition packs
             MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-            IMFConstraints.checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
+            MXFPartitionPackConstraints.checkCompliance(partitionPacks, imfErrorLogger);
         }
         catch (IMFException | MXFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));

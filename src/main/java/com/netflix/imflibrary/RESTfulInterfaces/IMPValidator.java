@@ -12,6 +12,9 @@ import com.netflix.imflibrary.st2067_100.OutputProfileList;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.*;
 import com.netflix.imflibrary.validation.ConstraintsValidator;
+import com.netflix.imflibrary.validation.MXFPartitionPackConstraints;
+import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import com.netflix.imflibrary.validation.ConstraintsValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -324,6 +327,21 @@ public class IMPValidator {
      * IMFCompositionPlaylist.
      */
     public static List<ErrorLogger.ErrorObject> validateEssencePartitions(List<PayloadRecord> essencePartitionPayloadRecords, String sequenceNamespace) throws IOException {
+        return validateEssencePartitionsInContext(essencePartitionPayloadRecords, EssenceValidationContext.forSequenceNamespace(sequenceNamespace));
+    }
+
+    /**
+     * Validates the essence partitions of a single MXF Track File. This is deliberately not an overload of
+     * {@link #validateEssencePartitions(List, String)}, so that calls passing a literal null namespace stay unambiguous.
+     * Essence-agnostic structural checks always run. Essence kind
+     * (audio, text, ...) and application specific checks are only run by the validators selected from the validation context
+     * (sequence namespace and application identifications), see {@link EssenceValidationContext}.
+     *
+     * @param essencePartitionPayloadRecords - a list of PayloadRecord objects of type EssencePartition
+     * @param context - the context in which the Track File is used by a Composition
+     * @return a list of error messages encountered while validating the essence partitions
+     */
+    public static List<ErrorLogger.ErrorObject> validateEssencePartitionsInContext(List<PayloadRecord> essencePartitionPayloadRecords, EssenceValidationContext context) throws IOException {
 
         IMFErrorLogger trackFileErrorLogger = new IMFErrorLoggerImpl();
 
@@ -346,7 +364,7 @@ public class IMPValidator {
                 PartitionPack partitionPack = new PartitionPack(new ByteArrayDataProvider(payloadRecord.getPayload()));
 
                 // ensure partition constraints are met
-                trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFPartitionPackCompliance(partitionPack));
+                trackFileErrorLogger.addAllErrors(MXFPartitionPackConstraints.checkCompliance(partitionPack));
                 if (trackFileErrorLogger.hasFatalErrors()) {
                     return trackFileErrorLogger.getErrors();
                 }
@@ -360,7 +378,7 @@ public class IMPValidator {
                             (long)headerPartitionPayloadRecord.getPayload().length,
                             trackFileErrorLogger);
 
-                    trackFileErrorLogger.addAllErrors(IMFConstraints.checkMXFHeaderMetadata(headerPartition));
+                    trackFileErrorLogger.addAllErrors(IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartition));
                 }
 
                 // validate index table segments
@@ -393,20 +411,25 @@ public class IMPValidator {
         if (trackFileErrorLogger.hasFatalErrors())
             return trackFileErrorLogger.getErrors();
 
+        // validators need the header partition, e.g. it is absent if the list is empty or only holds index partitions
+        if (headerPartitionPayloadRecord == null) {
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate the essence partitions: no header partition payload was provided");
+            return trackFileErrorLogger.getErrors();
+        }
+
         /*
             If a sequence namespace is provided, an appropriate validator is requested to run validations specific to that sequence type.
          */
 
-        if (sequenceNamespace != null && !sequenceNamespace.isEmpty())  {
-
-            ConstraintsValidator validator = ConstraintsValidatorFactory.getValidator(sequenceNamespace);
-            if (validator != null) {
-                List<ErrorLogger.ErrorObject> cplErrors = validator.validateEssencePartitionConstraints(headerPartitionPayloadRecord, indexSegmentPayloadRecords);
-                trackFileErrorLogger.addAllErrors(cplErrors);
-            } else {
-                trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                        IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Namespace not supported: " + sequenceNamespace);
-            }
+        String sequenceNamespace = context.getSequenceNamespace();
+        if (sequenceNamespace != null && !sequenceNamespace.isEmpty() && ConstraintsValidatorFactory.getValidator(sequenceNamespace) == null) {
+            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Namespace not supported: " + sequenceNamespace);
+        }
+        for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(context)) {
+            trackFileErrorLogger.addAllErrors(validator.validateEssencePartitionConstraints(headerPartitionPayloadRecord, indexSegmentPayloadRecords));
         }
 
         return trackFileErrorLogger.getErrors();
