@@ -71,7 +71,7 @@ public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidato
                     imfErrorLogger);
 
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
         } catch (MXFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
@@ -124,7 +124,7 @@ public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidato
                     0L, (long) headerPartitionPayloadRecord.getPayload().length, imfErrorLogger);
 
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
 
             for (PayloadRecord indexPayloadRecord : indexSegmentPayloadRecords) {
                 if (indexPayloadRecord.getPayloadAssetType() != PayloadRecord.PayloadAssetType.EssencePartition) {
@@ -178,4 +178,17 @@ public class IMFMGASADMPluginConstraintsValidator implements ConstraintsValidato
 
 
 
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateTrackFileHeaderConstraints(@Nonnull HeaderPartitionIMF headerPartitionIMF) {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            MGASADMTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate the IMFTrackFile: " + e.getMessage());
+        }
+        return imfErrorLogger.getErrors();
+    }
 }

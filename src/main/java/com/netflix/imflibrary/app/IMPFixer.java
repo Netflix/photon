@@ -1,6 +1,7 @@
 package com.netflix.imflibrary.app;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.validation.IMFTrackFileStructureConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.MXFOperationalPattern1A;
@@ -80,7 +81,7 @@ public class IMPFixer {
                  * are in fact from the constituent resources of the VirtualTack
                  */
                 MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-                IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+                HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
                 Preface preface = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition().getPreface();
                 GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
                 SourcePackage filePackage = (SourcePackage) genericPackage;

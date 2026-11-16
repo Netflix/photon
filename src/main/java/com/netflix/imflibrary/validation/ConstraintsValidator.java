@@ -1,5 +1,6 @@
 package com.netflix.imflibrary.validation;
 
+import com.netflix.imflibrary.HeaderPartitionIMF;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
 import com.netflix.imflibrary.st2067_2.IMFCompositionPlaylist;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -36,4 +37,19 @@ public interface ConstraintsValidator {
      * @return a list of errors encountered while validating the input partition payloads.
      */
     List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads);
+
+    /**
+     * Validates the essence kind and/or application specific constraints of a single Track File whose header
+     * partition has already been parsed and structurally checked (see {@link IMFTrackFileStructureConstraints}).
+     * This is the counterpart of {@link #validateEssencePartitionConstraints} for callers that already hold the parsed
+     * header, and it is how a validator selected by an {@link EssenceValidationContext} contributes its Track File checks.
+     * <p>
+     * The default implementation reports nothing, i.e. the validator has no Track File level constraints.
+     *
+     * @param headerPartitionIMF the parsed header partition of the Track File
+     * @return a list of errors, empty if none were found
+     */
+    default List<ErrorLogger.ErrorObject> validateTrackFileHeaderConstraints(@Nonnull HeaderPartitionIMF headerPartitionIMF) {
+        return List.of();
+    }
 }

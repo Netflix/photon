@@ -1,7 +1,7 @@
 package com.netflix.imflibrary.app;
 
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.validation.MXFPartitionPackConstraints;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.KLVPacket;
@@ -123,7 +123,7 @@ public class MXFEssenceReader {
         try {
             //validate partition packs
             MXFOperationalPattern1A.checkOperationalPattern1ACompliance(partitionPacks);
-            IMFConstraints.checkMXFPartitionPackCompliance(partitionPacks, imfErrorLogger);
+            MXFPartitionPackConstraints.checkCompliance(partitionPacks, imfErrorLogger);
         }
         catch (IMFException | MXFException e){
             imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("This IMFTrackFile has fatal errors in the partition packs, please see the errors that follow."));
