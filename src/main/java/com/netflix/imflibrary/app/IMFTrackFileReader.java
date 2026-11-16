@@ -154,7 +154,7 @@ public final class IMFTrackFileReader
             this.headerPartition = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             if (this.headerPartition != null) {
                 // essence kind and application specific checks are only run for the validators selected by the context
-                for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(this.validationContext)) {
+                for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(this.validationContext, imfErrorLogger)) {
                     imfErrorLogger.addAllErrors(validator.validateTrackFileHeaderConstraints(this.headerPartition));
                 }
             }

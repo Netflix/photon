@@ -423,12 +423,7 @@ public class IMPValidator {
             If a sequence namespace is provided, an appropriate validator is requested to run validations specific to that sequence type.
          */
 
-        String sequenceNamespace = context.getSequenceNamespace();
-        if (sequenceNamespace != null && !sequenceNamespace.isEmpty() && ConstraintsValidatorFactory.getValidator(sequenceNamespace) == null) {
-            trackFileErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                    IMFErrorLogger.IMFErrors.ErrorLevels.WARNING, "Namespace not supported: " + sequenceNamespace);
-        }
-        for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(context)) {
+        for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(context, trackFileErrorLogger)) {
             trackFileErrorLogger.addAllErrors(validator.validateEssencePartitionConstraints(headerPartitionPayloadRecord, indexSegmentPayloadRecords));
         }
 

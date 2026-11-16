@@ -251,7 +251,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
                         try {
                             HeaderPartitionIMF headerPartitionIMF = HeaderPartitionIMF.wrap(
                                     MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, new IMFErrorLoggerImpl()));
-                            for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(trackFileContext)) {
+                            for (ConstraintsValidator validator : ConstraintsValidatorFactory.getValidators(trackFileContext, imfErrorLogger)) {
                                 // Composition validation has always included the core constraints for the referenced Track Files.
                                 // Plug-in Track File checks are reported by the essence partition validation of the Track File itself
                                 // (see IMPValidator#validateEssencePartitions), so they are not repeated here.
