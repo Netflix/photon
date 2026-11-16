@@ -345,6 +345,40 @@ public class IMPValidatorFunctionalTests {
     }
 
     @Test
+    public void validateEssencePartitionsWithUnrecognizedNamespaceTest() throws IOException {
+        // e.g. a sequence namespace from a future edition of ST 2067-2 that Photon does not know yet: no validator can be
+        // selected for it, so the essence kind (audio, text, ...) constraints cannot run. This must never be silent: the
+        // structural checks still run and the caller is told that the namespace is not supported.
+        String unrecognizedNamespace = "http://www.smpte-ra.org/schemas/2067-2/2025";
+        Assert.assertNull(ConstraintsValidatorFactory.getValidator(unrecognizedNamespace));
+
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/Netflix_Plugfest_Oct2015_ENG20.mxf.hdr");
+        ResourceByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputFile);
+        byte[] bytes = resourceByteRangeProvider.getByteRangeAsBytes(0, resourceByteRangeProvider.getResourceSize() - 1);
+        List<PayloadRecord> payloads = new ArrayList<>();
+        payloads.add(new PayloadRecord(bytes, PayloadRecord.PayloadAssetType.EssencePartition, 0L, resourceByteRangeProvider.getResourceSize()));
+
+        List<List<ErrorLogger.ErrorObject>> results = new ArrayList<>();
+        results.add(IMPValidator.validateEssencePartitions(payloads, unrecognizedNamespace));
+        results.add(IMPValidator.validateEssencePartitionsInContext(payloads, EssenceValidationContext.forSequenceNamespace(unrecognizedNamespace)));
+
+        List<ErrorLogger.ErrorObject> noNamespaceErrors = IMPValidator.validateEssencePartitions(payloads, null);
+
+        for (List<ErrorLogger.ErrorObject> errors : results) {
+            List<ErrorLogger.ErrorObject> warnings = errors.stream()
+                    .filter(e -> e.getErrorDescription().contains("Namespace not supported: " + unrecognizedNamespace))
+                    .collect(Collectors.toList());
+            Assert.assertEquals(warnings.size(), 1);
+            Assert.assertEquals(warnings.get(0).getErrorLevel(), IMFErrorLogger.IMFErrors.ErrorLevels.WARNING);
+
+            // not fatal, and the structural checks are unaffected by the unrecognized namespace: the only difference
+            // to validating without any namespace is the warning
+            Assert.assertFalse(errors.stream().anyMatch(e -> e.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.FATAL));
+            Assert.assertEquals(errors.size(), noNamespaceErrors.size() + 1);
+        }
+    }
+
+    @Test
     public void cplConformanceNegativeTest() throws IOException, SAXException, JAXBException, URISyntaxException {
 
         Path inputFile = TestHelper.findResourceByPath("TestIMP/Netflix_Sony_Plugfest_2015/CPL_BLACKL_202_HD_REC709_178_ENG_fe8cf2f4-1bcd-4145-8f72-6775af4038c4.xml");
