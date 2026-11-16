@@ -1,8 +1,15 @@
 package com.netflix.imflibrary.validation;
 
+import com.netflix.imflibrary.IMFErrorLogger;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -68,4 +75,41 @@ public class ConstraintsValidatorFactory {
         return null;
     }
 
+
+    /**
+     * Resolves all validators that apply in the given context: the validator registered for the sequence namespace
+     * first, followed by the validators registered for each of the application identifications. Namespaces
+     * without a registered validator are skipped; each validator class is returned at most once.
+     * <p>
+     * A sequence namespace without a registered validator (e.g. one from a newer edition of the specification) is
+     * reported as a WARNING to the error logger, since the validations that validator would have provided (essence kind
+     * specific checks) are not run. Unregistered application identifications are not reported, those may legitimately
+     * have no validator.
+     *
+     * @param context the context in which the Track File is used by a Composition
+     * @param errorLogger receives the warning
+     */
+    public static List<ConstraintsValidator> getValidators(@Nonnull EssenceValidationContext context, @Nonnull IMFErrorLogger errorLogger) {
+        List<ConstraintsValidator> validators = new ArrayList<>();
+        Set<Class<?>> seen = new HashSet<>();
+        String sequenceNamespace = context.getSequenceNamespace();
+        List<String> keys = new ArrayList<>();
+        if (sequenceNamespace != null && !sequenceNamespace.isEmpty()) {
+            keys.add(sequenceNamespace);
+        }
+        keys.addAll(context.getApplicationIdentifications());
+        for (String key : keys) {
+            ConstraintsValidator validator = getValidator(key);
+            if (validator == null) {
+                if (key.equals(sequenceNamespace)) {
+                    errorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                            "Namespace not supported: " + key + ", essence kind specific checks were not run");
+                }
+            } else if (seen.add(validator.getClass())) {
+                validators.add(validator);
+            }
+        }
+        return validators;
+    }
 }

@@ -1,10 +1,23 @@
 package com.netflix.imflibrary.validation;
 
 
+import com.netflix.imflibrary.HeaderPartitionIMF;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.RESTfulInterfaces.PayloadRecord;
+import com.netflix.imflibrary.MXFDataDefinition;
+import com.netflix.imflibrary.MXFOperationalPattern1A;
+import com.netflix.imflibrary.exceptions.IMFException;
+import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.st0377.HeaderPartition;
+import com.netflix.imflibrary.st0377.header.GenericDescriptor;
 import com.netflix.imflibrary.st0377.header.GenericPictureEssenceDescriptor;
+import com.netflix.imflibrary.st0377.header.Sequence;
+import com.netflix.imflibrary.st0377.header.SourcePackage;
+import com.netflix.imflibrary.st0377.header.TimedTextDescriptor;
+import com.netflix.imflibrary.st0377.header.TimelineTrack;
+import com.netflix.imflibrary.st0377.header.WaveAudioEssenceDescriptor;
+import com.netflix.imflibrary.utils.ByteArrayDataProvider;
 import com.netflix.imflibrary.st2067_2.*;
 import com.netflix.imflibrary.utils.DOMNodeObjectModel;
 import com.netflix.imflibrary.utils.ErrorLogger;
@@ -12,6 +25,7 @@ import com.netflix.imflibrary.utils.RegXMLLibDictionary;
 import com.netflix.imflibrary.utils.UUIDHelper;
 import jakarta.annotation.Nonnull;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.netflix.imflibrary.validation.ConstraintsValidatorUtils.checkVirtualTrackHomogeneity;
@@ -21,9 +35,67 @@ import static com.netflix.imflibrary.validation.ConstraintsValidatorUtils.checkV
  */
 abstract public class IMFCoreConstraintsValidator implements ConstraintsValidator {
 
+    /**
+     * Runs the essence kind specific core constraints (audio, timed text) for a single Track File. Parse and
+     * structural errors for the Track File are reported by the caller (see IMPValidator#validateEssencePartitions), so
+     * they are not reported again here.
+     */
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
-        return List.of();
+        if (headerPartition == null) {
+            return List.of(); // a missing header partition is reported by the caller
+        }
+        IMFErrorLogger alreadyReported = new IMFErrorLoggerImpl();
+        try {
+            HeaderPartition parsedHeaderPartition = new HeaderPartition(new ByteArrayDataProvider(headerPartition.getPayload()),
+                    0L, (long) headerPartition.getPayload().length, alreadyReported);
+            MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(parsedHeaderPartition, alreadyReported);
+            return validateTrackFileHeaderConstraints(HeaderPartitionIMF.wrap(headerPartitionOP1A));
+        } catch (MXFException | IMFException | IOException e) {
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateTrackFileHeaderConstraints(@Nonnull HeaderPartitionIMF headerPartitionIMF) {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
+        SourcePackage filePackage = (SourcePackage) headerPartition.getPreface().getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
+        UUID packageID = filePackage.getPackageMaterialNumberasUUID();
+        GenericDescriptor genericDescriptor = filePackage.getGenericDescriptor();
+        try {
+            for (TimelineTrack timelineTrack : filePackage.getTimelineTracks()) {
+                Sequence sequence = timelineTrack.getSequence();
+                if (sequence == null) {
+                    continue; // reported by the structural checks
+                }
+                MXFDataDefinition dataDefinition = sequence.getMxfDataDefinition();
+                if (dataDefinition.equals(MXFDataDefinition.SOUND) && genericDescriptor instanceof WaveAudioEssenceDescriptor) {
+                    checkAudioTrackFile(headerPartition, (WaveAudioEssenceDescriptor) genericDescriptor, packageID, imfErrorLogger);
+                } else if (dataDefinition.equals(MXFDataDefinition.DATA) && genericDescriptor instanceof TimedTextDescriptor) {
+                    checkTimedTextTrackFile((TimedTextDescriptor) genericDescriptor, packageID, imfErrorLogger);
+                }
+            }
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    String.format("Unable to validate the essence constraints of the IMFTrackFile represented by ID %s: %s", packageID, e.getMessage()));
+        }
+        return imfErrorLogger.getErrors();
+    }
+
+    /**
+     * ST 2067-2 Wave Audio Track File constraints. Editions of ST 2067-2 that differ here override this method.
+     */
+    protected void checkAudioTrackFile(@Nonnull HeaderPartition headerPartition, @Nonnull WaveAudioEssenceDescriptor waveAudioEssenceDescriptor,
+                                       @Nonnull UUID packageID, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+        IMFCoreConstraintsAudio.checkWaveAudioTrackFile(headerPartition, waveAudioEssenceDescriptor, packageID, imfErrorLogger);
+    }
+
+    /**
+     * ST 2067-2 Timed Text Track File constraints. Editions of ST 2067-2 that differ here override this method.
+     */
+    protected void checkTimedTextTrackFile(@Nonnull TimedTextDescriptor timedTextDescriptor, @Nonnull UUID packageID, @Nonnull IMFErrorLogger imfErrorLogger) {
+        IMFCoreConstraintsText.checkTimedTextTrackFile(timedTextDescriptor, packageID, imfErrorLogger);
     }
 
     protected static final String MAIN_IMAGE_SEQUENCE = "MainImageSequence";

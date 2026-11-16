@@ -1,6 +1,6 @@
 package com.netflix.imflibrary.st2067_202;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -21,7 +21,7 @@ public final class ISXDTrackFileConstraints {
     // Prevent instantiation
     public ISXDTrackFileConstraints() {}
 
-    public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public static void checkCompliance(HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         List<UL> partitionPackEssenceContainerULs = headerPartition.getPartitionPack().getEssenceContainerULs();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
@@ -99,7 +99,7 @@ public final class ISXDTrackFileConstraints {
         }
     }
 
-    public static void checkIndexEditRate(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, IndexTableSegment indexTableSegment, IMFErrorLogger imfErrorLogger) {
+    public static void checkIndexEditRate(HeaderPartitionIMF headerPartitionIMF, IndexTableSegment indexTableSegment, IMFErrorLogger imfErrorLogger) {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         Preface preface = headerPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();

@@ -19,6 +19,7 @@ package com.netflix.imflibrary.app;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.exceptions.MXFException;
+import com.netflix.imflibrary.validation.EssenceValidationContext;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import testUtils.TestHelper;
@@ -55,5 +56,31 @@ public class IMFTrackFileReaderTest
         IMFTrackFileReader imfTrackFileReader = new IMFTrackFileReader(workingDirectory, resourceByteRangeProvider);
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         imfTrackFileReader.getRandomIndexPack(imfErrorLogger);
+    }
+
+    @Test
+    public void unrecognizedSequenceNamespaceIsReported() throws IOException
+    {
+        // no validator is registered for this namespace, so the essence kind specific checks cannot run: the reader must say so
+        String unrecognizedNamespace = "http://www.smpte-ra.org/schemas/2067-2/2025";
+        Path inputFile = TestHelper.findResourceByPath("TearsOfSteel_4k_Test_Master_Audio_002.mxf");
+
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        new IMFTrackFileReader(Files.createTempDirectory(null), new FileByteRangeProvider(inputFile),
+                EssenceValidationContext.forSequenceNamespace(unrecognizedNamespace)).getHeaderPartitionIMF(imfErrorLogger);
+        Assert.assertEquals(imfErrorLogger.getErrors().stream()
+                .filter(e -> e.getErrorLevel() == IMFErrorLogger.IMFErrors.ErrorLevels.WARNING
+                        && e.getErrorDescription().contains("Namespace not supported: " + unrecognizedNamespace))
+                .count(), 1);
+
+        // without a context (or without a sequence namespace) there is nothing to report
+        for (EssenceValidationContext context : new EssenceValidationContext[] {null, EssenceValidationContext.none()}) {
+            IMFErrorLogger quietLogger = new IMFErrorLoggerImpl();
+            IMFTrackFileReader reader = context == null
+                    ? new IMFTrackFileReader(Files.createTempDirectory(null), new FileByteRangeProvider(inputFile))
+                    : new IMFTrackFileReader(Files.createTempDirectory(null), new FileByteRangeProvider(inputFile), context);
+            reader.getHeaderPartitionIMF(quietLogger);
+            Assert.assertTrue(quietLogger.getErrors().stream().noneMatch(e -> e.getErrorDescription().contains("Namespace not supported")));
+        }
     }
 }
