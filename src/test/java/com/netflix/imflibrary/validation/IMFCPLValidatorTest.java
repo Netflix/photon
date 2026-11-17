@@ -138,6 +138,24 @@ public class IMFCPLValidatorTest
         Assert.assertTrue(markerErrors.get(0).getErrorDescription().contains(scope));
     }
 
+    @Test
+    public void unknownMarkerScopeIsReportedOncePerScope() throws IOException
+    {
+        // every marker of the track uses the same unknown scope: one warning, not one per marker
+        String scope = "https://example.com/custom-markers";
+        String cpl = markerCpl();
+        Assert.assertTrue(cpl.split("<Label>", -1).length > 3, "Expected the CPL fixture to have several markers");
+        String updatedCpl = cpl.replace("<Label>", String.format("<Label scope=\"%s\">", scope));
+        IMFCompositionPlaylist imfCompositionPlaylist = new IMFCompositionPlaylist(
+                new ByteArrayByteRangeProvider(updatedCpl.getBytes(StandardCharsets.UTF_8)));
+
+        List<ErrorLogger.ErrorObject> markerErrors = markerLabelErrors(IMPValidator.validateComposition(imfCompositionPlaylist, null));
+
+        Assert.assertEquals(markerErrors.size(), 1);
+        Assert.assertEquals(markerErrors.get(0).getErrorLevel(), IMFErrorLogger.IMFErrors.ErrorLevels.WARNING);
+        Assert.assertTrue(markerErrors.get(0).getErrorDescription().contains(scope));
+    }
+
     @DataProvider(name = "validMarkerLabels")
     public Object[][] validMarkerLabels()
     {

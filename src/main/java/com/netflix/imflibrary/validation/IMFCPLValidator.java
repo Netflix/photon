@@ -36,20 +36,6 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
         add("http://www.smpte-ra.org/schemas/2067-3/2016");
     }});
 
-    private static final String standardMarkerScope2013 =
-            "http://www.smpte-ra.org/schemas/2067-3/2013#standard-markers";
-    private static final Map<String, Set<String>> standardMarkerLabelsByScope = Map.of(
-            standardMarkerScope2013, Set.of(
-                    "FFBT", "FFCB", "FFCL", "FFDL", "FFEC", "FFHS", "FFMC", "FFOB",
-                    "FFOC", "FFOI", "FFSP", "FFTC", "FFTS", "FTXC", "FTXE", "FTXM",
-                    "LFBT", "LFCB", "LFCL", "LFDL", "LFEC", "LFHS", "LFMC", "LFOB",
-                    "LFOC", "LFOI", "LFSP", "LFTC", "LFTS", "LTXC", "LTXE", "LTXM",
-                    "FPCI", "FFCO", "LFCO", "FFOA", "LFOA"),
-            "http://www.smpte-ra.org/schemas/2067-3/2016#standard-markers",
-            Set.of("FFDC", "LFDC"),
-            "http://www.smpte-ra.org/schemas/2067-3/2020#standard-markers",
-            Set.of("FFEI", "FFER", "FFUN", "LFEI", "LFER", "LFUN"));
-
 
     @Override
     public List<ErrorLogger.ErrorObject> validateEssencePartitionConstraints(@Nonnull PayloadRecord headerPartition, @Nonnull List<PayloadRecord> indexPartitionPayloads) {
@@ -93,27 +79,26 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
     private static List<ErrorLogger.ErrorObject> checkMarkerLabelConstraints(IMFMarkerVirtualTrack markerVirtualTrack)
     {
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
-
-        if (markerVirtualTrack == null) {
-            return imfErrorLogger.getErrors();
-        }
+        // an unrecognized scope is reported once per scope, not once per marker
+        Set<String> unrecognizedScopes = new HashSet<>();
 
         for (IMFMarkerResourceType markerResource : markerVirtualTrack.getMarkerResourceList()) {
             for (IMFMarkerType marker : markerResource.getMarkerList()) {
                 IMFMarkerType.Label label = marker.getLabel();
-                String scope = label.getScope() == null ? standardMarkerScope2013 : label.getScope();
-                Set<String> permittedLabels = standardMarkerLabelsByScope.get(scope);
+                MarkerLabelRegistry.Scope markerScope = MarkerLabelRegistry.getScope(label.getScope());
+                String scope = label.getScope() == null ? MarkerLabelRegistry.DEFAULT_SCOPE : label.getScope();
 
-                if (permittedLabels == null) {
-                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
-                            String.format("Marker Label scope '%s' is not recognized; value '%s' at offset %s cannot be validated",
-                                    scope, label.getValue(), marker.getOffset()));
+                if (markerScope == null) {
+                    if (unrecognizedScopes.add(scope)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                String.format("Marker Label scope '%s' is not recognized; its Marker Label values cannot be validated", scope));
+                    }
                 }
-                else if (!permittedLabels.contains(label.getValue())) {
+                else if (!markerScope.isPermitted(label.getValue())) {
                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
-                            IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL,
-                            String.format("Marker Label value '%s' at offset %s is not permitted by scope '%s' as specified in SMPTE ST 2067-3",
+                            markerScope.getUnlistedLabelLevel(),
+                            String.format("Marker Label value '%s' at offset %s is not permitted by scope '%s'",
                                     label.getValue(), marker.getOffset(), scope));
                 }
             }
