@@ -18,7 +18,8 @@
 
 package com.netflix.imflibrary.st2067_204;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.HeaderPartitionIMF;
+import com.netflix.imflibrary.utils.RFC5646SpokenLanguage;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.st0377.CompoundDataTypes;
 import com.netflix.imflibrary.st0377.HeaderPartition;
@@ -55,7 +56,7 @@ public final class ADMAudioTrackFileConstraints {
     // Prevent instantiation
     public ADMAudioTrackFileConstraints() {}
 
-    public static void checkComplianceFromIMFTrackFileReader(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public static void checkComplianceFromIMFTrackFileReader(HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors();
         if (subDescriptors.isEmpty()) {
@@ -73,7 +74,7 @@ public final class ADMAudioTrackFileConstraints {
         }
     }
 
-    public static void checkCompliance(IMFConstraints.HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
+    public static void checkCompliance(HeaderPartitionIMF headerPartitionIMF, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         HeaderPartition headerPartition = headerPartitionIMF.getHeaderPartitionOP1A().getHeaderPartition();
         Preface preface = headerPartition.getPreface();
         GenericPackage genericPackage = preface.getContentStorage().getEssenceContainerDataList().get(0).getLinkedPackage();
@@ -294,7 +295,7 @@ public final class ADMAudioTrackFileConstraints {
                             String.format("ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackFile represented by ID %s is missing RFC5646SpokenLanguage. " + 
                             "It shall be absent if and only if the soundfield group is not associated with a primary spoken language.", sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                 } else {
-                    if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(admSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
+                    if (!RFC5646SpokenLanguage.isCompliant(admSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage())) {
                         imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, IMF_ADM_AUDIO_EXCEPTION_PREFIX +
                             String.format("Language Code (%s) in ADMSoundfieldGroupLabelSubDescriptor with ID %s in the IMFTrackfile represented by ID %s is not RFC5646 compliant", admSoundfieldGroupLabelSubDescriptorBO.getRFC5646SpokenLanguage(), sub_descriptor.getInstanceUID().toString(), packageID.toString()));
                     }

@@ -95,7 +95,7 @@ public class IMFADMAudioPluginConstraintsValidator implements ConstraintsValidat
                     imfErrorLogger);
 
             MXFOperationalPattern1A.HeaderPartitionOP1A headerPartitionOP1A = MXFOperationalPattern1A.checkOperationalPattern1ACompliance(headerPartition, imfErrorLogger);
-            IMFConstraints.HeaderPartitionIMF headerPartitionIMF = IMFConstraints.checkMXFHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
+            HeaderPartitionIMF headerPartitionIMF = IMFTrackFileStructureConstraints.checkHeaderMetadata(headerPartitionOP1A, imfErrorLogger);
             ADMAudioTrackFileConstraints.checkCompliance(headerPartitionIMF, imfErrorLogger);
         } catch (MXFException e) {
             imfErrorLogger.addAllErrors(e.getErrors());
@@ -110,6 +110,20 @@ public class IMFADMAudioPluginConstraintsValidator implements ConstraintsValidat
             return imfErrorLogger.getErrors();
         }
 
+        return imfErrorLogger.getErrors();
+    }
+
+    @Override
+    public List<ErrorLogger.ErrorObject> validateTrackFileHeaderConstraints(@Nonnull HeaderPartitionIMF headerPartitionIMF) {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        try {
+            // Track Files that are not ADM Audio (no ADM sub-descriptors) are skipped silently
+            ADMAudioTrackFileConstraints.checkComplianceFromIMFTrackFileReader(headerPartitionIMF, imfErrorLogger);
+        } catch (IOException e) {
+            imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMP_VALIDATOR_PAYLOAD_ERROR,
+                    IMFErrorLogger.IMFErrors.ErrorLevels.FATAL,
+                    "Unable to validate any essence descriptors: unable to parse essence partition payload");
+        }
         return imfErrorLogger.getErrors();
     }
 }

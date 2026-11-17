@@ -18,7 +18,7 @@
 
 package com.netflix.imflibrary.st2067_204;
 
-import com.netflix.imflibrary.IMFConstraints;
+import com.netflix.imflibrary.utils.RFC5646SpokenLanguage;
 import com.netflix.imflibrary.IMFErrorLogger;
 import com.netflix.imflibrary.IMFErrorLoggerImpl;
 import com.netflix.imflibrary.st0377_41.*;
@@ -162,7 +162,7 @@ public class IMFADMAudioConstraintsChecker {
                                         String.format("ADMSoundfieldGroupLabelSubDescriptor  ID %s referenced by EssenceDescriptor ID %s is missing RFC5646SpokenLanguage. " +
                                         "It shall be absent if and only if the soundfield group is not associated with a primary spoken language.", subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
                             } else {
-                                if (!IMFConstraints.isSpokenLanguageRFC5646Compliant(subentry.getKey().getFieldAsString("RFC5646SpokenLanguage"))) {
+                                if (!RFC5646SpokenLanguage.isCompliant(subentry.getKey().getFieldAsString("RFC5646SpokenLanguage"))) {
                                     imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.NON_FATAL, String.format("Language Code (%s) in ADMSoundfieldGroupLabelSubDescriptor ID %s referenced by " +
                                         "EssenceDescriptor ID %s is not RFC5646 compliant", subentry.getKey().getFieldAsString("RFC5646SpokenLanguage"), subentry_instance_id, imfTrackFileResourceType.getSourceEncoding()));
                                 }
