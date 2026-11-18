@@ -65,6 +65,11 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             List<? extends IMFBaseResourceType> virtualTrackResourceList = virtualTrack.getResourceList();
             imfErrorLogger.addAllErrors(checkVirtualTrackResourceList(virtualTrack.getTrackID(), virtualTrackResourceList));
 
+            if (virtualTrack instanceof IMFMarkerVirtualTrack) {
+                imfErrorLogger.addAllErrors(checkMarkerLabelConstraints(
+                        IMFMarkerVirtualTrack.class.cast(virtualTrack)));
+            }
+
             // retrieve sequence namespace associated with the virtual track
             String virtualTrackSequenceNamespace = imfCompositionPlaylist.getSequenceNamespaceForVirtualTrackID(virtualTrack.getTrackID());
             if (!supportedCPLSchemaURIs.contains(virtualTrackSequenceNamespace)) {
@@ -72,9 +77,36 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
             }
 
         }
+        return imfErrorLogger.getErrors();
+    }
 
+    private static List<ErrorLogger.ErrorObject> checkMarkerLabelConstraints(IMFMarkerVirtualTrack markerVirtualTrack)
+    {
+        IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
+        // an unrecognized scope is reported once per scope, not once per marker
+        Set<String> unrecognizedScopes = new HashSet<>();
 
-        // MARKER TRACK VALIDATION, CONTENT KIND VALUES, ETC
+        for (IMFMarkerResourceType markerResource : markerVirtualTrack.getMarkerResourceList()) {
+            for (IMFMarkerType marker : markerResource.getMarkerList()) {
+                IMFMarkerType.Label label = marker.getLabel();
+                MarkerLabelRegistry.Scope markerScope = MarkerLabelRegistry.getScope(label.getScope());
+                String scope = label.getScope() == null ? MarkerLabelRegistry.DEFAULT_SCOPE : label.getScope();
+
+                if (markerScope == null) {
+                    if (unrecognizedScopes.add(scope)) {
+                        imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                                IMFErrorLogger.IMFErrors.ErrorLevels.WARNING,
+                                String.format("Marker Label scope '%s' is not recognized; its Marker Label values cannot be validated", scope));
+                    }
+                }
+                else if (!markerScope.isPermitted(label.getValue())) {
+                    imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_CPL_ERROR,
+                            markerScope.getUnlistedLabelLevel(),
+                            String.format("Marker Label value '%s' at offset %s is not permitted by scope '%s'",
+                                    label.getValue(), marker.getOffset(), scope));
+                }
+            }
+        }
 
         return imfErrorLogger.getErrors();
     }
