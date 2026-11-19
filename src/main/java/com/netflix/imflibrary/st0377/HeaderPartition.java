@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -675,6 +676,30 @@ public final class HeaderPartition
         return this.getSubDescriptors(genericDescriptorBO.getSubdescriptors());
     }
 
+
+    /**
+     * Gets the SubDescriptor objects referred by the specified EssenceDescriptor (see {@link #getSubDescriptors(InterchangeObject.InterchangeObjectBO)}),
+     * followed by the metadata sets that these SubDescriptors depend on, for example the ADMChannelMapping sets referenced
+     * by an ADM_CHNASubDescriptor. Each object is returned once, references that cannot be resolved are skipped.
+     * @param essenceDescriptor the essence descriptor whose subdescriptors, and what they depend on, are requested
+     * @return list of SubDescriptor objects, followed by the objects they depend on
+     */
+    public List<InterchangeObject.InterchangeObjectBO> getSubDescriptorsAndDependencies(InterchangeObject.InterchangeObjectBO essenceDescriptor){
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = this.getSubDescriptors(essenceDescriptor);
+        Set<MXFUID> included = new HashSet<>();
+        for (InterchangeObject.InterchangeObjectBO subDescriptor : subDescriptors) {
+            included.add(subDescriptor.getInstanceUID());
+        }
+        for (InterchangeObject.InterchangeObjectBO subDescriptor : new ArrayList<>(subDescriptors)) {
+            for (MXFUID dependentUID : MXFPropertyPopulator.getDependentUIDs(subDescriptor)) {
+                InterchangeObject.InterchangeObjectBO dependency = uidToBOs.get(dependentUID);
+                if (dependency != null && included.add(dependency.getInstanceUID())) {
+                    subDescriptors.add(dependency);
+                }
+            }
+        }
+        return subDescriptors;
+    }
 
     /**
      * Gets the SubDescriptors in this HeaderPartition object that correspond to the specified StrongRefCollection
@@ -1589,15 +1614,6 @@ public final class HeaderPartition
             if (sid != -1) break;
         }
         return sid;
-    }
-
-    /**
-     * Getter for a copy of the uidToBOs Hash Map
-     *
-     * @return A copy of the uidToBOs Hash Map
-     */
-    public Map<MXFUID, InterchangeObject.InterchangeObjectBO> getUidToBOs() {
-        return new HashMap<>(this.uidToBOs);
     }
 
 }

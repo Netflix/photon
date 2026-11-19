@@ -520,6 +520,9 @@ public final class MXFPropertyPopulator
                                 if (object instanceof CompoundDataTypes.MXFCollections.MXFCollection)
                                 {
                                     CompoundDataTypes.MXFCollections.MXFCollection<Object> collection = (CompoundDataTypes.MXFCollections.MXFCollection<Object>) object;
+                                    if(collection.getEntries().isEmpty()) {
+                                        continue; // nothing to depend on
+                                    }
                                     if(collection.getEntries().get(0) instanceof InterchangeObject.InterchangeObjectBO.StrongRef) {
                                         CompoundDataTypes.MXFCollections.MXFCollection<InterchangeObject.InterchangeObjectBO.StrongRef> collectionStrongRefs = (CompoundDataTypes.MXFCollections.MXFCollection<InterchangeObject.InterchangeObjectBO.StrongRef>) object;
                                         for (InterchangeObject.InterchangeObjectBO.StrongRef entry : collectionStrongRefs.getEntries()) {
