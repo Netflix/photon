@@ -230,7 +230,7 @@ public class MXFEssenceReader {
 
     private List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition().getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition().getSubDescriptorsAndDependencies(essenceDescriptor);
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

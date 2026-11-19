@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:70a85734-7196-4609-88b3-7365d74edeb2</Id>
+  <AnnotationText>ADM Stereo Sample</AnnotationText>
+  <IssueDate>2026-10-26T09:51:57-00:00</IssueDate>
+  <Issuer>Colorfront</Issuer>
+  <Creator>Colorfront Transkoder DEV</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:1d6abea6-1588-454a-af46-d33cda53325a</Id>
+      <AnnotationText>ADM_Stereo_Sample_01.mxf</AnnotationText>
+      <Hash>9Rpy/cgYqUIuZViU+L3oTSP91LQ=</Hash>
+      <Size>1140024</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>ADM_Stereo_Sample_01.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:73eed2d4-96f9-438f-a1fd-29ca02aa4b16</Id>
+      <AnnotationText>ADM_Stereo_Sample_01_EN_20_A.mxf</AnnotationText>
+      <Hash>eimoWf8luvkw9XBlVUryhdFhggI=</Hash>
+      <Size>307123</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>ADM_Stereo_Sample_01_EN_20_A.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:e8f98a71-5d13-45fd-9dc0-c0e01404838e</Id>
+      <AnnotationText>ADM Stereo Sample</AnnotationText>
+      <Hash>dwXE5oqQGThCejqAstq8NzVO8/Y=</Hash>
+      <Size>722</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>OPL_ADM_Stereo_Sample.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:826b6945-a3fe-46d5-966d-da9ad110da05</Id>
+      <AnnotationText>CPL_ADM_Stereo_Sample.xml</AnnotationText>
+      <Hash>q1TAJWFsmO91UXXNc7KGxRlFnBo=</Hash>
+      <Size>16131</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_ADM_Stereo_Sample.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>

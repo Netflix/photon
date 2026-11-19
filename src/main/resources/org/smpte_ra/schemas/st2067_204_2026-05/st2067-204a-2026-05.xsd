@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.smpte-ra.org/ns/2067-204/2022"
+  xmlns:imfadm="http://www.smpte-ra.org/ns/2067-204/2022"
+  xmlns:cpl="http://www.smpte-ra.org/schemas/2067-3/2016"
+  xmlns:dcml="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:import namespace="http://www.smpte-ra.org/schemas/2067-3/2016" schemaLocation="../st2067_3_2016/imf-cpl-20160411.xsd"/>
+<xs:import namespace="http://www.smpte-ra.org/schemas/433/2008/dcmlTypes/" schemaLocation="../st0433_2008/dcmlTypes/dcmlTypes.xsd"/>
+
+<!-- ADMAudioSequence definition -->
+<xs:element name="ADMAudioSequence" type="cpl:SequenceType"/>
+
+<!-- ADMAudioVirtualTrackParameterSet definition -->
+<xs:element name="ADMAudioVirtualTrackParameterSet">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="Id" type="dcml:UUIDType"/>
+      <xs:element name="TrackId" type="dcml:UUIDType"/>
+      <xs:element name="ADMOperationalMode" type="xs:anyURI" />
+      <xs:element name="ADMSoundfieldGroupSelector"
+        type="imfadm:ADMSoundfieldGroupSelectorType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<!-- ADMSoundfieldGroupSelectorType definition -->
+<xs:complexType name="ADMSoundfieldGroupSelectorType">
+  <xs:sequence>
+    <xs:element name="ResourceId" type="dcml:UUIDType" />
+    <xs:element name="ADMSoundfieldGroupLinkID" type="dcml:UUIDType" maxOccurs="unbounded" />
+  </xs:sequence>
+</xs:complexType>
+
+</xs:schema>

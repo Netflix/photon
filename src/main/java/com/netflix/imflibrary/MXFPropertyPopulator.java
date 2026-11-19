@@ -145,10 +145,21 @@ public final class MXFPropertyPopulator
                 }
                 else if (parameterizedType.getActualTypeArguments()[0] == Integer.class)
                 {
+                    // Collection of MXF Int32 values represented as Java Integers
                     List<Integer> cList = new ArrayList<>();
                     for (long i=0; i<cHeader.getNumberOfElements(); i++)
                     {
                         cList.add(getInt(byteProvider.getBytes(4), KLVPacket.BYTE_ORDER));
+                    }
+                    field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
+                }
+                else if (parameterizedType.getActualTypeArguments()[0] == Long.class)
+                {
+                    // Collection of MXF UInt32 values represented as Java Longs
+                    List<Long> cList = new ArrayList<>();
+                    for (long i=0; i<cHeader.getNumberOfElements(); i++)
+                    {
+                        cList.add(getUnsignedIntAsLong(byteProvider.getBytes(4), KLVPacket.BYTE_ORDER));
                     }
                     field.set(object, new CompoundDataTypes.MXFCollections.MXFCollection<>(cHeader, cList, fieldName));
                 }
@@ -509,6 +520,9 @@ public final class MXFPropertyPopulator
                                 if (object instanceof CompoundDataTypes.MXFCollections.MXFCollection)
                                 {
                                     CompoundDataTypes.MXFCollections.MXFCollection<Object> collection = (CompoundDataTypes.MXFCollections.MXFCollection<Object>) object;
+                                    if(collection.getEntries().isEmpty()) {
+                                        continue; // nothing to depend on
+                                    }
                                     if(collection.getEntries().get(0) instanceof InterchangeObject.InterchangeObjectBO.StrongRef) {
                                         CompoundDataTypes.MXFCollections.MXFCollection<InterchangeObject.InterchangeObjectBO.StrongRef> collectionStrongRefs = (CompoundDataTypes.MXFCollections.MXFCollection<InterchangeObject.InterchangeObjectBO.StrongRef>) object;
                                         for (InterchangeObject.InterchangeObjectBO.StrongRef entry : collectionStrongRefs.getEntries()) {

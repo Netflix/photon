@@ -504,7 +504,7 @@ public final class IMFTrackFileReader
      */
     List<KLVPacket.Header> getSubDescriptorKLVHeader(InterchangeObject.InterchangeObjectBO essenceDescriptor, @Nonnull IMFErrorLogger imfErrorLogger) throws IOException {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO>subDescriptors = this.getHeaderPartition(imfErrorLogger).getSubDescriptorsAndDependencies(essenceDescriptor);
         for(InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors){
             if(subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());

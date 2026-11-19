@@ -14,6 +14,7 @@ Photon parses and reads IMF track files and serializes the metadata into the IMF
 - Immersive Audio Bitstream (IAB) Level 0 Plug-in (ST 2067-201).
 - Isochronous Stream of XML Documents (ISXD) Plug-in (ST 2067-202).
 - Audio with Frame-based S-ADM Metadata Plug-in (ST 2067-203).
+- Audio with ADM Metadata Plug-in (ST 2067-204)
 
 The goal of the Photon is to provide a simple standardized interface to completely validate an IMP.
 

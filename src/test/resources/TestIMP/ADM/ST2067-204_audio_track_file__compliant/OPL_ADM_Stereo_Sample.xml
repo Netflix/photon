@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OutputProfileList xmlns="http://www.smpte-ra.org/schemas/2067-100/2014">
+  <Id>urn:uuid:e8f98a71-5d13-45fd-9dc0-c0e01404838e</Id>
+  <Annotation>ADM Stereo Sample</Annotation>
+  <IssueDate>2026-10-26T09:51:57-00:00</IssueDate>
+  <Issuer>Colorfront</Issuer>
+  <Creator>Colorfront Transkoder DEV</Creator>
+  <CompositionPlaylistId>urn:uuid:826b6945-a3fe-46d5-966d-da9ad110da05</CompositionPlaylistId>
+  <AliasList/>
+  <MacroList>
+    <Macro xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PresetMacroType">
+      <Name>empty</Name>
+      <Annotation>empty</Annotation>
+      <Preset>http://uri</Preset>
+    </Macro>
+  </MacroList>
+</OutputProfileList>

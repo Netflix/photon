@@ -52,12 +52,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class corresponds to an object model for the Header Partition construct defined in st377-1:2011
@@ -449,7 +451,7 @@ public final class HeaderPartition
                     }
                     if(node.depends.size() > 0
                         && subDescriptors.size() == 0){
-                        throw new MXFException(String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
+                        this.imfErrorLogger.addError(IMFErrorLogger.IMFErrors.ErrorCodes.IMF_ESSENCE_COMPONENT_ERROR, IMFErrorLogger.IMFErrors.ErrorLevels.FATAL, String.format("The WaveAudioEssenceDescriptor in the essence has dependencies, but neither of them is a AudioChannelLabelSubDescriptor nor SoundFieldGroupLabelSubDescriptor"));
                     }
                     WaveAudioEssenceDescriptor waveAudioEssenceDescriptor = new WaveAudioEssenceDescriptor((WaveAudioEssenceDescriptor.WaveAudioEssenceDescriptorBO) interchangeObjectBO);
                     this.cacheInterchangeObject(waveAudioEssenceDescriptor);
@@ -674,6 +676,30 @@ public final class HeaderPartition
         return this.getSubDescriptors(genericDescriptorBO.getSubdescriptors());
     }
 
+
+    /**
+     * Gets the SubDescriptor objects referred by the specified EssenceDescriptor (see {@link #getSubDescriptors(InterchangeObject.InterchangeObjectBO)}),
+     * followed by the metadata sets that these SubDescriptors depend on, for example the ADMChannelMapping sets referenced
+     * by an ADM_CHNASubDescriptor. Each object is returned once, references that cannot be resolved are skipped.
+     * @param essenceDescriptor the essence descriptor whose subdescriptors, and what they depend on, are requested
+     * @return list of SubDescriptor objects, followed by the objects they depend on
+     */
+    public List<InterchangeObject.InterchangeObjectBO> getSubDescriptorsAndDependencies(InterchangeObject.InterchangeObjectBO essenceDescriptor){
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = this.getSubDescriptors(essenceDescriptor);
+        Set<MXFUID> included = new HashSet<>();
+        for (InterchangeObject.InterchangeObjectBO subDescriptor : subDescriptors) {
+            included.add(subDescriptor.getInstanceUID());
+        }
+        for (InterchangeObject.InterchangeObjectBO subDescriptor : new ArrayList<>(subDescriptors)) {
+            for (MXFUID dependentUID : MXFPropertyPopulator.getDependentUIDs(subDescriptor)) {
+                InterchangeObject.InterchangeObjectBO dependency = uidToBOs.get(dependentUID);
+                if (dependency != null && included.add(dependency.getInstanceUID())) {
+                    subDescriptors.add(dependency);
+                }
+            }
+        }
+        return subDescriptors;
+    }
 
     /**
      * Gets the SubDescriptors in this HeaderPartition object that correspond to the specified StrongRefCollection
@@ -1474,6 +1500,8 @@ public final class HeaderPartition
                     return "IABEssence";
                 case MGASADMSignalSequence:
                     return "MGASADMEssence";
+                case ADMAudioSequence:
+                    return "ADMAudioSequence";
                 case UnsupportedSequence:
                 default:
                     return "UnsupportedEssence";

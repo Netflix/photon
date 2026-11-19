@@ -577,7 +577,7 @@ abstract public class IMFCPLValidator implements ConstraintsValidator {
 
     private static List<KLVPacket.Header> getSubDescriptorKLVHeader(HeaderPartition headerPartition, InterchangeObject.InterchangeObjectBO essenceDescriptor) {
         List<KLVPacket.Header> subDescriptorHeaders = new ArrayList<>();
-        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptors(essenceDescriptor);
+        List<InterchangeObject.InterchangeObjectBO> subDescriptors = headerPartition.getSubDescriptorsAndDependencies(essenceDescriptor);
         for (InterchangeObject.InterchangeObjectBO subDescriptorBO : subDescriptors) {
             if (subDescriptorBO != null) {
                 subDescriptorHeaders.add(subDescriptorBO.getHeader());
