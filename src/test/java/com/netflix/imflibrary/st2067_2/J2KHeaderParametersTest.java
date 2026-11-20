@@ -22,7 +22,7 @@ public class J2KHeaderParametersTest {
     @Test
     public void testParsedMXFJ2KParametersMatchParsedCPLParameters() throws IOException {
         // First, get the parsed MXF JPEG2000PictureSubDescriptor...
-        Path inputMXFFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
+        Path inputMXFFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         HeaderPartition headerPartition = HeaderPartition.fromPath(inputMXFFile, imfErrorLogger);
         GenericPictureEssenceDescriptor pictureEssenceDescriptor = ((GenericPictureEssenceDescriptor)((SourcePackage) headerPartition.getSourcePackages().get(0)).getGenericDescriptor());
@@ -31,7 +31,7 @@ public class J2KHeaderParametersTest {
         JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO jpeg2000PictureSubDescriptorBO = (JPEG2000PictureSubDescriptor.JPEG2000PictureSubDescriptorBO) jpeg2000SubDescriptor;
 
         // Next, get the parsed CPL Descriptor...
-        Path inputCPLFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/CPL_67be5fc8-87f1-4172-8d52-819ca14c7a20.xml");
+        Path inputCPLFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/CPL_HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK.xml");
         FileByteRangeProvider resourceByteRangeProvider = new FileByteRangeProvider(inputCPLFile);
         IMFErrorLogger logger = new IMFErrorLoggerImpl();
 

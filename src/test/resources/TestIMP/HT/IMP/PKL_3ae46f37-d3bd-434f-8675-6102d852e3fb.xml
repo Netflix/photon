@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackingList xmlns="http://www.smpte-ra.org/schemas/2067-2/2016/PKL">
+  <Id>urn:uuid:3ae46f37-d3bd-434f-8675-6102d852e3fb</Id>
+  <AnnotationText>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK</AnnotationText>
+  <IssueDate>2026-06-30T13:34:12-00:00</IssueDate>
+  <Issuer>Colorfront</Issuer>
+  <Creator>Colorfront Transkoder DEV</Creator>
+  <AssetList>
+    <Asset>
+      <Id>urn:uuid:fcf6686f-f1b3-4c27-8c92-8cc075082f15</Id>
+      <AnnotationText>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01.mxf</AnnotationText>
+      <Hash>w6wi0tVCBaUeSVG4A4L95p3GLKE=</Hash>
+      <Size>404136</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:c2b3cced-f223-452e-a828-261499246672</Id>
+      <AnnotationText>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01_EN_20_A.mxf</AnnotationText>
+      <Hash>Wk+xOLVbkjbK9mKALFSSYmfGyyA=</Hash>
+      <Size>1170126</Size>
+      <Type>application/mxf</Type>
+      <OriginalFileName>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01_EN_20_A.mxf</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:7e1124dc-7cb0-4efe-8350-11ab16569ed2</Id>
+      <AnnotationText>HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK</AnnotationText>
+      <Hash>e6S1dz5qAPxekZmihTHe1djnLPY=</Hash>
+      <Size>748</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>OPL_7e1124dc-7cb0-4efe-8350-11ab16569ed2.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+    <Asset>
+      <Id>urn:uuid:19d4df53-715c-44a6-aecb-102da2e01210</Id>
+      <AnnotationText>CPL_HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK.xml</AnnotationText>
+      <Hash>0FxveZNFcqxXXX2uoQHXKxAUSOo=</Hash>
+      <Size>15554</Size>
+      <Type>text/xml</Type>
+      <OriginalFileName>CPL_HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK.xml</OriginalFileName>
+      <HashAlgorithm Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </Asset>
+  </AssetList>
+</PackingList>
