@@ -210,7 +210,7 @@ public class HeaderPartitionTest
     @Test
     public void videoHeaderPartitionTest3() throws IOException
     {
-        Path inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/VIDEO_6ed567b7-c030-46d6-9c1c-0f09bab4b962.mxf");
+        Path inputFile = TestHelper.findResourceByPath("TestIMP/HT/IMP/HDRGB_APP2E_HTJ2K_HT-REV_1080p_BLACK_5ED_OK_01.mxf");
         IMFErrorLogger imfErrorLogger = new IMFErrorLoggerImpl();
         HeaderPartition headerPartition = HeaderPartition.fromPath(inputFile, imfErrorLogger);
         Assert.assertTrue(headerPartition.toString().length() > 0);
@@ -225,7 +225,7 @@ public class HeaderPartitionTest
 
         Assert.assertEquals(pCap, 131072);
         Assert.assertEquals(cCap.size(), 1);
-        Assert.assertTrue(cCap.get(0) == 38);
+        Assert.assertTrue(cCap.get(0) == 8);
     }
 
     @Test
